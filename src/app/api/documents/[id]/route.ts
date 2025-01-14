@@ -3,10 +3,11 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const { id } = params; // URL 파라미터에서 문서 ID 추출
+  const { id } = context.params; // URL 파라미터에서 문서 ID 추출
 
+  // 문서 데이터를 삭제
   const { data, error } = await supabase
     .from("documents")
     .delete() // 데이터 삭제
@@ -16,6 +17,7 @@ export async function DELETE(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // 삭제 성공 시 메시지 반환
   return NextResponse.json(
     { message: "Document deleted successfully.", data },
     { status: 200 }
