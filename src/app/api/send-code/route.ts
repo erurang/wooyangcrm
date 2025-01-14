@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { sendEmail } from "@/lib/sendEmail";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const { email } = await req.json();
 
   // 인증번호 생성

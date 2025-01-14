@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
 // GET 요청: 회사 목록 가져오기
@@ -13,7 +13,7 @@ export async function GET() {
 }
 
 // POST 요청: 회사 추가하기
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json(); // 요청에서 JSON 데이터 파싱
     const { name, address, phone, fax, email } = body;

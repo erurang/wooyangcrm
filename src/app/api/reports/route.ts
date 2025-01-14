@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
 // 상담 내역 및 문서 통계 보고서 API
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const startDate = searchParams.get("start_date"); // 시작 날짜
   const endDate = searchParams.get("end_date"); // 종료 날짜

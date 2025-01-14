@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { sendEmail } from "@/lib/sendEmail";
 import jwt from "jsonwebtoken";
@@ -26,7 +26,7 @@ async function getLocationDetails(latitude: number, longitude: number) {
   return "위치 정보를 가져올 수 없습니다.";
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const { email, code, location } = await req.json();
 
   // 인증번호 검증

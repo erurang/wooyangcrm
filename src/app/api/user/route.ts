@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 const SECRET_KEY = process.env.JWT_SECRET || "default-secret-key";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const token = req.headers
     .get("cookie")
     ?.split("; ")
