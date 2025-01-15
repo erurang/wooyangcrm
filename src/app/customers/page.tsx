@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Snackbar, Alert } from "@mui/material"; // MUI Snackbar 임포트
+import { useRouter } from "next/navigation";
 
 interface Company {
   id: string;
@@ -25,6 +26,7 @@ export default function Page() {
   const [page, setPage] = useState(1); // 페이지 상태
   const [loading, setLoading] = useState(false); // 로딩 상태
   const [hasMore, setHasMore] = useState(true); // 더 이상 데이터가 있는지 여부
+  const router = useRouter();
 
   // 토스트 관련 상태
   const [openSnackbar, setOpenSnackbar] = useState(false); // 스낵바 상태
@@ -352,7 +354,7 @@ export default function Page() {
                   </td>
                   <td
                     className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
-                    onClick={() => handleEdit(company)}
+                    onClick={() => router.push(`/consultations/${company.id}`)}
                   >
                     {company.name}
                   </td>
