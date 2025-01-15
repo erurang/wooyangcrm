@@ -7,24 +7,25 @@ interface User {
 export const handleDeleteRequest = async (
   user: User | null,
   documentId: string,
-  documentType: string
+  documentType: string,
+  deleteReason: string
 ) => {
   if (!user?.email) {
     alert("로그인이 필요합니다.");
     return;
   }
 
-  const reason = prompt("삭제 사유를 입력하세요:");
-  if (!reason) {
-    alert("삭제가 취소되었습니다.");
-    return;
-  }
+  // const reason = prompt("삭제 사유를 입력하세요:");
+  // if (!reason) {
+  //   alert("삭제가 취소되었습니다.");
+  //   return;
+  // }
 
   try {
     // 요청 삽입 시 document_type에 따라 올바른 필드 설정
     const payload: Record<string, any> = {
       requested_by: user.email,
-      reason,
+      reason: deleteReason,
       document_type: documentType,
     };
 

@@ -2,191 +2,188 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import {
-  Button,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  CircularProgress,
-} from "@mui/material";
-import { handleDeleteRequest } from "@/utils/deleteRequest";
 
-// 타입 정의
 interface Company {
   id: string;
-  company_code: number;
+  company_code: string;
   name: string;
+  business_number: string;
   address: string;
+  industry: string[];
 }
 
-export default function CustomerManagementPage() {
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [user, setUser] = useState<any>(null);
-  const [page, setPage] = useState(0); // 현재 페이지
-  const [loading, setLoading] = useState(false); // 데이터 로딩 중 여부
-  const [hasMore, setHasMore] = useState(true); // 더 많은 데이터가 있는지 여부
+export default function Page() {
+  const [companies, setCompanies] = useState<Company[]>([]); // 전체 거래처 리스트
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]); // 필터링된 거래처 리스트
+  const [searchTerm, setSearchTerm] = useState<string>(""); // 거래처 검색어
+  const [industryTerm, setIndustryTerm] = useState<string>(""); // 업종 검색어
+  const [addressTerm, setAddressTerm] = useState<string>(""); // 주소 검색어
+  const [page, setPage] = useState(1); // 페이지 상태
+  const [loading, setLoading] = useState(false); // 로딩 상태
+  const [hasMore, setHasMore] = useState(true); // 더 이상 데이터가 있는지 여부
 
+  // 최초 데이터 로딩: 처음 화면에 기본적으로 15개를 가져옴
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/user", {
-          method: "GET",
-          credentials: "include", // 쿠키 전송
-        });
-
-        if (!response.ok) {
-          throw new Error("사용자 정보를 가져올 수 없습니다.");
-        }
-
-        const userData = await response.json();
-        setUser(userData);
-      } catch (error) {
-        console.error("사용자 정보 가져오기 실패:", error);
+    const fetchCompanies = async () => {
+      setLoading(true);
+      // 필터링된 조건 없이 기본 15개를 가져옴
+      const response = await fetch(
+        `/api/companies?page=${page}&limit=15&name=${searchTerm}&industry=${industryTerm}&address=${addressTerm}`
+      );
+      const data = await response.json();
+      if (data.length === 0) {
+        setHasMore(false); // 더 이상 데이터가 없으면 로드하지 않음
+      } else {
+        setCompanies(data); // 새로운 데이터를 넣어줌
+        setFilteredCompanies(data); // 필터링된 데이터에도 추가
       }
+      setLoading(false);
     };
 
-    fetchUser();
-    fetchCompanies(page); // 초기 데이터 가져오기
-  }, [page]);
+    fetchCompanies();
+  }, [page, searchTerm, industryTerm, addressTerm]); // 검색 조건이 변경될 때마다 데이터를 재요청
 
-  const fetchCompanies = async (currentPage: number) => {
-    if (loading) return; // 이미 로딩 중이면 중복 요청 방지
-    setLoading(true);
+  // 거래처 검색 핸들러
+  // const handleSearch = () => {
+  //   setPage(1); // 페이지를 1로 리셋
+  //   setHasMore(true); // 데이터가 있다면 계속 로드할 수 있도록
+  //   setLoading(true);
+  //   // 필터링 조건을 설정
+  //   const filtered = companies.filter(
+  //     (company) =>
+  //       company.name.toLowerCase().includes(searchTerm.toLowerCase()) || // 이름에 검색어가 포함된 거래처만 필터링
+  //       company.company_code.includes(searchTerm) || // 코드로도 검색이 가능하게
+  //       company.industry
+  //         .join(" ")
+  //         .toLowerCase()
+  //         .includes(industryTerm.toLowerCase()) || // 업종 검색어
+  //       company.address.toLowerCase().includes(addressTerm.toLowerCase()) // 주소 검색어
+  //   );
+  //   setFilteredCompanies(filtered); // 필터링된 데이터만 표시
+  //   setLoading(false);
+  // };
 
-    const { data, error } = await supabase
-      .from("companies")
-      .select("id, company_code, name, address")
-      .range(currentPage * 10, (currentPage + 1) * 10 - 1); // 10개씩 가져오기
-
-    if (error) {
-      console.error("회사 데이터 가져오기 실패:", error);
-      setLoading(false);
-      return;
-    }
-
-    if (data.length === 0) {
-      setHasMore(false); // 더 이상 데이터가 없으면 로드 중단
-    } else {
-      setCompanies((prev) => [...prev, ...data]); // 기존 데이터에 추가
-    }
-
-    setLoading(false);
-  };
-
-  const handleSearch = async () => {
-    setCompanies([]); // 기존 데이터 초기화
-    setPage(0); // 페이지 초기화
-    setHasMore(true); // 더 많은 데이터가 있다고 가정
-    fetchCompanies(0); // 첫 페이지 데이터 가져오기
-  };
-
-  const handleDelete = (companyId: string) => {
-    handleDeleteRequest(user, companyId, "company");
-  };
-
-  const handleAddCompany = () => {
-    window.location.href = "/customers/manage"; // 거래처 추가 페이지로 이동
-  };
-
-  const handleCompanyClick = (id: string) => {
-    window.location.href = `/customers/manage/${id}`; // 거래처 상세 페이지로 이동
-  };
-
-  // 테이블 내부 스크롤 감지
+  // 스크롤 이벤트 핸들러
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-
+    // 스크롤이 바닥에 가까워지면 다음 페이지를 로드
     if (scrollTop + clientHeight >= scrollHeight - 10 && hasMore && !loading) {
-      setPage((prev) => prev + 1); // 다음 페이지로 이동
+      setPage((prev) => prev + 1);
     }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <Typography variant="h4" gutterBottom>
-        거래처 관리
-      </Typography>
-
-      <div style={{ marginBottom: "20px" }}>
-        <TextField
-          label="거래처명"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          variant="outlined"
-          size="small"
-          style={{ marginRight: "10px" }}
-        />
-        <Button variant="contained" onClick={handleSearch}>
-          검색
-        </Button>
+    <div className="text-sm text-[#37352F]">
+      <p className="mb-4">거래처 관리</p>
+      <div>
+        {/* 검색란 */}
+        <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-3 grid grid-cols-4 items-center space-x-4">
+          <div className="flex border-[1px] rounded-md">
+            <div className="p-2 border-r-[1px]">
+              <span>거래처명</span>
+            </div>
+            <input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="거래처명/거래처코드"
+              className="pl-2"
+            />
+          </div>
+          <div className="flex border-[1px] rounded-md">
+            <div className="p-2 border-r-[1px]">
+              <span>업종</span>
+            </div>
+            <input
+              value={industryTerm}
+              onChange={(e) => setIndustryTerm(e.target.value)}
+              placeholder="업종"
+              className="pl-2"
+            />
+          </div>
+          <div className="flex border-[1px] rounded-md">
+            <div className="p-2 border-r-[1px]">
+              <span>주소</span>
+            </div>
+            <input
+              value={addressTerm}
+              onChange={(e) => setAddressTerm(e.target.value)}
+              placeholder="주소"
+              className="pl-2"
+            />
+          </div>
+          {/* <div
+            className="flex border-[1px] rounded-md justify-center py-2 cursor-pointer"
+            onClick={handleSearch}
+          >
+            <span>검색</span>
+          </div> */}
+        </div>
       </div>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleAddCompany}
-        style={{ marginBottom: "20px" }}
-      >
-        + 거래처 추가
-      </Button>
+      <div className="flex mt-6">
+        <div className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md">
+          <span className="mr-2">+</span>
+          <span>추가</span>
+        </div>
+      </div>
 
-      <TableContainer
-        component={Paper}
-        style={{ maxHeight: "400px", overflowY: "scroll" }} // 테이블에 스크롤 적용
-        onScroll={handleScroll} // 스크롤 이벤트 핸들러
-      >
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell>No.</TableCell>
-              <TableCell>거래처코드</TableCell>
-              <TableCell>거래처명</TableCell>
-              <TableCell>주소</TableCell>
-              <TableCell>삭제</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {companies.map((company, index) => (
-              <TableRow key={company.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{company.company_code}</TableCell>
-                <TableCell>
-                  <Typography
-                    style={{
-                      color: "#117ce9", // 연한 파란색
-                      cursor: "pointer",
-                    }}
-                    onClick={() => handleCompanyClick(company.id)}
-                  >
+      <div>
+        <div className="overflow-x-auto mt-4" onScroll={handleScroll}>
+          <table className="min-w-full table-auto border-collapse">
+            <thead>
+              <tr className="bg-gray-100 text-left">
+                <th className="px-4 py-2 border-b border-r-[1px]">No.</th>
+                <th className="px-4 py-2 border-b border-r-[1px]">
+                  거래처 코드
+                </th>
+                <th className="px-4 py-2 border-b border-r-[1px]">거래처명</th>
+                <th className="px-4 py-2 border-b border-r-[1px]">
+                  사업자 번호
+                </th>
+                <th className="px-4 py-2 border-b border-r-[1px]">주소</th>
+                <th className="px-4 py-2 border-b border-r-[1px]">업종</th>
+                <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
+                <th className="px-4 py-2 border-b border-r-[1px]">삭제</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCompanies.map((company, index) => (
+                <tr key={company.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 border-b border-r-[1px]">
+                    {index + 1}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px]">
+                    {company.company_code}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer">
                     {company.name}
-                  </Typography>
-                </TableCell>
-                <TableCell>{company.address}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => handleDelete(company.id)}
-                  >
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px]">
+                    {company.business_number}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px]">
+                    {company.address}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px]">
+                    {company.industry?.join(", ")}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer">
+                    수정
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px] text-red-500 cursor-pointer">
                     삭제
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
+      {/* 로딩 인디케이터 */}
       {loading && (
-        <div style={{ textAlign: "center", marginTop: "10px" }}>
-          <CircularProgress />
+        <div className="text-center py-4">
+          <span>로딩 중...</span>
         </div>
       )}
     </div>

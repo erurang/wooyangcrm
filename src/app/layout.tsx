@@ -81,12 +81,49 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
   return (
     <html lang="ko">
       <body>
-        <div style={{ display: "flex" }}>
+        <div className="flex">
+          <div className="bg-[#F8F8F7] w-60 min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B]">
+            <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
+              <div>
+                <span className="pr-2">icon</span>
+                <span>user.name</span>
+              </div>
+            </div>
+            <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
+              <Link href={"/customers"}>
+                <div>
+                  <span className="pr-2">icon</span>
+                  <span>회사 검색</span>
+                </div>
+              </Link>
+            </div>
+            <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
+              <div>
+                <span className="pr-2">icon</span>
+                <span>user.name</span>
+              </div>
+            </div>
+            <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
+              <div>
+                <span className="pr-2">icon</span>
+                <span>user.name</span>
+              </div>
+            </div>
+          </div>
+          <main className="pt-2 pl-3 pr-2">{children}</main>
+        </div>
+      </body>
+    </html>
+  );
+}
+
+{
+  /*
+    const pathname = usePathname();
+  <div style={{ display: "flex" }}>
           <aside
             style={{ width: "250px", padding: "10px", background: "#f4f4f4" }}
           >
@@ -124,8 +161,5 @@ export default function RootLayout({
             ))}
           </aside>
           <main style={{ flex: 1, padding: "20px" }}>{children}</main>
-        </div>
-      </body>
-    </html>
-  );
+        </div> */
 }
