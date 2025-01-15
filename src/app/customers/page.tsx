@@ -10,7 +10,7 @@ interface Company {
   name: string;
   business_number: string;
   address: string;
-  industry: string[];
+  industry: string[]; // 업종을 배열로 저장
   phone: string;
   fax: string;
   email: string;
@@ -21,7 +21,6 @@ export default function Page() {
   const [companies, setCompanies] = useState<Company[]>([]); // 거래처 리스트
   const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]); // 필터링된 거래처 리스트
   const [searchTerm, setSearchTerm] = useState<string>(""); // 거래처 검색어
-  const [industryTerm, setIndustryTerm] = useState<string>(""); // 업종 검색어
   const [addressTerm, setAddressTerm] = useState<string>(""); // 주소 검색어
   const [page, setPage] = useState(1); // 페이지 상태
   const [loading, setLoading] = useState(false); // 로딩 상태
@@ -41,12 +40,12 @@ export default function Page() {
     name: "",
     business_number: "",
     address: "",
-    industry: [],
+    industry: [], // 업종을 비워둠
     phone: "",
     fax: "",
     email: "",
     notes: "",
-  }); // 초기값을 빈 객체로 설정
+  }); // 현재 거래처 정보
 
   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null); // 삭제할 거래처 정보
 
@@ -54,22 +53,21 @@ export default function Page() {
   useEffect(() => {
     const fetchCompanies = async () => {
       setLoading(true);
-      // 필터링된 조건 없이 기본 15개를 가져옴
       const response = await fetch(
-        `/api/companies?page=${page}&limit=15&name=${searchTerm}&industry=${industryTerm}&address=${addressTerm}`
+        `/api/companies?page=${page}&limit=15&name=${searchTerm}&address=${addressTerm}`
       );
       const data = await response.json();
       if (data.length === 0) {
-        setHasMore(false); // 더 이상 데이터가 없으면 로드하지 않음
+        setHasMore(false);
       } else {
-        setCompanies(data); // 새로운 데이터를 넣어줌
-        setFilteredCompanies(data); // 필터링된 데이터에도 추가
+        setCompanies(data);
+        setFilteredCompanies(data);
       }
       setLoading(false);
     };
 
     fetchCompanies();
-  }, [page, searchTerm, industryTerm, addressTerm]); // 검색 조건이 변경될 때마다 데이터를 재요청
+  }, [page, searchTerm, addressTerm]);
 
   // 스크롤 이벤트 핸들러
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -88,7 +86,7 @@ export default function Page() {
       name: "",
       business_number: "",
       address: "",
-      industry: [],
+      industry: [], // 업종은 기본적으로 빈 배열
       phone: "",
       fax: "",
       email: "",
@@ -112,7 +110,7 @@ export default function Page() {
       name: "",
       business_number: "",
       address: "",
-      industry: [],
+      industry: [], // 업종을 비워둠
       phone: "",
       fax: "",
       email: "",
@@ -120,7 +118,6 @@ export default function Page() {
     });
   };
 
-  // 저장 버튼 클릭 시 업데이트
   // 저장 버튼 클릭 시 업데이트
   const handleSave = async () => {
     if (currentCompany) {
@@ -139,10 +136,10 @@ export default function Page() {
 
       if (error) {
         setSnackbarMessage("수정 실패");
-        setOpenSnackbar(true); // 토스트 메시지 띄우기
+        setOpenSnackbar(true);
       } else {
         setSnackbarMessage("수정 완료");
-        setOpenSnackbar(true); // 토스트 메시지 띄우기
+        setOpenSnackbar(true);
 
         // 수정된 회사 데이터를 companies 배열에서 찾아 업데이트
         setCompanies((prevCompanies) => {
@@ -218,7 +215,7 @@ export default function Page() {
       name: "",
       business_number: "",
       address: "",
-      industry: [],
+      industry: [], // 업종을 비워둠
       phone: "",
       fax: "",
       email: "",
@@ -227,10 +224,16 @@ export default function Page() {
   };
 
   // 회사 추가 처리
-  // 저장 버튼 클릭 시 추가
   const handleAddCompany = async () => {
+    // 필수 입력값 확인
+    if (!currentCompany.name) {
+      setSnackbarMessage("필수 입력값을 모두 채워주세요.");
+      setOpenSnackbar(true);
+      return;
+    }
+
+    // 회사 추가 API 호출
     if (currentCompany) {
-      console.log("cu", currentCompany);
       const { error } = await supabase.from("companies").insert([
         {
           name: currentCompany.name,
@@ -283,8 +286,8 @@ export default function Page() {
       <p className="mb-4">거래처 관리</p>
       <div>
         {/* 검색란 */}
-        <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-3 grid grid-cols-4 items-center space-x-4">
-          <div className="flex border-[1px] rounded-md">
+        <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-3 grid grid-cols-3 items-center space-x-4">
+          <div className="flex border-[1px] rounded-md ">
             <div className="p-2 border-r-[1px]">
               <span>거래처명</span>
             </div>
@@ -295,18 +298,7 @@ export default function Page() {
               className="pl-2"
             />
           </div>
-          <div className="flex border-[1px] rounded-md">
-            <div className="p-2 border-r-[1px]">
-              <span>업종</span>
-            </div>
-            <input
-              value={industryTerm}
-              onChange={(e) => setIndustryTerm(e.target.value)}
-              placeholder="업종"
-              className="pl-2"
-            />
-          </div>
-          <div className="flex border-[1px] rounded-md">
+          <div className="flex border-[1px] rounded-md ">
             <div className="p-2 border-r-[1px]">
               <span>주소</span>
             </div>
@@ -317,12 +309,6 @@ export default function Page() {
               className="pl-2"
             />
           </div>
-          {/* <div
-            className="flex border-[1px] rounded-md justify-center py-2 cursor-pointer"
-            onClick={handleSearch}
-          >
-            <span>검색</span>
-          </div> */}
         </div>
       </div>
 
