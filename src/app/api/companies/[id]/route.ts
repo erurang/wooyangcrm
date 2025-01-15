@@ -3,9 +3,9 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params; // context.params에서 회사 ID 추출
+  const { id } = await params; // context.params에서 회사 ID 추출
 
   const { data, error } = await supabase
     .from("companies")
@@ -22,9 +22,9 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params; // context.params에서 회사 ID 추출
+  const { id } = await params; // context.params에서 회사 ID 추출
   const body = await req.json(); // 요청에서 수정할 데이터 추출
 
   if (!body || Object.keys(body).length === 0) {
@@ -51,9 +51,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params; // context.params에서 회사 ID 추출
+  const { id } = await params; // context.params에서 회사 ID 추출
 
   const { data, error } = await supabase
     .from("companies")

@@ -1,3 +1,18 @@
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabaseClient";
+
+// GET 요청: 회사 목록 가져오기
+export async function GET() {
+  const { data, error } = await supabase.from("companies").select("*");
+
+  console.log(data);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  return NextResponse.json(data, { status: 200 });
+}
+
+// POST 요청: 회사 추가하기
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json(); // 요청에서 JSON 데이터 파싱
@@ -11,11 +26,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Supabase에서 회사 추가
     const { data, error } = await supabase
       .from("companies")
-      .insert([{ name, address, phone, fax, email }])
-      .select("*"); // 추가된 데이터 반환
+      .insert([{ name, address, phone, fax, email }]); // 새로운 데이터 삽입
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

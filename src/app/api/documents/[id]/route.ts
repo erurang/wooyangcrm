@@ -3,9 +3,9 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params; // URL 파라미터에서 문서 ID 추출
+  const { id } = await params; // URL 파라미터에서 문서 ID 추출
 
   // 문서 데이터를 삭제
   const { data, error } = await supabase

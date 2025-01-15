@@ -4,9 +4,9 @@ import { supabase } from "@/lib/supabaseClient";
 // PATCH 요청: 상담 내용 업데이트
 export async function PATCH(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params; // URL 파라미터에서 상담 ID 추출
+  const { id } = await params; // URL 파라미터에서 상담 ID 추출
   const body = await req.json(); // 요청에서 수정할 데이터 추출
 
   // 상담 데이터를 업데이트
@@ -27,9 +27,9 @@ export async function PATCH(
 // DELETE 요청: 상담 내용 삭제
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params; // URL 파라미터에서 상담 ID 추출
+  const { id } = await params; // URL 파라미터에서 상담 ID 추출
 
   // 상담 데이터를 삭제
   const { data, error } = await supabase
