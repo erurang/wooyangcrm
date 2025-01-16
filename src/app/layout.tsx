@@ -51,7 +51,7 @@ export default function RootLayout({
               </div>
             </div>
             {/* main 영역을 w-full로 꽉 차게 설정하고 overflow-x-auto로 스크롤 추가 */}
-            <main className="pt-2 pl-0 pr-0 w-full overflow-x-auto mx-6 mt-2">
+            <main className="pt-2 pl-0 pr-0 w-full overflow-x-auto mx-6 mt-2 text-sm">
               {children}
             </main>
           </div>

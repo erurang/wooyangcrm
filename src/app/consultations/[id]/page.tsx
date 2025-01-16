@@ -177,7 +177,6 @@ export default function ConsultationPage() {
     const { content, follow_up_date, user_id, contact } = newConsultation;
     const formattedFollowUpDate = follow_up_date ? follow_up_date : null;
 
-    console.log(content, follow_up_date, user_id, contact);
     if (
       !content ||
       // || !follow_up_date
@@ -240,7 +239,12 @@ export default function ConsultationPage() {
 
   const handleUpdateConsultation = async () => {
     const { content, follow_up_date, user_id, contact } = newConsultation;
-    if (!content || !follow_up_date || !user_id || !contact) {
+    if (
+      !content ||
+      // || !follow_up_date
+      !user_id ||
+      !contact
+    ) {
       setSnackbarMessage("필수 항목을 모두 입력하세요.");
       setOpenSnackbar(true);
       return;
@@ -484,19 +488,12 @@ export default function ConsultationPage() {
                       }
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     >
-                      {/* 로그인한 유저를 기본값으로 선택 */}
-                      {loginUser && (
-                        <option value={loginUser.id}>{loginUser.name}</option>
-                      )}
-
                       {/* 다른 유저들 */}
-                      {users
-                        .filter((user) => user.id !== loginUser?.id) // 로그인한 유저는 제외
-                        .map((user) => (
-                          <option key={user.id} value={user.id}>
-                            {user.name}
-                          </option>
-                        ))}
+                      {users.map((user) => (
+                        <option key={user.id} value={user.id}>
+                          {user.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -684,7 +681,7 @@ export default function ConsultationPage() {
                     <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                       상담자
                     </th>
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center w-6/12">
+                    <th className="px-4 py-2 border-b border-r-[1px] text-center w-5/12">
                       내용
                     </th>
                     <th className="px-4 py-2 border-b border-r-[1px] text-center">
@@ -705,7 +702,7 @@ export default function ConsultationPage() {
                   {consultations.map((consultation, index) => (
                     <tr key={consultation.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2 border-b border-r-[1px]">
-                        {9999}
+                        {consultation.id.slice(0, 4)}
                       </td>
                       <td className="px-4 py-2 border-b border-r-[1px]">
                         {consultation.date}
@@ -719,7 +716,15 @@ export default function ConsultationPage() {
                             ?.name
                         }
                       </td>
-                      <td className="px-4 py-2 border-b border-r-[1px] max-h-[100px] overflow-y-auto">
+                      <td
+                        className="px-4 py-2 border-b border-r-[1px] w-full"
+                        style={{
+                          minHeight: "120px",
+                          maxHeight: "120px",
+                          overflowY: "auto",
+                          display: "block",
+                        }}
+                      >
                         {formatContentWithLineBreaks(consultation.content)}
                       </td>
                       <td className="px-4 py-2 border-b border-r-[1px]">
@@ -737,15 +742,9 @@ export default function ConsultationPage() {
                               : "text-gray-400 hover:text-black"
                           }`}
                           onClick={() =>
-                            documents.some(
-                              (doc) =>
-                                doc.type === "estimate" &&
-                                doc.consultation_id === consultation.id
+                            router.push(
+                              `/documents/estimate/${consultation.id}`
                             )
-                              ? router.push(
-                                  `/documents/estimate/${consultation.id}`
-                                )
-                              : null
                           }
                         >
                           견적서
@@ -761,15 +760,9 @@ export default function ConsultationPage() {
                               : "text-gray-400 hover:text-black"
                           }`}
                           onClick={() =>
-                            documents.some(
-                              (doc) =>
-                                doc.type === "purchase_order" &&
-                                doc.consultation_id === consultation.id
+                            router.push(
+                              `/documents/purchase_order/${consultation.id}`
                             )
-                              ? router.push(
-                                  `/documents/purchase_order/${consultation.id}`
-                                )
-                              : null
                           }
                         >
                           발주서
@@ -785,15 +778,7 @@ export default function ConsultationPage() {
                               : "text-gray-400 hover:text-black"
                           }`}
                           onClick={() =>
-                            documents.some(
-                              (doc) =>
-                                doc.type === "request" &&
-                                doc.consultation_id === consultation.id
-                            )
-                              ? router.push(
-                                  `/documents/request/${consultation.id}`
-                                )
-                              : null
+                            router.push(`/documents/request/${consultation.id}`)
                           }
                         >
                           의뢰서
