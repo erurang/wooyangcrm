@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Snackbar, Alert, Button } from "@mui/material";
 import Link from "next/link";
+import { useLoginUser } from "@/app/context/login";
 
 interface Consultation {
   id: string;
@@ -34,7 +35,16 @@ interface User {
   name: string;
 }
 
+interface LoginUser {
+  email: string;
+  role: string;
+  name: string;
+  id: string;
+}
+
 export default function ConsultationPage() {
+  const loginUser = useLoginUser();
+
   const router = useRouter();
   const { id } = useParams();
   const [consultations, setConsultations] = useState<Consultation[]>([]); // 여러 개의 상담 내역을 저장
@@ -49,7 +59,7 @@ export default function ConsultationPage() {
     date: new Date().toISOString().split("T")[0], // 기본값을 오늘 날짜로 설정
     follow_up_date: "",
     contact: "", // 피상담자 (텍스트 필드로 변경)
-    user_id: "", // 유저 아이디는 추후 수정 필요
+    user_id: loginUser ? loginUser.id : "", // 유저 아이디는 추후 수정 필요
     content: "",
   });
   const [users, setUsers] = useState<User[]>([]); // 유저 목록
@@ -97,7 +107,8 @@ export default function ConsultationPage() {
         .range(
           (currentPage - 1) * consultationsPerPage,
           currentPage * consultationsPerPage - 1
-        );
+        )
+        .order("created_at", { ascending: false }); // created_at 기준 내림차순 정렬
 
       if (consultationsError) {
         setSnackbarMessage("상담 내역을 불러오는 데 실패했습니다.");
@@ -110,7 +121,7 @@ export default function ConsultationPage() {
       setTotalPages(count ? Math.ceil(count / consultationsPerPage) : 1); // count가 null일 경우 1 페이지로 설정
 
       // 관련된 문서들 가져오기 (consultation_id를 기준으로)
-      const consultationIds = consultationsData.map(
+      const consultationIds = consultationsData?.map(
         (consultation) => consultation.id
       ); // 상담 내역의 id 배열
       const { data: documentData, error: documentError } = await supabase
@@ -133,7 +144,15 @@ export default function ConsultationPage() {
     }
   };
 
-  console.log(documents);
+  useEffect(() => {
+    // 로그인된 유저 정보가 변경되면 user_id를 업데이트
+    if (loginUser && loginUser.id) {
+      setNewConsultation((prev) => ({
+        ...prev,
+        user_id: loginUser.id, // 로그인한 유저의 id로 기본값 설정
+      }));
+    }
+  }, [loginUser]); // loginUser 값이 변경될 때마다 실행
 
   useEffect(() => {
     fetchConsultationData(); // 페이지 로드 시 상담 내역을 가져옴
@@ -156,7 +175,15 @@ export default function ConsultationPage() {
 
   const handleAddConsultation = async () => {
     const { content, follow_up_date, user_id, contact } = newConsultation;
-    if (!content || !follow_up_date || !user_id || !contact) {
+    const formattedFollowUpDate = follow_up_date ? follow_up_date : null;
+
+    console.log(content, follow_up_date, user_id, contact);
+    if (
+      !content ||
+      // || !follow_up_date
+      !user_id ||
+      !contact
+    ) {
       setSnackbarMessage("필수 항목을 모두 입력하세요.");
       setOpenSnackbar(true);
       return;
@@ -168,7 +195,7 @@ export default function ConsultationPage() {
           date: new Date().toISOString().split("T")[0],
           company_id: id,
           content,
-          follow_up_date,
+          follow_up_date: formattedFollowUpDate,
           user_id,
           contact, // 피상담자는 이제 단순 텍스트
         },
@@ -185,7 +212,7 @@ export default function ConsultationPage() {
           date: new Date().toISOString().split("T")[0], // 초기화
           follow_up_date: "",
           contact: "",
-          user_id: "",
+          user_id: loginUser ? loginUser.id : "",
           content: "",
         });
 
@@ -448,20 +475,28 @@ export default function ConsultationPage() {
                       상담자
                     </label>
                     <select
-                      value={newConsultation.user_id}
+                      value={newConsultation.user_id} // 로그인한 유저를 기본값으로 설정
                       onChange={(e) =>
                         setNewConsultation({
                           ...newConsultation,
-                          user_id: e.target.value,
+                          user_id: e.target.value, // 유저가 선택한 값으로 설정
                         })
                       }
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     >
-                      {users.map((user) => (
-                        <option key={user.id} value={user.id}>
-                          {user.name}
-                        </option>
-                      ))}
+                      {/* 로그인한 유저를 기본값으로 선택 */}
+                      {loginUser && (
+                        <option value={loginUser.id}>{loginUser.name}</option>
+                      )}
+
+                      {/* 다른 유저들 */}
+                      {users
+                        .filter((user) => user.id !== loginUser?.id) // 로그인한 유저는 제외
+                        .map((user) => (
+                          <option key={user.id} value={user.id}>
+                            {user.name}
+                          </option>
+                        ))}
                     </select>
                   </div>
                 </div>
@@ -528,7 +563,11 @@ export default function ConsultationPage() {
                     </label>
                     <input
                       type="date"
-                      value={newConsultation.follow_up_date}
+                      value={
+                        newConsultation.follow_up_date
+                          ? newConsultation.follow_up_date
+                          : ""
+                      }
                       onChange={(e) =>
                         setNewConsultation({
                           ...newConsultation,
@@ -602,7 +641,16 @@ export default function ConsultationPage() {
                 {/* 버튼 */}
                 <div className="flex justify-end space-x-4">
                   <button
-                    onClick={() => setOpenEditModal(false)}
+                    onClick={() => {
+                      setOpenEditModal(false);
+                      setNewConsultation({
+                        date: new Date().toISOString().split("T")[0], // 초기화
+                        follow_up_date: "",
+                        contact: "",
+                        user_id: "",
+                        content: "",
+                      });
+                    }}
                     className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm"
                   >
                     취소
@@ -671,7 +719,7 @@ export default function ConsultationPage() {
                             ?.name
                         }
                       </td>
-                      <td className="px-4 py-2 border-b border-r-[1px]">
+                      <td className="px-4 py-2 border-b border-r-[1px] max-h-[100px] overflow-y-auto">
                         {formatContentWithLineBreaks(consultation.content)}
                       </td>
                       <td className="px-4 py-2 border-b border-r-[1px]">
@@ -835,3 +883,9 @@ export default function ConsultationPage() {
     </div>
   );
 }
+
+// 내일 No 재조정
+// 상담자 유저getsession 자동으로 가져오기
+// 견적서 발주서 의뢰서 페이지 구상
+// 상담내역 최대 height 구상
+//

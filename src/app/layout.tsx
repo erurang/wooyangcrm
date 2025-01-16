@@ -1,8 +1,15 @@
 "use client";
 
 import "./globals.css";
-import { useState } from "react";
+
 import Link from "next/link";
+
+import { LoginUserProvider, useLoginUser } from "./context/login";
+
+interface UserData {
+  email: string;
+  role: string;
+}
 
 export default function RootLayout({
   children,
@@ -12,40 +19,43 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <div className="flex">
-          <div className="bg-[#F8F8F7] w-52 min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B]">
-            <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
-              <div>
-                <span className="pr-2">icon</span>
-                <span>user.name</span>
+        <LoginUserProvider>
+          <div className="flex">
+            <div className="bg-[#F8F8F7] w-52 min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B]">
+              <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
+                <div>
+                  {/* <span className="pr-2">icon</span> */}
+                  {/* <span>{loginUser.name}님, 반갑습니다!</span> */}
+                  <span></span>
+                </div>
               </div>
-            </div>
-            <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
-              <Link href={"/customers"}>
+              <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
+                <Link href={"/customers"}>
+                  <div>
+                    <span className="pr-2">icon</span>
+                    <span>회사 검색</span>
+                  </div>
+                </Link>
+              </div>
+              <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
                 <div>
                   <span className="pr-2">icon</span>
-                  <span>회사 검색</span>
+                  <span>user.name</span>
                 </div>
-              </Link>
-            </div>
-            <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
-              <div>
-                <span className="pr-2">icon</span>
-                <span>user.name</span>
+              </div>
+              <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
+                <div>
+                  <span className="pr-2">icon</span>
+                  <span>user.name</span>
+                </div>
               </div>
             </div>
-            <div className="py-2 px-2 cursor-pointer hover:bg-slate-400 hover:bg-opacity-30 transition-all rounded-md">
-              <div>
-                <span className="pr-2">icon</span>
-                <span>user.name</span>
-              </div>
-            </div>
+            {/* main 영역을 w-full로 꽉 차게 설정하고 overflow-x-auto로 스크롤 추가 */}
+            <main className="pt-2 pl-0 pr-0 w-full overflow-x-auto mx-6 mt-2">
+              {children}
+            </main>
           </div>
-          {/* main 영역을 w-full로 꽉 차게 설정하고 overflow-x-auto로 스크롤 추가 */}
-          <main className="pt-2 pl-0 pr-0 w-full overflow-x-auto mx-6 mt-2">
-            {children}
-          </main>
-        </div>
+        </LoginUserProvider>
       </body>
     </html>
   );
