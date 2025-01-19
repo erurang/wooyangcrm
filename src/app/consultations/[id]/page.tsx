@@ -743,7 +743,7 @@ export default function ConsultationPage() {
                           }`}
                           onClick={() =>
                             router.push(
-                              `/documents/estimate/${consultation.id}`
+                              `/documents/estimate/${consultation.id}/${company?.id}`
                             )
                           }
                         >

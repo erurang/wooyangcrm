@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const verificationCode = Math.floor(
     100000 + Math.random() * 900000
   ).toString();
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10분 후 만료
+  const expiresAt = new Date(Date.now() + 10 * 60 * 100000).toISOString(); // 10분 후 만료
 
   try {
     // 인증번호 저장
