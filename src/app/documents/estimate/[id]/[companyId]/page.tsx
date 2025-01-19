@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import DocumentModal from "@/components/documents/estimate/DocumentModal";
 
 interface Document {
   id: string;
@@ -74,6 +75,18 @@ const EstimatePage = () => {
     delivery_place: "",
     status: "",
   });
+
+  const [openModal, setOpenModal] = useState(false); // 모달 상태
+  const [selectedDocument, setSelectedDocument] = useState<any>(null); // 선택된 문서
+
+  const handleDocumentNumberClick = (document: any) => {
+    setSelectedDocument(document);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
 
   const calculateTotalAmount = () => {
     const total = items.reduce((sum, item) => sum + item.amount, 0);
@@ -460,9 +473,6 @@ const EstimatePage = () => {
     }
   };
 
-  // handleEdit api콜해서 수정하는거 만들기
-  // 수정버튼 눌럿을떄 newconsultations 필드 차있는거 다시 공백으로 돌리기
-
   return (
     <div>
       <div className="mb-2">
@@ -571,7 +581,10 @@ const EstimatePage = () => {
                     {document.status === "completed" && "완료"}
                     {document.status === "canceled" && "취소"}
                   </td>
-                  <td className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer">
+                  <td
+                    className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
+                    onClick={() => handleDocumentNumberClick(document)}
+                  >
                     {document.document_number}
                   </td>
                   <td
@@ -1351,6 +1364,16 @@ const EstimatePage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {openModal && (
+        <DocumentModal
+          document={selectedDocument}
+          onClose={handleCloseModal}
+          users={users}
+          company_fax={newDocument.fax}
+          company_phone={newDocument.phone}
+        />
       )}
     </div>
   );
