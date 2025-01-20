@@ -5,6 +5,14 @@ import { supabase } from "@/lib/supabaseClient";
 import { Snackbar, Alert } from "@mui/material"; // MUI Snackbar 임포트
 import { useRouter } from "next/navigation";
 
+interface Contact {
+  name: string;
+  mobile: string;
+  department: string;
+  level: string;
+  email: string;
+}
+
 interface Company {
   id: string;
   company_code: string;
@@ -16,6 +24,7 @@ interface Company {
   fax: string;
   email: string;
   notes: string;
+  contact: Contact[]; // 연락처 배열 추가
 }
 
 export default function Page() {
@@ -47,6 +56,7 @@ export default function Page() {
     fax: "",
     email: "",
     notes: "",
+    contact: [], // 기본값은 빈 배열
   }); // 현재 거래처 정보
 
   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null); // 삭제할 거래처 정보
@@ -93,6 +103,7 @@ export default function Page() {
       fax: "",
       email: "",
       notes: "",
+      contact: [],
     });
     setIsAddModalOpen(true); // 추가 모달 열기
   };
@@ -117,7 +128,34 @@ export default function Page() {
       fax: "",
       email: "",
       notes: "",
+      contact: [],
     });
+  };
+
+  const handleContactChange = (
+    index: number,
+    field: keyof Contact,
+    value: string
+  ) => {
+    const updatedContact = [...currentCompany.contact];
+    updatedContact[index] = { ...updatedContact[index], [field]: value };
+    setCurrentCompany({ ...currentCompany, contact: updatedContact });
+  };
+
+  const addContact = () => {
+    setCurrentCompany({
+      ...currentCompany,
+      contact: [
+        ...currentCompany.contact,
+        { name: "", mobile: "", department: "", level: "", email: "" },
+      ],
+    });
+  };
+
+  const removeContact = (index: number) => {
+    const updatedContact = [...currentCompany.contact];
+    updatedContact.splice(index, 1);
+    setCurrentCompany({ ...currentCompany, contact: updatedContact });
   };
 
   // 저장 버튼 클릭 시 업데이트
@@ -133,6 +171,7 @@ export default function Page() {
           email: currentCompany.email,
           notes: currentCompany.notes,
           business_number: currentCompany.business_number,
+          contact: currentCompany.contact,
         })
         .eq("id", currentCompany.id);
 
@@ -222,6 +261,7 @@ export default function Page() {
       fax: "",
       email: "",
       notes: "",
+      contact: [],
     });
   };
 
@@ -236,17 +276,21 @@ export default function Page() {
 
     // 회사 추가 API 호출
     if (currentCompany) {
-      const { error } = await supabase.from("companies").insert([
-        {
-          name: currentCompany.name,
-          address: currentCompany.address,
-          phone: currentCompany.phone,
-          fax: currentCompany.fax,
-          email: currentCompany.email,
-          notes: currentCompany.notes,
-          business_number: currentCompany.business_number,
-        },
-      ]);
+      const { data, error } = await supabase
+        .from("companies")
+        .insert([
+          {
+            name: currentCompany.name,
+            address: currentCompany.address,
+            phone: currentCompany.phone,
+            fax: currentCompany.fax,
+            email: currentCompany.email,
+            notes: currentCompany.notes,
+            business_number: currentCompany.business_number,
+            contact: currentCompany.contact,
+          },
+        ])
+        .select();
 
       if (error) {
         setSnackbarMessage("추가 실패");
@@ -255,31 +299,27 @@ export default function Page() {
         setSnackbarMessage("추가 완료");
         setOpenSnackbar(true);
 
+        console.log("추가완료,", data);
         // 추가된 회사 데이터를 companies 배열에 추가
-        setCompanies((prevCompanies) => [...prevCompanies, currentCompany]);
+        const addedCurrentCompany = {
+          ...currentCompany,
+          company_code: data[0].company_code,
+        };
+
+        setCompanies((prevCompanies) => [
+          ...prevCompanies,
+          addedCurrentCompany,
+        ]);
 
         // 필터링된 회사 데이터도 갱신
         setFilteredCompanies((prevCompanies) => [
           ...prevCompanies,
-          currentCompany,
+          addedCurrentCompany,
         ]);
 
         closeAddModal(); // 추가 후 모달 닫기
         setPage(1); // 페이지 리셋하여 다시 데이터 로드
       }
-    }
-  };
-
-  // onChange 이벤트 핸들러에서 currentCompany 업데이트 시
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string
-  ) => {
-    if (currentCompany) {
-      setCurrentCompany({
-        ...currentCompany,
-        [field]: e.target.value,
-      });
     }
   };
 
@@ -335,7 +375,7 @@ export default function Page() {
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px]">거래처명</th>
                 <th className="px-4 py-2 border-b border-r-[1px]">
-                  사업자 번호
+                  대표 담당자
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px]">주소</th>
                 <th className="px-4 py-2 border-b border-r-[1px]">업종</th>
@@ -359,7 +399,9 @@ export default function Page() {
                     {company.name}
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px]">
-                    {company.business_number}
+                    {company.contact &&
+                      company.contact[0] &&
+                      company.contact[0].name}
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px]">
                     {company.address}
@@ -396,86 +438,171 @@ export default function Page() {
       {/* 모달 */}
       {isModalOpen && currentCompany && (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md w-1/3">
+          <div className="bg-white p-6 rounded-md w-1/2">
             <h3 className="text-xl font-semibold mb-4">거래처 수정</h3>
-            <div className="mb-2">
-              <label className="block mb-1">거래처명</label>
-              <input
-                type="text"
-                value={currentCompany.name || ""}
-                onChange={(e) =>
-                  setCurrentCompany({ ...currentCompany, name: e.target.value })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
+            <div className="grid grid-cols-3 space-x-3">
+              <div className="mb-2">
+                <label className="block mb-1">거래처명</label>
+                <input
+                  type="text"
+                  value={currentCompany.name || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      name: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block mb-1">사업자 번호</label>
+                <input
+                  type="text"
+                  value={currentCompany.business_number || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      business_number: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block mb-1">이메일</label>
+                <input
+                  type="email"
+                  value={currentCompany.email || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      email: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
             </div>
+            <div className="grid grid-cols-3 space-x-3">
+              <div className="mb-2">
+                <label className="block mb-1">주소</label>
+                <input
+                  type="text"
+                  value={currentCompany.address || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      address: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block mb-1">전화번호</label>
+                <input
+                  type="text"
+                  value={currentCompany.phone || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      phone: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block mb-1">팩스</label>
+                <input
+                  type="text"
+                  value={currentCompany.fax || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      fax: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+
             <div className="mb-4">
-              <label className="block mb-1">사업자 번호</label>
-              <input
-                type="text"
-                value={currentCompany.business_number || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    business_number: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
+              <div className="flex justify-between items-center">
+                <label className="block mb-1">담당자</label>
+                <div className="flex">
+                  <div
+                    className="px-4 py-2 font-semibold cursor-pointer hover:bg-gray-50 hover:rounded-md text-xs"
+                    // onClick={() => set(true)} // 모달 열기
+                  >
+                    <span className="mr-2">+</span>
+                    <span>추가</span>
+                  </div>
+                </div>
+              </div>
+
+              {currentCompany.contact.map((contact, index) => (
+                <div key={index} className="mb-2">
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={contact.name}
+                      onChange={(e) =>
+                        handleContactChange(index, "name", e.target.value)
+                      }
+                      placeholder="이름"
+                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                    />
+                    <input
+                      type="text"
+                      value={contact.mobile}
+                      onChange={(e) =>
+                        handleContactChange(index, "mobile", e.target.value)
+                      }
+                      placeholder="휴대폰"
+                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                    />
+                    <input
+                      type="text"
+                      value={contact.department}
+                      onChange={(e) =>
+                        handleContactChange(index, "department", e.target.value)
+                      }
+                      placeholder="부서"
+                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                    />
+                    <input
+                      type="text"
+                      value={contact.level}
+                      onChange={(e) =>
+                        handleContactChange(index, "level", e.target.value)
+                      }
+                      placeholder="직급"
+                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                    />
+                    <input
+                      type="email"
+                      value={contact.email}
+                      onChange={(e) =>
+                        handleContactChange(index, "email", e.target.value)
+                      }
+                      placeholder="이메일"
+                      className="p-2 border border-gray-300 rounded-md w-3/12"
+                    />
+                    <button
+                      onClick={() => removeContact(index)} // 삭제 함수
+                      className="px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer w-1/12"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                  {/* 담당자 삭제 버튼 */}
+                </div>
+              ))}
             </div>
-            <div className="mb-2">
-              <label className="block mb-1">주소</label>
-              <input
-                type="text"
-                value={currentCompany.address || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    address: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div className="mb-2">
-              <label className="block mb-1">전화번호</label>
-              <input
-                type="text"
-                value={currentCompany.phone || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    phone: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div className="mb-2">
-              <label className="block mb-1">팩스</label>
-              <input
-                type="text"
-                value={currentCompany.fax || ""}
-                onChange={(e) =>
-                  setCurrentCompany({ ...currentCompany, fax: e.target.value })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div className="mb-2">
-              <label className="block mb-1">이메일</label>
-              <input
-                type="email"
-                value={currentCompany.email || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    email: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
+
             <div className="mb-2">
               <label className="block mb-1">비고</label>
               <textarea
@@ -534,88 +661,169 @@ export default function Page() {
       {/* 추가 모달 */}
       {isAddModalOpen && (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md w-1/3">
+          <div className="bg-white p-6 rounded-md w-1/2">
             <h3 className="text-xl font-semibold mb-4">거래처 추가</h3>
-            <div className="mb-2">
-              <label className="block mb-1">거래처명</label>
-              <input
-                type="text"
-                value={currentCompany?.name || ""}
-                onChange={(e) =>
-                  setCurrentCompany({ ...currentCompany, name: e.target.value })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
+            <div className="grid grid-cols-3 space-x-3">
+              <div className="mb-2">
+                <label className="block mb-1">거래처명</label>
+                <input
+                  type="text"
+                  value={currentCompany?.name || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      name: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block mb-1">사업자 번호</label>
+                <input
+                  type="text"
+                  value={currentCompany?.business_number || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      business_number: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block mb-1">이메일</label>
+                <input
+                  type="email"
+                  value={currentCompany?.email || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      email: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
             </div>
-            <div className="mb-2">
-              <label className="block mb-1">사업자 번호</label>
-              <input
-                type="text"
-                value={currentCompany?.business_number || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    business_number: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
+            <div className="grid grid-cols-3 space-x-3">
+              <div className="mb-2">
+                <label className="block mb-1">주소</label>
+                <input
+                  type="text"
+                  value={currentCompany?.address || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      address: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block mb-1">전화번호</label>
+                <input
+                  type="text"
+                  value={currentCompany?.phone || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      phone: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-2">
+                <label className="block mb-1">팩스</label>
+                <input
+                  type="text"
+                  value={currentCompany?.fax || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      fax: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
             </div>
-            <div className="mb-2">
-              <label className="block mb-1">주소</label>
-              <input
-                type="text"
-                value={currentCompany?.address || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    address: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div className="mb-2">
-              <label className="block mb-1">전화번호</label>
-              <input
-                type="text"
-                value={currentCompany?.phone || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    phone: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div className="mb-2">
-              <label className="block mb-1">팩스</label>
-              <input
-                type="text"
-                value={currentCompany?.fax || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    fax: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div className="mb-2">
-              <label className="block mb-1">이메일</label>
-              <input
-                type="email"
-                value={currentCompany?.email || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    email: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
+
+            <div className="mb-4">
+              <div className="flex justify-between items-center">
+                <label className="block mb-1">담당자</label>
+                <div className="flex">
+                  <div
+                    className="px-4 py-2 font-semibold cursor-pointer hover:bg-gray-50 hover:rounded-md text-xs"
+                    onClick={addContact} // 모달 열기
+                  >
+                    <span className="mr-2">+</span>
+                    <span>추가</span>
+                  </div>
+                </div>
+              </div>
+
+              {currentCompany.contact.map((contact, index) => (
+                <div key={index} className="mb-2">
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={contact.name}
+                      onChange={(e) =>
+                        handleContactChange(index, "name", e.target.value)
+                      }
+                      placeholder="이름"
+                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                    />
+                    <input
+                      type="text"
+                      value={contact.mobile}
+                      onChange={(e) =>
+                        handleContactChange(index, "mobile", e.target.value)
+                      }
+                      placeholder="휴대폰"
+                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                    />
+                    <input
+                      type="text"
+                      value={contact.department}
+                      onChange={(e) =>
+                        handleContactChange(index, "department", e.target.value)
+                      }
+                      placeholder="부서"
+                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                    />
+                    <input
+                      type="text"
+                      value={contact.level}
+                      onChange={(e) =>
+                        handleContactChange(index, "level", e.target.value)
+                      }
+                      placeholder="직급"
+                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                    />
+                    <input
+                      type="email"
+                      value={contact.email}
+                      onChange={(e) =>
+                        handleContactChange(index, "email", e.target.value)
+                      }
+                      placeholder="이메일"
+                      className="p-2 border border-gray-300 rounded-md w-3/12"
+                    />
+                    <button
+                      onClick={() => removeContact(index)} // 삭제 함수
+                      className="px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer w-1/12"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                  {/* 담당자 삭제 버튼 */}
+                </div>
+              ))}
             </div>
             <div className="mb-2">
               <label className="block mb-1">비고</label>

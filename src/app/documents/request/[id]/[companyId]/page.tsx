@@ -455,7 +455,7 @@ const EstimatePage = () => {
 
       <div className="flex my-3">
         <div
-          className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+          className="px-4 py-2 font-semibold cursor-pointer hover:bg-gray-50 hover:rounded-md"
           onClick={() => setOpenAddModal(true)}
         >
           <span className="mr-2">+</span>
@@ -748,7 +748,7 @@ const EstimatePage = () => {
                 <label className="mb-2 text-sm font-medium">항목</label>
                 <div className="flex">
                   <div
-                    className="font-semibold cursor-pointer hover:bg-opacity-10 mr-2"
+                    className="font-semibold cursor-pointer hover:bg-gray-50 mr-2"
                     onClick={addItem}
                   >
                     <span className="mr-2">+</span>
@@ -1075,7 +1075,7 @@ const EstimatePage = () => {
                 <label className="mb-2 text-sm font-medium">항목</label>
                 <div className="flex">
                   <div
-                    className="font-semibold cursor-pointer hover:bg-opacity-10 mr-2"
+                    className="font-semibold cursor-pointer hover:bg-gray-50 mr-2"
                     onClick={addItem}
                   >
                     <span className="mr-2">+</span>
