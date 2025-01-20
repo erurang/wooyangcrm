@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Snackbar, Alert, Button } from "@mui/material";
 import Link from "next/link";
 import { useLoginUser } from "@/app/context/login";
+import { v4 as uuidv4 } from "uuid";
 
 interface Consultation {
   id: string;
@@ -74,7 +75,7 @@ export default function ConsultationPage() {
   const [users, setUsers] = useState<User[]>([]); // 유저 목록
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
   const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
-  const consultationsPerPage = 5; // 한 페이지에 보여줄 상담 내역 개수
+  const consultationsPerPage = 4; // 한 페이지에 보여줄 상담 내역 개수
   const [selectedConsultation, setSelectedConsultation] =
     useState<Consultation | null>(null); // 선택된 상담 내역
 
@@ -382,7 +383,7 @@ export default function ConsultationPage() {
   const formatContentWithLineBreaks = (content: string) => {
     // 줄바꿈 문자를 <br /> 태그로 변환
     return content.split("\n").map((line, index) => (
-      <span key={index}>
+      <span key={uuidv4()}>
         {line}
         <br />
       </span>
@@ -430,11 +431,11 @@ export default function ConsultationPage() {
           </div>
           <div className="text-sm font-normal flex space-x-3 justify-end">
             {company?.contact.map((contact) => (
-              <div className="space-x-[0.125rem] text-start" key={contact.name}>
-                <span key={contact.name}>담당자 : {contact.name}</span>
-                <span key={contact.level}>{contact.level}</span>
-                <span key={contact.email}>{contact.email}</span>
-                <span key={contact.department}>{contact.department}</span>
+              <div className="space-x-[0.125rem] text-start" key={uuidv4()}>
+                <span>담당자 : {contact.name}</span>
+                <span>{contact.level}</span>
+                <span>{contact.email}</span>
+                <span>{contact.department}</span>
               </div>
             ))}
           </div>

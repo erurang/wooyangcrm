@@ -22,14 +22,14 @@ export default function RootLayout({
         <LoginUserProvider>
           <div className="flex">
             <div className="bg-[#F8F8F7] w-52 min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B]">
-              <div className="py-2 px-2 cursor-pointer hover:bg-gray-200  transition-all rounded-md">
+              <div className="py-1 px-2 cursor-pointer hover:bg-slate-200  transition-all rounded-sm">
                 <div>
                   {/* <span className="pr-2">icon</span> */}
                   {/* <span>{loginUser.name}님, 반갑습니다!</span> */}
                   <span></span>
                 </div>
               </div>
-              <div className="py-2 px-2 cursor-pointer hover:bg-gray-200  transition-all rounded-md">
+              <div className="py-1 px-2 cursor-pointer hover:bg-slate-200  transition-all rounded-sm">
                 <Link href={"/customers"}>
                   <div>
                     <span className="pr-2">icon</span>
@@ -37,13 +37,13 @@ export default function RootLayout({
                   </div>
                 </Link>
               </div>
-              <div className="py-2 px-2 cursor-pointer hover:bg-gray-200  transition-all rounded-md">
+              <div className="py-1 px-2 cursor-pointer hover:bg-slate-200  transition-all rounded-sm">
                 <div>
                   <span className="pr-2">icon</span>
                   <span>user.name</span>
                 </div>
               </div>
-              <div className="py-2 px-2 cursor-pointer hover:bg-gray-200  transition-all rounded-md">
+              <div className="py-1 px-2 cursor-pointer hover:bg-slate-200  transition-all rounded-sm">
                 <div>
                   <span className="pr-2">icon</span>
                   <span>user.name</span>

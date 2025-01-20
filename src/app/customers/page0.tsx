@@ -1,10 +1,10 @@
-//test
 "use client";
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Snackbar, Alert, Button, Select } from "@mui/material"; // MUI Snackbar 임포트
+import { Snackbar, Alert } from "@mui/material"; // MUI Snackbar 임포트
 import { useRouter } from "next/navigation";
+import useDebounce from "@/utils/useDebounce";
 
 interface Contact {
   name: string;
@@ -34,16 +34,17 @@ export default function Page() {
   const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]); // 필터링된 거래처 리스트
   const [searchTerm, setSearchTerm] = useState<string>(""); // 거래처 검색어
   const [addressTerm, setAddressTerm] = useState<string>(""); // 주소 검색어
+  const [contactTerm, setContactTerm] = useState<string>(""); // 주소 검색어
   const [industries, setIndustries] = useState<{ id: number; name: string }[]>(
     []
   );
 
-  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
-  const [totalPages, setTotalPages] = useState(1); // 총 페이지 수
-  const companiesPerPage = 10; // 페이지당 거래처 수
-  const [contactTerm, setContactTerm] = useState<string>(""); // 주소 검색어
+  const debouncedSearchTerm = useDebounce(searchTerm, 200); // 300ms 지연
+  const debouncedAddressTerm = useDebounce(addressTerm, 200); // 300ms 지연
 
+  const [page, setPage] = useState(1); // 페이지 상태
   const [loading, setLoading] = useState(false); // 로딩 상태
+  const [hasMore, setHasMore] = useState(true); // 더 이상 데이터가 있는지 여부
   const router = useRouter();
 
   // 토스트 관련 상태
@@ -73,36 +74,19 @@ export default function Page() {
 
   // 최초 데이터 로딩: 처음 화면에 기본적으로 15개를 가져옴
 
-  const paginationNumbers = () => {
-    let pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
-      if (
-        i === 1 ||
-        i === totalPages ||
-        (i >= currentPage - 2 && i <= currentPage + 2)
-      ) {
-        pageNumbers.push(i);
-      } else if (i === currentPage - 3 || i === currentPage + 3) {
-        pageNumbers.push("...");
-      }
-    }
-    return pageNumbers;
-  };
-
-  const fetchCompanies = async (pageNumber: number) => {
+  const fetchCompanies = async () => {
     setLoading(true);
 
     try {
+      // 1. 기존 API에서 회사 기본 데이터 가져오기
       const response = await fetch(
-        `/api/companies?page=${pageNumber}&limit=${companiesPerPage}&name=${searchTerm}&address=${addressTerm}&contact=${contactTerm}`
+        // `/api/companies?page=${page}&limit=15&name=${searchTerm}&address=${addressTerm}&contact=${contactTerm}`
+        `/api/companies?name=${searchTerm}&address=${addressTerm}&contact=${contactTerm}`
       );
+      const baseCompanies = await response.json();
 
-      const { companies: baseCompanies, total } = await response.json();
-
-      const calculatedTotalPages = Math.ceil(total / companiesPerPage);
-      setTotalPages(calculatedTotalPages);
-
-      if (baseCompanies?.length === 0) {
+      if (baseCompanies.length === 0) {
+        setHasMore(false);
         setCompanies([]);
         setFilteredCompanies([]);
         setLoading(false);
@@ -110,7 +94,7 @@ export default function Page() {
       }
 
       // 2. Supabase에서 company_industries와 industries 데이터 가져오기
-      const companyIds = baseCompanies?.map((company: Company) => company.id); // 가져온 회사들의 ID 리스트
+      const companyIds = baseCompanies.map((company: Company) => company.id); // 가져온 회사들의 ID 리스트
       const { data: industriesData, error } = await supabase
         .from("company_industries")
         .select(
@@ -128,7 +112,7 @@ export default function Page() {
       }
 
       // 3. 업종 데이터를 회사 데이터에 병합
-      const companiesWithIndustries = baseCompanies?.map((company: Company) => {
+      const companiesWithIndustries = baseCompanies.map((company: Company) => {
         const relatedIndustries = industriesData
           .filter((relation) => relation.company_id === company.id)
           .map((relation: any) => relation.industries?.name);
@@ -138,6 +122,7 @@ export default function Page() {
           industry: relatedIndustries, // 업종 이름 배열 추가
         };
       });
+      console.log("companiesWithIndustries", companiesWithIndustries);
 
       setCompanies(companiesWithIndustries);
       setFilteredCompanies(companiesWithIndustries);
@@ -147,6 +132,12 @@ export default function Page() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (debouncedSearchTerm || debouncedAddressTerm) {
+      fetchCompanies();
+    }
+  }, [page, searchTerm, addressTerm, contactTerm, debouncedSearchTerm]);
 
   useEffect(() => {
     const fetchIndustries = async () => {
@@ -160,13 +151,17 @@ export default function Page() {
         setIndustries(data || []);
       }
     };
-    fetchCompanies(currentPage);
     fetchIndustries();
-  }, [currentPage]);
+  }, []);
 
-  // useEffect(() => {
-  //   fetchCompanies(currentPage);
-  // }, [currentPage, ]);
+  // 스크롤 이벤트 핸들러
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    // 스크롤이 바닥에 가까워지면 다음 페이지를 로드
+    if (scrollTop + clientHeight >= scrollHeight - 10 && hasMore && !loading) {
+      setPage((prev) => prev + 1);
+    }
+  };
 
   // 추가 버튼 클릭 시 모달 열기
   const handleAdd = () => {
@@ -364,7 +359,7 @@ export default function Page() {
         setSnackbarMessage("삭제 요청 완료");
         setOpenSnackbar(true);
         setIsDeleteModalOpen(false);
-        setCurrentPage(1);
+        setPage(1);
       }
     }
   };
@@ -532,60 +527,8 @@ export default function Page() {
       <p className="mb-4">거래처 관리</p>
       <div>
         {/* 검색란 */}
-        {/* <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-3 grid grid-cols-5 marker:items-center space-x-4"> */}
-        <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-4 grid grid-cols-5 marker:items-center space-x-4">
-          <div className="mb-4 flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              거래처명
-            </label>
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="거래처명"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
-            />
-          </div>
-          <div className="mb-4 flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              주소
-            </label>
-            <input
-              value={addressTerm}
-              onChange={(e) => setAddressTerm(e.target.value)}
-              placeholder="주소"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
-            />
-          </div>
-          <div className="mb-4 flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              담당자
-            </label>
-            <input
-              value={contactTerm}
-              onChange={(e) => setContactTerm(e.target.value)}
-              placeholder="담당자"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
-            />
-          </div>
-          <div className=" mb-4 flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              업종
-            </label>
-            <select
-              onChange={(e) =>
-                fetchCompaniesByIndustry(parseInt(e.target.value))
-              }
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
-            >
-              <option value="">업종 선택</option>
-              {industries.map((industry) => (
-                <option key={industry.id} value={industry.id}>
-                  {industry.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* <div className="mb-4">
+        <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-3 grid grid-cols-3 items-center space-x-4">
+          <div className="mb-4">
             <label className="block mb-1">거래처명</label>
             <input
               value={searchTerm}
@@ -593,17 +536,8 @@ export default function Page() {
               placeholder="거래처명/거래처코드"
               className="w-full p-2 border border-gray-300 rounded-md"
             />
-          </div> */}
-          {/* <div className="mb-4">
-            <label className="block mb-1">담당자</label>
-            <input
-              value={contactTerm}
-              onChange={(e) => setContactTerm(e.target.value)}
-              placeholder="담당자"
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          </div> */}
-          {/* <div className="mb-4">
+          </div>
+          <div className="mb-4">
             <label className="block mb-1">주소</label>
             <input
               value={addressTerm}
@@ -611,8 +545,8 @@ export default function Page() {
               placeholder="주소"
               className="w-full p-2 border border-gray-300 rounded-md"
             />
-          </div> */}
-          {/* <div className="mb-4">
+          </div>
+          <div className="mb-4">
             <label className="block mb-1">업종</label>
             <select
               onChange={(e) =>
@@ -627,27 +561,6 @@ export default function Page() {
                 </option>
               ))}
             </select>
-          </div> */}
-          <div className="mb-4 flex justify-end space-x-4">
-            <button
-              onClick={() => {
-                setSearchTerm(""); // 페이지 번호 초기화
-                setAddressTerm("");
-                setContactTerm(""); // 첫 페이지 데이터를 다시 가져옴
-              }} // 검색 버튼 클릭 시 호출
-              className="px-4 py-2 bg-blue-500 text-white rounded-md"
-            >
-              필터리셋
-            </button>
-            <button
-              onClick={() => {
-                setCurrentPage(1); // 페이지 번호 초기화
-                fetchCompanies(1); // 첫 페이지 데이터를 다시 가져옴
-              }} // 검색 버튼 클릭 시 호출
-              className="px-4 py-2 bg-blue-500 text-white rounded-md"
-            >
-              검색
-            </button>
           </div>
         </div>
       </div>
@@ -729,6 +642,13 @@ export default function Page() {
           </table>
         </div>
       </div>
+
+      {/* 로딩 인디케이터 */}
+      {loading && (
+        <div className="text-center py-4">
+          <span>로딩 중...</span>
+        </div>
+      )}
 
       {/* 모달 */}
       {isModalOpen && currentCompany && (
@@ -1263,34 +1183,6 @@ export default function Page() {
         </div>
       )}
 
-      <div className="flex justify-center mt-4 space-x-2">
-        <Button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          이전
-        </Button>
-
-        {/* 페이지 번호 */}
-        {paginationNumbers().map((page, index) => (
-          <Button
-            key={index}
-            onClick={() => setCurrentPage(Number(page))}
-            className={`text-sm ${page === currentPage ? "font-bold" : ""}`}
-          >
-            {page}
-          </Button>
-        ))}
-
-        <Button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-        >
-          다음
-        </Button>
-      </div>
       {/* 스낵바 */}
       <Snackbar
         open={openSnackbar}
