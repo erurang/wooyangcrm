@@ -81,6 +81,26 @@ const EstimatePage = () => {
   const [openModal, setOpenModal] = useState(false); // 모달 상태
   const [selectedDocument, setSelectedDocument] = useState<any>(null); // 선택된 문서
 
+  useEffect(() => {
+    // ESC 키 핸들러
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenModal(false);
+        setOpenAddModal(false); // 추가 모달 닫기
+        setOpenEditModal(false); // 수정 모달 닫기
+        setOpenDeleteModal(false); // 삭제 모달 닫기
+      }
+    };
+
+    // 키다운 이벤트 등록
+    window.addEventListener("keydown", handleKeyDown);
+
+    // 언마운트 시 이벤트 제거
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   const handleDocumentNumberClick = (document: any) => {
     setSelectedDocument(document);
     setOpenModal(true);
@@ -571,9 +591,7 @@ const EstimatePage = () => {
                     {new Date(document.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px]">
-                    {new Date(
-                      document.content.delivery_date
-                    ).toLocaleDateString()}
+                    {document.content.delivery_date}
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px]">
                     {document.contact} {/* 담당자 */}
@@ -753,7 +771,7 @@ const EstimatePage = () => {
               <div className="mb-2">
                 <label className="block mb-2 text-sm font-medium">납기일</label>
                 <input
-                  type="date"
+                  type="text"
                   value={newDocument.delivery_date}
                   onChange={(e) =>
                     setNewDocument({
@@ -1054,7 +1072,7 @@ const EstimatePage = () => {
               <div className="mb-2">
                 <label className="block mb-2 text-sm font-medium">납기일</label>
                 <input
-                  type="date"
+                  type="text"
                   value={newDocument.delivery_date} // 기존 데이터 입력
                   onChange={(e) =>
                     setNewDocument({

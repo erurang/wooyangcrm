@@ -6,6 +6,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const name = searchParams.get("name") || "";
   const address = searchParams.get("address") || "";
+
   const page = parseInt(searchParams.get("page") || "1", 10); // 기본값은 1
   const limit = parseInt(searchParams.get("limit") || "15", 10); // 기본값은 15
 

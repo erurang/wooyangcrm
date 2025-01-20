@@ -154,6 +154,25 @@ export default function ConsultationPage() {
   };
 
   useEffect(() => {
+    // ESC 키 핸들러
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenAddModal(false); // 추가 모달 닫기
+        setOpenEditModal(false); // 수정 모달 닫기
+        setOpenDeleteModal(false); // 삭제 모달 닫기
+      }
+    };
+
+    // 키다운 이벤트 등록
+    window.addEventListener("keydown", handleKeyDown);
+
+    // 언마운트 시 이벤트 제거
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
     // 로그인된 유저 정보가 변경되면 user_id를 업데이트
     if (loginUser && loginUser.id) {
       setNewConsultation((prev) => ({
@@ -411,7 +430,7 @@ export default function ConsultationPage() {
           </div>
           <div className="text-sm font-normal flex space-x-3 justify-end">
             {company?.contact.map((contact) => (
-              <div className="space-x-[0.125rem] text-start">
+              <div className="space-x-[0.125rem] text-start" key={contact.name}>
                 <span key={contact.name}>담당자 : {contact.name}</span>
                 <span key={contact.level}>{contact.level}</span>
                 <span key={contact.email}>{contact.email}</span>
@@ -433,12 +452,12 @@ export default function ConsultationPage() {
           {/* 상담 내역 추가 모달 */}
           {openAddModal && (
             <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-              <div className="bg-white p-6 rounded-md w-1/3 max-w-lg">
+              <div className="bg-white p-6 rounded-md w-1/2 ">
                 <h3 className="text-xl font-semibold mb-4">상담 내역 추가</h3>
 
                 {/* 상담일 및 후속 날짜 (flex로 배치) */}
-                <div className="mb-4 flex space-x-4">
-                  <div className="w-1/2">
+                <div className="mb-4 grid space-x-4 grid-cols-4">
+                  <div className="">
                     <label className="block mb-2 text-sm font-medium">
                       상담일
                     </label>
@@ -449,7 +468,7 @@ export default function ConsultationPage() {
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
-                  <div className="w-1/2">
+                  <div>
                     <label className="block mb-2 text-sm font-medium">
                       후속 날짜
                     </label>
@@ -465,11 +484,7 @@ export default function ConsultationPage() {
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
-                </div>
-
-                {/* 피상담자 및 상담자 (flex로 배치) */}
-                <div className="mb-4 flex space-x-4">
-                  <div className="w-1/2">
+                  <div>
                     <label className="block mb-2 text-sm font-medium">
                       피상담자
                     </label>
@@ -485,7 +500,7 @@ export default function ConsultationPage() {
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
-                  <div className="w-1/2">
+                  <div>
                     <label className="block mb-2 text-sm font-medium">
                       상담자
                     </label>
@@ -549,12 +564,12 @@ export default function ConsultationPage() {
           {/* 상담 내역 수정 모달 */}
           {openEditModal && (
             <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-              <div className="bg-white p-6 rounded-md w-1/3 max-w-lg">
+              <div className="bg-white p-6 rounded-md w-1/2">
                 <h3 className="text-xl font-semibold mb-4">상담 내역 수정</h3>
 
                 {/* 상담일 및 후속 날짜 (flex로 배치) */}
-                <div className="mb-4 flex space-x-4">
-                  <div className="w-1/2">
+                <div className="mb-4 grid grid-cols-4 space-x-4">
+                  <div>
                     <label className="block mb-2 text-sm font-medium">
                       상담일
                     </label>
@@ -565,7 +580,7 @@ export default function ConsultationPage() {
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
-                  <div className="w-1/2">
+                  <div>
                     <label className="block mb-2 text-sm font-medium">
                       후속 날짜
                     </label>
@@ -585,11 +600,7 @@ export default function ConsultationPage() {
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
-                </div>
-
-                {/* 피상담자 및 상담자 (flex로 배치) */}
-                <div className="mb-4 flex space-x-4">
-                  <div className="w-1/2">
+                  <div>
                     <label className="block mb-2 text-sm font-medium">
                       피상담자
                     </label>
@@ -605,7 +616,7 @@ export default function ConsultationPage() {
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
-                  <div className="w-1/2">
+                  <div>
                     <label className="block mb-2 text-sm font-medium">
                       상담자
                     </label>
@@ -845,7 +856,7 @@ export default function ConsultationPage() {
           <div className="bg-white p-6 rounded-md w-1/3 max-w-lg">
             <h3 className="text-xl font-semibold mb-4">상담 내역 삭제</h3>
             <p>
-              정말로 "{consultationToDelete.contact}"의 상담 내역을
+              정말로 "{consultationToDelete.content}"의 상담 내역을
               삭제하시겠습니까?
             </p>
 
