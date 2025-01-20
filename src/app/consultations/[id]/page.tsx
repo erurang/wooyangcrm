@@ -19,6 +19,14 @@ interface Consultation {
   user_id: string;
 }
 
+interface Contact {
+  name: string;
+  mobile: string;
+  department: string;
+  level: string;
+  email: string;
+}
+
 interface Company {
   id: string;
   name: string;
@@ -28,6 +36,7 @@ interface Company {
   fax: string;
   notes: string;
   business_number: string;
+  contact: Contact[]; // 연락처 배열 추가
 }
 
 interface User {
@@ -385,26 +394,26 @@ export default function ConsultationPage() {
               <h2>{companyMemo?.name}</h2>
               <div>
                 <div className="flex">
-                  <div>
-                    <span className="mt-2 text-sm font-normal">
-                      {companyMemo?.address}
-                    </span>
-                    <div className="flex space-x-3 text-sm font-normal">
-                      <div className="mt-2 text-sm">
-                        phone: {companyMemo?.phone}
-                      </div>
-                      <div className="mt-2 text-sm">
-                        fax: {companyMemo?.fax}
-                      </div>
-                      <div className="mt-2 text-sm">
-                        email: {companyMemo?.email}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="pt-2 px-2 min-h-16 max-h-16 overflow-y-auto">
-                    <span>비고 : {companyMemo?.notes}</span>
+                  <div className="text-sm font-normal space-x-3">
+                    <span className="mt-2">{companyMemo?.address}</span>
+                    <span className="text-sm">phone: {companyMemo?.phone}</span>
+                    <span>fax: {companyMemo?.fax}</span>
+                    <span>email: {companyMemo?.email}</span>
                   </div>
                 </div>
+                <div className="text-sm font-normal">
+                  {company?.contact.map((contact) => (
+                    <>
+                      <span key={contact.name}>{contact.name}</span>
+                      <span key={contact.level}>{contact.level}</span>
+                      <span key={contact.department}>{contact.department}</span>
+                      <span key={contact.email}>{contact.email}</span>
+                    </>
+                  ))}
+                </div>
+              </div>
+              <div className="pt-2 px-2 min-h-16 max-h-16 overflow-y-auto">
+                <span>비고 : {companyMemo?.notes}</span>
               </div>
             </div>
           </div>
