@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
+// import Image from "next/image";
 
 export default function HomePage() {
   return (
     <div>
-      <div className="flex justify-center relative">
+      {/* <div className="flex justify-center relative">
         <h1 className="font-bold text-4xl">
           견{"  "}적{"  "}서
         </h1>
@@ -187,7 +187,7 @@ export default function HomePage() {
             </tr>
           </tbody>
         </table>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -753,7 +753,7 @@ export default function ConsultationPage() {
                           className={`mr-2 cursor-pointer ${
                             documents.some(
                               (doc) =>
-                                doc.type === "purchase_order" &&
+                                doc.type === "order" &&
                                 doc.consultation_id === consultation.id
                             )
                               ? "text-blue-500 hover:font-bold"
@@ -761,7 +761,7 @@ export default function ConsultationPage() {
                           }`}
                           onClick={() =>
                             router.push(
-                              `/documents/purchase_order/${consultation.id}`
+                              `/documents/order/${consultation.id}/${company?.id}`
                             )
                           }
                         >
@@ -778,7 +778,9 @@ export default function ConsultationPage() {
                               : "text-gray-400 hover:text-black"
                           }`}
                           onClick={() =>
-                            router.push(`/documents/request/${consultation.id}`)
+                            router.push(
+                              `/documents/request/${consultation.id}/${company?.id}`
+                            )
                           }
                         >
                           의뢰서

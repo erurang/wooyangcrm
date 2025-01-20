@@ -23,10 +23,9 @@ interface Document {
       unit: string;
     }[];
     notes: string;
-    valid_until: string;
+    delivery_date: string; // 납기일자
     company_name: string;
     total_amount: number;
-    delivery_term: string;
     delivery_place: string;
     payment_method: string; // 결제조건 추가
   };
@@ -74,11 +73,9 @@ const EstimatePage = () => {
     fax: "",
     user_id: "",
     created_at: new Date().toISOString().split("T")[0], // 기본값 오늘 날짜
-    valid_until: "",
+    delivery_date: "",
     payment_method: "",
     notes: "",
-    delivery_term: "",
-    delivery_place: "",
     status: "",
   });
 
@@ -158,7 +155,7 @@ const EstimatePage = () => {
           .from("documents")
           .select("*")
           .eq("consultation_id", id)
-          .eq("type", "estimate");
+          .eq("type", "order");
 
         if (documentError) {
           console.error("문서 불러오기 실패:", documentError.message);
@@ -231,7 +228,7 @@ const EstimatePage = () => {
         setDocuments((prevDocuments) =>
           prevDocuments.filter((doc) => doc.id !== documentToDelete.id)
         );
-        setSnackbarMessage("견적서가 삭제되었습니다.");
+        setSnackbarMessage("발주서가 삭제되었습니다.");
         setOpenSnackbar(true);
       }
     } catch (error) {
@@ -244,21 +241,20 @@ const EstimatePage = () => {
     const {
       company_name,
       contact,
-      phone,
-      fax,
       user_id,
-      valid_until,
+      delivery_date,
       payment_method,
       notes,
     } = newDocument;
+
+    console.log(newDocument);
 
     if (
       !company_name ||
       !contact ||
       !user_id ||
-      !valid_until ||
+      !delivery_date ||
       !payment_method ||
-      !notes ||
       !items.length
     ) {
       setSnackbarMessage("모든 정보를 채워주세요");
@@ -278,9 +274,7 @@ const EstimatePage = () => {
       })),
       company_name,
       total_amount: totalAmount, // totalAmount는 숫자형으로 처리
-      valid_until,
-      delivery_place: newDocument.delivery_place,
-      delivery_term: newDocument.delivery_term,
+      delivery_date: newDocument.delivery_date,
       payment_method,
       notes,
     };
@@ -297,7 +291,7 @@ const EstimatePage = () => {
             contact,
             consultation_id: id,
             company_id: companyId,
-            type: "estimate", // 문서 타입 지정
+            type: "order", // 문서 타입 지정
           },
         ])
         .select();
@@ -309,18 +303,16 @@ const EstimatePage = () => {
         if (data && data.length > 0) {
           setDocuments((prev) => [...prev, data[0]]);
         }
-        setSnackbarMessage("견적서가 추가되었습니다");
+        setSnackbarMessage("발주서가 추가되었습니다");
         setOpenSnackbar(true);
 
         setNewDocument({
           ...newDocument,
           contact: "",
           user_id: "",
-          valid_until: "",
+          delivery_date: "",
           payment_method: "",
           notes: "",
-          delivery_place: "",
-          delivery_term: "",
         });
         setItems([
           {
@@ -347,11 +339,9 @@ const EstimatePage = () => {
       contact: document.contact,
       user_id: document.user_id,
       created_at: document.created_at.split("T")[0], // 날짜 형식 변환
-      valid_until: document.content.valid_until, // 유효기간
+      delivery_date: document.content.delivery_date, // 납기일
       payment_method: document.content.payment_method,
       notes: document.content.notes,
-      delivery_term: document.content.delivery_term,
-      delivery_place: document.content.delivery_place,
       status: document.status,
     });
 
@@ -387,11 +377,9 @@ const EstimatePage = () => {
       ...newDocument,
       contact: "",
       user_id: "",
-      valid_until: "",
+      delivery_date: "",
       payment_method: "",
       notes: "",
-      delivery_place: "",
-      delivery_term: "",
       status: "pending",
     });
   };
@@ -400,22 +388,19 @@ const EstimatePage = () => {
     const {
       company_name,
       contact,
-      delivery_place,
-      delivery_term,
+      delivery_date,
       notes,
       payment_method,
       user_id,
-      valid_until,
     } = newDocument;
 
     if (
       !contact ||
-      !delivery_place ||
-      !delivery_term ||
+      !delivery_date ||
       !notes ||
       !payment_method ||
       !user_id ||
-      !valid_until ||
+      !delivery_date ||
       !items.length
     ) {
       setSnackbarMessage("모든 정보를 채워주세요");
@@ -437,9 +422,7 @@ const EstimatePage = () => {
       })),
       company_name,
       total_amount: totalAmount,
-      valid_until,
-      delivery_place: newDocument.delivery_place,
-      delivery_term: newDocument.delivery_term,
+      delivery_date,
       payment_method,
       notes,
     };
@@ -469,7 +452,7 @@ const EstimatePage = () => {
           setDocuments(updatedDocuments); // documents 업데이트
         }
 
-        setSnackbarMessage("견적서가 수정되었습니다.");
+        setSnackbarMessage("발주서가 수정되었습니다.");
         setOpenSnackbar(true);
         handleEditCloseModal();
       }
@@ -492,7 +475,7 @@ const EstimatePage = () => {
         >
           상담내역
         </span>{" "}
-        &gt; 견적서 &gt; {id?.slice(0, 4)}
+        &gt; 발주서 &gt; {id?.slice(0, 4)}
       </div>
 
       <div className="flex my-3">
@@ -513,19 +496,19 @@ const EstimatePage = () => {
             <thead>
               <tr className="bg-gray-100 text-left">
                 <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                  견적일
+                  발주일
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                  유효기간
+                  납기일
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                   담당자
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                  견적자
+                  발주자
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] text-center w-3/12">
-                  견적
+                  발주
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                   총액
@@ -552,7 +535,7 @@ const EstimatePage = () => {
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px]">
                     {new Date(
-                      document.content.valid_until
+                      document.content.delivery_date
                     ).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px]">
@@ -616,7 +599,7 @@ const EstimatePage = () => {
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-md w-2/3 max-w-6xl">
             <div className="flex justify-between">
-              <h3 className="text-xl font-semibold mb-4">견적서 추가</h3>
+              <h3 className="text-xl font-semibold mb-4">발주서 추가</h3>
               <div className="flex space-x-3">
                 <span className={"text-blue-500 font-bold"}>진행</span>
                 <span
@@ -702,7 +685,7 @@ const EstimatePage = () => {
               {/* 결제조건 */}
               <div className="mb-2">
                 <label className="block mb-2 text-sm font-medium">
-                  결제조건
+                  결제방식
                 </label>
                 <input
                   type="text"
@@ -717,7 +700,7 @@ const EstimatePage = () => {
                 />
               </div>
               <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">견적일</label>
+                <label className="block mb-2 text-sm font-medium">발주일</label>
                 <input
                   type="date"
                   value={newDocument.created_at}
@@ -730,26 +713,23 @@ const EstimatePage = () => {
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
                 />
               </div>
-
-              {/* 유효기간 */}
               <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">
-                  유효기간
-                </label>
+                <label className="block mb-2 text-sm font-medium">납기일</label>
                 <input
                   type="date"
-                  value={newDocument.valid_until}
+                  value={newDocument.delivery_date}
                   onChange={(e) =>
                     setNewDocument({
                       ...newDocument,
-                      valid_until: e.target.value,
+                      delivery_date: e.target.value,
                     })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
                 />
               </div>
+
               <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">견적자</label>
+                <label className="block mb-2 text-sm font-medium">발주자</label>
                 <select
                   value={newDocument.user_id}
                   onChange={(e) =>
@@ -780,37 +760,8 @@ const EstimatePage = () => {
             </div>
 
             <div className="grid grid-cols-4 space-x-4 mb-2">
-              <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">
-                  납품장소
-                </label>
-                <input
-                  type="text"
-                  value={newDocument.delivery_place}
-                  onChange={(e) =>
-                    setNewDocument({
-                      ...newDocument,
-                      delivery_place: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">납품일</label>
-                <input
-                  type="text"
-                  value={newDocument.delivery_term}
-                  onChange={(e) =>
-                    setNewDocument({
-                      ...newDocument,
-                      delivery_term: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-
+              <div></div>
+              <div></div>
               <div className="mb-2">
                 <label className="block mb-2 text-sm font-medium">총액金</label>
                 <input
@@ -977,7 +928,7 @@ const EstimatePage = () => {
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-md w-2/3 max-w-6xl">
             <div className="flex justify-between">
-              <h3 className="text-xl font-semibold mb-4">견적서 수정</h3>
+              <h3 className="text-xl font-semibold mb-4">발주서 수정</h3>
               <div className="flex space-x-3">
                 <span
                   onClick={() =>
@@ -1091,7 +1042,7 @@ const EstimatePage = () => {
                 />
               </div>
               <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">견적일</label>
+                <label className="block mb-2 text-sm font-medium">발주일</label>
                 <input
                   type="date"
                   value={newDocument.created_at} // 기존 데이터 입력
@@ -1105,23 +1056,21 @@ const EstimatePage = () => {
                 />
               </div>
               <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">
-                  유효기간
-                </label>
+                <label className="block mb-2 text-sm font-medium">납기일</label>
                 <input
                   type="date"
-                  value={newDocument.valid_until} // 기존 데이터 입력
+                  value={newDocument.delivery_date} // 기존 데이터 입력
                   onChange={(e) =>
                     setNewDocument({
                       ...newDocument,
-                      valid_until: e.target.value,
+                      delivery_date: e.target.value,
                     })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
                 />
               </div>
               <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">견적자</label>
+                <label className="block mb-2 text-sm font-medium">발주자</label>
                 <select
                   value={newDocument.user_id} // 기존 데이터 입력
                   onChange={(e) =>
@@ -1152,37 +1101,8 @@ const EstimatePage = () => {
             </div>
 
             <div className="grid grid-cols-4 space-x-4 mb-2">
-              <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">
-                  납품장소
-                </label>
-                <input
-                  type="text"
-                  value={newDocument.delivery_place} // 기존 데이터 입력
-                  onChange={(e) =>
-                    setNewDocument({
-                      ...newDocument,
-                      delivery_place: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">납품일</label>
-                <input
-                  type="text"
-                  value={newDocument.delivery_term} // 기존 데이터 입력
-                  onChange={(e) =>
-                    setNewDocument({
-                      ...newDocument,
-                      delivery_term: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-
+              <div></div>
+              <div></div>
               <div className="mb-2">
                 <label className="block mb-2 text-sm font-medium">총액金</label>
                 <input
