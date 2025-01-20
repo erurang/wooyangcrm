@@ -396,28 +396,26 @@ export default function ConsultationPage() {
                 <div className="flex">
                   <div className="text-sm font-normal space-x-3">
                     <span className="mt-2">{companyMemo?.address}</span>
+                    <span className="text-sm">phone: {companyMemo?.phone}</span>
+                    <span>fax: {companyMemo?.fax}</span>
+                    <span>email: {companyMemo?.email}</span>
                   </div>
                 </div>
-                <div className="text-xs mt-2">
-                  <p>TEL : {companyMemo?.phone}</p>
-                  <p>FAX : {companyMemo?.fax}</p>
-                  <p>E-MAIL : {companyMemo?.email}</p>
+                <div className="text-sm font-normal flex space-x-3">
+                  {company?.contact.map((contact) => (
+                    <div className="space-x-[0.125rem]">
+                      <span key={contact.name}>{contact.name}</span>
+                      <span key={contact.level}>{contact.level}</span>
+                      <span key={contact.department}>{contact.department}</span>
+                      <span key={contact.email}>{contact.email}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="pt-2 px-2 min-h-16 max-h-16 overflow-y-auto">
                 <span>비고 : {companyMemo?.notes}</span>
               </div>
             </div>
-          </div>
-          <div className="text-sm font-normal flex space-x-3 justify-end">
-            {company?.contact.map((contact) => (
-              <div className="space-x-[0.125rem] text-start">
-                <span key={contact.name}>담당자 : {contact.name}</span>
-                <span key={contact.level}>{contact.level}</span>
-                <span key={contact.email}>{contact.email}</span>
-                <span key={contact.department}>{contact.department}</span>
-              </div>
-            ))}
           </div>
 
           <div className="flex my-3">

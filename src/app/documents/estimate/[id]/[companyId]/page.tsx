@@ -18,7 +18,7 @@ interface Document {
       spec: string;
       amount: number;
       number: number;
-      quantity: number;
+      quantity: string;
       unit_price: number;
       unit: string;
     }[];
@@ -54,9 +54,11 @@ const EstimatePage = () => {
   const [documentToDelete, setDocumentToDelete] = useState<Document | null>(
     null
   );
+
   const [items, setItems] = useState([
-    { name: "", spec: "", quantity: 1, unit_price: 0, amount: 0, unit: "" },
+    { name: "", spec: "", quantity: "", unit_price: 0, amount: 0 }, // unit 제거
   ]);
+
   const [totalAmount, setTotalAmount] = useState(0);
   const [koreanAmount, setKoreanAmount] = useState("");
 
@@ -74,7 +76,9 @@ const EstimatePage = () => {
     fax: "",
     user_id: "",
     created_at: new Date().toISOString().split("T")[0], // 기본값 오늘 날짜
-    valid_until: "",
+    valid_until: new Date(new Date().setDate(new Date().getDate() + 14))
+      .toISOString()
+      .split("T")[0],
     payment_method: "",
     notes: "",
     delivery_term: "",
@@ -137,7 +141,7 @@ const EstimatePage = () => {
   const addItem = () => {
     setItems([
       ...items,
-      { name: "", spec: "", quantity: 1, unit_price: 0, amount: 0, unit: "" },
+      { name: "", spec: "", quantity: "", unit_price: 0, amount: 0 },
     ]);
   };
 
@@ -273,8 +277,7 @@ const EstimatePage = () => {
         spec: item.spec,
         quantity: item.quantity, // 숫자형으로 처리
         unit_price: item.unit_price, // 숫자형으로 처리
-        amount: item.unit_price * item.quantity, // amount도 숫자형으로 처리
-        unit: item.unit,
+        amount: item.quantity, // amount도 숫자형으로 처리
       })),
       company_name,
       total_amount: totalAmount, // totalAmount는 숫자형으로 처리
@@ -284,7 +287,6 @@ const EstimatePage = () => {
       payment_method,
       notes,
     };
-    console.log(newDocument, content);
 
     try {
       const { data, error } = await supabase
@@ -326,10 +328,9 @@ const EstimatePage = () => {
           {
             name: "",
             spec: "",
-            quantity: 1,
+            quantity: "",
             unit_price: 0,
             amount: 0,
-            unit: "",
           },
         ]);
       }
@@ -363,7 +364,6 @@ const EstimatePage = () => {
         quantity: item.quantity,
         unit_price: item.unit_price,
         amount: item.amount,
-        unit: item.unit,
       }))
     );
 
@@ -377,17 +377,15 @@ const EstimatePage = () => {
       {
         name: "",
         spec: "",
-        quantity: 1,
+        quantity: "",
         unit_price: 0,
         amount: 0,
-        unit: "",
       },
     ]);
     setNewDocument({
       ...newDocument,
       contact: "",
       user_id: "",
-      valid_until: "",
       payment_method: "",
       notes: "",
       delivery_place: "",
@@ -430,10 +428,7 @@ const EstimatePage = () => {
         spec: item.spec,
         quantity: item.quantity,
         unit_price: item.unit_price,
-        amount:
-          parseFloat(item.unit_price.toString().replace(/,/g, "")) *
-          parseFloat(item.quantity.toString().replace(/,/g, "")),
-        unit: item.unit,
+        amount: item.quantity,
       })),
       company_name,
       total_amount: totalAmount,
@@ -476,6 +471,51 @@ const EstimatePage = () => {
     } catch (error) {
       console.error("수정 중 오류 발생", error);
     }
+  };
+
+  const handleUnitPriceChange = (index: number, value: string) => {
+    // 입력값에서 쉼표 제거 및 숫자로 변환
+    const numericValue = parseFloat(value.replace(/,/g, ""));
+
+    // NaN 방지: 숫자로 변환이 실패하면 0을 기본값으로 설정
+    const validUnitPrice = isNaN(numericValue) ? 0 : numericValue;
+
+    setItems((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              unit_price: validUnitPrice, // 단가 업데이트
+              amount:
+                validUnitPrice *
+                (parseFloat(item.quantity.replace(/[^\d]/g, "")) || 0), // 수량이 NaN일 경우 0 처리
+            }
+          : item
+      )
+    );
+  };
+
+  const handleQuantityChange = (index: number, value: string) => {
+    // 수량에서 숫자와 단위 분리
+    const numericValue = parseFloat(
+      value.replace(/,/g, "").replace(/[^\d]/g, "")
+    );
+    const unit = value.replace(/[\d,]/g, "").trim();
+
+    // NaN 방지: 숫자로 변환이 실패하면 0을 기본값으로 설정
+    const validQuantity = isNaN(numericValue) ? 0 : numericValue;
+
+    setItems((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              quantity: `${validQuantity.toLocaleString()}${unit}`, // 수량과 단위 결합
+              amount: validQuantity * item.unit_price, // 금액 재계산
+            }
+          : item
+      )
+    );
   };
 
   return (
@@ -874,42 +914,33 @@ const EstimatePage = () => {
                         )
                       )
                     }
-                    className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
+                    className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
                   />
-                  <input
-                    type="text"
-                    placeholder="단위"
-                    value={item.unit}
-                    onChange={(e) =>
-                      setItems((prev) =>
-                        prev.map((item, i) =>
-                          i === index ? { ...item, unit: e.target.value } : item
-                        )
-                      )
-                    }
-                    className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
-                  />
+
                   <input
                     type="text" // 'number'에서 'text'로 변경
                     placeholder="수량"
                     value={item.quantity.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
                     onChange={(e) =>
-                      setItems((prev) =>
-                        prev.map((item, i) =>
-                          i === index
-                            ? {
-                                ...item,
-                                quantity: parseFloat(
-                                  e.target.value.replace(/,/g, "")
-                                ), // 콤마 제거하고 숫자로 변환
-                                amount:
-                                  parseFloat(e.target.value.replace(/,/g, "")) *
-                                  item.unit_price, // 금액 계산
-                              }
-                            : item
-                        )
-                      )
+                      handleQuantityChange(index, e.target.value)
                     }
+                    // onChange={(e) => {
+                    //   const numericValue = parseFloat(
+                    //     e.target.value.replace(/,/g, "").replace(/[^\d]/g, "")
+                    //   );
+                    //   const unit = e.target.value.replace(/[\d,]/g, "").trim();
+                    //   setItems((prev) =>
+                    //     prev.map((item, i) =>
+                    //       i === index
+                    //         ? {
+                    //             ...item,
+                    //             quantity: `${numericValue.toLocaleString()}${unit}`, // 결합된 형태로 저장
+                    //             amount: numericValue * item.unit_price, // 계산에는 숫자만 사용
+                    //           }
+                    //         : item
+                    //     )
+                    //   );
+                    // }}
                     className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
                   />
 
@@ -918,22 +949,8 @@ const EstimatePage = () => {
                     placeholder="단가"
                     value={item.unit_price.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
                     onChange={(e) =>
-                      setItems((prev) =>
-                        prev.map((item, i) =>
-                          i === index
-                            ? {
-                                ...item,
-                                unit_price: parseFloat(
-                                  e.target.value.replace(/,/g, "")
-                                ), // 콤마 제거하고 숫자로 변환
-                                amount:
-                                  item.quantity *
-                                  parseFloat(e.target.value.replace(/,/g, "")), // 금액 계산
-                              }
-                            : item
-                        )
-                      )
-                    }
+                      handleUnitPriceChange(index, e.target.value)
+                    } // 단가 변경 핸들러
                     className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
                   />
 
@@ -1246,41 +1263,14 @@ const EstimatePage = () => {
                         )
                       )
                     }
-                    className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="단위"
-                    value={item.unit}
-                    onChange={(e) =>
-                      setItems((prev) =>
-                        prev.map((item, i) =>
-                          i === index ? { ...item, unit: e.target.value } : item
-                        )
-                      )
-                    }
-                    className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
+                    className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
                   />
                   <input
                     type="text" // 'number'에서 'text'로 변경
                     placeholder="수량"
                     value={item.quantity.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
                     onChange={(e) =>
-                      setItems((prev) =>
-                        prev.map((item, i) =>
-                          i === index
-                            ? {
-                                ...item,
-                                quantity: parseFloat(
-                                  e.target.value.replace(/,/g, "")
-                                ), // 콤마 제거하고 숫자로 변환
-                                amount:
-                                  parseFloat(e.target.value.replace(/,/g, "")) *
-                                  item.unit_price, // 금액 계산
-                              }
-                            : item
-                        )
-                      )
+                      handleQuantityChange(index, e.target.value)
                     }
                     className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
                   />
@@ -1290,21 +1280,7 @@ const EstimatePage = () => {
                     placeholder="단가"
                     value={item.unit_price.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
                     onChange={(e) =>
-                      setItems((prev) =>
-                        prev.map((item, i) =>
-                          i === index
-                            ? {
-                                ...item,
-                                unit_price: parseFloat(
-                                  e.target.value.replace(/,/g, "")
-                                ), // 콤마 제거하고 숫자로 변환
-                                amount:
-                                  item.quantity *
-                                  parseFloat(e.target.value.replace(/,/g, "")), // 금액 계산
-                              }
-                            : item
-                        )
-                      )
+                      handleUnitPriceChange(index, e.target.value)
                     }
                     className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
                   />

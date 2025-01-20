@@ -535,7 +535,7 @@ export default function Page() {
                 <div className="flex">
                   <div
                     className="px-4 py-2 font-semibold cursor-pointer hover:bg-gray-50 hover:rounded-md text-xs"
-                    // onClick={() => set(true)} // 모달 열기
+                    onClick={addContact} // 모달 열기
                   >
                     <span className="mr-2">+</span>
                     <span>추가</span>
