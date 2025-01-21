@@ -45,13 +45,6 @@ interface User {
   name: string;
 }
 
-interface LoginUser {
-  email: string;
-  role: string;
-  name: string;
-  id: string;
-}
-
 export default function ConsultationPage() {
   const loginUser = useLoginUser();
 

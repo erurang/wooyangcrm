@@ -1215,6 +1215,7 @@ const EstimatePage = () => {
 
       {openModal && (
         <DocumentModal
+          type="requestQuote"
           document={selectedDocument}
           onClose={handleCloseModal}
           users={users}

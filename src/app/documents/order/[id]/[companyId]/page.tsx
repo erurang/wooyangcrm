@@ -1267,6 +1267,7 @@ const EstimatePage = () => {
 
       {openModal && (
         <DocumentModal
+          type="order"
           document={selectedDocument}
           onClose={handleCloseModal}
           users={users}

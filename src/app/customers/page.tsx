@@ -529,7 +529,7 @@ export default function Page() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4">거래처 관리</p>
+      <p className="mb-4 font-semibold">거래처 관리</p>
       <div>
         {/* 검색란 */}
         {/* <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-3 grid grid-cols-5 marker:items-center space-x-4"> */}
@@ -628,14 +628,14 @@ export default function Page() {
               ))}
             </select>
           </div> */}
-          <div className="mb-4 flex justify-end space-x-4">
+          <div className="mb-4 flex justify-end space-x-2">
             <button
               onClick={() => {
                 setSearchTerm(""); // 페이지 번호 초기화
                 setAddressTerm("");
                 setContactTerm(""); // 첫 페이지 데이터를 다시 가져옴
               }} // 검색 버튼 클릭 시 호출
-              className="px-4 py-2 bg-blue-500 text-white rounded-md"
+              className="px-4 py-2 bg-gray-500 text-white rounded-md"
             >
               필터리셋
             </button>
