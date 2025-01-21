@@ -338,7 +338,9 @@ const EstimatePage = () => {
           ...newDocument,
           contact: "",
           user_id: "",
-          valid_until: "",
+          valid_until: new Date(new Date().setDate(new Date().getDate() + 14))
+            .toISOString()
+            .split("T")[0],
           payment_method: "",
           notes: "",
           delivery_place: "",

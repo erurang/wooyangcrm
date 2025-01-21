@@ -787,7 +787,7 @@ export default function ConsultationPage() {
                           className={`cursor-pointer ${
                             documents.some(
                               (doc) =>
-                                doc.type === "request" &&
+                                doc.type === "requestQuote" &&
                                 doc.consultation_id === consultation.id
                             )
                               ? "text-blue-500 hover:font-bold"

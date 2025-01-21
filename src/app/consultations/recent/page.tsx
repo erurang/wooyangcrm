@@ -166,7 +166,7 @@ export default function RecentConsultations() {
   return (
     <div className="text-sm text-[#37352F]">
       <h2 className="text-sm font-semibold mb-4">최근 상담 내역</h2>
-      <div className="text-gray-500 text-sm mb-2">
+      {/* <div className="text-gray-500 text-sm mb-2">
         {searchTerm && <span>검색어: {searchTerm} </span>}
         {userTerm && <span>상담자: {userTerm} </span>}
         {startDate && endDate && (
@@ -174,7 +174,7 @@ export default function RecentConsultations() {
             날짜: {startDate} ~ {endDate}
           </span>
         )}
-      </div>
+      </div> */}
       {/* 검색 및 필터 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
         <div className="grid grid-cols-5 gap-4">
