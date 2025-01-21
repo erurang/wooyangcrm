@@ -3,7 +3,7 @@
 import "./globals.css";
 import Link from "next/link";
 import { LoginUserProvider } from "./context/login";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function RootLayout({
   children,
@@ -15,6 +15,17 @@ export default function RootLayout({
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
+  // 다크 모드 감지 및 라이트 모드 강제 적용
+  useEffect(() => {
+    const isDarkMode = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    if (isDarkMode) {
+      document.documentElement.classList.remove("dark"); // 다크 모드 비활성화
+      document.documentElement.classList.add("light"); // 라이트 모드 적용
+    }
+  }, []);
 
   return (
     <html lang="ko">

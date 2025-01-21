@@ -6,6 +6,7 @@ import "chart.js/auto";
 import { Tab } from "@headlessui/react";
 import { v4 as uuidv4 } from "uuid";
 import { useLoginUser } from "../context/login";
+import { useRouter } from "next/navigation";
 
 interface Document {
   type: "estimate" | "order" | "requestQuote";
@@ -24,6 +25,7 @@ interface DashboardData {
 
 export default function DocumentsDashboard() {
   const user = useLoginUser();
+  const router = useRouter();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
@@ -49,6 +51,13 @@ export default function DocumentsDashboard() {
 
   const filterDocumentsByType = (type: string) =>
     dashboardData?.documentDetails.filter((doc) => doc.type === type) || [];
+
+  const getStatusCounts = (documents: Document[]) => ({
+    total: documents.length,
+    pending: documents.filter((doc) => doc.status === "pending").length,
+    completed: documents.filter((doc) => doc.status === "completed").length,
+    canceled: documents.filter((doc) => doc.status === "canceled").length,
+  });
 
   const groupByDateAndStatus = (documents: Document[]) => {
     const grouped: Record<string, Record<string, number>> = {};
@@ -109,6 +118,9 @@ export default function DocumentsDashboard() {
           <Tab.Panels>
             {tabs.map((tab) => {
               const documents = filterDocumentsByType(tab.type);
+              const { total, pending, completed, canceled } =
+                getStatusCounts(documents);
+
               const groupedData = groupByDateAndStatus(documents);
 
               const dates = Object.keys(groupedData).sort();
@@ -165,6 +177,57 @@ export default function DocumentsDashboard() {
 
               return (
                 <Tab.Panel key={tab.type}>
+                  {/* 상태 요약 */}
+                  <div className="mb-6 bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md">
+                    <h2 className="font-semibold mb-2">{tab.name} 상태 요약</h2>
+                    <div className="grid grid-cols-4 gap-4">
+                      {/* 진행 중 */}
+                      <div
+                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
+                        onClick={() =>
+                          router.push(`/documents/${tab.type}/pending`)
+                        }
+                      >
+                        <p className="font-semibold text-gray-700">진행 중</p>
+                        <h3 className="text-xl font-bold">{pending}</h3>
+                      </div>
+
+                      {/* 완료됨 */}
+                      <div
+                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
+                        onClick={() =>
+                          router.push(`/documents/${tab.type}/completed`)
+                        }
+                      >
+                        <p className="font-semibold text-gray-700">완료됨</p>
+                        <h3 className="text-xl font-bold">{completed}</h3>
+                      </div>
+
+                      {/* 취소됨 */}
+                      <div
+                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
+                        onClick={() =>
+                          router.push(`/documents/${tab.type}/canceled`)
+                        }
+                      >
+                        <p className="font-semibold text-gray-700">취소됨</p>
+                        <h3 className="text-xl font-bold">{canceled}</h3>
+                      </div>
+
+                      {/* 총 문서 */}
+                      <div
+                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
+                        onClick={() =>
+                          router.push(`/documents/${tab.type}/all`)
+                        }
+                      >
+                        <p className="font-semibold text-gray-700">총 문서</p>
+                        <h3 className="text-xl font-bold">{total}</h3>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 상태별 문서 테이블 및 차트 */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-1 bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md">
                       <h2 className="font-semibold text-md mb-4">
