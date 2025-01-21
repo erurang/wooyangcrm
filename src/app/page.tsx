@@ -9,13 +9,6 @@ import UserGreeting from "@/components/dashboard/UserGreeting";
 import GreetingComponent from "@/components/dashboard/Greeting";
 import { v4 as uuidv4 } from "uuid";
 
-interface User {
-  id: string;
-  name: string;
-  role: "sales" | "admin";
-  level: string;
-  position: string;
-}
 interface Document {
   type: "estimate" | "order" | "requestQuote";
   document_number: string;

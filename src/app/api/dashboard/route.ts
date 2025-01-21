@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+
     const role = searchParams.get("role") || "";
     const userId = searchParams.get("userId") || null;
 
