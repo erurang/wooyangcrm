@@ -27,7 +27,8 @@ export async function GET(request: Request) {
         "id, type, status, content, contact, user_id, document_number, created_at",
         { count: "exact" }
       )
-      .gte("created_at", thirtyDaysAgo.toISOString()); // 30일 기준 필터 추가
+      .gte("created_at", thirtyDaysAgo.toISOString()) // 30일 기준 필터 추가
+      .order("created_at", { ascending: false }); // 최신순 정렬
 
     // Role-based filtering
     if (role === "user" && userId) {
@@ -68,17 +69,25 @@ export async function GET(request: Request) {
       {}
     );
 
+    // Convert status counts to a more readable format
+    const readableDocumentsSummary = Object.entries(documentsSummary).map(
+      ([type, statusCounts]) => ({
+        type,
+        statusCounts: {
+          진행중: statusCounts.pending || 0,
+          완료됨: statusCounts.completed || 0,
+          취소됨: statusCounts.canceled || 0,
+          알수없음: statusCounts.unknown || 0,
+        },
+      })
+    );
+
     // Format the response
     return NextResponse.json({
       consultations: {
         total: totalConsultations || 0,
       },
-      documents: Object.entries(documentsSummary).map(
-        ([type, statusCounts]) => ({
-          type,
-          statusCounts,
-        })
-      ),
+      documents: readableDocumentsSummary, // Add summarized documents
       documentDetails: documents, // Add detailed documents
     });
   } catch (error) {

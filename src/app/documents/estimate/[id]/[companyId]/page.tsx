@@ -297,7 +297,9 @@ const EstimatePage = () => {
         spec: item.spec,
         quantity: item.quantity, // 숫자형으로 처리
         unit_price: item.unit_price, // 숫자형으로 처리
-        amount: item.quantity, // amount도 숫자형으로 처리
+        amount:
+          item.unit_price *
+          parseFloat(item.quantity.replace(/,/g, "").replace(/[^\d]/g, "")),
       })),
       company_name,
       total_amount: totalAmount, // totalAmount는 숫자형으로 처리

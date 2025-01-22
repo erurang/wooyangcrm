@@ -185,18 +185,46 @@ export default function DocumentsDashboard() {
                       <div
                         className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
                         onClick={() =>
-                          router.push(`/documents/${tab.type}/pending`)
+                          router.push(
+                            `/documents/details?type=${tab.type}&status=pending`
+                          )
                         }
                       >
                         <p className="font-semibold text-gray-700">진행 중</p>
                         <h3 className="text-xl font-bold">{pending}</h3>
                       </div>
 
+                      {/* 유효 기간 경과 */}
+                      <div
+                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
+                        onClick={() =>
+                          router.push(
+                            `/documents/details?type=${tab.type}&status=pending&expired=true`
+                          )
+                        }
+                      >
+                        <p className="font-semibold text-gray-700">
+                          유효 기간 만료
+                        </p>
+                        <h3 className="text-xl font-bold">
+                          {
+                            documents.filter(
+                              (doc) =>
+                                doc.status === "pending" &&
+                                new Date(doc.content.valid_until || "") <
+                                  new Date()
+                            ).length
+                          }
+                        </h3>
+                      </div>
+
                       {/* 완료됨 */}
                       <div
                         className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
                         onClick={() =>
-                          router.push(`/documents/${tab.type}/completed`)
+                          router.push(
+                            `/documents/details?type=${tab.type}&status=completed`
+                          )
                         }
                       >
                         <p className="font-semibold text-gray-700">완료됨</p>
@@ -207,22 +235,13 @@ export default function DocumentsDashboard() {
                       <div
                         className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
                         onClick={() =>
-                          router.push(`/documents/${tab.type}/canceled`)
+                          router.push(
+                            `/documents/details?type=${tab.type}&status=canceled`
+                          )
                         }
                       >
                         <p className="font-semibold text-gray-700">취소됨</p>
                         <h3 className="text-xl font-bold">{canceled}</h3>
-                      </div>
-
-                      {/* 총 문서 */}
-                      <div
-                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
-                        onClick={() =>
-                          router.push(`/documents/${tab.type}/all`)
-                        }
-                      >
-                        <p className="font-semibold text-gray-700">총 문서</p>
-                        <h3 className="text-xl font-bold">{total}</h3>
                       </div>
                     </div>
                   </div>

@@ -3,7 +3,7 @@
 import "./globals.css";
 import Link from "next/link";
 import { LoginUserProvider } from "./context/login";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function RootLayout({
   children,
@@ -15,17 +15,7 @@ export default function RootLayout({
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
-  // 다크 모드 감지 및 라이트 모드 강제 적용
-  useEffect(() => {
-    const isDarkMode = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-
-    if (isDarkMode) {
-      document.documentElement.classList.remove("dark"); // 다크 모드 비활성화
-      document.documentElement.classList.add("light"); // 라이트 모드 적용
-    }
-  }, []);
+  // 다크 모드 감지 및 라이트 모드 강제 적
 
   return (
     <html lang="ko">
@@ -49,13 +39,8 @@ export default function RootLayout({
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5"
                       viewBox="0 0 20 20"
-                      fill="currentColor"
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M9.707 14.707a1 1 0 01-1.414 0L4.586 11l3.707-3.707a1 1 0 011.414 1.414L7.414 11l2.293 2.293a1 1 0 010 1.414z"
-                        clipRule="evenodd"
-                      />
+                      <path d="M9.707 14.707a1 1 0 01-1.414 0L4.586 11l3.707-3.707a1 1 0 011.414 1.414L7.414 11l2.293 2.293a1 1 0 010 1.414z" />
                     </svg>
                   </>
                 ) : (
@@ -63,13 +48,8 @@ export default function RootLayout({
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
                     viewBox="0 0 20 20"
-                    fill="currentColor"
                   >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414L10.707 12l3.293 3.293a1 1 0 01-1.414 1.414L10 13.414l-3.293 3.293a1 1 0 01-1.414-1.414L8.586 12 5.293 8.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
+                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414L10.707 12l3.293 3.293a1 1 0 01-1.414 1.414L10 13.414l-3.293 3.293a1 1 0 01-1.414-1.414L8.586 12 5.293 8.707a1 1 0 010-1.414z" />
                   </svg>
                 )}
               </div>
@@ -132,6 +112,212 @@ export default function RootLayout({
                           stroke="#000000"
                           d="M13 3V10H20M6 7H5C4.44772 7 4 7.44772 4 8V20C4 20.5523 4.44772 21 5 21H14C14.5523 21 15 20.5523 15 20V19M8 4V16C8 16.5523 8.44772 17 9 17H19C19.5523 17 20 16.5523 20 16V9.38898C20 9.13879 19.9062 8.89769 19.7372 8.71326L14.7973 3.32428C14.6078 3.11765 14.3404 3 14.0601 3H9C8.44772 3 8 3.44772 8 4Z"
                         ></path>{" "}
+                      </g>
+                    </svg>
+                  ),
+                },
+                {
+                  title: "매입 단가 관리",
+                  path: "/products/buy",
+                  icon: (
+                    <svg
+                      className="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="#000000"
+                    >
+                      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                      <g
+                        id="SVGRepo_tracerCarrier"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      ></g>
+                      <g id="SVGRepo_iconCarrier">
+                        {" "}
+                        <title></title>{" "}
+                        <g
+                          fill="none"
+                          fillRule="evenodd"
+                          id="页面-1"
+                          stroke="none"
+                          strokeWidth="1"
+                        >
+                          {" "}
+                          <g
+                            id="导航图标"
+                            transform="translate(-325.000000, -80.000000)"
+                          >
+                            {" "}
+                            <g
+                              id="编组"
+                              transform="translate(325.000000, 80.000000)"
+                            >
+                              {" "}
+                              <polygon
+                                fill="#FFFFFF"
+                                fillOpacity="0.01"
+                                fillRule="nonzero"
+                                id="路径"
+                                points="24 0 0 0 0 24 24 24"
+                              ></polygon>{" "}
+                              <polygon
+                                id="路径"
+                                points="22 7 12 2 2 7 2 17 12 22 22 17"
+                                stroke="#000000"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                              ></polygon>{" "}
+                              <line
+                                id="路径"
+                                stroke="#000000"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                                x1="2"
+                                x2="12"
+                                y1="7"
+                                y2="12"
+                              ></line>{" "}
+                              <line
+                                id="路径"
+                                stroke="#000000"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                                x1="12"
+                                x2="12"
+                                y1="22"
+                                y2="12"
+                              ></line>{" "}
+                              <line
+                                id="路径"
+                                stroke="#000000"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                                x1="22"
+                                x2="12"
+                                y1="7"
+                                y2="12"
+                              ></line>{" "}
+                              <line
+                                id="路径"
+                                stroke="#000000"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                                x1="17"
+                                x2="7"
+                                y1="4.5"
+                                y2="9.5"
+                              ></line>{" "}
+                            </g>{" "}
+                          </g>{" "}
+                        </g>{" "}
+                      </g>
+                    </svg>
+                  ),
+                },
+                {
+                  title: "매출 단가 관리",
+                  path: "/products/sell",
+                  icon: (
+                    <svg
+                      className="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      version="1.1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="#000000"
+                    >
+                      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                      <g
+                        id="SVGRepo_tracerCarrier"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      ></g>
+                      <g id="SVGRepo_iconCarrier">
+                        {" "}
+                        <title></title>{" "}
+                        <g
+                          fill="none"
+                          fillRule="evenodd"
+                          id="页面-1"
+                          stroke="none"
+                          strokeWidth="1"
+                        >
+                          {" "}
+                          <g
+                            id="导航图标"
+                            transform="translate(-325.000000, -80.000000)"
+                          >
+                            {" "}
+                            <g
+                              id="编组"
+                              transform="translate(325.000000, 80.000000)"
+                            >
+                              {" "}
+                              <polygon
+                                fill="#FFFFFF"
+                                fillOpacity="0.01"
+                                fillRule="nonzero"
+                                id="路径"
+                                points="24 0 0 0 0 24 24 24"
+                              ></polygon>{" "}
+                              <polygon
+                                id="路径"
+                                points="22 7 12 2 2 7 2 17 12 22 22 17"
+                                stroke="#000000"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                              ></polygon>{" "}
+                              <line
+                                id="路径"
+                                stroke="#000000"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                                x1="2"
+                                x2="12"
+                                y1="7"
+                                y2="12"
+                              ></line>{" "}
+                              <line
+                                id="路径"
+                                stroke="#000000"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                                x1="12"
+                                x2="12"
+                                y1="22"
+                                y2="12"
+                              ></line>{" "}
+                              <line
+                                id="路径"
+                                stroke="#000000"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                                x1="22"
+                                x2="12"
+                                y1="7"
+                                y2="12"
+                              ></line>{" "}
+                              <line
+                                id="路径"
+                                stroke="#000000"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                                x1="17"
+                                x2="7"
+                                y1="4.5"
+                                y2="9.5"
+                              ></line>{" "}
+                            </g>{" "}
+                          </g>{" "}
+                        </g>{" "}
                       </g>
                     </svg>
                   ),

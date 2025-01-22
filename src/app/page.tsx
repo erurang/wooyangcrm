@@ -8,6 +8,7 @@ import { useLoginUser } from "./context/login";
 import UserGreeting from "@/components/dashboard/UserGreeting";
 import GreetingComponent from "@/components/dashboard/Greeting";
 import { v4 as uuidv4 } from "uuid";
+import Link from "next/link";
 
 interface Document {
   type: "estimate" | "order" | "requestQuote";
@@ -177,14 +178,15 @@ export default function SalesDashboard() {
                       <div key={uuidv4()} className="mb-6">
                         <div className="flex justify-between items-center mb-2">
                           <h3 className="font-bold">{title}</h3>
-                          <a
-                            href={`/documents/${title
-                              .replace(/\s/g, "-")
-                              .toLowerCase()}`}
+                          <Link
+                            href={`/documents`}
+                            // href={`/documents/${title
+                            //   .replace(/\s/g, "-")
+                            //   .toLowerCase()}`}
                             className="text-xs  hover:text-blue-500 cursor-pointer text-gray-400"
                           >
                             전체보기
-                          </a>
+                          </Link>
                         </div>
                         <table className="min-w-full table-auto border-collapse text-left">
                           <thead>
