@@ -757,10 +757,14 @@ export default function ConsultationPage() {
                               ? "text-blue-500 hover:font-bold"
                               : "text-gray-400 hover:text-black"
                           }`}
-                          onClick={() =>
-                            router.push(
-                              `/documents/estimate/${consultation.id}/${company?.id}`
-                            )
+                          onClick={
+                            () =>
+                              router.push(
+                                `/documents/estimate?consultId=${consultation.id}&compId=${company?.id}`
+                              )
+                            // router.push(
+                            //   `/documents/estimate/${consultation.id}/${company?.id}`
+                            // )
                           }
                         >
                           견적서
@@ -775,10 +779,15 @@ export default function ConsultationPage() {
                               ? "text-blue-500 hover:font-bold"
                               : "text-gray-400 hover:text-black"
                           }`}
-                          onClick={() =>
-                            router.push(
-                              `/documents/order/${consultation.id}/${company?.id}`
-                            )
+                          onClick={
+                            () =>
+                              router.push(
+                                `/documents/order?consultId=${consultation.id}&compId=${company?.id}`
+                              )
+
+                            // router.push(
+                            //   `/documents/order_test/${consultation.id}/${company?.id}`
+                            // )
                           }
                         >
                           발주서
@@ -793,10 +802,14 @@ export default function ConsultationPage() {
                               ? "text-blue-500 hover:font-bold"
                               : "text-gray-400 hover:text-black"
                           }`}
-                          onClick={() =>
-                            router.push(
-                              `/documents/request/${consultation.id}/${company?.id}`
-                            )
+                          onClick={
+                            () =>
+                              router.push(
+                                `/documents/request?consultId=${consultation.id}&compId=${company?.id}`
+                              )
+                            // router.push(
+                            //   `/documents/request_test/${consultation.id}/${company?.id}`
+                            // )
                           }
                         >
                           의뢰서

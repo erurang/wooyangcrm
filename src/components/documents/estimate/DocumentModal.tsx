@@ -321,13 +321,12 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                       </td>
                       <td className="px-4 py-2 border-black border-r-[1px]">
                         {item.quantity}
-                        {item.unit}
                       </td>
                       <td className="px-4 py-2 border-black border-r-[1px]">
                         {item.unit_price.toLocaleString()}
                       </td>
                       <td className="px-4 py-2 border-black border-r-[1px]">
-                        {item.amount.toLocaleString()}
+                        {item.amount}
                       </td>
                     </tr>
                   ))}
