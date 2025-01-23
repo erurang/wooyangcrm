@@ -1,8 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import { Snackbar, Alert } from "@mui/material";
-import ReactApexChart from "react-apexcharts";
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
 import { useLoginUser } from "./context/login";
 import UserGreeting from "@/components/dashboard/UserGreeting";
 import GreetingComponent from "@/components/dashboard/Greeting";
