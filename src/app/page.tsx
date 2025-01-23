@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Snackbar, Alert } from "@mui/material";
-import { Bar } from "react-chartjs-2";
-import "chart.js/auto"; // Chart.js 자동 설정
+import ReactApexChart from "react-apexcharts";
 import { useLoginUser } from "./context/login";
 import UserGreeting from "@/components/dashboard/UserGreeting";
 import GreetingComponent from "@/components/dashboard/Greeting";
@@ -33,7 +32,7 @@ interface DashboardData {
       unknown: number;
     };
   }[];
-  documentDetails: Document[]; // 추가
+  documentDetails: Document[];
 }
 
 export default function SalesDashboard() {
@@ -50,7 +49,6 @@ export default function SalesDashboard() {
       const response = await fetch(`/api/dashboard?userId=${user?.id}`);
       const data = await response.json();
 
-      // `documents` 데이터 가공
       const sortedDocuments = data.documents.sort(
         (a: Document, b: Document) => {
           const order = { estimate: 1, order: 2, requestQuote: 3 };
@@ -58,10 +56,9 @@ export default function SalesDashboard() {
         }
       );
 
-      // `dashboardData`에 상세 정보 포함
       setDashboardData({
         documents: sortedDocuments,
-        documentDetails: data.documentDetails, // Include detailed documents
+        documentDetails: data.documentDetails,
       });
     } catch (error) {
       setSnackbarMessage("대시보드 데이터를 불러오는 중 문제가 발생했습니다.");
@@ -79,6 +76,7 @@ export default function SalesDashboard() {
   if (!user) {
     return null;
   }
+
   const pendingDocuments = dashboardData?.documentDetails.filter(
     (doc) => doc.status === "pending"
   );
@@ -92,49 +90,66 @@ export default function SalesDashboard() {
     (doc) => new Date(doc.content.valid_until) < new Date()
   );
 
-  // 문서 상태별 막대 그래프 데이터
-  const barData = {
-    labels: ["견적서", "발주서", "의뢰서"],
-    datasets: [
-      {
-        label: "진행 중",
-        backgroundColor: "#42A5F5",
-        data: [
-          pendingDocuments?.filter((doc) => doc.type === "estimate").length ||
-            0,
-          pendingDocuments?.filter((doc) => doc.type === "order").length || 0,
-          pendingDocuments?.filter((doc) => doc.type === "requestQuote")
-            .length || 0,
-        ],
+  // ApexCharts 데이터 생성
+  const chartOptions: ApexCharts.ApexOptions = {
+    chart: {
+      type: "bar",
+      stacked: false,
+      toolbar: { show: true },
+    },
+    xaxis: {
+      categories: ["견적서", "발주서", "의뢰서"],
+      title: { text: "문서 유형" },
+    },
+    yaxis: {
+      title: { text: "문서 수" },
+      labels: {
+        formatter: (val: number) => Math.floor(val).toString(), // 소수점 제거
       },
-      {
-        label: "완료",
-        backgroundColor: "#66BB6A",
-        data: [
-          completedDocuments?.filter((doc) => doc.type === "estimate").length ||
-            0,
-          completedDocuments?.filter((doc) => doc.type === "order").length || 0,
-          completedDocuments?.filter((doc) => doc.type === "requestQuote")
-            .length || 0,
-        ],
+    },
+    tooltip: {
+      y: {
+        formatter: (val: number) => `${Math.floor(val)}건`, // 소수점 제거
       },
-      {
-        label: "취소",
-        backgroundColor: "#8E24AA",
-        data: [
-          canceledDocuments?.filter((doc) => doc.type === "estimate").length ||
-            0,
-          canceledDocuments?.filter((doc) => doc.type === "order").length || 0,
-          canceledDocuments?.filter((doc) => doc.type === "requestQuote")
-            .length || 0,
-        ],
-      },
-    ],
+    },
+    legend: {
+      position: "top",
+    },
   };
+
+  const chartSeries = [
+    {
+      name: "진행 중",
+      data: [
+        pendingDocuments?.filter((doc) => doc.type === "estimate").length || 0,
+        pendingDocuments?.filter((doc) => doc.type === "order").length || 0,
+        pendingDocuments?.filter((doc) => doc.type === "requestQuote").length ||
+          0,
+      ],
+    },
+    {
+      name: "완료",
+      data: [
+        completedDocuments?.filter((doc) => doc.type === "estimate").length ||
+          0,
+        completedDocuments?.filter((doc) => doc.type === "order").length || 0,
+        completedDocuments?.filter((doc) => doc.type === "requestQuote")
+          .length || 0,
+      ],
+    },
+    {
+      name: "취소",
+      data: [
+        canceledDocuments?.filter((doc) => doc.type === "estimate").length || 0,
+        canceledDocuments?.filter((doc) => doc.type === "order").length || 0,
+        canceledDocuments?.filter((doc) => doc.type === "requestQuote")
+          .length || 0,
+      ],
+    },
+  ];
 
   return (
     <div className="text-sm text-[#37352F]">
-      {/* 사용자 맞춤 인사 */}
       <p className="mb-4 font-semibold">대시보드</p>
       <div>
         <div className="bg-[#FBFBFB] rounded-md border-[1px] px-6 py-4 mb-6 col-span-1">
@@ -180,10 +195,7 @@ export default function SalesDashboard() {
                           <h3 className="font-bold">{title}</h3>
                           <Link
                             href={`/documents`}
-                            // href={`/documents/${title
-                            //   .replace(/\s/g, "-")
-                            //   .toLowerCase()}`}
-                            className="text-xs  hover:text-blue-500 cursor-pointer text-gray-400"
+                            className="text-xs hover:text-blue-500 cursor-pointer text-gray-400"
                           >
                             전체보기
                           </Link>
@@ -230,51 +242,13 @@ export default function SalesDashboard() {
 
               <div className="col-span-1">
                 <section className="mb-8">
-                  <h2 className="font-semibold text-md mb-4">문서 내역</h2>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-[#FBFBFB] rounded-md border-[1px] px-6 py-4">
-                      <p className="font-semibold text-gray-700">총 문서 수</p>
-                      <h3 className="text-xl font-bold">
-                        {dashboardData?.documentDetails.length || 0}
-                      </h3>
-                    </div>
-                    <div className="bg-[#FBFBFB] rounded-md border-[1px] px-6 py-4">
-                      <p className="font-semibold text-gray-700">
-                        진행 중 문서
-                      </p>
-                      <h3 className="text-xl font-bold">
-                        {pendingDocuments?.length || 0}
-                      </h3>
-                    </div>
-                    <div className="bg-[#FBFBFB] rounded-md border-[1px] px-6 py-4">
-                      <p className="font-semibold text-gray-700">완료된 문서</p>
-                      <h3 className="text-xl font-bold">
-                        {completedDocuments?.length || 0}
-                      </h3>
-                    </div>
-                  </div>
-                </section>
-
-                {/* 문서 상태 요약 */}
-                <section className="mb-8">
                   <h2 className="font-semibold text-md mb-4">문서 상태 요약</h2>
                   <div className="bg-[#FBFBFB] rounded-md border-[1px] px-6 py-4 min-h-[32rem]">
-                    <Bar
-                      data={barData}
-                      options={{
-                        plugins: {
-                          legend: { display: true },
-                        },
-                        maintainAspectRatio: false,
-                        responsive: true,
-                        scales: {
-                          y: {
-                            ticks: {
-                              precision: 0, // 소수점 제거
-                            },
-                          },
-                        },
-                      }}
+                    <ReactApexChart
+                      options={chartOptions}
+                      series={chartSeries}
+                      type="bar"
+                      height={350}
                     />
                   </div>
                 </section>
@@ -284,7 +258,6 @@ export default function SalesDashboard() {
         </div>
       )}
 
-      {/* 스낵바 */}
       <Snackbar
         open={!!snackbarMessage}
         autoHideDuration={3000}

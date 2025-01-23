@@ -637,7 +637,7 @@ const DocPage = () => {
             content,
             payment_method,
             contact,
-            status: newDocument.status,
+            // status: newDocument.status,
           })
           .eq("id", newDocument.id)
           .select();
@@ -701,7 +701,7 @@ const DocPage = () => {
             content,
             payment_method,
             contact,
-            status: newDocument.status,
+            // status: newDocument.status,
           })
           .eq("id", newDocument.id)
           .select();
@@ -764,7 +764,7 @@ const DocPage = () => {
           .update({
             content,
             contact,
-            status: newDocument.status,
+            // status: newDocument.status,
           })
           .eq("id", newDocument.id)
           .select();
@@ -781,7 +781,7 @@ const DocPage = () => {
             setDocuments(updatedDocuments); // documents 업데이트
           }
 
-          setSnackbarMessage("견적의뢰서가 수정되었습니다.");
+          setSnackbarMessage("의뢰서가 수정되었습니다.");
           setOpenSnackbar(true);
           handleEditCloseModal();
         }
@@ -852,7 +852,7 @@ const DocPage = () => {
         </span>{" "}
         &gt; {type === "estimate" && "견적서"}
         {type === "order" && "발주서"}
-        {type === "request" && "의뢰서"} &gt; {id?.slice(0, 4)}
+        {type === "requestQuote" && "의뢰서"} &gt; {id?.slice(0, 4)}
       </div>
 
       <div className="flex my-3">
@@ -903,13 +903,13 @@ const DocPage = () => {
             <h3 className="text-xl font-semibold mb-2">
               {type === "estimate" && "견적서"}
               {type === "order" && "발주서"}
-              {type === "request" && "의뢰서"} 삭제
+              {type === "requestQuote" && "의뢰서"} 삭제
             </h3>
             <p>
               정말로 "{documentToDelete.document_number}"의{" "}
               {type === "estimate" && "견적서"}
               {type === "order" && "발주서"}
-              {type === "request" && "의뢰서"}를 삭제하시겠습니까?
+              {type === "requestQuote" && "의뢰서"}를 삭제하시겠습니까?
             </p>
 
             <div className="flex justify-end space-x-4 mt-4">

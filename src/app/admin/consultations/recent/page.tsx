@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Snackbar, Alert, Button } from "@mui/material"; // MUI 사용
 import { useRouter } from "next/navigation";
 import DocumentModal from "@/components/documents/estimate/DocumentModal"; // 모달 컴포넌트 추가
+import { useLoginUser } from "@/app/context/login";
 
 interface Document {
   id: string;
@@ -27,7 +28,6 @@ interface Consultation {
   };
   content: string;
   documents: Document[];
-  contact: string;
 }
 
 interface User {
@@ -36,6 +36,7 @@ interface User {
 }
 
 export default function RecentConsultations() {
+  const user = useLoginUser();
   const today = new Date().toISOString().split("T")[0]; // 현재 날짜
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     .toISOString()
@@ -148,6 +149,8 @@ export default function RecentConsultations() {
   }, [currentPage]);
 
   useEffect(() => {
+    if (user?.role !== "admin") router.push("/404");
+
     // ESC 키 핸들러
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -189,6 +192,15 @@ export default function RecentConsultations() {
             />
           </div>
           <div className="flex items-center">
+            <label className="mr-4 font-semibold">상담자</label>
+            <input
+              value={userTerm}
+              onChange={(e) => setUserTerm(e.target.value)}
+              placeholder="상담자 이름"
+              className="w-3/4 p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          <div className="flex items-center">
             <label className="mr-4  font-semibold">시작 날짜</label>
             <input
               type="date"
@@ -206,7 +218,6 @@ export default function RecentConsultations() {
               className="w-3/4 p-2 border border-gray-300 rounded-md"
             />
           </div>
-          <div></div>
           <div className="flex items-center justify-end">
             <button
               onClick={() => {
@@ -235,7 +246,7 @@ export default function RecentConsultations() {
             <tr className="bg-gray-100">
               <th className="px-4 py-2 border-b border-r w-1/12">상담일자</th>
               <th className="px-4 py-2 border-b border-r w-2/12">회사명</th>
-              <th className="px-4 py-2 border-b border-r w-1/12">피상담자</th>
+              <th className="px-4 py-2 border-b border-r w-1/12">상담자</th>
               <th className="px-4 py-2 border-b border-r ">내용</th>
               <th className="px-4 py-2 border-b border-r w-3/12">문서</th>
             </tr>
@@ -255,7 +266,7 @@ export default function RecentConsultations() {
                   {consultation.companies?.name}
                 </td>
                 <td className="px-4 py-2 border-b border-r">
-                  {consultation.contact}
+                  {consultation.users?.name}
                 </td>
                 <td
                   className="px-4 py-2 border-b border-r "

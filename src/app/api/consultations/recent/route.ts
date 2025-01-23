@@ -61,6 +61,7 @@ export async function GET(request: Request) {
           id,
           date,
           content,
+          contact,
           companies (id, name),
           users!consultations_user_id_fkey (id, name),
           documents (type, id, document_number, content, user_id)

@@ -89,7 +89,7 @@ export default function DocumentsDashboard() {
   const tabs = [
     { name: "견적서", type: "estimate" },
     { name: "발주서", type: "order" },
-    { name: "의뢰서", type: "requestQuote" },
+    { name: "의뢰서", type: "request" },
   ];
 
   return (

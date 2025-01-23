@@ -181,13 +181,13 @@ export default function Estimate({
               </th>
             </tr>
           )}
-          {type === "request" && (
+          {type === "requestQuote" && (
             <tr className="bg-gray-100 text-left">
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
                 의뢰일
               </th>
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                납기일
+                희망견적일
               </th>
               <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                 담당자
@@ -226,7 +226,7 @@ export default function Estimate({
                 {type === "estimate" &&
                   new Date(document.content.valid_until).toLocaleDateString()}
                 {type === "order" && document.content.delivery_date}
-                {type === "request" && document.content.delivery_date}
+                {type === "requestQuote" && document.content.delivery_date}
               </td>
               <td className="px-4 py-2 border-b border-r-[1px]">
                 {document.contact} {/* 담당자 */}
@@ -269,21 +269,21 @@ export default function Estimate({
               <td
                 className={`px-4 py-2 border-b border-r-[1px]  
                     ${
-                      user.id === document.user_id &&
+                      user?.id === document.user_id &&
                       "text-blue-500 cursor-pointer"
                     }`}
                 onClick={() => {
-                  if (user.id === document.user_id) handleEditModal(document);
+                  if (user?.id === document.user_id) handleEditModal(document);
                 }}
               >
                 수정
               </td>
               <td
                 className={`px-4 py-2 border-b border-r-[1px] ${
-                  user.id === document.user_id && "text-red-500 cursor-pointer"
+                  user?.id === document.user_id && "text-red-500 cursor-pointer"
                 }}`}
                 onClick={() => {
-                  if (user.id === document.user_id)
+                  if (user?.id === document.user_id)
                     handleDeleteDocument(document);
                 }}
               >
@@ -300,11 +300,11 @@ export default function Estimate({
               <h3 className="text-xl font-semibold mb-4">
                 {type === "estimate" && "견적서"}
                 {type === "order" && "발주서"}
-                {type === "request" && "의뢰서"}
+                {type === "requestQuote" && "의뢰서"}
                 추가
               </h3>
               <div className="flex space-x-3">
-                <span className={"text-blue-500 font-bold"}>진행</span>
+                {/* <span className={"text-blue-500 font-bold"}>진행</span>
                 <span
                   className={
                     newDocument.status === "completed"
@@ -322,7 +322,7 @@ export default function Estimate({
                   }
                 >
                   취소
-                </span>
+                </span> */}
               </div>
             </div>
 
@@ -441,7 +441,7 @@ export default function Estimate({
                     />
                   </>
                 )}
-                {type === "request" && (
+                {type === "requestQuote" && (
                   <>
                     <label className="block mb-2 text-sm font-medium">
                       의뢰일
@@ -500,7 +500,7 @@ export default function Estimate({
                     />
                   </>
                 )}
-                {type === "request" && (
+                {type === "requestQuote" && (
                   <>
                     <label className="block mb-2 text-sm font-medium">
                       희망견적일{" "}
@@ -548,7 +548,7 @@ export default function Estimate({
                     />
                   </>
                 )}
-                {type === "request" && (
+                {type === "requestQuote" && (
                   <>
                     <label className="block mb-2 text-sm font-medium">
                       의뢰자
@@ -571,7 +571,7 @@ export default function Estimate({
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
                 >
                   {users.map((user) => (
-                    <option key={user.id} value={user.id}>
+                    <option key={user?.id} value={user?.id}>
                       {user.name}
                     </option>
                   ))}
@@ -630,7 +630,7 @@ export default function Estimate({
                 </>
               )}
               {type === "order" ||
-                (type === "request" && (
+                (type === "requestQuote" && (
                   <>
                     <div></div>
                     <div></div>
@@ -782,10 +782,10 @@ export default function Estimate({
               <h3 className="text-xl font-semibold mb-4">
                 {type === "estimate" && "견적서"}
                 {type === "order" && "발주서"}
-                {type === "request" && "의뢰서"} 수정
+                {type === "requestQuote" && "의뢰서"} 수정
               </h3>
               <div className="flex space-x-3">
-                <span
+                {/* <span
                   onClick={() =>
                     setNewDocument({ ...newDocument, status: "pending" })
                   }
@@ -820,7 +820,7 @@ export default function Estimate({
                   }`}
                 >
                   취소
-                </span>
+                </span> */}
               </div>
             </div>
 
@@ -935,7 +935,7 @@ export default function Estimate({
                     />
                   </>
                 )}
-                {type === "request" && (
+                {type === "requestQuote" && (
                   <>
                     <label className="block mb-2 text-sm font-medium">
                       의뢰일
@@ -993,7 +993,7 @@ export default function Estimate({
                     />
                   </>
                 )}
-                {type === "request" && (
+                {type === "requestQuote" && (
                   <>
                     <label className="block mb-2 text-sm font-medium">
                       희망견적일{" "}
@@ -1041,7 +1041,7 @@ export default function Estimate({
                     />
                   </>
                 )}
-                {type === "request" && (
+                {type === "requestQuote" && (
                   <>
                     <label className="block mb-2 text-sm font-medium">
                       의뢰자
@@ -1108,12 +1108,13 @@ export default function Estimate({
                   </div>
                 </>
               )}
-              {type === "order" && (
-                <>
-                  <div></div>
-                  <div></div>
-                </>
-              )}
+              {type === "order" ||
+                (type === "requestQuote" && (
+                  <>
+                    <div></div>
+                    <div></div>
+                  </>
+                ))}
 
               <div className="mb-2">
                 <label className="block mb-2 text-sm font-medium">총액金</label>

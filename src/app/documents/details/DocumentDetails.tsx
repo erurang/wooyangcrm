@@ -17,9 +17,22 @@ interface Document {
   contact: string;
   content: {
     company_name: string;
-    valid_until?: string;
+    valid_until: string;
+    delivery_date: string;
+    total_amount: number;
   };
   created_at: string;
+  user_id: string;
+  status_reason: {
+    canceled: {
+      reason: string;
+      amount: number;
+    };
+    completed: {
+      reason: string;
+      amount: number;
+    };
+  };
 }
 
 interface User {
@@ -50,7 +63,6 @@ export default function DocumentsDetailsPage() {
     }
   };
 
-  console.log("user", user);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -60,8 +72,20 @@ export default function DocumentsDetailsPage() {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [statusChangeDoc, setStatusChangeDoc] = useState<Document | null>(null);
-  const [statusReason, setStatusReason] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const [statusReason, setStatusReason] = useState({
+    canceled: {
+      reason: "",
+      amount: 0,
+    },
+    completed: {
+      reason: "",
+      amount: 0,
+    },
+  });
+
+  const [selectedStatus, setSelectedStatus] = useState<
+    "canceled" | "completed"
+  >("canceled"); // ""는 초기값
 
   const documentsPerPage = 10;
 
@@ -84,10 +108,10 @@ export default function DocumentsDetailsPage() {
         .select("*")
         .eq("type", type)
         .eq("status", status)
-        .eq("user_id", "c79219a1-7ac0-41bd-92c5-94e665313a7e") // 로그인한 유저의 문서만 가져옴
+        .eq("user_id", user?.id) // 로그인한 유저의 문서만 가져옴
         .ilike("content->>company_name", `%${searchTerm}%`)
-        .gte("created_at", startDate)
-        .lte("created_at", endDate);
+        .gte("created_at", `${startDate}T00:00:00`)
+        .lte("created_at", `${endDate}T23:59:59`);
 
       if (error) {
         throw error;
@@ -124,11 +148,21 @@ export default function DocumentsDetailsPage() {
   }, []);
 
   useEffect(() => {
-    fetchDocuments();
-  }, [type, status, currentPage, user?.id]);
+    if (user) {
+      fetchDocuments();
+    }
+  }, [type, status, currentPage, user]);
 
   const handleStatusChange = async () => {
     if (!statusChangeDoc || !statusReason || !selectedStatus) return;
+
+    const confirmChange = window.confirm(
+      "상태 변경은 되돌릴 수 없습니다. 변경할까요?"
+    );
+
+    if (!confirmChange) {
+      return; // 사용자가 취소한 경우 중단
+    }
 
     try {
       const { error } = await supabase
@@ -153,7 +187,16 @@ export default function DocumentsDetailsPage() {
         )
       );
       setStatusChangeDoc(null);
-      setStatusReason("");
+      setStatusReason({
+        canceled: {
+          reason: "",
+          amount: 0,
+        },
+        completed: {
+          reason: "",
+          amount: 0,
+        },
+      });
     } catch (error) {
       console.error("Failed to update document status:", error);
       setSnackbarMessage("문서 상태 업데이트 중 오류가 발생했습니다.");
@@ -263,12 +306,27 @@ export default function DocumentsDetailsPage() {
         <table className="min-w-full table-auto border-collapse">
           <thead>
             <tr className="bg-gray-100 text-center">
-              <th className="px-4 py-2 border-b">견적일</th>
-              <th className="px-4 py-2 border-b">유효 기간</th>
+              <th className="px-4 py-2 border-b">
+                {type === "estimate" && "견적일"}
+                {type === "order" && "발주일"}
+                {type === "requestQuote" && "의뢰일"}
+              </th>
+              <th className="px-4 py-2 border-b">
+                {type === "estimate" && "견적유효기간"}
+                {type === "order" && "납기일"}
+                {type === "requestQuote" && "희망견적일"}
+              </th>
               <th className="px-4 py-2 border-b">회사명</th>
-              <th className="px-4 py-2 border-b">상담자</th>
               <th className="px-4 py-2 border-b">문서 번호</th>
-              <th className="px-4 py-2 border-b">상태 변경</th>
+              <th className="px-4 py-2 border-b">상담자</th>
+              <th className="px-4 py-2 border-b">
+                {type === "estimate" && "견적자"}
+                {type === "order" && "발주자"}
+                {type === "requestQuote" && "의뢰자"}
+              </th>
+              <th className="px-4 py-2 border-b">
+                {status === "pending" ? <>변경</> : <>사유</>}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -278,42 +336,66 @@ export default function DocumentsDetailsPage() {
                   {doc.created_at.slice(0, 10)}
                 </td>
                 <td className="px-4 py-2 border-b">
-                  {doc.content.valid_until?.slice(0, 10) || "없음"}
+                  {type === "estimate" &&
+                    new Date(doc.content?.valid_until).toLocaleDateString()}
+                  {type === "order" && doc.content?.delivery_date}
+                  {type === "requestQuote" && doc.content?.delivery_date}
                 </td>
                 <td className="px-4 py-2 border-b">
-                  {doc.content.company_name}
+                  {doc.content?.company_name}
                 </td>
-                <td className="px-4 py-2 border-b">{doc.contact}</td>
                 <td
                   className="px-4 py-2 border-b text-blue-500 cursor-pointer"
                   onClick={() => setSelectedDocument(doc)}
                 >
                   {doc.document_number}
                 </td>
+                <td className="px-4 py-2 border-b">{doc.contact}</td>
                 <td className="px-4 py-2 border-b">
-                  <div className="flex space-x-2">
-                    {["pending", "completed", "canceled"].map((status) => (
-                      <button
-                        key={status}
-                        className={`px-4 py-2 rounded-md ${
-                          status === doc.status
-                            ? "bg-gray-400 text-white cursor-default"
-                            : "bg-blue-500 text-white"
-                        }`}
-                        onClick={() => {
-                          if (status !== doc.status) {
-                            setSelectedStatus(status);
-                            setStatusChangeDoc(doc);
-                          }
-                        }}
-                      >
-                        {status === "pending"
-                          ? "진행 중"
-                          : status === "completed"
-                          ? "완료"
-                          : "취소"}
-                      </button>
-                    ))}
+                  {users.find((user) => user.id === doc.user_id)?.name}
+                </td>
+                <td className="px-4 py-2 border-b w-1/3">
+                  <div className="flex justify-center">
+                    {doc.status === "pending" ? (
+                      ["pending", "completed", "canceled"].map((status) => (
+                        <button
+                          key={status}
+                          className={`px-6 py-2 rounded-md ${
+                            status === doc.status
+                              ? "text-blue-500"
+                              : "hover:text-black text-gray-400 cursor-pointer "
+                          }`}
+                          onClick={() => {
+                            if (status !== doc.status) {
+                              setSelectedStatus(
+                                status as "completed" | "canceled"
+                              );
+                              setStatusChangeDoc(doc);
+                            }
+                          }}
+                        >
+                          {status === "pending"
+                            ? "진행 중"
+                            : status === "completed"
+                            ? "완료"
+                            : "취소"}
+                        </button>
+                      ))
+                    ) : (
+                      <>
+                        {doc.status === "completed" ? (
+                          <>
+                            {doc.status_reason &&
+                              doc.status_reason.completed.reason}
+                          </>
+                        ) : (
+                          <>
+                            {doc.status_reason &&
+                              doc.status_reason.canceled.reason}
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -377,12 +459,20 @@ export default function DocumentsDetailsPage() {
       {statusChangeDoc && (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-md w-1/3">
-            <h2 className="text-xl font-bold mb-4">상태 변경</h2>
+            <h2 className="text-xl font-bold mb-4">진행 상태 변경</h2>
             <textarea
-              placeholder="변경 사유를 입력하세요."
-              className="w-full p-2 border border-gray-300 rounded-md"
-              value={statusReason}
-              onChange={(e) => setStatusReason(e.target.value)}
+              placeholder="발주처리, 단가로 인한 취소, 프로젝트 취소.. 등등"
+              className="w-full min-h-32 p-2 border border-gray-300 rounded-md"
+              value={selectedStatus ? statusReason[selectedStatus]?.reason : ""}
+              onChange={(e) =>
+                setStatusReason((prev) => ({
+                  ...prev,
+                  [selectedStatus]: {
+                    amount: statusChangeDoc.content.total_amount,
+                    reason: e.target.value,
+                  },
+                }))
+              }
             />
             <div className="flex justify-end mt-4">
               <button

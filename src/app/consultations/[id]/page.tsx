@@ -805,7 +805,7 @@ export default function ConsultationPage() {
                           onClick={
                             () =>
                               router.push(
-                                `/documents/request?consultId=${consultation.id}&compId=${company?.id}`
+                                `/documents/requestQuote?consultId=${consultation.id}&compId=${company?.id}`
                               )
                             // router.push(
                             //   `/documents/request_test/${consultation.id}/${company?.id}`
@@ -816,14 +816,26 @@ export default function ConsultationPage() {
                         </span>
                       </td>
                       <td
-                        onClick={() => handleEditConsultation(consultation)}
-                        className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
+                        onClick={() => {
+                          if (loginUser?.id === consultation.user_id)
+                            handleEditConsultation(consultation);
+                        }}
+                        className={`px-4 py-2 border-b border-r-[1px] ${
+                          loginUser?.id === consultation.user_id &&
+                          "text-blue-500 cursor-pointer"
+                        }`}
                       >
                         수정
                       </td>
                       <td
-                        onClick={() => handleDeleteConsultation(consultation)}
-                        className="px-4 py-2 border-b border-r-[1px] text-red-500 cursor-pointer"
+                        onClick={() => {
+                          if (loginUser?.id === consultation.user_id)
+                            handleDeleteConsultation(consultation);
+                        }}
+                        className={`px-4 py-2 border-b border-r-[1px] ${
+                          loginUser?.id === consultation.user_id &&
+                          "text-red-500 cursor-pointer"
+                        }`}
                       >
                         삭제
                       </td>
