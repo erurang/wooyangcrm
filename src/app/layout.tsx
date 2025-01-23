@@ -117,8 +117,74 @@ export default function RootLayout({
                   ),
                 },
                 {
+                  title: "견적서 관리",
+                  path: "/documents/details?type=estimate&status=pending",
+                  icon: (
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      className="w-5 h-5"
+                    >
+                      <g id="SVGRepo_bgCarrier"></g>
+                      <g id="SVGRepo_tracerCarrier"></g>
+                      <g id="SVGRepo_iconCarrier">
+                        {" "}
+                        <path
+                          stroke="#000000"
+                          d="M13 3V10H20M6 7H5C4.44772 7 4 7.44772 4 8V20C4 20.5523 4.44772 21 5 21H14C14.5523 21 15 20.5523 15 20V19M8 4V16C8 16.5523 8.44772 17 9 17H19C19.5523 17 20 16.5523 20 16V9.38898C20 9.13879 19.9062 8.89769 19.7372 8.71326L14.7973 3.32428C14.6078 3.11765 14.3404 3 14.0601 3H9C8.44772 3 8 3.44772 8 4Z"
+                        ></path>{" "}
+                      </g>
+                    </svg>
+                  ),
+                },
+                {
+                  title: "발주서 관리",
+                  path: "/documents/details?type=order&status=pending",
+                  icon: (
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      className="w-5 h-5"
+                    >
+                      <g id="SVGRepo_bgCarrier"></g>
+                      <g id="SVGRepo_tracerCarrier"></g>
+                      <g id="SVGRepo_iconCarrier">
+                        {" "}
+                        <path
+                          stroke="#000000"
+                          d="M13 3V10H20M6 7H5C4.44772 7 4 7.44772 4 8V20C4 20.5523 4.44772 21 5 21H14C14.5523 21 15 20.5523 15 20V19M8 4V16C8 16.5523 8.44772 17 9 17H19C19.5523 17 20 16.5523 20 16V9.38898C20 9.13879 19.9062 8.89769 19.7372 8.71326L14.7973 3.32428C14.6078 3.11765 14.3404 3 14.0601 3H9C8.44772 3 8 3.44772 8 4Z"
+                        ></path>{" "}
+                      </g>
+                    </svg>
+                  ),
+                },
+                {
+                  title: "의뢰서 관리",
+                  path: "/documents/details?type=requestQuote&status=pending",
+                  icon: (
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      className="w-5 h-5"
+                    >
+                      <g id="SVGRepo_bgCarrier"></g>
+                      <g id="SVGRepo_tracerCarrier"></g>
+                      <g id="SVGRepo_iconCarrier">
+                        {" "}
+                        <path
+                          stroke="#000000"
+                          d="M13 3V10H20M6 7H5C4.44772 7 4 7.44772 4 8V20C4 20.5523 4.44772 21 5 21H14C14.5523 21 15 20.5523 15 20V19M8 4V16C8 16.5523 8.44772 17 9 17H19C19.5523 17 20 16.5523 20 16V9.38898C20 9.13879 19.9062 8.89769 19.7372 8.71326L14.7973 3.32428C14.6078 3.11765 14.3404 3 14.0601 3H9C8.44772 3 8 3.44772 8 4Z"
+                        ></path>{" "}
+                      </g>
+                    </svg>
+                  ),
+                },
+                {
                   title: "매입 단가 관리",
-                  path: "/products/buy",
+                  path: "/products/unit?type=order",
                   icon: (
                     <svg
                       className="w-5 h-5"
@@ -221,7 +287,7 @@ export default function RootLayout({
                 },
                 {
                   title: "매출 단가 관리",
-                  path: "/products/sell",
+                  path: "/products/unit?type=estimate",
                   icon: (
                     <svg
                       className="w-5 h-5"

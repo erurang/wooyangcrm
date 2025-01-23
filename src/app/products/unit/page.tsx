@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import DocumentsDetailsPage from "./DocumentDetails";
+import ProductPage from "./Product";
 
 export default function DocumentsDetailsPageWrapper() {
   return (
     <Suspense fallback={<div>로딩 중...</div>}>
-      <DocumentsDetailsPage />
+      <ProductPage />
     </Suspense>
   );
 }
