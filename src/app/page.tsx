@@ -251,7 +251,7 @@ export default function SalesDashboard() {
                       options={chartOptions}
                       series={chartSeries}
                       type="bar"
-                      height={350}
+                      height={600}
                     />
                   </div>
                 </section>

@@ -1,7 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
+
 import React, { useEffect, useState } from "react";
-import ReactApexChart from "react-apexcharts";
 import { useLoginUser } from "@/app/context/login";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -72,9 +76,9 @@ const PerformancePage = () => {
       title: { text: "월" },
     },
     yaxis: {
-      title: { text: "총 금액 (₩)" },
+      title: { text: "단위 :백만" }, // Y축 제목 변경
       labels: {
-        formatter: (val: number) => val.toLocaleString(), // 숫자 포맷
+        formatter: (val: number) => `${(val / 1000000).toLocaleString()}`, // 1만 원 단위로 변환
       },
     },
     tooltip: {
@@ -82,7 +86,35 @@ const PerformancePage = () => {
         formatter: (val: number) => `₩ ${val.toLocaleString()}`, // 툴팁 포맷
       },
     },
-    stroke: { curve: "smooth" as "smooth" }, // 곡선형 라인
+    legend: { show: true },
+  };
+
+  const horizontalBarOptions = {
+    chart: {
+      type: "bar",
+      stacked: true,
+      stackType: "100%",
+      toolbar: { show: true },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true, // 가로 막대 그래프 설정
+      },
+    },
+    xaxis: {
+      categories: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
+      title: { text: "월" },
+    },
+    yaxis: {
+      labels: {
+        formatter: (val: number) => `${val}`, // 비율 포맷
+      },
+    },
+    tooltip: {
+      y: {
+        formatter: (val: number) => `₩ ${val.toLocaleString()}`,
+      },
+    },
     legend: { show: true },
   };
 
@@ -166,7 +198,7 @@ const PerformancePage = () => {
                 colors: ["#FF5733"],
               }}
               series={purchaseChartSeries}
-              type="line"
+              type="area"
               height={350}
             />
           </div>
@@ -179,12 +211,11 @@ const PerformancePage = () => {
           <div className="bg-[#FBFBFB] p-6 rounded-lg shadow mb-8">
             <ReactApexChart
               options={{
-                ...commonChartOptions,
-                legend: { show: true },
+                ...horizontalBarOptions,
                 colors: ["#9467bd", "#8c564b", "#e377c2", "#7f7f7f"],
               }}
               series={purchaseProductChartSeries}
-              type="line"
+              type="bar"
               height={350}
             />
           </div>
@@ -201,7 +232,7 @@ const PerformancePage = () => {
                 colors: ["#28B463"],
               }}
               series={salesChartSeries}
-              type="line"
+              type="area"
               height={350}
             />
           </div>
@@ -213,12 +244,11 @@ const PerformancePage = () => {
           <div className="bg-[#FBFBFB] p-6 rounded-lg shadow mb-8">
             <ReactApexChart
               options={{
-                ...commonChartOptions,
-                legend: { show: true },
+                ...horizontalBarOptions,
                 colors: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"],
               }}
               series={salesProductChartSeries}
-              type="line"
+              type="bar"
               height={350}
             />
           </div>
