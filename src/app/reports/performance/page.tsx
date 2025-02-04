@@ -40,7 +40,7 @@ const PerformancePage = () => {
       setLoading(true);
 
       const res = await fetch(
-        `/api/performance?userId=${user?.id}&year=${year}`
+        `/api/reports/performance?userId=${user?.id}&year=${year}`
       );
       const data = await res.json();
 
@@ -91,14 +91,14 @@ const PerformancePage = () => {
 
   const horizontalBarOptions = {
     chart: {
-      type: "bar",
+      type: "bar" as "bar", // "bar" 타입 명시
       stacked: true,
-      stackType: "100%",
+      stackType: "100%" as "100%", // stackType 명시
       toolbar: { show: true },
     },
     plotOptions: {
       bar: {
-        horizontal: true, // 가로 막대 그래프 설정
+        horizontal: true, // 가로 막대 그래프
       },
     },
     xaxis: {
@@ -109,10 +109,11 @@ const PerformancePage = () => {
       labels: {
         formatter: (val: number) => `${val}`, // 비율 포맷
       },
+      title: { text: "단위: 백만 원" }, // 단위 명시
     },
     tooltip: {
       y: {
-        formatter: (val: number) => `₩ ${val.toLocaleString()}`,
+        formatter: (val: number) => `₩ ${val.toLocaleString()}`, // 숫자 포맷
       },
     },
     legend: { show: true },
