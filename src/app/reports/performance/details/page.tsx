@@ -107,7 +107,7 @@ const PerformanceDetails = () => {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <h1 className="mb-4">영업 상세 분석</h1>
+      <h1 className="mb-4 font-semibold">영업 상세 분석</h1>
 
       {/* 검색 UI */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
@@ -177,7 +177,7 @@ const PerformanceDetails = () => {
                     총견적수
                   </th>
                   <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                    발주율
+                    견적 승인율
                   </th>
                   <th className="px-4 py-2 border-b text-center">총매출액</th>
                 </>
@@ -209,7 +209,7 @@ const PerformanceDetails = () => {
                     className="px-4 py-2 border-b text-blue-500 cursor-pointer border-r-[1px]"
                     onClick={() =>
                       router.push(
-                        `/reports/performance/details/${doc.companyId}`
+                        `/reports/performance/details/${doc.companyId}?type=estimate`
                       )
                     }
                   >
@@ -239,7 +239,7 @@ const PerformanceDetails = () => {
                     className="px-4 py-2 border-b text-blue-500 cursor-pointer border-r-[1px]"
                     onClick={() =>
                       router.push(
-                        `/reports/performance/details/${doc.companyId}`
+                        `/reports/performance/details/${doc.companyId}?type=order`
                       )
                     }
                   >
@@ -277,7 +277,11 @@ const PerformanceDetails = () => {
           <button
             key={index}
             onClick={() => typeof page === "number" && setCurrentPage(page)}
-            className="px-3 py-1 border rounded"
+            className={`px-3 py-1 border rounded ${
+              currentPage === page
+                ? "bg-blue-500 text-white font-bold"
+                : "bg-white"
+            }`}
           >
             {page}
           </button>
