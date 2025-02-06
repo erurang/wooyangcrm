@@ -123,24 +123,7 @@ const PerformanceDetailPage = () => {
       return data.yearlyData?.[year]?.[month] > 0 ? 1 : 0;
     }),
   })); // ✅ 평균 거래 금액 계산
-  const averageTransactionSeries = sortedYears.map((year) => {
-    const totalSales = Object.values(data.yearlyData?.[year] || {}).reduce(
-      (acc, cur) => acc + cur,
-      0
-    );
 
-    const totalTransactions =
-      data.transactionData?.[year] &&
-      Object.keys(data.transactionData[year])?.length
-        ? Object.keys(data.transactionData[year])?.length
-        : 0;
-
-    return {
-      year,
-      average:
-        totalTransactions > 0 ? Math.round(totalSales / totalTransactions) : 0,
-    };
-  });
   // ✅ 연도별 성장률 계산
   const minYear = Math.min(...data.availableYears, currentYear);
   const maxYear = Math.max(...data.availableYears, currentYear);

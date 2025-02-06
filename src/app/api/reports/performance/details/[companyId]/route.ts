@@ -3,10 +3,10 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { companyId: string } }
+  { params }: { params: Promise<{ companyId: string }> }
 ) {
   const { searchParams } = req.nextUrl;
-  const companyId = params.companyId;
+  const { companyId } = await params;
   const type = searchParams.get("type");
   const userId = searchParams.get("userId");
   const selectedYears = searchParams.getAll("year").map(Number); // ✅ 여러 개의 연도 선택 가능하도록 변경
@@ -24,7 +24,7 @@ export async function GET(
       .select("content, created_at, status")
       .eq("company_id", companyId)
       .eq("type", type)
-      .eq("user_id", userId)
+      // .eq("user_id", userId)
       .order("created_at", { ascending: true });
 
     if (error) throw error;

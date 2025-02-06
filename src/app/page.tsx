@@ -171,90 +171,101 @@ export default function SalesDashboard() {
         <div>
           <div>
             <div className="grid grid-cols-2 space-x-4">
-              <div className="col-span-1">
-                <h2 className="font-semibold text-md mb-4">상태별 문서 내역</h2>
-                <div className="bg-[#FBFBFB] rounded-md border-[1px] px-6 py-4">
-                  <section className="mb-8">
-                    {[
-                      {
-                        title: "진행 중 문서",
-                        documents: pendingDocuments,
-                      },
-                      {
-                        title: "유효 기간 만료된 진행 중 문서",
-                        documents: expiredPendingDocuments,
-                      },
-                      {
-                        title: "취소된 문서",
-                        documents: canceledDocuments,
-                      },
-                      {
-                        title: "완료된 문서",
-                        documents: completedDocuments,
-                      },
-                    ].map(({ title, documents }) => (
-                      <div key={uuidv4()} className="mb-6">
-                        <div className="flex justify-between items-center mb-2">
-                          <h3 className="font-bold">{title}</h3>
-                          <Link
-                            href={`/documents`}
-                            className="text-xs hover:text-blue-500 cursor-pointer text-gray-400"
-                          >
-                            전체보기
-                          </Link>
-                        </div>
-                        <table className="min-w-full table-auto border-collapse text-left">
-                          <thead>
-                            <tr className="bg-gray-100 text-center">
-                              <th className="px-4 py-2 border-b">유형</th>
-                              <th className="px-4 py-2 border-b">회사명</th>
-                              <th className="px-4 py-2 border-b">문서 번호</th>
-                              <th className="px-4 py-2 border-b">작성일</th>
-                              <th className="px-4 py-2 border-b">유효 기간</th>
-                            </tr>
-                          </thead>
-                          <tbody className="text-center">
-                            {documents?.slice(0, 3).map((doc) => (
-                              <tr key={uuidv4()} className="hover:bg-gray-50">
-                                <td className="px-4 py-2 border-b">
-                                  {doc.type === "estimate" && "견적서"}
-                                  {doc.type === "order" && "발주서"}
-                                  {doc.type === "requestQuote" && "의뢰서"}
-                                </td>
-                                <td className="px-4 py-2 border-b">
-                                  {doc.content.company_name}
-                                </td>
-                                <td className="px-4 py-2 border-b">
-                                  {doc.document_number}
-                                </td>
-                                <td className="px-4 py-2 border-b">
-                                  {doc.created_at?.slice(0, 10)}
-                                </td>
-                                <td className="px-4 py-2 border-b">
-                                  {doc.content.valid_until?.slice(0, 10)}
-                                </td>
+              <div></div>
+              <div className="flex flex-col space-y-4">
+                <div className="col-span-1">
+                  <h2 className="font-semibold text-md mb-4">
+                    상태별 문서 내역
+                  </h2>
+                  <div className="bg-[#FBFBFB] rounded-md border-[1px] px-6 py-4">
+                    <section className="mb-8">
+                      {[
+                        {
+                          title: "진행 중 문서",
+                          documents: pendingDocuments,
+                        },
+                        {
+                          title: "유효 기간 만료된 진행 중 문서",
+                          documents: expiredPendingDocuments,
+                        },
+                        {
+                          title: "취소된 문서",
+                          documents: canceledDocuments,
+                        },
+                        {
+                          title: "완료된 문서",
+                          documents: completedDocuments,
+                        },
+                      ].map(({ title, documents }) => (
+                        <div key={uuidv4()} className="mb-6">
+                          <div className="flex justify-between items-center mb-2">
+                            <h3 className="font-bold">{title}</h3>
+                            <Link
+                              href={`/documents`}
+                              className="text-xs hover:text-blue-500 cursor-pointer text-gray-400"
+                            >
+                              전체보기
+                            </Link>
+                          </div>
+                          <table className="min-w-full table-auto border-collapse text-left">
+                            <thead>
+                              <tr className="bg-gray-100 text-center">
+                                <th className="px-4 py-2 border-b">유형</th>
+                                <th className="px-4 py-2 border-b">회사명</th>
+                                <th className="px-4 py-2 border-b">
+                                  문서 번호
+                                </th>
+                                <th className="px-4 py-2 border-b">작성일</th>
+                                <th className="px-4 py-2 border-b">
+                                  유효 기간
+                                </th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ))}
+                            </thead>
+                            <tbody className="text-center">
+                              {documents?.slice(0, 3).map((doc) => (
+                                <tr key={uuidv4()} className="hover:bg-gray-50">
+                                  <td className="px-4 py-2 border-b">
+                                    {doc.type === "estimate" && "견적서"}
+                                    {doc.type === "order" && "발주서"}
+                                    {doc.type === "requestQuote" && "의뢰서"}
+                                  </td>
+                                  <td className="px-4 py-2 border-b">
+                                    {doc.content.company_name}
+                                  </td>
+                                  <td className="px-4 py-2 border-b">
+                                    {doc.document_number}
+                                  </td>
+                                  <td className="px-4 py-2 border-b">
+                                    {doc.created_at?.slice(0, 10)}
+                                  </td>
+                                  <td className="px-4 py-2 border-b">
+                                    {doc.content.valid_until?.slice(0, 10)}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ))}
+                    </section>
+                  </div>
+                </div>
+
+                <div className="col-span-1">
+                  <section className="mb-8">
+                    <h2 className="font-semibold text-md mb-4">
+                      문서 상태 요약
+                    </h2>
+                    <div className="bg-[#FBFBFB] rounded-md border-[1px] px-6 py-4 min-h-[32rem]">
+                      <ReactApexChart
+                        options={chartOptions}
+                        series={chartSeries}
+                        type="bar"
+                        height={600}
+                      />
+                    </div>
                   </section>
                 </div>
-              </div>
-
-              <div className="col-span-1">
-                <section className="mb-8">
-                  <h2 className="font-semibold text-md mb-4">문서 상태 요약</h2>
-                  <div className="bg-[#FBFBFB] rounded-md border-[1px] px-6 py-4 min-h-[32rem]">
-                    <ReactApexChart
-                      options={chartOptions}
-                      series={chartSeries}
-                      type="bar"
-                      height={600}
-                    />
-                  </div>
-                </section>
               </div>
             </div>
           </div>
