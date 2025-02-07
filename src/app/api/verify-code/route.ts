@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { sendEmail } from "@/lib/sendEmail";
 import jwt from "jsonwebtoken";
 
-const OPEN_CAGE_API_KEY = "d5ec3469dbeb4f158ac70066af8f9020";
+// const OPEN_CAGE_API_KEY = "d5ec3469dbeb4f158ac70066af8f9020";
 const SECRET_KEY = process.env.JWT_SECRET || "default-secret-key";
 
 type RoleData = {
@@ -13,18 +13,18 @@ type RoleData = {
 };
 
 // Reverse Geocoding 함수
-async function getLocationDetails(latitude: number, longitude: number) {
-  const response = await fetch(
-    `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPEN_CAGE_API_KEY}`
-  );
-  const data = await response.json();
+// async function getLocationDetails(latitude: number, longitude: number) {
+//   const response = await fetch(
+//     `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPEN_CAGE_API_KEY}`
+//   );
+//   const data = await response.json();
 
-  if (data && data.results && data.results.length > 0) {
-    return data.results[0].formatted;
-  }
+//   if (data && data.results && data.results.length > 0) {
+//     return data.results[0].formatted;
+//   }
 
-  return "위치 정보를 가져올 수 없습니다.";
-}
+//   return "위치 정보를 가져올 수 없습니다.";
+// }
 
 export async function POST(req: NextRequest) {
   const { email, code, location } = await req.json();
@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
     .eq("email", email)
     .single<RoleData>();
 
+  console.log("userData", userData);
+
   if (userError || !userData) {
     return NextResponse.json(
       { error: "사용자 역할을 가져올 수 없습니다." },
@@ -59,14 +61,6 @@ export async function POST(req: NextRequest) {
   }
 
   const roleName = userData?.roles?.role_name; // 역할 이름 추출
-
-  // 위치 정보 가져오기
-  const { latitude, longitude } = location || {};
-  let locationDetails = "위치 정보를 가져올 수 없습니다.";
-
-  if (latitude && longitude) {
-    locationDetails = await getLocationDetails(latitude, longitude);
-  }
 
   // 로그인 기록 저장
   const ip =
@@ -77,27 +71,20 @@ export async function POST(req: NextRequest) {
   await supabase.from("login_logs").insert({
     email,
     ip_address: ip,
-    latitude,
-    longitude,
     login_time: new Date().toISOString(),
   });
 
   // 관리자에게 이메일 발송
   const adminEmail = "erurang@naver.com";
-  const emailSubject = `${email} / ${locationDetails}`;
   const emailContent = `
     <h2>로그인 알림</h2>
     <p><strong>로그인한 이메일:</strong> ${email}</p>
     <p><strong>로그인 IP:</strong> ${ip}</p>
-    <p><strong>위치:</strong> ${locationDetails}</p>
-    <p><strong>위도/경도:</strong> ${latitude || "N/A"}, ${
-    longitude || "N/A"
-  }</p>
     <p><strong>로그인 시간:</strong> ${new Date().toISOString()}</p>
   `;
 
   try {
-    await sendEmail(adminEmail, emailSubject, emailContent);
+    await sendEmail(adminEmail, emailContent);
     console.log("관리자에게 로그인 알림 이메일이 전송되었습니다.");
   } catch (err) {
     console.error("관리자 이메일 전송 오류:", err);

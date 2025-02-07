@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { createContext, useContext, useEffect, useState } from "react";
 
 // 로그인 정보 타입
 interface LoginUser {
@@ -33,30 +33,36 @@ export const LoginUserProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         // Supabase 호출
-        const { data, error } = await supabase
-          .from("users")
-          .select("name, id, position, level")
-          .eq("email", resdata.email);
+        // const { data, error } = await supabase
+        //   .from("users")
+        //   .select("name, id, position, level")
+        //   .eq("email", resdata.email);
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+
+        console.log("userdata", user);
 
         if (error) {
           console.error("Error fetching user data from Supabase:", error);
           return;
         }
 
-        if (!data || data.length === 0) {
+        if (!user) {
           console.error("No user found in Supabase for email:", resdata.email);
           return;
         }
 
         // 상태 업데이트
-        setLoginUser({
-          email: resdata.email,
-          role: resdata.role || "user", // 기본 역할 설정
-          name: data[0].name,
-          id: data[0].id,
-          position: data[0].position || "",
-          level: data[0].level || "",
-        });
+        // setLoginUser({
+        //   email: resdata.email,
+        //   role: resdata.role || "user", // 기본 역할 설정
+        //   name: user.name,
+        //   id: user.id,
+        //   position: user.position || "",
+        //   level: user.level || "",
+        // });
       } catch (error) {
         console.error("Error in fetchUser:", error);
       }

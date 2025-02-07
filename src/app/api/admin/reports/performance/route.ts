@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     let { data: documents, error: docError } = await supabase
       .from("documents")
       .select("user_id, status, content,type")
-      .eq("status", "completed")
+      // .eq("status", "completed")
       .not("user_id", "is", null) // ✅ user_id가 NULL인 경우 제외
       .gte("created_at", startDate)
       .lte("created_at", endDate);

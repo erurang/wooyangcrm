@@ -231,7 +231,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                     견적자 :{" "}
                     {
                       users.find((user: any) => user.id === document.user_id)
-                        .name
+                        ?.name
                     }
                   </p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full"></div>

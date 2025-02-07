@@ -92,8 +92,8 @@ export async function GET(
           transactionSummary[year][status].totalSales += transactionAmount;
         }
 
+        yearlyData[year][month] += transactionAmount;
         if (status === "completed") {
-          yearlyData[year][month] += transactionAmount;
         }
 
         if (Array.isArray(parsedContent.items)) {
