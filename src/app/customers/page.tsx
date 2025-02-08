@@ -1,13 +1,19 @@
 //test
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Snackbar, Alert, Button, Select } from "@mui/material"; // MUI Snackbar 임포트
+import {
+  Snackbar,
+  Alert,
+  Button,
+  Select,
+  CircularProgress,
+} from "@mui/material"; // MUI Snackbar 임포트
 import { useRouter } from "next/navigation";
 
 interface Contact {
-  name: string;
+  contact_name: string;
   mobile: string;
   department: string;
   level: string;
@@ -37,6 +43,7 @@ export default function Page() {
   const [industries, setIndustries] = useState<{ id: number; name: string }[]>(
     []
   );
+  const [saving, setSaving] = useState(false); // 🔹 저장 로딩 상태 추가
 
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
   const [totalPages, setTotalPages] = useState(1); // 총 페이지 수
@@ -89,64 +96,98 @@ export default function Page() {
     return pageNumbers;
   };
 
-  const fetchCompanies = async (pageNumber: number) => {
-    setLoading(true);
+  const fetchCompanies = useCallback(
+    async (pageNumber: number) => {
+      setLoading(true);
 
-    try {
-      const response = await fetch(
-        `/api/companies?page=${pageNumber}&limit=${companiesPerPage}&name=${searchTerm}&address=${addressTerm}&contact=${contactTerm}`
-      );
+      try {
+        let companyIds: string[] = [];
 
-      const { companies: baseCompanies, total } = await response.json();
+        // 🔹 담당자 검색어가 있을 경우 `contacts` 테이블에서 검색하여 `company_id` 가져오기
+        if (contactTerm.trim()) {
+          const { data: contactCompanies, error: contactError } = await supabase
+            .from("contacts")
+            .select("company_id")
+            .ilike("contact_name", `%${contactTerm}%`);
 
-      const calculatedTotalPages = Math.ceil(total / companiesPerPage);
-      setTotalPages(calculatedTotalPages);
+          if (contactError) {
+            console.error("Error fetching contacts:", contactError);
+            setLoading(false);
+            return;
+          }
 
-      if (baseCompanies?.length === 0) {
-        setCompanies([]);
-        setFilteredCompanies([]);
-        setLoading(false);
-        return;
-      }
+          companyIds = contactCompanies.map((c) => c.company_id);
 
-      // 2. Supabase에서 company_industries와 industries 데이터 가져오기
-      const companyIds = baseCompanies?.map((company: Company) => company.id); // 가져온 회사들의 ID 리스트
-      const { data: industriesData, error } = await supabase
-        .from("company_industries")
-        .select(
-          `
-          company_id,
-          industries (name)
-        `
-        )
-        .in("company_id", companyIds); // 회사 ID에 맞는 관계만 가져옴
+          if (companyIds.length === 0) {
+            setCompanies([]);
+            setFilteredCompanies([]);
+            setLoading(false);
+            return;
+          }
+        }
 
-      if (error) {
-        console.error("Error fetching industries data:", error);
-        setLoading(false);
-        return;
-      }
+        // 🔹 `companies` 테이블에서 검색
+        const response = await fetch(
+          `/api/companies?page=${pageNumber}&limit=${companiesPerPage}&name=${searchTerm}&address=${addressTerm}&companyIds=${companyIds.join(
+            ","
+          )}`
+        );
 
-      // 3. 업종 데이터를 회사 데이터에 병합
-      const companiesWithIndustries = baseCompanies?.map((company: Company) => {
-        const relatedIndustries = industriesData
-          .filter((relation) => relation.company_id === company.id)
-          .map((relation: any) => relation.industries?.name);
+        const { companies: baseCompanies, total } = await response.json();
 
-        return {
+        const calculatedTotalPages = Math.ceil(total / companiesPerPage);
+        setTotalPages(calculatedTotalPages);
+
+        if (baseCompanies?.length === 0) {
+          setCompanies([]);
+          setFilteredCompanies([]);
+          setLoading(false);
+          return;
+        }
+
+        // 🔹 기존 contacts 관련 로직 유지
+        const companyIdsToFetch = baseCompanies?.map(
+          (company: Company) => company.id
+        );
+
+        const { data: contactsData, error: contactsError } = await supabase
+          .from("contacts")
+          .select("company_id, contact_name, mobile, department, level, email")
+          .in("company_id", companyIdsToFetch);
+
+        if (contactsError) {
+          console.error("Error fetching contacts:", contactsError);
+          setLoading(false);
+          return;
+        }
+
+        // 🔹 `company_id`를 기준으로 `contacts`를 그룹화
+        const contactsByCompany = companyIdsToFetch.reduce(
+          (acc: any, companyId: any) => {
+            acc[companyId] = contactsData.filter(
+              (contact) => contact.company_id === companyId
+            );
+            return acc;
+          },
+          {} as Record<string, Contact[]>
+        );
+
+        // 🔹 `companies` 데이터와 `contacts` 병합
+        const formattedCompanies = baseCompanies.map((company: Company) => ({
           ...company,
-          industry: relatedIndustries, // 업종 이름 배열 추가
-        };
-      });
+          contact: contactsByCompany[company.id] || [], // `contacts`가 없으면 빈 배열 설정
+        }));
 
-      setCompanies(companiesWithIndustries);
-      setFilteredCompanies(companiesWithIndustries);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching companies:", error);
-      setLoading(false);
-    }
-  };
+        setCompanies(formattedCompanies);
+        setFilteredCompanies(formattedCompanies);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+        setLoading(false);
+      }
+    },
+    [loading, searchTerm, addressTerm, contactTerm]
+  );
 
   useEffect(() => {
     const fetchIndustries = async () => {
@@ -164,9 +205,26 @@ export default function Page() {
     fetchIndustries();
   }, [currentPage]);
 
-  // useEffect(() => {
-  //   fetchCompanies(currentPage);
-  // }, [currentPage, ]);
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (isModalOpen) closeModal();
+        if (isAddModalOpen) closeAddModal();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isModalOpen, isAddModalOpen]);
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      setCurrentPage(1); // 1페이지로 이동
+      fetchCompanies(1); // 검색 실행
+    }
+  };
 
   // 추가 버튼 클릭 시 모달 열기
   const handleAdd = () => {
@@ -188,17 +246,18 @@ export default function Page() {
   };
 
   // 수정 버튼 클릭 시 모달 열기
-  const handleEdit = async (company: Company) => {
+  const handleEdit = (company: Company) => {
     try {
-      // 현재 회사의 industry를 name -> id로 변환
       const relatedIndustries = industries
-        .filter((ind) => company.industry.includes(ind.name))
-        .map((ind) => String(ind.id)); // id를 문자열로 변환
+        .filter((ind) => (company.industry ?? []).includes(ind.name))
+        .map((ind) => String(ind.id));
 
       setCurrentCompany({
         ...company,
-        industry: relatedIndustries, // id 배열로 업데이트
+        industry: relatedIndustries,
+        contact: company.contact || [], // 🚀 contacts가 없으면 빈 배열을 설정
       });
+
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error in handleEdit:", error);
@@ -229,17 +288,19 @@ export default function Page() {
     field: keyof Contact,
     value: string
   ) => {
-    const updatedContact = [...currentCompany.contact];
-    updatedContact[index] = { ...updatedContact[index], [field]: value };
-    setCurrentCompany({ ...currentCompany, contact: updatedContact });
+    setCurrentCompany((prev) => {
+      const updatedContact = [...prev.contact];
+      updatedContact[index] = { ...updatedContact[index], [field]: value };
+      return { ...prev, contact: updatedContact };
+    });
   };
 
   const addContact = () => {
     setCurrentCompany({
       ...currentCompany,
       contact: [
-        ...currentCompany.contact,
-        { name: "", mobile: "", department: "", level: "", email: "" },
+        { contact_name: "", mobile: "", department: "", level: "", email: "" },
+        ...(currentCompany?.contact || []),
       ],
     });
   };
@@ -258,8 +319,61 @@ export default function Page() {
       return;
     }
 
+    setSaving(true); // 🔹 저장 시작 → 로딩 활성화
+
     try {
-      // 1. 회사 정보 업데이트
+      // 기존 로직 유지
+      const { data: existingContacts, error: contactsFetchError } =
+        await supabase
+          .from("contacts")
+          .select("id, contact_name, mobile, department, level, email")
+          .eq("company_id", currentCompany.id);
+
+      if (contactsFetchError) throw contactsFetchError;
+
+      const existingContactsMap = new Map(
+        existingContacts.map((c) => [
+          `${c.contact_name}-${c.mobile}-${c.email}`,
+          c.id,
+        ])
+      );
+
+      const newContacts = currentCompany.contact.map((contact) => ({
+        company_id: currentCompany.id,
+        contact_name: contact.contact_name,
+        mobile: contact.mobile,
+        department: contact.department,
+        level: contact.level,
+        email: contact.email,
+      }));
+
+      const newContactsMap = new Map(
+        newContacts.map((c) => [`${c.contact_name}-${c.mobile}-${c.email}`, c])
+      );
+
+      const contactsToDelete = existingContacts.filter(
+        (c) => !newContactsMap.has(`${c.contact_name}-${c.mobile}-${c.email}`)
+      );
+
+      const contactsToAdd = newContacts.filter(
+        (c) =>
+          !existingContactsMap.has(`${c.contact_name}-${c.mobile}-${c.email}`)
+      );
+
+      if (contactsToDelete.length > 0) {
+        await supabase
+          .from("contacts")
+          .delete()
+          .in(
+            "id",
+            contactsToDelete.map((c) => c.id)
+          );
+      }
+
+      if (contactsToAdd.length > 0) {
+        await supabase.from("contacts").insert(contactsToAdd);
+      }
+
       const { data: updatedCompany, error } = await supabase
         .from("companies")
         .update({
@@ -270,54 +384,30 @@ export default function Page() {
           email: currentCompany.email,
           notes: currentCompany.notes,
           business_number: currentCompany.business_number,
-          contact: currentCompany.contact,
           parcel: currentCompany.parcel,
         })
         .eq("id", currentCompany.id)
         .select();
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      // 2. 기존 업종 관계 삭제
-      await supabase
-        .from("company_industries")
-        .delete()
-        .eq("company_id", currentCompany.id);
+      const { data: updatedContacts, error: updatedContactsError } =
+        await supabase
+          .from("contacts")
+          .select("company_id, contact_name, mobile, department, level, email")
+          .eq("company_id", currentCompany.id);
 
-      // 3. 새로운 업종 관계 저장
-      const industryRelations = currentCompany.industry.map((industryId) => ({
-        company_id: currentCompany.id,
-        industry_id: Number(industryId), // 숫자로 변환
-      }));
+      if (updatedContactsError) throw updatedContactsError;
 
-      const { error: relationError } = await supabase
-        .from("company_industries")
-        .insert(industryRelations);
-
-      if (relationError) {
-        throw relationError;
-      }
-
-      // 4. 새로 저장된 업종 이름 가져오기
-      const updatedIndustries = currentCompany.industry.map((industryId) => {
-        const industry = industries.find(
-          (ind) => String(ind.id) === String(industryId)
-        );
-        return industry ? industry.name : "";
-      });
-
-      // 5. 상태 업데이트
-      const updatedCompanyWithIndustries = {
+      const updatedCompanyWithContacts = {
         ...updatedCompany[0],
-        industry: updatedIndustries, // 업종 이름으로 변환
+        contact: updatedContacts || [],
       };
 
       setCompanies((prevCompanies) =>
         prevCompanies.map((company) =>
           company.id === currentCompany.id
-            ? updatedCompanyWithIndustries
+            ? updatedCompanyWithContacts
             : company
         )
       );
@@ -325,7 +415,7 @@ export default function Page() {
       setFilteredCompanies((prevCompanies) =>
         prevCompanies.map((company) =>
           company.id === currentCompany.id
-            ? updatedCompanyWithIndustries
+            ? updatedCompanyWithContacts
             : company
         )
       );
@@ -337,6 +427,8 @@ export default function Page() {
       console.error("Error saving company:", error);
       setSnackbarMessage("수정 실패");
       setOpenSnackbar(true);
+    } finally {
+      setSaving(false); // 🔹 저장 완료 → 로딩 해제
     }
   };
 
@@ -349,22 +441,32 @@ export default function Page() {
   // 삭제 승인
   const confirmDelete = async () => {
     if (companyToDelete) {
-      const { error } = await supabase.from("deletion_requests").insert([
-        {
-          type: "company",
-          related_id: companyToDelete.id,
-          status: "pending",
-        },
-      ]);
+      try {
+        // 1️⃣ 해당 회사의 contacts 삭제
+        await supabase
+          .from("contacts")
+          .delete()
+          .eq("company_id", companyToDelete.id);
 
-      if (error) {
-        setSnackbarMessage("삭제 요청 실패");
-        setOpenSnackbar(true);
-      } else {
+        // 2️⃣ 회사 삭제 요청 추가
+        const { error } = await supabase.from("deletion_requests").insert([
+          {
+            type: "company",
+            related_id: companyToDelete.id,
+            status: "pending",
+          },
+        ]);
+
+        if (error) throw error;
+
         setSnackbarMessage("삭제 요청 완료");
         setOpenSnackbar(true);
         setIsDeleteModalOpen(false);
         setCurrentPage(1);
+      } catch (error) {
+        console.error("Error deleting company:", error);
+        setSnackbarMessage("삭제 요청 실패");
+        setOpenSnackbar(true);
       }
     }
   };
@@ -408,9 +510,10 @@ export default function Page() {
       return;
     }
 
+    setSaving(true); // 🔹 저장 시작 → 로딩 활성화
+
     try {
-      // 1. 회사 정보 추가
-      const { data, error } = await supabase
+      const { data: companyData, error: companyError } = await supabase
         .from("companies")
         .insert([
           {
@@ -421,43 +524,38 @@ export default function Page() {
             email: currentCompany.email,
             notes: currentCompany.notes,
             business_number: currentCompany.business_number,
-            contact: currentCompany.contact,
             parcel: currentCompany.parcel,
           },
         ])
         .select();
 
-      if (error) {
-        throw error;
-      }
+      if (companyError) throw companyError;
 
-      const companyId = data[0].id;
+      const companyId = companyData[0].id;
 
-      // 2. 회사와 업종 관계 저장
-      const industryRelations = currentCompany.industry.map((industryId) => ({
+      const newContacts = currentCompany.contact.map((contact) => ({
         company_id: companyId,
-        industry_id: Number(industryId), // 숫자로 변환
+        contact_name: contact.contact_name,
+        mobile: contact.mobile,
+        department: contact.department,
+        level: contact.level,
+        email: contact.email,
       }));
 
-      const { error: relationError } = await supabase
-        .from("company_industries")
-        .insert(industryRelations);
-
-      if (relationError) {
-        throw relationError;
+      if (newContacts.length > 0) {
+        await supabase.from("contacts").insert(newContacts);
       }
 
-      // 3. 새로 추가된 회사의 업종 정보 포함하여 상태 업데이트
-      const relatedIndustries = currentCompany.industry.map((industryId) => {
-        const industry = industries.find(
-          (ind) => String(ind.id) === String(industryId)
-        );
-        return industry ? industry.name : "";
-      });
+      const { data: contactsData, error: contactsError } = await supabase
+        .from("contacts")
+        .select("company_id, contact_name, mobile, department, level, email")
+        .eq("company_id", companyId);
+
+      if (contactsError) throw contactsError;
 
       const newCompany = {
-        ...data[0],
-        industry: relatedIndustries, // 업종 이름으로 표시
+        ...companyData[0],
+        contact: contactsData || [],
       };
 
       setCompanies((prevCompanies) => [newCompany, ...prevCompanies]);
@@ -470,6 +568,8 @@ export default function Page() {
       console.error("Error adding company:", error);
       setSnackbarMessage("추가 실패");
       setOpenSnackbar(true);
+    } finally {
+      setSaving(false); // 🔹 저장 완료 → 로딩 해제
     }
   };
 
@@ -533,7 +633,7 @@ export default function Page() {
       <div>
         {/* 검색란 */}
         {/* <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-3 grid grid-cols-5 marker:items-center space-x-4"> */}
-        <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-4 grid grid-cols-5 marker:items-center space-x-4">
+        <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-5 gap-4">
           <div className="mb-4 flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               거래처명
@@ -541,6 +641,7 @@ export default function Page() {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
               placeholder="거래처명"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
             />
@@ -552,6 +653,7 @@ export default function Page() {
             <input
               value={addressTerm}
               onChange={(e) => setAddressTerm(e.target.value)}
+              onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
               placeholder="주소"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
             />
@@ -563,78 +665,39 @@ export default function Page() {
             <input
               value={contactTerm}
               onChange={(e) => setContactTerm(e.target.value)}
+              onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
               placeholder="담당자"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
             />
           </div>
+          {/* 나중에 업종해야함 */}
           <div className=" mb-4 flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               업종
             </label>
             <select
-              onChange={(e) =>
-                fetchCompaniesByIndustry(parseInt(e.target.value))
-              }
+              // onChange={(e) =>
+              //   fetchCompaniesByIndustry(parseInt(e.target.value))
+              // }
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
             >
               <option value="">업종 선택</option>
-              {industries.map((industry) => (
+              {/* {industries.map((industry) => (
                 <option key={industry.id} value={industry.id}>
                   {industry.name}
                 </option>
-              ))}
+              ))} */}
             </select>
           </div>
-          {/* <div className="mb-4">
-            <label className="block mb-1">거래처명</label>
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="거래처명/거래처코드"
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          </div> */}
-          {/* <div className="mb-4">
-            <label className="block mb-1">담당자</label>
-            <input
-              value={contactTerm}
-              onChange={(e) => setContactTerm(e.target.value)}
-              placeholder="담당자"
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          </div> */}
-          {/* <div className="mb-4">
-            <label className="block mb-1">주소</label>
-            <input
-              value={addressTerm}
-              onChange={(e) => setAddressTerm(e.target.value)}
-              placeholder="주소"
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          </div> */}
-          {/* <div className="mb-4">
-            <label className="block mb-1">업종</label>
-            <select
-              onChange={(e) =>
-                fetchCompaniesByIndustry(parseInt(e.target.value))
-              }
-              className="w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value="">업종 선택</option>
-              {industries.map((industry) => (
-                <option key={industry.id} value={industry.id}>
-                  {industry.name}
-                </option>
-              ))}
-            </select>
-          </div> */}
           <div className="mb-4 flex justify-end space-x-2">
             <button
               onClick={() => {
-                setSearchTerm(""); // 페이지 번호 초기화
+                setSearchTerm("");
                 setAddressTerm("");
-                setContactTerm(""); // 첫 페이지 데이터를 다시 가져옴
-              }} // 검색 버튼 클릭 시 호출
+                setContactTerm("");
+                setCurrentPage(1); // 페이지 초기화
+                fetchCompanies(1); // 🔹 검색 필터 리셋 후 다시 데이터 가져오기
+              }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md"
             >
               필터리셋
@@ -664,78 +727,99 @@ export default function Page() {
 
       <div>
         <div className="overflow-x-auto mt-4">
-          <table className="min-w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-left">
-                <th className="px-4 py-2 border-b border-r-[1px]">
-                  거래처 코드
-                </th>
-                <th className="px-4 py-2 border-b border-r-[1px]">거래처명</th>
-                <th className="px-4 py-2 border-b border-r-[1px]">업종</th>
-                <th className="px-4 py-2 border-b border-r-[1px]">
-                  대표 담당자
-                </th>
-                <th className="px-4 py-2 border-b border-r-[1px]">주소</th>
-                <th className="px-4 py-2 border-b border-r-[1px]">번호</th>
-                <th className="px-4 py-2 border-b border-r-[1px]">택배/화물</th>
-                <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
-                <th className="px-4 py-2 border-b border-r-[1px]">삭제</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCompanies?.map((company) => (
-                <tr key={company.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 border-b border-r-[1px]">
-                    {company.company_code}
-                  </td>
-                  <td
-                    className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
-                    onClick={() => router.push(`/consultations/${company.id}`)}
-                  >
-                    {company.name}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r-[1px]">
-                    {company.industry?.join(", ")}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r-[1px]">
-                    {company.contact &&
-                      company.contact[0] &&
-                      company.contact[0].name}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r-[1px]">
-                    {company.address}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r-[1px]">
-                    {company.phone}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r-[1px]">
-                    {company.parcel}
-                  </td>
-                  <td
-                    className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
-                    onClick={() => handleEdit(company)}
-                  >
-                    수정
-                  </td>
-                  <td
-                    className="px-4 py-2 border-b border-r-[1px] text-red-500 cursor-pointer"
-                    onClick={() => handleDelete(company)}
-                  >
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <CircularProgress />
+            </div>
+          ) : (
+            <table className="min-w-full table-auto border-collapse">
+              <thead>
+                <tr className="bg-gray-100 text-left">
+                  <th className="px-4 py-2 border-b border-r-[1px]">
+                    거래처명
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                    주소
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                    업종
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                    대표 담당자
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                    번호
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                    택배/화물
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
+                  <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                     삭제
-                  </td>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredCompanies?.map((company) => (
+                  <tr key={company.id} className="hover:bg-gray-50">
+                    <td
+                      className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
+                      onClick={() =>
+                        router.push(`/consultations/${company.id}`)
+                      }
+                    >
+                      {company.name}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                      {company.address}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                      {company.industry?.join(", ")}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                      {company.contact[0]?.contact_name}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                      {company.phone}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                      {company.parcel}
+                    </td>
+                    <td
+                      className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
+                      onClick={() => handleEdit(company)}
+                    >
+                      수정
+                    </td>
+                    <td
+                      className="px-4 py-2 border-b border-r-[1px] text-red-500 cursor-pointer hidden md:table-cell"
+                      onClick={() => handleDelete(company)}
+                    >
+                      삭제
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
       {/* 모달 */}
       {isModalOpen && currentCompany && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md w-1/2">
-            <h3 className="text-xl font-semibold mb-4">거래처 수정</h3>
-            <div className="grid grid-cols-4 space-x-3">
+        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2">
+          <div
+            className="bg-white p-6 rounded-md 
+                    w-11/12 md:w-2/3 
+                    max-h-[75vh] md:max-h-[85vh] 
+                    overflow-y-auto"
+          >
+            <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
+              거래처 수정
+            </h3>
+
+            {/* 📌 반응형: 모바일 1열, 데스크톱 4열 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="mb-2">
                 <label className="block mb-1">거래처명</label>
                 <input
@@ -779,44 +863,23 @@ export default function Page() {
                 />
               </div>
               <div className="mb-2">
-                <label className="block mb-1">업종</label>
-
-                <div className="flex flex-wrap gap-2">
-                  {industries.map((industry) => {
-                    // id 기반 선택 여부 확인
-                    const isSelected = currentCompany.industry.includes(
-                      String(industry.id)
-                    );
-
-                    return (
-                      <span
-                        key={industry.id}
-                        onClick={() => {
-                          const updatedIndustries = isSelected
-                            ? currentCompany.industry.filter(
-                                (id) => id !== String(industry.id)
-                              ) // 선택 해제
-                            : [...currentCompany.industry, String(industry.id)]; // 선택 추가
-
-                          setCurrentCompany({
-                            ...currentCompany,
-                            industry: updatedIndustries,
-                          });
-                        }}
-                        className={`cursor-pointer px-3 py-1 rounded-md ${
-                          isSelected
-                            ? "text-blue-500 font-bold"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        {industry.name}
-                      </span>
-                    );
-                  })}
-                </div>
+                <label className="block mb-1">택배/화물</label>
+                <input
+                  type="text"
+                  value={currentCompany?.parcel || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      parcel: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
               </div>
             </div>
-            <div className="grid grid-cols-4 space-x-3">
+
+            {/* 📌 반응형: 모바일은 1열, 데스크톱은 4열 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="mb-2">
                 <label className="block mb-1">주소</label>
                 <input
@@ -859,96 +922,88 @@ export default function Page() {
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
-              <div className="mb-2">
-                <label className="block mb-1">택배/화물</label>
-                <input
-                  type="text"
-                  value={currentCompany?.parcel || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      parcel: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
             </div>
 
+            {/* 담당자 목록 */}
             <div className="mb-4">
               <div className="flex justify-between items-center">
                 <label className="block mb-1">담당자</label>
-                <div className="flex">
-                  <div
-                    className="px-4 py-2 font-semibold cursor-pointer hover:bg-gray-50 hover:rounded-md text-xs"
-                    onClick={addContact} // 모달 열기
-                  >
-                    <span className="mr-2">+</span>
-                    <span>추가</span>
-                  </div>
-                </div>
+                <button
+                  className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
+                  onClick={addContact}
+                >
+                  + 추가
+                </button>
               </div>
 
-              {currentCompany?.contact.map((contact, index) => (
-                <div key={index} className="mb-2">
-                  <div className="flex space-x-2">
+              {/* 📌 담당자 한 줄 표현 */}
+              <div className="space-y-2">
+                {(currentCompany?.contact || []).map((contact, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-wrap md:flex-nowrap gap-2"
+                  >
                     <input
                       type="text"
-                      value={contact.name}
+                      value={contact?.contact_name || ""}
                       onChange={(e) =>
-                        handleContactChange(index, "name", e.target.value)
+                        handleContactChange(
+                          index,
+                          "contact_name",
+                          e.target.value
+                        )
                       }
                       placeholder="이름"
-                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <input
                       type="text"
-                      value={contact.mobile}
+                      value={contact?.mobile || ""}
                       onChange={(e) =>
                         handleContactChange(index, "mobile", e.target.value)
                       }
                       placeholder="휴대폰"
-                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <input
                       type="text"
-                      value={contact.department}
+                      value={contact?.department || ""}
                       onChange={(e) =>
                         handleContactChange(index, "department", e.target.value)
                       }
                       placeholder="부서"
-                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <input
                       type="text"
-                      value={contact.level}
+                      value={contact?.level || ""}
                       onChange={(e) =>
                         handleContactChange(index, "level", e.target.value)
                       }
                       placeholder="직급"
-                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <input
                       type="email"
-                      value={contact.email}
+                      value={contact?.email || ""}
                       onChange={(e) =>
                         handleContactChange(index, "email", e.target.value)
                       }
                       placeholder="이메일"
-                      className="p-2 border border-gray-300 rounded-md w-3/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <button
-                      onClick={() => removeContact(index)} // 삭제 함수
-                      className="px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer w-1/12"
+                      onClick={() => removeContact(index)}
+                      className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
                     >
                       삭제
                     </button>
                   </div>
-                  {/* 담당자 삭제 버튼 */}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
+            {/* 비고 */}
             <div className="mb-2">
               <label className="block mb-1">비고</label>
               <textarea
@@ -962,18 +1017,27 @@ export default function Page() {
                 className="w-full p-2 border border-gray-300 rounded-md"
               ></textarea>
             </div>
-            <div className="flex justify-end space-x-4">
+
+            {/* 버튼 영역 */}
+            <div className="flex justify-end space-x-2">
               <button
                 onClick={closeModal}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+                  saving ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={saving}
               >
                 취소
               </button>
               <button
                 onClick={handleSave}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+                  saving ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={saving}
               >
                 저장
+                {saving && <CircularProgress size={18} className="ml-2" />}
               </button>
             </div>
           </div>
@@ -1006,10 +1070,19 @@ export default function Page() {
 
       {/* 추가 모달 */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md w-1/2">
-            <h3 className="text-xl font-semibold mb-4">거래처 추가</h3>
-            <div className="grid grid-cols-4 space-x-3">
+        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2">
+          <div
+            className="bg-white p-6 rounded-md 
+                  w-11/12 md:w-2/3 
+                  max-h-[75vh] md:max-h-[85vh] 
+                  overflow-y-auto"
+          >
+            <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
+              거래처 추가
+            </h3>
+
+            {/* 📌 반응형: 모바일 2열, 데스크톱 4열 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="mb-2">
                 <label className="block mb-1">거래처명</label>
                 <input
@@ -1053,53 +1126,23 @@ export default function Page() {
                 />
               </div>
               <div className="mb-2">
-                <label className="block mb-1">업종</label>
-
-                <div className="flex flex-wrap gap-2">
-                  {industries.map((industry) => (
-                    <span
-                      key={industry.id}
-                      onClick={() => {
-                        const isSelected = currentCompany.industry.includes(
-                          String(industry.id)
-                        );
-                        const updatedIndustries = isSelected
-                          ? currentCompany.industry.filter(
-                              (id) => id !== String(industry.id)
-                            ) // 선택 해제
-                          : [...currentCompany.industry, String(industry.id)]; // 선택 추가
-
-                        setCurrentCompany({
-                          ...currentCompany,
-                          industry: updatedIndustries,
-                        });
-                      }}
-                      className={`cursor-pointer px-3 py-1 rounded-md ${
-                        currentCompany.industry.includes(String(industry.id))
-                          ? "text-blue-500 font-bold"
-                          : "text-gray-400"
-                      }`}
-                    >
-                      {industry.name}
-                    </span>
-                  ))}
-                </div>
-
-                {/* select로? */}
-                {/* <input
+                <label className="block mb-1">택배/화물</label>
+                <input
                   type="text"
-                  value={currentCompany?.email || ""}
+                  value={currentCompany?.parcel || ""}
                   onChange={(e) =>
                     setCurrentCompany({
                       ...currentCompany,
-                      email: e.target.value,
+                      parcel: e.target.value,
                     })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md"
-                /> */}
+                />
               </div>
             </div>
-            <div className="grid grid-cols-4 space-x-3">
+
+            {/* 📌 반응형: 모바일은 2열, 데스크톱은 4열 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="mb-2">
                 <label className="block mb-1">주소</label>
                 <input
@@ -1128,7 +1171,6 @@ export default function Page() {
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
-
               <div className="mb-2">
                 <label className="block mb-1">팩스</label>
                 <input
@@ -1143,95 +1185,88 @@ export default function Page() {
                   className="w-full p-2 border border-gray-300 rounded-md"
                 />
               </div>
-              <div className="mb-2">
-                <label className="block mb-1">택배/화물</label>
-                <input
-                  type="text"
-                  value={currentCompany?.parcel || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      parcel: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
             </div>
 
+            {/* 담당자 목록 */}
             <div className="mb-4">
               <div className="flex justify-between items-center">
                 <label className="block mb-1">담당자</label>
-                <div className="flex">
-                  <div
-                    className="px-4 py-2 font-semibold cursor-pointer hover:bg-gray-50 hover:rounded-md text-xs"
-                    onClick={addContact} // 모달 열기
-                  >
-                    <span className="mr-2">+</span>
-                    <span>추가</span>
-                  </div>
-                </div>
+                <button
+                  className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
+                  onClick={addContact}
+                >
+                  + 추가
+                </button>
               </div>
 
-              {currentCompany?.contact.map((contact, index) => (
-                <div key={index} className="mb-2">
-                  <div className="flex space-x-2">
+              {/* 📌 담당자 한 줄 표현 & 추가 버튼 클릭 시 맨 위로 */}
+              <div className="space-y-2">
+                {(currentCompany?.contact || []).map((contact, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-wrap md:flex-nowrap gap-2"
+                  >
                     <input
                       type="text"
-                      value={contact.name}
+                      value={contact?.contact_name || ""}
                       onChange={(e) =>
-                        handleContactChange(index, "name", e.target.value)
+                        handleContactChange(
+                          index,
+                          "contact_name",
+                          e.target.value
+                        )
                       }
                       placeholder="이름"
-                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <input
                       type="text"
-                      value={contact.mobile}
+                      value={contact?.mobile || ""}
                       onChange={(e) =>
                         handleContactChange(index, "mobile", e.target.value)
                       }
                       placeholder="휴대폰"
-                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <input
                       type="text"
-                      value={contact.department}
+                      value={contact?.department || ""}
                       onChange={(e) =>
                         handleContactChange(index, "department", e.target.value)
                       }
                       placeholder="부서"
-                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <input
                       type="text"
-                      value={contact.level}
+                      value={contact?.level || ""}
                       onChange={(e) =>
                         handleContactChange(index, "level", e.target.value)
                       }
                       placeholder="직급"
-                      className="p-2 border border-gray-300 rounded-md w-2/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <input
                       type="email"
-                      value={contact.email}
+                      value={contact?.email || ""}
                       onChange={(e) =>
                         handleContactChange(index, "email", e.target.value)
                       }
                       placeholder="이메일"
-                      className="p-2 border border-gray-300 rounded-md w-3/12"
+                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                     />
                     <button
-                      onClick={() => removeContact(index)} // 삭제 함수
-                      className="px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer w-1/12"
+                      onClick={() => removeContact(index)}
+                      className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
                     >
                       삭제
                     </button>
                   </div>
-                  {/* 담당자 삭제 버튼 */}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+
+            {/* 비고 */}
             <div className="mb-2">
               <label className="block mb-1">비고</label>
               <textarea
@@ -1245,28 +1280,38 @@ export default function Page() {
                 className="w-full p-2 border border-gray-300 rounded-md"
               ></textarea>
             </div>
-            <div className="flex justify-end space-x-4">
+
+            {/* 버튼 영역 */}
+            <div className="flex justify-end space-x-2">
               <button
                 onClick={closeAddModal}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+                  saving ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={saving}
               >
                 취소
               </button>
               <button
                 onClick={handleAddCompany}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+                  saving ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={saving}
               >
-                추가
+                저장
+                {saving && <CircularProgress size={18} className="ml-2" />}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="flex justify-center mt-4 space-x-2">
+      <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
         <Button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
+          className="px-2 md:px-4 py-1 md:py-2 text-xs md:text-sm"
         >
           이전
         </Button>
@@ -1276,7 +1321,9 @@ export default function Page() {
           <Button
             key={index}
             onClick={() => setCurrentPage(Number(page))}
-            className={`text-sm ${page === currentPage ? "font-bold" : ""}`}
+            className={`w-8 md:w-10 text-xs md:text-sm ${
+              page === currentPage ? "font-bold" : ""
+            }`}
           >
             {page}
           </Button>
@@ -1287,6 +1334,7 @@ export default function Page() {
             setCurrentPage((prev) => Math.min(prev + 1, totalPages))
           }
           disabled={currentPage === totalPages}
+          className="px-2 md:px-4 py-1 md:py-2 text-xs md:text-sm"
         >
           다음
         </Button>
