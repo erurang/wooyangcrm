@@ -96,8 +96,7 @@ export default function LoginPage() {
         setMessage("로그인 성공!");
 
         const redirectTo =
-          new URLSearchParams(window.location.search).get("redirectTo") ||
-          "/dashboard";
+          new URLSearchParams(window.location.search).get("redirectTo") || "/";
         router.push(redirectTo);
       } else {
         const data = await response.json();

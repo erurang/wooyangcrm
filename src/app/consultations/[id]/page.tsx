@@ -3,25 +3,29 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { Snackbar, Alert, Button } from "@mui/material";
+import {
+  Snackbar,
+  Alert,
+  Button,
+  Skeleton,
+  CircularProgress,
+} from "@mui/material";
 import Link from "next/link";
 import { useLoginUser } from "@/app/context/login";
-import { v4 as uuidv4 } from "uuid";
 
 interface Consultation {
   id: string;
-  created_at: string;
   date: string;
   content: string;
-  company_id: string;
-  contact: string;
-  follow_up_date: string;
-  priority: string;
+  follow_up_date: any;
   user_id: string;
+  contact_name: string;
+  // company_id: string;
+  // priority: "low" | "medium" | "high"; // Enum 값
 }
-
 interface Contact {
-  name: string;
+  id: string;
+  contact_name: string;
   mobile: string;
   department: string;
   level: string;
@@ -50,21 +54,29 @@ export default function ConsultationPage() {
 
   const router = useRouter();
   const { id } = useParams();
+  const [saving, setSaving] = useState(false); // 🔹 저장 로딩 상태 추가
+
   const [consultations, setConsultations] = useState<Consultation[]>([]); // 여러 개의 상담 내역을 저장
   const [company, setCompany] = useState<Company | null>(null);
   const [documents, setDocuments] = useState<any[]>([]); // 문서 관련 데이터
-  const [loading, setLoading] = useState(false);
+
+  // const [loading, setLoading] = useState(false);
+  const [companyLoading, setCompanyLoading] = useState(false); // 🔹 회사 정보 로딩 상태
+  const [consultationLoading, setConsultationLoading] = useState(false); // 🔹 상담 내역 로딩 상태
+
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
   const [openAddModal, setOpenAddModal] = useState(false); // 상담내역 추가 모달 상태
   const [openEditModal, setOpenEditModal] = useState(false); // 상담내역 수정 모달 상태
   const [newConsultation, setNewConsultation] = useState({
-    date: new Date().toISOString().split("T")[0], // 기본값을 오늘 날짜로 설정
+    date: new Date().toISOString().split("T")[0],
     follow_up_date: "",
-    contact: "", // 피상담자 (텍스트 필드로 변경)
-    user_id: loginUser ? loginUser.id : "", // 유저 아이디는 추후 수정 필요
+    contact_name: "",
+    user_id: "", // 초기값 빈 문자열
     content: "",
   });
+
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [users, setUsers] = useState<User[]>([]); // 유저 목록
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
   const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
@@ -77,75 +89,168 @@ export default function ConsultationPage() {
     useState<Consultation | null>(null); // 삭제할 상담 내역
 
   // 상담 내역을 가져오는 함수
-  const fetchConsultationData = async () => {
-    if (!id) return;
 
-    setLoading(true);
+  const fetchCompanyData = async () => {
+    if (!id) return;
+    setCompanyLoading(true);
 
     try {
+      const { data: contactsData, error: contactsError } = await supabase
+        .from("contacts")
+        .select("id, contact_name, mobile, department, level, email")
+        .eq("company_id", id);
+
+      if (contactsError) {
+        setSnackbarMessage("담당자를 불러오는 데 실패했습니다.");
+        setOpenSnackbar(true);
+      } else {
+        setContacts(contactsData || []);
+      }
+
       const { data: companyData, error: companyDataError } = await supabase
         .from("companies")
         .select("*")
         .eq("id", id)
         .single();
 
+      setCompany({
+        ...companyData,
+        contact: contactsData || [],
+      });
+
       if (companyDataError) {
         setSnackbarMessage("회사를 불러오는 데 실패했습니다.");
         setOpenSnackbar(true);
-        setLoading(false);
         return;
       }
+    } catch (error) {
+      console.error("❗ 회사정보 로딩 중 오류 발생:", error);
+      setSnackbarMessage("회사정보를 가져오는 중 오류가 발생했습니다.");
+      setOpenSnackbar(true);
+    } finally {
+      setCompanyLoading(false);
+    }
+  };
 
-      setCompany(companyData);
+  const fetchConsultationData = async () => {
+    if (!id) return;
 
-      // 여러 개의 상담 내역 가져오기 (페이지네이션을 위해 limit과 offset 사용)
+    setConsultationLoading(true); // 상담 내역만 로딩 시작
+
+    try {
+      // 🔹 상담 내역 가져오기
       const {
         data: consultationsData,
         error: consultationsError,
         count,
       } = await supabase
         .from("consultations")
-        .select("*", { count: "exact" })
-        .eq("company_id", id) // company_id로 해당 회사의 상담 내역을 가져옵니다.
+        .select("id, date, content, follow_up_date, user_id", {
+          count: "exact",
+        })
+        .eq("company_id", id)
         .range(
           (currentPage - 1) * consultationsPerPage,
           currentPage * consultationsPerPage - 1
         )
-        .order("created_at", { ascending: false }); // created_at 기준 내림차순 정렬
+        .order("created_at", { ascending: false });
 
       if (consultationsError) {
         setSnackbarMessage("상담 내역을 불러오는 데 실패했습니다.");
         setOpenSnackbar(true);
-        setLoading(false);
+        setConsultationLoading(false);
         return;
       }
 
-      setConsultations(consultationsData || []);
-      setTotalPages(count ? Math.ceil(count / consultationsPerPage) : 1); // count가 null일 경우 1 페이지로 설정
+      console.log("🔹 가져온 상담 내역:", consultationsData);
 
-      // 관련된 문서들 가져오기 (consultation_id를 기준으로)
-      const consultationIds = consultationsData?.map(
-        (consultation) => consultation.id
-      ); // 상담 내역의 id 배열
-      const { data: documentData, error: documentError } = await supabase
-        .from("documents")
-        .select("id,type,consultation_id")
-        .in("consultation_id", consultationIds); // 상담 내역에 해당하는 문서들만 가져오기
+      // 🔹 상담 ID 목록 가져오기
+      const consultationIds = consultationsData.map((c) => c.id);
 
-      if (documentError) {
-        setSnackbarMessage("문서를 불러오는 데 실패했습니다.");
-        setOpenSnackbar(true);
-      } else {
-        setDocuments(documentData || []);
+      // 🔹 상담과 담당자 매핑 정보 가져오기
+      const {
+        data: contactsConsultationsData,
+        error: contactsConsultationsError,
+      } = await supabase
+        .from("contacts_consultations")
+        .select("consultation_id, contact_id")
+        .in("consultation_id", consultationIds);
+
+      console.log("🔹 contacts_consultations 결과:", contactsConsultationsData);
+
+      if (contactsConsultationsError || !contactsConsultationsData.length) {
+        console.warn("❗ 상담과 담당자 연결 데이터가 없습니다.");
+        setConsultationLoading(false);
+        return;
       }
 
-      setLoading(false);
+      // 🔹 contacts 테이블에서 담당자 정보 가져오기
+      const contactIds = contactsConsultationsData.map((cc) => cc.contact_id);
+
+      console.log("🔹 상담과 연결된 contact_id 목록:", contactIds);
+
+      const { data: contactsInfo, error: contactsInfoError } = await supabase
+        .from("contacts")
+        .select("id, contact_name")
+        .in("id", contactIds);
+
+      console.log("🔹 contacts 테이블에서 가져온 담당자 목록:", contactsInfo);
+
+      if (contactsInfoError || !contactsInfo.length) {
+        console.warn("❗ contacts 테이블에서 담당자를 찾을 수 없습니다.");
+        setConsultationLoading(false);
+        return;
+      }
+
+      // 🔹 상담 ID 기준으로 담당자 이름 매핑
+      const contactMap = contactsConsultationsData.reduce((acc, cc) => {
+        const contact = contactsInfo.find((c) => c.id === cc.contact_id);
+        if (contact) {
+          acc[cc.consultation_id] = contact.contact_name;
+        }
+        return acc;
+      }, {} as Record<string, string>);
+
+      // 🔹 상담 내역에 담당자 이름 추가
+      const updatedConsultations = consultationsData.map((c) => ({
+        ...c,
+        contact_name: contactMap[c.id] || "담당자 없음",
+      }));
+
+      console.log("🔹 최종 상담 내역:", updatedConsultations);
+
+      setConsultations(updatedConsultations);
+      setTotalPages(count ? Math.ceil(count / consultationsPerPage) : 1);
     } catch (error) {
-      setSnackbarMessage("데이터를 가져오는 데 오류가 발생했습니다.");
+      console.error("❗ 데이터 로딩 중 오류 발생:", error);
+      setSnackbarMessage("데이터를 가져오는 중 오류가 발생했습니다.");
       setOpenSnackbar(true);
-      setLoading(false);
+    } finally {
+      setConsultationLoading(false);
     }
   };
+
+  const fetchUsers = async () => {
+    const { data: usersData, error: usersError } = await supabase
+      .from("users")
+      .select("id, name");
+
+    if (usersError) {
+      setSnackbarMessage("유저 목록을 불러오는 데 실패했습니다.");
+      setOpenSnackbar(true);
+    } else {
+      setUsers(usersData || []);
+    }
+  };
+
+  useEffect(() => {
+    if (contacts.length > 0) {
+      setNewConsultation((prev) => ({
+        ...prev,
+        contact: contacts[0].contact_name, // 첫 번째 담당자로 기본값 설정
+      }));
+    }
+  }, [contacts]);
 
   useEffect(() => {
     // ESC 키 핸들러
@@ -157,7 +262,9 @@ export default function ConsultationPage() {
       }
     };
 
-    // 키다운 이벤트 등록
+    fetchCompanyData();
+    fetchUsers();
+
     window.addEventListener("keydown", handleKeyDown);
 
     // 언마운트 시 이벤트 제거
@@ -167,82 +274,78 @@ export default function ConsultationPage() {
   }, []);
 
   useEffect(() => {
-    // 로그인된 유저 정보가 변경되면 user_id를 업데이트
-    if (loginUser && loginUser.id) {
+    if (loginUser?.id) {
       setNewConsultation((prev) => ({
         ...prev,
-        user_id: loginUser.id, // 로그인한 유저의 id로 기본값 설정
+        user_id: loginUser.id,
       }));
     }
-  }, [loginUser]); // loginUser 값이 변경될 때마다 실행
+  }, [loginUser]);
 
   useEffect(() => {
-    fetchConsultationData(); // 페이지 로드 시 상담 내역을 가져옴
-    // 유저 목록 가져오기
-    const fetchUsers = async () => {
-      const { data: usersData, error: usersError } = await supabase
-        .from("users")
-        .select("id, name");
-
-      if (usersError) {
-        setSnackbarMessage("유저 목록을 불러오는 데 실패했습니다.");
-        setOpenSnackbar(true);
-      } else {
-        setUsers(usersData || []);
-      }
-    };
-
-    fetchUsers();
-  }, [id, currentPage]); // currentPage가 변경될 때마다 상담 내역을 새로 가져옴
+    fetchConsultationData();
+  }, [currentPage]);
 
   const handleAddConsultation = async () => {
-    const { content, follow_up_date, user_id, contact } = newConsultation;
+    if (saving) return;
+    setSaving(true);
+
+    const { content, follow_up_date, user_id, contact_name } = newConsultation;
     const formattedFollowUpDate = follow_up_date ? follow_up_date : null;
 
-    if (
-      !content ||
-      // || !follow_up_date
-      !user_id ||
-      !contact
-    ) {
+    if (!content || !user_id || !contact_name) {
       setSnackbarMessage("필수 항목을 모두 입력하세요.");
       setOpenSnackbar(true);
+      setSaving(false);
       return;
     }
 
     try {
-      const { data, error } = await supabase.from("consultations").insert([
+      // 🔹 Step 1: 상담 추가 후 ID 가져오기
+      const { data: insertedConsultation, error: insertError } = await supabase
+        .from("consultations")
+        .insert([
+          {
+            date: new Date().toISOString().split("T")[0],
+            company_id: id,
+            content,
+            follow_up_date: formattedFollowUpDate,
+            user_id,
+          },
+        ])
+        .select("id")
+        .single();
+
+      if (insertError || !insertedConsultation) {
+        throw new Error("상담 내역 추가 실패");
+      }
+
+      const consultationId = insertedConsultation.id;
+
+      // 🔹 Step 2: 담당자 ID 가져오기
+      const selectedContact = contacts.find(
+        (c) => c.contact_name === contact_name
+      );
+      if (!selectedContact) throw new Error("담당자 정보를 찾을 수 없습니다.");
+
+      // 🔹 Step 3: 상담-담당자 연결 추가
+      await supabase.from("contacts_consultations").insert([
         {
-          date: new Date().toISOString().split("T")[0],
-          company_id: id,
-          content,
-          follow_up_date: formattedFollowUpDate,
-          user_id,
-          contact, // 피상담자는 이제 단순 텍스트
+          contact_id: selectedContact.id,
+          consultation_id: consultationId,
         },
       ]);
 
-      if (error) {
-        setSnackbarMessage("상담 내역 추가 실패");
-        setOpenSnackbar(true);
-      } else {
-        setSnackbarMessage("상담 내역 추가 완료");
-        setOpenSnackbar(true);
-        setOpenAddModal(false);
-        setNewConsultation({
-          date: new Date().toISOString().split("T")[0], // 초기화
-          follow_up_date: "",
-          contact: "",
-          user_id: loginUser ? loginUser.id : "",
-          content: "",
-        });
-
-        // 상담 내역을 다시 불러옴 (다수의 상담 내역)
-        fetchConsultationData();
-      }
+      setSnackbarMessage("상담 내역 추가 완료");
+      setOpenSnackbar(true);
+      setOpenAddModal(false);
+      fetchConsultationData();
     } catch (error) {
+      console.error("Error adding consultation:", error);
       setSnackbarMessage("상담 내역 추가 중 오류가 발생했습니다.");
       setOpenSnackbar(true);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -252,51 +355,68 @@ export default function ConsultationPage() {
     setNewConsultation({
       date: consultation.date,
       follow_up_date: consultation.follow_up_date,
-      contact: consultation.contact,
       user_id: consultation.user_id,
       content: consultation.content,
+      contact_name: consultation.contact_name,
     });
     setOpenEditModal(true);
   };
 
   const handleUpdateConsultation = async () => {
-    const { content, follow_up_date, user_id, contact } = newConsultation;
-    if (
-      !content ||
-      // || !follow_up_date
-      !user_id ||
-      !contact
-    ) {
+    if (saving) return; // 🔹 이미 저장 중이면 실행 안 함
+    setSaving(true); // 🔥 저장 시작
+
+    const { content, follow_up_date, user_id, contact_name } = newConsultation;
+
+    if (!content || !user_id || !contact_name) {
       setSnackbarMessage("필수 항목을 모두 입력하세요.");
       setOpenSnackbar(true);
+      setSaving(false);
       return;
     }
 
     try {
-      const { data, error } = await supabase
+      const selectedContact = contacts.find(
+        (c) => c.contact_name === contact_name
+      );
+
+      const { error } = await supabase
+        .from("contacts_consultations")
+        .update({
+          contact_id: selectedContact?.id, // 🔥 선택된 새로운 담당자 ID
+        })
+        .eq("consultation_id", selectedConsultation?.id);
+
+      if (error) {
+        throw new Error("새로운 담당자 업데이트 실패");
+      }
+
+      // 🔹 Step 3: `consultations` 테이블을 업데이트 (새로운 `contact_id`로 변경)
+      const { error: updateError } = await supabase
         .from("consultations")
         .update({
           content,
           follow_up_date,
           user_id,
-          contact, // 피상담자는 이제 단순 텍스트
         })
         .eq("id", selectedConsultation?.id);
 
-      if (error) {
-        setSnackbarMessage("상담 내역 수정 실패");
-        setOpenSnackbar(true);
-      } else {
-        setSnackbarMessage("상담 내역 수정 완료");
-        setOpenSnackbar(true);
-        setOpenEditModal(false);
-
-        // 상담 내역을 다시 불러옴
-        fetchConsultationData();
+      if (updateError) {
+        throw new Error("상담 내역 수정 실패");
       }
+
+      setSnackbarMessage("상담 내역 수정 완료");
+      setOpenSnackbar(true);
+      setOpenEditModal(false);
+
+      // 🔹 상담 내역을 다시 불러옴
+      fetchConsultationData();
     } catch (error) {
+      console.error("Error updating consultation:", error);
       setSnackbarMessage("상담 내역 수정 중 오류가 발생했습니다.");
       setOpenSnackbar(true);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -376,7 +496,7 @@ export default function ConsultationPage() {
   const formatContentWithLineBreaks = (content: string) => {
     // 줄바꿈 문자를 <br /> 태그로 변환
     return content.split("\n").map((line, index) => (
-      <span key={uuidv4()}>
+      <span key={index}>
         {line}
         <br />
       </span>
@@ -385,490 +505,589 @@ export default function ConsultationPage() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      {loading ? (
-        <div className="text-center py-4">
-          <span>로딩 중...</span>
+      <>
+        <div className="mb-4">
+          <Link
+            href="/customers"
+            className="text-blue-500 hover:underline hover:font-bold"
+          >
+            거래처 관리
+          </Link>{" "}
+          &gt; <span className="font-semibold">{companyMemo?.name}</span> &gt;
+          상담내역
         </div>
-      ) : (
-        <>
-          <div className="mb-4">
-            <Link
-              href="/customers"
-              className="text-blue-500 hover:underline hover:font-bold"
-            >
-              거래처 관리
-            </Link>{" "}
-            &gt; <span className="font-semibold">{companyMemo?.name}</span> &gt;
-            상담내역
-          </div>
 
-          <div className="mb-4 flex">
-            <div className="font-bold text-xl">
-              <h2>{companyMemo?.name}</h2>
+        {/* 🚀 거래처 기본 정보 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* 🏢 회사 정보 */}
+          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-40 flex flex-col justify-between">
+            {companyLoading ? (
+              <>
+                <Skeleton variant="text" width="100%" height="100%" />
+              </>
+            ) : (
               <div>
-                <div className="flex">
-                  <div className="text-sm font-normal space-x-3">
-                    <span className="mt-2">{companyMemo?.address}</span>
-                  </div>
-                </div>
-                <div className="text-xs mt-2">
-                  <p>TEL : {companyMemo?.phone}</p>
-                  <p>FAX : {companyMemo?.fax}</p>
-                  <p>E-MAIL : {companyMemo?.email}</p>
-                </div>
+                <h2 className="font-semibold text-md mb-1">거래처</h2>
+                <ul className="space-y-1 text-gray-700 text-sm pl-1">
+                  <li className="flex items-center">
+                    <span className="font-medium w-14">회사명</span>
+                    <span className="flex-1 truncate">{companyMemo?.name}</span>
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-medium w-14">주소</span>
+                    <span className="flex-1 truncate">
+                      {companyMemo?.address || "정보 없음"}
+                    </span>
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-medium w-14">전화</span>
+                    <span className="flex-1">
+                      {companyMemo?.phone || "정보 없음"}
+                    </span>
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-medium w-14">팩스</span>
+                    <span className="flex-1">
+                      {companyMemo?.fax || "정보 없음"}
+                    </span>
+                  </li>
+                  <li className="flex items-center">
+                    <span className="font-medium w-14">이메일</span>
+                    <span className="flex-1 truncate">
+                      {companyMemo?.email || "정보 없음"}
+                    </span>
+                  </li>
+                </ul>
               </div>
-              <div className="pt-2 px-2 min-h-16 max-h-16 overflow-y-auto">
-                <span>비고 : {companyMemo?.notes}</span>
-              </div>
-            </div>
-          </div>
-          <div className="text-sm font-normal flex space-x-3 justify-end">
-            {company?.contact.map((contact) => (
-              <div className="space-x-[0.125rem] text-start" key={uuidv4()}>
-                <span>담당자 : {contact.name}</span>
-                <span>{contact.level}</span>
-                <span>{contact.email}</span>
-                <span>{contact.department}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex my-3">
-            <div
-              className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-              onClick={() => setOpenAddModal(true)}
-            >
-              <span className="mr-2">+</span>
-              <span>추가</span>
-            </div>
+            )}
           </div>
 
-          {/* 상담 내역 추가 모달 */}
-          {openAddModal && (
-            <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-              <div className="bg-white p-6 rounded-md w-1/2 ">
-                <h3 className="text-xl font-semibold mb-4">상담 내역 추가</h3>
+          {/* 📝 비고 */}
+          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-40 flex flex-col">
+            {companyLoading ? (
+              <>
+                <Skeleton variant="text" width="100%" height="100%" />
+              </>
+            ) : (
+              <>
+                <h2 className="font-semibold text-md mb-1">담당자</h2>
 
-                {/* 상담일 및 후속 날짜 (flex로 배치) */}
-                <div className="mb-4 grid space-x-4 grid-cols-4">
-                  <div className="">
-                    <label className="block mb-2 text-sm font-medium">
-                      상담일
-                    </label>
-                    <input
-                      type="date"
-                      value={newConsultation.date}
-                      readOnly
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-sm font-medium">
-                      후속 날짜
-                    </label>
-                    <input
-                      type="date"
-                      value={newConsultation.follow_up_date}
-                      onChange={(e) =>
-                        setNewConsultation({
-                          ...newConsultation,
-                          follow_up_date: e.target.value,
-                        })
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-sm font-medium">
-                      피상담자
-                    </label>
-                    <input
-                      type="text"
-                      value={newConsultation.contact}
-                      onChange={(e) =>
-                        setNewConsultation({
-                          ...newConsultation,
-                          contact: e.target.value,
-                        })
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-sm font-medium">
-                      상담자
-                    </label>
-                    <select
-                      value={newConsultation.user_id} // 로그인한 유저를 기본값으로 설정
-                      onChange={(e) =>
-                        setNewConsultation({
-                          ...newConsultation,
-                          user_id: e.target.value, // 유저가 선택한 값으로 설정
-                        })
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    >
-                      {/* 다른 유저들 */}
-                      {users.map((user) => (
-                        <option key={user.id} value={user.id}>
-                          {user.name}
-                        </option>
+                <div className=" h-28 overflow-y-auto">
+                  <table className="w-full text-xs border-collapse">
+                    {/* 🔹 테이블 헤더 고정 (sticky top-0 적용) */}
+                    <thead className="border-b font-semibold bg-gray-100 sticky top-0">
+                      {/* <tr>
+                      <th className="text-left px-2 py-1">이름</th>
+                      <th className="text-left px-2 py-1">직급</th>
+                      <th className="text-left px-2 py-1">부서</th>
+                      <th className="text-left px-2 py-1">이메일</th>
+                    </tr> */}
+                    </thead>
+                    {/* 🔹 내용만 스크롤 */}
+                    <tbody className="text-sm">
+                      {company?.contact.map((contact, index) => (
+                        <tr
+                          key={index}
+                          className={`${
+                            index !== company.contact.length - 1
+                              ? "border-b"
+                              : ""
+                          }`}
+                        >
+                          <td className="px-1 py-1">{contact.contact_name}</td>
+                          <td className="px-1 py-1">{contact.level}</td>
+                          <td className="px-1 py-1">{contact.department}</td>
+                          <td className="px-1 py-1">{contact.mobile}</td>
+                          <td className="px-1 py-1 truncate">
+                            {contact.email}
+                          </td>
+                        </tr>
                       ))}
-                    </select>
-                  </div>
+                    </tbody>
+                  </table>
                 </div>
+              </>
+            )}
+          </div>
 
-                {/* 상담 내용 */}
-                <div className="mb-4">
+          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3">
+            {companyLoading ? (
+              <Skeleton variant="rectangular" width="100%" height="100%" />
+            ) : (
+              <>
+                <h2 className="font-semibold text-md mb-1">비고</h2>
+                <div className="text-sm min-h-[80px] max-h-28 overflow-y-auto pl-1">
+                  <span>{companyMemo?.notes || "내용 없음"}</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* 🚀 추가 버튼 */}
+
+        <div className="flex my-3">
+          <div
+            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+            onClick={() => setOpenAddModal(true)}
+          >
+            <span className="mr-2">+</span>
+            <span>추가</span>
+          </div>
+        </div>
+
+        {/* 상담 내역 추가 모달 */}
+        {openAddModal && (
+          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-md w-1/2 ">
+              <h3 className="text-xl font-semibold mb-4">상담 내역 추가</h3>
+
+              {/* 상담일 및 후속 날짜 (flex로 배치) */}
+              <div className="mb-4 grid space-x-4 grid-cols-4">
+                <div className="">
                   <label className="block mb-2 text-sm font-medium">
-                    상담 내용
+                    상담일
                   </label>
-                  <textarea
-                    value={newConsultation.content}
+                  <input
+                    type="date"
+                    value={newConsultation.date}
+                    readOnly
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-medium">
+                    후속 날짜
+                  </label>
+                  <input
+                    type="date"
+                    value={newConsultation.follow_up_date}
                     onChange={(e) =>
                       setNewConsultation({
                         ...newConsultation,
-                        content: e.target.value,
+                        follow_up_date: e.target.value,
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    rows={4}
                   />
                 </div>
-
-                {/* 버튼 */}
-                <div className="flex justify-end space-x-4">
-                  <button
-                    onClick={() => setOpenAddModal(false)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm"
-                  >
-                    취소
-                  </button>
-                  <button
-                    onClick={handleAddConsultation}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
-                  >
-                    저장
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 상담 내역 수정 모달 */}
-          {openEditModal && (
-            <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-              <div className="bg-white p-6 rounded-md w-1/2">
-                <h3 className="text-xl font-semibold mb-4">상담 내역 수정</h3>
-
-                {/* 상담일 및 후속 날짜 (flex로 배치) */}
-                <div className="mb-4 grid grid-cols-4 space-x-4">
-                  <div>
-                    <label className="block mb-2 text-sm font-medium">
-                      상담일
-                    </label>
-                    <input
-                      type="date"
-                      value={newConsultation.date}
-                      readOnly
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-sm font-medium">
-                      후속 날짜
-                    </label>
-                    <input
-                      type="date"
-                      value={
-                        newConsultation.follow_up_date
-                          ? newConsultation.follow_up_date
-                          : ""
-                      }
-                      onChange={(e) =>
-                        setNewConsultation({
-                          ...newConsultation,
-                          follow_up_date: e.target.value,
-                        })
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-sm font-medium">
-                      피상담자
-                    </label>
-                    <input
-                      type="text"
-                      value={newConsultation.contact}
-                      onChange={(e) =>
-                        setNewConsultation({
-                          ...newConsultation,
-                          contact: e.target.value,
-                        })
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-sm font-medium">
-                      상담자
-                    </label>
-                    <select
-                      value={newConsultation.user_id}
-                      onChange={(e) =>
-                        setNewConsultation({
-                          ...newConsultation,
-                          user_id: e.target.value,
-                        })
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    >
-                      {users.map((user) => (
-                        <option key={user.id} value={user.id}>
-                          {user.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* 상담 내용 */}
-                <div className="mb-4">
+                <div>
                   <label className="block mb-2 text-sm font-medium">
-                    상담 내용
+                    피상담자
                   </label>
-                  <textarea
-                    value={newConsultation.content}
+                  <select
+                    defaultValue={newConsultation.contact_name}
                     onChange={(e) =>
                       setNewConsultation({
                         ...newConsultation,
-                        content: e.target.value,
+                        contact_name: e.target.value, // 선택된 담당자의 이름 저장
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                    rows={4}
-                  />
+                  >
+                    <option value="">담당자 선택</option>
+                    {contacts.map((contact) => (
+                      <option key={contact.id} value={contact.contact_name}>
+                        {contact.contact_name} ({contact.department})
+                      </option>
+                    ))}
+                  </select>
                 </div>
-
-                {/* 버튼 */}
-                <div className="flex justify-end space-x-4">
-                  <button
-                    onClick={() => {
-                      setOpenEditModal(false);
+                <div>
+                  <label className="block mb-2 text-sm font-medium">
+                    상담자
+                  </label>
+                  <select
+                    value={newConsultation.user_id} // 로그인한 유저를 기본값으로 설정
+                    disabled
+                    onChange={(e) =>
                       setNewConsultation({
-                        date: new Date().toISOString().split("T")[0], // 초기화
-                        follow_up_date: "",
-                        contact: "",
-                        user_id: "",
-                        content: "",
-                      });
-                    }}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm"
+                        ...newConsultation,
+                        user_id: e.target.value, // 유저가 선택한 값으로 설정
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   >
-                    취소
-                  </button>
-                  <button
-                    onClick={handleUpdateConsultation}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
-                  >
-                    저장
-                  </button>
+                    {/* 다른 유저들 */}
+                    {users.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* 상담 내역 테이블 */}
+              {/* 상담 내용 */}
+              <div className="mb-4">
+                <label className="block mb-2 text-sm font-medium">
+                  상담 내용
+                </label>
+                <textarea
+                  value={newConsultation.content}
+                  onChange={(e) =>
+                    setNewConsultation({
+                      ...newConsultation,
+                      content: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  rows={4}
+                />
+              </div>
+
+              {/* 버튼 */}
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => {
+                    setOpenAddModal(false);
+                    setNewConsultation({
+                      date: new Date().toISOString().split("T")[0],
+                      follow_up_date: "",
+                      user_id: loginUser ? loginUser.id : "",
+                      content: "",
+                      contact_name: "",
+                    });
+                  }}
+                  className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+                    saving ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={saving}
+                >
+                  취소
+                </button>
+
+                <button
+                  onClick={handleAddConsultation}
+                  className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+                    saving ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={saving}
+                >
+                  저장
+                  {saving && <CircularProgress size={18} className="ml-2" />}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 상담 내역 수정 모달 */}
+        {openEditModal && (
+          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-md w-1/2">
+              <h3 className="text-xl font-semibold mb-4">상담 내역 수정</h3>
+
+              {/* 상담일 및 후속 날짜 (flex로 배치) */}
+              <div className="mb-4 grid grid-cols-4 space-x-4">
+                <div>
+                  <label className="block mb-2 text-sm font-medium">
+                    상담일
+                  </label>
+                  <input
+                    type="date"
+                    value={newConsultation.date}
+                    readOnly
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-medium">
+                    후속 날짜
+                  </label>
+                  <input
+                    type="date"
+                    value={
+                      newConsultation.follow_up_date
+                        ? newConsultation.follow_up_date
+                        : ""
+                    }
+                    onChange={(e) =>
+                      setNewConsultation({
+                        ...newConsultation,
+                        follow_up_date: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-medium">
+                    피상담자
+                  </label>
+                  <select
+                    defaultValue={newConsultation.contact_name}
+                    onChange={(e) =>
+                      setNewConsultation({
+                        ...newConsultation,
+                        contact_name: e.target.value, // 선택된 담당자의 이름 저장
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="">담당자 선택</option>
+                    {contacts.map((contact) => (
+                      <option key={contact.id} value={contact.contact_name}>
+                        {contact.contact_name} ({contact.department})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block mb-2 text-sm font-medium">
+                    상담자
+                  </label>
+
+                  <select
+                    value={newConsultation.user_id}
+                    disabled
+                    onChange={(e) =>
+                      setNewConsultation({
+                        ...newConsultation,
+                        user_id: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    {users.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* 상담 내용 */}
+              <div className="mb-4">
+                <label className="block mb-2 text-sm font-medium">
+                  상담 내용
+                </label>
+                <textarea
+                  value={newConsultation.content}
+                  onChange={(e) =>
+                    setNewConsultation({
+                      ...newConsultation,
+                      content: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  rows={4}
+                />
+              </div>
+
+              {/* 버튼 */}
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={() => {
+                    setOpenEditModal(false);
+                    setNewConsultation({
+                      date: new Date().toISOString().split("T")[0], // 초기화
+                      follow_up_date: "",
+                      user_id: "",
+                      content: "",
+                      contact_name: "",
+                    });
+                  }}
+                  className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+                    saving ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={saving}
+                >
+                  취소
+                </button>
+
+                <button
+                  onClick={handleUpdateConsultation}
+                  className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+                    saving ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={saving}
+                >
+                  저장
+                  {saving && <CircularProgress size={18} className="ml-2" />}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 상담 내역 테이블 */}
+        <div className="bg-[#FBFBFB] rounded-md border">
           {consultations.length > 0 && (
-            <div>
-              <table className="min-w-full table-auto border-collapse text-center">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                      No.
-                    </th>
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                      날짜
-                    </th>
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                      피상담자
-                    </th>
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                      상담자
-                    </th>
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center w-5/12">
-                      내용
-                    </th>
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                      체크
-                    </th>
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                      문서
-                    </th>
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                      수정
-                    </th>
-                    <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                      삭제
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {consultations.map((consultation, index) => (
-                    <tr key={consultation.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 border-b border-r-[1px]">
-                        {consultation.id.slice(0, 4)}
-                      </td>
-                      <td className="px-4 py-2 border-b border-r-[1px]">
-                        {consultation.date}
-                      </td>
-                      <td className="px-4 py-2 border-b border-r-[1px]">
-                        {consultation.contact}
-                      </td>
-                      <td className="px-4 py-2 border-b border-r-[1px]">
-                        {
-                          users.find((user) => user.id === consultation.user_id)
-                            ?.name
+            <table className="min-w-full table-auto border-collapse text-center">
+              <thead>
+                <tr className="bg-gray-100 text-left">
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center">
+                    No.
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center">
+                    날짜
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
+                    피상담자
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
+                    상담자
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-5/12">
+                    내용
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center">
+                    체크
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center">
+                    문서
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center">
+                    수정
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center">
+                    삭제
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {consultations.map((consultation, index) => (
+                  <tr key={consultation.id} className="hover:bg-gray-100">
+                    <td className="px-4 py-2 border-b border-r-[1px]">
+                      {consultation.id.slice(0, 4)}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px]">
+                      {consultation.date}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px]">
+                      {consultation.contact_name}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px]">
+                      {
+                        users.find((user) => user.id === consultation.user_id)
+                          ?.name
+                      }
+                    </td>
+                    <td
+                      className="px-4 py-2 border-b border-r-[1px] w-full text-start"
+                      style={{
+                        minHeight: "120px",
+                        maxHeight: "120px",
+                        overflowY: "auto",
+                        display: "block",
+                      }}
+                    >
+                      {formatContentWithLineBreaks(consultation.content)}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px]">
+                      {consultation.follow_up_date}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r-[1px]">
+                      <span
+                        className={`mr-2 cursor-pointer ${
+                          documents.some(
+                            (doc) =>
+                              doc.type === "estimate" &&
+                              doc.consultation_id === consultation.id
+                          )
+                            ? "text-blue-500 hover:font-bold"
+                            : "text-gray-400 hover:text-black"
+                        }`}
+                        onClick={() =>
+                          router.push(
+                            `/documents/estimate?consultId=${consultation.id}&compId=${company?.id}`
+                          )
                         }
-                      </td>
-                      <td
-                        className="px-4 py-2 border-b border-r-[1px] w-full"
-                        style={{
-                          minHeight: "120px",
-                          maxHeight: "120px",
-                          overflowY: "auto",
-                          display: "block",
-                        }}
                       >
-                        {formatContentWithLineBreaks(consultation.content)}
-                      </td>
-                      <td className="px-4 py-2 border-b border-r-[1px]">
-                        {consultation.follow_up_date}
-                      </td>
-                      <td className="px-4 py-2 border-b border-r-[1px]">
-                        <span
-                          className={`mr-2 cursor-pointer ${
-                            documents.some(
-                              (doc) =>
-                                doc.type === "estimate" &&
-                                doc.consultation_id === consultation.id
-                            )
-                              ? "text-blue-500 hover:font-bold"
-                              : "text-gray-400 hover:text-black"
-                          }`}
-                          onClick={
-                            () =>
-                              router.push(
-                                `/documents/estimate?consultId=${consultation.id}&compId=${company?.id}`
-                              )
-                            // router.push(
-                            //   `/documents/estimate/${consultation.id}/${company?.id}`
-                            // )
-                          }
-                        >
-                          견적서
-                        </span>
-                        <span
-                          className={`mr-2 cursor-pointer ${
-                            documents.some(
-                              (doc) =>
-                                doc.type === "order" &&
-                                doc.consultation_id === consultation.id
-                            )
-                              ? "text-blue-500 hover:font-bold"
-                              : "text-gray-400 hover:text-black"
-                          }`}
-                          onClick={
-                            () =>
-                              router.push(
-                                `/documents/order?consultId=${consultation.id}&compId=${company?.id}`
-                              )
-
-                            // router.push(
-                            //   `/documents/order_test/${consultation.id}/${company?.id}`
-                            // )
-                          }
-                        >
-                          발주서
-                        </span>
-                        <span
-                          className={`cursor-pointer ${
-                            documents.some(
-                              (doc) =>
-                                doc.type === "requestQuote" &&
-                                doc.consultation_id === consultation.id
-                            )
-                              ? "text-blue-500 hover:font-bold"
-                              : "text-gray-400 hover:text-black"
-                          }`}
-                          onClick={
-                            () =>
-                              router.push(
-                                `/documents/requestQuote?consultId=${consultation.id}&compId=${company?.id}`
-                              )
-                            // router.push(
-                            //   `/documents/request_test/${consultation.id}/${company?.id}`
-                            // )
-                          }
-                        >
-                          의뢰서
-                        </span>
-                      </td>
-                      <td
-                        onClick={() => {
-                          if (loginUser?.id === consultation.user_id)
-                            handleEditConsultation(consultation);
-                        }}
-                        className={`px-4 py-2 border-b border-r-[1px] ${
-                          loginUser?.id === consultation.user_id &&
-                          "text-blue-500 cursor-pointer"
+                        견적서
+                      </span>
+                      <span
+                        className={`mr-2 cursor-pointer ${
+                          documents.some(
+                            (doc) =>
+                              doc.type === "order" &&
+                              doc.consultation_id === consultation.id
+                          )
+                            ? "text-blue-500 hover:font-bold"
+                            : "text-gray-400 hover:text-black"
                         }`}
+                        onClick={() =>
+                          router.push(
+                            `/documents/order?consultId=${consultation.id}&compId=${company?.id}`
+                          )
+                        }
                       >
-                        수정
-                      </td>
-                      <td
-                        onClick={() => {
-                          if (loginUser?.id === consultation.user_id)
-                            handleDeleteConsultation(consultation);
-                        }}
-                        className={`px-4 py-2 border-b border-r-[1px] ${
-                          loginUser?.id === consultation.user_id &&
-                          "text-red-500 cursor-pointer"
+                        발주서
+                      </span>
+                      <span
+                        className={`mr-2 cursor-pointer ${
+                          documents.some(
+                            (doc) =>
+                              doc.type === "requestQuote" &&
+                              doc.consultation_id === consultation.id
+                          )
+                            ? "text-blue-500 hover:font-bold"
+                            : "text-gray-400 hover:text-black"
                         }`}
+                        onClick={() =>
+                          router.push(
+                            `/documents/requestQuote?consultId=${consultation.id}&compId=${company?.id}`
+                          )
+                        }
                       >
-                        삭제
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        의뢰서
+                      </span>
+                    </td>
+                    <td
+                      className={`px-4 py-2 border-b border-r-[1px] ${
+                        loginUser?.id === consultation.user_id &&
+                        "text-blue-500 cursor-pointer"
+                      }`}
+                      onClick={() => {
+                        if (loginUser?.id === consultation.user_id)
+                          handleEditConsultation(consultation);
+                      }}
+                    >
+                      수정
+                    </td>
+                    <td
+                      className={`px-4 py-2 border-b border-r-[1px] ${
+                        loginUser?.id === consultation.user_id &&
+                        "text-red-500 cursor-pointer"
+                      }`}
+                      onClick={() => {
+                        if (loginUser?.id === consultation.user_id)
+                          handleDeleteConsultation(consultation);
+                      }}
+                    >
+                      삭제
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
+        </div>
 
-          {/* 페이지네이션 */}
-          <div className="flex justify-center mt-4 space-x-2">
-            <Button onClick={prevPage} disabled={currentPage === 1}>
-              이전
+        {/* 페이지네이션 */}
+        <div className="flex justify-center mt-4 space-x-2">
+          <Button onClick={prevPage} disabled={currentPage === 1}>
+            이전
+          </Button>
+
+          {/* 페이지 번호 */}
+          {paginationNumbers().map((page, index) => (
+            <Button
+              key={index}
+              onClick={() => handlePageClick(Number(page))}
+              className={`text-sm ${page === currentPage ? "font-bold" : ""}`}
+            >
+              {page}
             </Button>
+          ))}
 
-            {/* 페이지 번호 */}
-            {paginationNumbers().map((page, index) => (
-              <Button
-                key={index}
-                onClick={() => handlePageClick(Number(page))}
-                className={`text-sm ${page === currentPage ? "font-bold" : ""}`}
-              >
-                {page}
-              </Button>
-            ))}
-
-            <Button onClick={nextPage} disabled={currentPage === totalPages}>
-              다음
-            </Button>
-          </div>
-        </>
-      )}
+          <Button onClick={nextPage} disabled={currentPage === totalPages}>
+            다음
+          </Button>
+        </div>
+      </>
 
       {openDeleteModal && consultationToDelete && (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
@@ -911,9 +1130,3 @@ export default function ConsultationPage() {
     </div>
   );
 }
-
-// 내일 No 재조정
-// 상담자 유저getsession 자동으로 가져오기
-// 견적서 발주서 의뢰서 페이지 구상
-// 상담내역 최대 height 구상
-//

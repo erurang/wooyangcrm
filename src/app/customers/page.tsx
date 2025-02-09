@@ -322,7 +322,7 @@ export default function Page() {
     setSaving(true); // 🔹 저장 시작 → 로딩 활성화
 
     try {
-      // 기존 로직 유지
+      // 🔹 기존 연락처 데이터 가져오기
       const { data: existingContacts, error: contactsFetchError } =
         await supabase
           .from("contacts")
@@ -338,6 +338,7 @@ export default function Page() {
         ])
       );
 
+      // 🔹 새로운 연락처 리스트 (consultation_id를 `null`로 설정)
       const newContacts = currentCompany.contact.map((contact) => ({
         company_id: currentCompany.id,
         contact_name: contact.contact_name,
@@ -351,15 +352,18 @@ export default function Page() {
         newContacts.map((c) => [`${c.contact_name}-${c.mobile}-${c.email}`, c])
       );
 
+      // 🔹 삭제해야 할 기존 연락처
       const contactsToDelete = existingContacts.filter(
         (c) => !newContactsMap.has(`${c.contact_name}-${c.mobile}-${c.email}`)
       );
 
+      // 🔹 추가해야 할 새로운 연락처
       const contactsToAdd = newContacts.filter(
         (c) =>
           !existingContactsMap.has(`${c.contact_name}-${c.mobile}-${c.email}`)
       );
 
+      // 🔹 연락처 삭제
       if (contactsToDelete.length > 0) {
         await supabase
           .from("contacts")
@@ -370,10 +374,12 @@ export default function Page() {
           );
       }
 
+      // 🔹 연락처 추가 (`consultation_id = null` 설정 포함)
       if (contactsToAdd.length > 0) {
         await supabase.from("contacts").insert(contactsToAdd);
       }
 
+      // 🔹 회사 정보 업데이트
       const { data: updatedCompany, error } = await supabase
         .from("companies")
         .update({
@@ -391,6 +397,7 @@ export default function Page() {
 
       if (error) throw error;
 
+      // 🔹 업데이트된 연락처 가져오기
       const { data: updatedContacts, error: updatedContactsError } =
         await supabase
           .from("contacts")
@@ -399,6 +406,7 @@ export default function Page() {
 
       if (updatedContactsError) throw updatedContactsError;
 
+      // 🔹 업데이트된 회사 객체 생성하여 리스트 반영
       const updatedCompanyWithContacts = {
         ...updatedCompany[0],
         contact: updatedContacts || [],
@@ -513,6 +521,24 @@ export default function Page() {
     setSaving(true); // 🔹 저장 시작 → 로딩 활성화
 
     try {
+      // 🔹 Step 1: 동일한 이름의 회사가 존재하는지 확인
+      const { data: existingCompanies, error: existingCompaniesError } =
+        await supabase
+          .from("companies")
+          .select("id")
+          .eq("name", currentCompany.name);
+
+      if (existingCompaniesError) throw existingCompaniesError;
+
+      // 🔹 Step 2: 동일한 이름의 회사가 있으면 추가하지 않고 경고 메시지 출력
+      if (existingCompanies.length > 0) {
+        setSnackbarMessage("⚠️ 이미 존재하는 회사입니다.");
+        setOpenSnackbar(true);
+        setSaving(false);
+        return;
+      }
+
+      // 🔹 Step 3: `companies` 테이블에 새로운 회사 추가
       const { data: companyData, error: companyError } = await supabase
         .from("companies")
         .insert([
@@ -527,12 +553,16 @@ export default function Page() {
             parcel: currentCompany.parcel,
           },
         ])
-        .select();
+        .select()
+        .single();
 
-      if (companyError) throw companyError;
+      if (companyError || !companyData) {
+        throw new Error("거래처 추가 실패");
+      }
 
-      const companyId = companyData[0].id;
+      const companyId = companyData.id; // 🔥 생성된 거래처 ID
 
+      // 🔹 Step 4: `contacts` 테이블에 추가 (`consultation_id`를 NULL로 설정)
       const newContacts = currentCompany.contact.map((contact) => ({
         company_id: companyId,
         contact_name: contact.contact_name,
@@ -546,6 +576,7 @@ export default function Page() {
         await supabase.from("contacts").insert(newContacts);
       }
 
+      // 🔹 Step 5: 추가된 회사 정보를 가져와 리스트 업데이트
       const { data: contactsData, error: contactsError } = await supabase
         .from("contacts")
         .select("company_id, contact_name, mobile, department, level, email")
@@ -554,19 +585,19 @@ export default function Page() {
       if (contactsError) throw contactsError;
 
       const newCompany = {
-        ...companyData[0],
+        ...companyData,
         contact: contactsData || [],
       };
 
       setCompanies((prevCompanies) => [newCompany, ...prevCompanies]);
       setFilteredCompanies((prevCompanies) => [newCompany, ...prevCompanies]);
 
-      setSnackbarMessage("추가 완료");
+      setSnackbarMessage("✅ 거래처 추가 완료");
       setOpenSnackbar(true);
       closeAddModal();
     } catch (error) {
       console.error("Error adding company:", error);
-      setSnackbarMessage("추가 실패");
+      setSnackbarMessage("❌ 거래처 추가 실패");
       setOpenSnackbar(true);
     } finally {
       setSaving(false); // 🔹 저장 완료 → 로딩 해제
