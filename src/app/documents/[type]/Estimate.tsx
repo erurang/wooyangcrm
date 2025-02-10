@@ -15,6 +15,7 @@ interface Document {
   consultation_id: string;
   type: string;
   contact: string;
+  contact_name: string;
   content: {
     items: {
       name: string;
@@ -58,6 +59,16 @@ interface newDocument {
   delivery_date: string;
 }
 
+interface Contacts {
+  id: string;
+  contact_name: string;
+  department: string;
+  mobile: string;
+  email: string;
+  company_id: string;
+  level: string;
+}
+
 interface EsitmateProps {
   documents: Document[];
   getUserNameById: (userId: string) => string;
@@ -82,6 +93,9 @@ interface EsitmateProps {
   type: string;
   user: User;
   setOpenEditModal: any;
+  paymentMethods: string[];
+  saving: boolean;
+  contacts: Contacts[];
 }
 
 export default function Estimate({
@@ -108,7 +122,12 @@ export default function Estimate({
   type,
   user,
   setOpenEditModal,
+  paymentMethods,
+  saving,
+  contacts,
 }: EsitmateProps) {
+  console.log("documents", documents);
+  console.log("newdocuments", newDocument);
   return (
     <div>
       <table className="min-w-full table-auto border-collapse text-center">
@@ -229,7 +248,7 @@ export default function Estimate({
                 {type === "requestQuote" && document.content.delivery_date}
               </td>
               <td className="px-4 py-2 border-b border-r-[1px]">
-                {document.contact} {/* 담당자 */}
+                {document.contact_name} {/* 담당자 */}
               </td>
               <td className="px-4 py-2 border-b border-r-[1px]">
                 {getUserNameById(document.user_id)}
@@ -244,7 +263,7 @@ export default function Estimate({
                 }}
               >
                 {document.content.items.map((item, index) => (
-                  <div key={index}>
+                  <div key={index} className={"text-start"}>
                     <p>
                       품명: {item.name} 규격: {item.spec}
                     </p>
@@ -354,6 +373,7 @@ export default function Estimate({
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
                 />
+                ㄹ
               </div>
 
               {/* 팩스 */}
@@ -373,14 +393,29 @@ export default function Estimate({
                 <label className="block mb-2 text-sm font-medium">
                   담당자명
                 </label>
-                <input
+                <select
+                  value={newDocument.contact}
+                  onChange={(e) =>
+                    setNewDocument({ ...newDocument, contact: e.target.value })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value="">선택</option>
+                  {contacts.map((contact) => (
+                    <option key={contact.id} value={contact.contact_name}>
+                      {contact.contact_name} {contact.level}
+                    </option>
+                  ))}
+                </select>
+
+                {/* <input
                   type="text"
                   value={newDocument.contact}
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, contact: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                />
+                /> */}
               </div>
             </div>
 
@@ -390,7 +425,26 @@ export default function Estimate({
                 <label className="block mb-2 text-sm font-medium">
                   결제조건
                 </label>
-                <input
+                {type === "estimate" && (
+                  <select
+                    value={newDocument.payment_method}
+                    onChange={(e) =>
+                      setNewDocument({
+                        ...newDocument,
+                        payment_method: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="">선택</option>
+                    {paymentMethods.map((method) => (
+                      <option key={method} value={method}>
+                        {method}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {/* <input
                   type="text"
                   value={newDocument.payment_method}
                   onChange={(e) =>
@@ -400,7 +454,7 @@ export default function Estimate({
                     })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                />
+                /> */}
               </div>
               <div className="mb-2">
                 {type === "estimate" && (
@@ -868,14 +922,20 @@ export default function Estimate({
                 <label className="block mb-2 text-sm font-medium">
                   담당자명
                 </label>
-                <input
-                  type="text"
-                  value={newDocument.contact} // 기존 데이터 입력
+                <select
+                  defaultValue={newDocument.contact}
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, contact: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                />
+                >
+                  <option value="">선택</option>
+                  {contacts.map((contact) => (
+                    <option key={contact.id} value={contact.contact_name}>
+                      {contact.contact_name} {contact.level}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -1222,13 +1282,19 @@ export default function Estimate({
             <div className="flex justify-end space-x-4 mt-4">
               <button
                 onClick={() => setOpenEditModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm"
+                className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+                  saving ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={saving}
               >
                 취소
               </button>
               <button
                 onClick={handleEditDocument}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
+                className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+                  saving ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={saving}
               >
                 저장
               </button>

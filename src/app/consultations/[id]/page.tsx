@@ -20,8 +20,12 @@ interface Consultation {
   follow_up_date: any;
   user_id: string;
   contact_name: string;
-  // company_id: string;
-  // priority: "low" | "medium" | "high"; // Enum 값
+  contact_level: string;
+  documents: {
+    estimate: boolean;
+    order: boolean;
+    requestQuote: boolean;
+  };
 }
 interface Contact {
   id: string;
@@ -41,7 +45,6 @@ interface Company {
   fax: string;
   notes: string;
   business_number: string;
-  contact: Contact[]; // 연락처 배열 추가
 }
 
 interface User {
@@ -54,45 +57,82 @@ export default function ConsultationPage() {
 
   const router = useRouter();
   const { id } = useParams();
-  const [saving, setSaving] = useState(false); // 🔹 저장 로딩 상태 추가
+  const [saving, setSaving] = useState(false);
 
-  const [consultations, setConsultations] = useState<Consultation[]>([]); // 여러 개의 상담 내역을 저장
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [company, setCompany] = useState<Company | null>(null);
-  const [documents, setDocuments] = useState<any[]>([]); // 문서 관련 데이터
 
-  // const [loading, setLoading] = useState(false);
-  const [companyLoading, setCompanyLoading] = useState(false); // 🔹 회사 정보 로딩 상태
-  const [consultationLoading, setConsultationLoading] = useState(false); // 🔹 상담 내역 로딩 상태
+  const [companyLoading, setCompanyLoading] = useState(false);
+  const [consultationLoading, setConsultationLoading] = useState(false);
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
-  const [openAddModal, setOpenAddModal] = useState(false); // 상담내역 추가 모달 상태
-  const [openEditModal, setOpenEditModal] = useState(false); // 상담내역 수정 모달 상태
+  const [openAddModal, setOpenAddModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
   const [newConsultation, setNewConsultation] = useState({
     date: new Date().toISOString().split("T")[0],
     follow_up_date: "",
     contact_name: "",
-    user_id: "", // 초기값 빈 문자열
+    user_id: "",
     content: "",
   });
 
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [users, setUsers] = useState<User[]>([]); // 유저 목록
-  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
-  const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
-  const consultationsPerPage = 4; // 한 페이지에 보여줄 상담 내역 개수
+  const [users, setUsers] = useState<User[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const consultationsPerPage = 4;
   const [selectedConsultation, setSelectedConsultation] =
-    useState<Consultation | null>(null); // 선택된 상담 내역
+    useState<Consultation | null>(null);
 
-  const [openDeleteModal, setOpenDeleteModal] = useState(false); // 삭제 모달 상태
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [consultationToDelete, setConsultationToDelete] =
-    useState<Consultation | null>(null); // 삭제할 상담 내역
+    useState<Consultation | null>(null);
 
-  // 상담 내역을 가져오는 함수
+  function transformConsultationData(
+    consultations: any[],
+    contacts: Contact[],
+    contacts_consultations: { contact_id: string; consultation_id: string }[]
+  ) {
+    return consultations.map((consultation) => {
+      const contactRelation = contacts_consultations.find(
+        (cc) => cc.consultation_id === consultation.id
+      );
 
-  const fetchCompanyData = async () => {
+      const firstContact =
+        contacts.find(
+          (contact) => contact.id === contactRelation?.contact_id
+        ) || ({} as Partial<Contact>);
+
+      const documentTypes = {
+        estimate: false,
+        order: false,
+        requestQuote: false,
+      };
+
+      consultation.documents.forEach((doc: any) => {
+        if (doc.type === "estimate") documentTypes.estimate = true;
+        if (doc.type === "order") documentTypes.order = true;
+        if (doc.type === "requestQuote") documentTypes.requestQuote = true;
+      });
+
+      return {
+        content: consultation.content,
+        date: consultation.date,
+        contact_name: firstContact.contact_name || "",
+        contact_level: firstContact.level || "",
+        contact_email: firstContact.email || "",
+        contact_mobile: firstContact.mobile || "",
+        documents: documentTypes,
+        follow_up_date: consultation.follow_up_date,
+        id: consultation.id,
+        user_id: consultation.user_id,
+      };
+    });
+  }
+
+  const fetchContactsData = async () => {
     if (!id) return;
-    setCompanyLoading(true);
 
     try {
       const { data: contactsData, error: contactsError } = await supabase
@@ -103,20 +143,29 @@ export default function ConsultationPage() {
       if (contactsError) {
         setSnackbarMessage("담당자를 불러오는 데 실패했습니다.");
         setOpenSnackbar(true);
-      } else {
-        setContacts(contactsData || []);
       }
+      setContacts(contactsData || []);
+    } catch (error) {
+      console.error("담당자 로딩 중 오류 발생:", error);
+      setSnackbarMessage(
+        "담당자 가져오는 중 오류가 발생했습니다.-fetchContactsData"
+      );
+      setOpenSnackbar(true);
+    }
+  };
 
+  const fetchCompanyData = async () => {
+    if (!id) return;
+    setCompanyLoading(true);
+
+    try {
       const { data: companyData, error: companyDataError } = await supabase
         .from("companies")
         .select("*")
         .eq("id", id)
         .single();
 
-      setCompany({
-        ...companyData,
-        contact: contactsData || [],
-      });
+      setCompany(companyData);
 
       if (companyDataError) {
         setSnackbarMessage("회사를 불러오는 데 실패했습니다.");
@@ -125,7 +174,9 @@ export default function ConsultationPage() {
       }
     } catch (error) {
       console.error("❗ 회사정보 로딩 중 오류 발생:", error);
-      setSnackbarMessage("회사정보를 가져오는 중 오류가 발생했습니다.");
+      setSnackbarMessage(
+        "회사정보를 가져오는 중 오류가 발생했습니다.-fetchCompanyData"
+      );
       setOpenSnackbar(true);
     } finally {
       setCompanyLoading(false);
@@ -135,19 +186,23 @@ export default function ConsultationPage() {
   const fetchConsultationData = async () => {
     if (!id) return;
 
-    setConsultationLoading(true); // 상담 내역만 로딩 시작
+    setConsultationLoading(true);
 
     try {
-      // 🔹 상담 내역 가져오기
       const {
         data: consultationsData,
         error: consultationsError,
         count,
       } = await supabase
         .from("consultations")
-        .select("id, date, content, follow_up_date, user_id", {
-          count: "exact",
-        })
+        .select(
+          `id, date, content, follow_up_date, user_id,
+          documents (type)
+        `,
+          {
+            count: "exact",
+          }
+        )
         .eq("company_id", id)
         .range(
           (currentPage - 1) * consultationsPerPage,
@@ -158,77 +213,46 @@ export default function ConsultationPage() {
       if (consultationsError) {
         setSnackbarMessage("상담 내역을 불러오는 데 실패했습니다.");
         setOpenSnackbar(true);
-        setConsultationLoading(false);
         return;
       }
 
-      console.log("🔹 가져온 상담 내역:", consultationsData);
+      const filteredConsultId = consultationsData.map((con) => con.id);
 
-      // 🔹 상담 ID 목록 가져오기
-      const consultationIds = consultationsData.map((c) => c.id);
-
-      // 🔹 상담과 담당자 매핑 정보 가져오기
       const {
-        data: contactsConsultationsData,
-        error: contactsConsultationsError,
+        data: contactsConsultationData,
+        error: contactsConsultationDataError,
       } = await supabase
         .from("contacts_consultations")
         .select("consultation_id, contact_id")
-        .in("consultation_id", consultationIds);
+        .in("consultation_id", filteredConsultId);
 
-      console.log("🔹 contacts_consultations 결과:", contactsConsultationsData);
-
-      if (contactsConsultationsError || !contactsConsultationsData.length) {
-        console.warn("❗ 상담과 담당자 연결 데이터가 없습니다.");
-        setConsultationLoading(false);
+      if (consultationsError) {
+        setSnackbarMessage("문서-담당자 관계를 불러오는 데 실패했습니다.");
+        setOpenSnackbar(true);
         return;
       }
 
-      // 🔹 contacts 테이블에서 담당자 정보 가져오기
-      const contactIds = contactsConsultationsData.map((cc) => cc.contact_id);
+      setConsultations(
+        transformConsultationData(
+          consultationsData,
+          contacts,
+          contactsConsultationData ?? []
+        )
+      );
 
-      console.log("🔹 상담과 연결된 contact_id 목록:", contactIds);
-
-      const { data: contactsInfo, error: contactsInfoError } = await supabase
-        .from("contacts")
-        .select("id, contact_name")
-        .in("id", contactIds);
-
-      console.log("🔹 contacts 테이블에서 가져온 담당자 목록:", contactsInfo);
-
-      if (contactsInfoError || !contactsInfo.length) {
-        console.warn("❗ contacts 테이블에서 담당자를 찾을 수 없습니다.");
-        setConsultationLoading(false);
-        return;
-      }
-
-      // 🔹 상담 ID 기준으로 담당자 이름 매핑
-      const contactMap = contactsConsultationsData.reduce((acc, cc) => {
-        const contact = contactsInfo.find((c) => c.id === cc.contact_id);
-        if (contact) {
-          acc[cc.consultation_id] = contact.contact_name;
-        }
-        return acc;
-      }, {} as Record<string, string>);
-
-      // 🔹 상담 내역에 담당자 이름 추가
-      const updatedConsultations = consultationsData.map((c) => ({
-        ...c,
-        contact_name: contactMap[c.id] || "담당자 없음",
-      }));
-
-      console.log("🔹 최종 상담 내역:", updatedConsultations);
-
-      setConsultations(updatedConsultations);
       setTotalPages(count ? Math.ceil(count / consultationsPerPage) : 1);
     } catch (error) {
-      console.error("❗ 데이터 로딩 중 오류 발생:", error);
-      setSnackbarMessage("데이터를 가져오는 중 오류가 발생했습니다.");
+      console.error("fetchConsultationData 데이터 로딩 중 오류 발생:", error);
       setOpenSnackbar(true);
+      setSnackbarMessage(
+        "데이터를 가져오는 중 오류가 발생했습니다.-fetchConsultationData"
+      );
     } finally {
       setConsultationLoading(false);
     }
   };
+
+  console.log("consultations,", consultations);
 
   const fetchUsers = async () => {
     const { data: usersData, error: usersError } = await supabase
@@ -244,47 +268,44 @@ export default function ConsultationPage() {
   };
 
   useEffect(() => {
-    if (contacts.length > 0) {
-      setNewConsultation((prev) => ({
-        ...prev,
-        contact: contacts[0].contact_name, // 첫 번째 담당자로 기본값 설정
-      }));
-    }
-  }, [contacts]);
+    fetchCompanyData();
+    fetchUsers();
+    fetchContactsData();
 
-  useEffect(() => {
-    // ESC 키 핸들러
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setOpenAddModal(false); // 추가 모달 닫기
-        setOpenEditModal(false); // 수정 모달 닫기
-        setOpenDeleteModal(false); // 삭제 모달 닫기
+        setOpenAddModal(false);
+        setOpenEditModal(false);
+        setOpenDeleteModal(false);
       }
     };
 
-    fetchCompanyData();
-    fetchUsers();
-
     window.addEventListener("keydown", handleKeyDown);
 
-    // 언마운트 시 이벤트 제거
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
   useEffect(() => {
+    if (contacts.length !== 0) fetchConsultationData();
+  }, [contacts, currentPage]);
+
+  useEffect(() => {
+    if (contacts.length > 0) {
+      setNewConsultation((prev) => ({
+        ...prev,
+        contact_name: contacts[0].contact_name,
+      }));
+    }
+
     if (loginUser?.id) {
       setNewConsultation((prev) => ({
         ...prev,
         user_id: loginUser.id,
       }));
     }
-  }, [loginUser]);
-
-  useEffect(() => {
-    fetchConsultationData();
-  }, [currentPage]);
+  }, [contacts, loginUser]);
 
   const handleAddConsultation = async () => {
     if (saving) return;
@@ -293,15 +314,21 @@ export default function ConsultationPage() {
     const { content, follow_up_date, user_id, contact_name } = newConsultation;
     const formattedFollowUpDate = follow_up_date ? follow_up_date : null;
 
-    if (!content || !user_id || !contact_name) {
-      setSnackbarMessage("필수 항목을 모두 입력하세요.");
+    if (!content) {
+      setSnackbarMessage("상담 내용을 입력하세요.");
+      setOpenSnackbar(true);
+      setSaving(false);
+      return;
+    }
+
+    if (!contact_name) {
+      setSnackbarMessage("담당자를 선택해주세요.");
       setOpenSnackbar(true);
       setSaving(false);
       return;
     }
 
     try {
-      // 🔹 Step 1: 상담 추가 후 ID 가져오기
       const { data: insertedConsultation, error: insertError } = await supabase
         .from("consultations")
         .insert([
@@ -322,13 +349,12 @@ export default function ConsultationPage() {
 
       const consultationId = insertedConsultation.id;
 
-      // 🔹 Step 2: 담당자 ID 가져오기
       const selectedContact = contacts.find(
         (c) => c.contact_name === contact_name
       );
+
       if (!selectedContact) throw new Error("담당자 정보를 찾을 수 없습니다.");
 
-      // 🔹 Step 3: 상담-담당자 연결 추가
       await supabase.from("contacts_consultations").insert([
         {
           contact_id: selectedContact.id,
@@ -349,7 +375,6 @@ export default function ConsultationPage() {
     }
   };
 
-  // 수정 버튼을 누르면 모달에 기존 상담 내역을 불러오기
   const handleEditConsultation = (consultation: Consultation) => {
     setSelectedConsultation(consultation);
     setNewConsultation({
@@ -363,8 +388,8 @@ export default function ConsultationPage() {
   };
 
   const handleUpdateConsultation = async () => {
-    if (saving) return; // 🔹 이미 저장 중이면 실행 안 함
-    setSaving(true); // 🔥 저장 시작
+    if (saving) return;
+    setSaving(true);
 
     const { content, follow_up_date, user_id, contact_name } = newConsultation;
 
@@ -383,7 +408,7 @@ export default function ConsultationPage() {
       const { error } = await supabase
         .from("contacts_consultations")
         .update({
-          contact_id: selectedContact?.id, // 🔥 선택된 새로운 담당자 ID
+          contact_id: selectedContact?.id,
         })
         .eq("consultation_id", selectedConsultation?.id);
 
@@ -391,7 +416,6 @@ export default function ConsultationPage() {
         throw new Error("새로운 담당자 업데이트 실패");
       }
 
-      // 🔹 Step 3: `consultations` 테이블을 업데이트 (새로운 `contact_id`로 변경)
       const { error: updateError } = await supabase
         .from("consultations")
         .update({
@@ -409,7 +433,6 @@ export default function ConsultationPage() {
       setOpenSnackbar(true);
       setOpenEditModal(false);
 
-      // 🔹 상담 내역을 다시 불러옴
       fetchConsultationData();
     } catch (error) {
       console.error("Error updating consultation:", error);
@@ -420,26 +443,22 @@ export default function ConsultationPage() {
     }
   };
 
-  // 이전 페이지로 이동
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  // 다음 페이지로 이동
   const nextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
-  // 페이지 번호 클릭
   const handlePageClick = (page: number) => {
     setCurrentPage(page);
   };
 
-  // 페이지네이션 번호 리스트 생성
   const paginationNumbers = () => {
     let pageNumbers = [];
     for (let i = 1; i <= totalPages; i++) {
@@ -456,12 +475,11 @@ export default function ConsultationPage() {
     return pageNumbers;
   };
 
-  // company 관련 부분을 useMemo로 감싸 최적화
   const companyMemo = useMemo(() => company, [company]);
 
   const handleDeleteConsultation = async (consultation: Consultation) => {
     setConsultationToDelete(consultation);
-    setOpenDeleteModal(true); // 삭제 모달 열기
+    setOpenDeleteModal(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -471,12 +489,10 @@ export default function ConsultationPage() {
       const { error } = await supabase.from("deletion_requests").insert([
         {
           related_id: consultationToDelete.id,
-          status: "pending", // 삭제 요청 대기 상태
+          status: "pending",
           type: "consultation",
         },
       ]);
-
-      console.log(error);
 
       if (error) {
         setSnackbarMessage("삭제 요청을 생성하는 데 실패했습니다.");
@@ -485,7 +501,7 @@ export default function ConsultationPage() {
         setSnackbarMessage("삭제 요청이 생성되었습니다.");
         setOpenSnackbar(true);
         setOpenDeleteModal(false);
-        fetchConsultationData(); // 상담 내역 새로고침
+        fetchConsultationData();
       }
     } catch (error) {
       setSnackbarMessage("삭제 요청 생성 중 오류가 발생했습니다.");
@@ -494,7 +510,6 @@ export default function ConsultationPage() {
   };
 
   const formatContentWithLineBreaks = (content: string) => {
-    // 줄바꿈 문자를 <br /> 태그로 변환
     return content.split("\n").map((line, index) => (
       <span key={index}>
         {line}
@@ -518,8 +533,8 @@ export default function ConsultationPage() {
         </div>
 
         {/* 🚀 거래처 기본 정보 */}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* 🏢 회사 정보 */}
           <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-40 flex flex-col justify-between">
             {companyLoading ? (
               <>
@@ -562,7 +577,6 @@ export default function ConsultationPage() {
             )}
           </div>
 
-          {/* 📝 비고 */}
           <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-40 flex flex-col">
             {companyLoading ? (
               <>
@@ -574,24 +588,13 @@ export default function ConsultationPage() {
 
                 <div className=" h-28 overflow-y-auto">
                   <table className="w-full text-xs border-collapse">
-                    {/* 🔹 테이블 헤더 고정 (sticky top-0 적용) */}
-                    <thead className="border-b font-semibold bg-gray-100 sticky top-0">
-                      {/* <tr>
-                      <th className="text-left px-2 py-1">이름</th>
-                      <th className="text-left px-2 py-1">직급</th>
-                      <th className="text-left px-2 py-1">부서</th>
-                      <th className="text-left px-2 py-1">이메일</th>
-                    </tr> */}
-                    </thead>
-                    {/* 🔹 내용만 스크롤 */}
+                    <thead className="border-b font-semibold bg-gray-100 sticky top-0"></thead>
                     <tbody className="text-sm">
-                      {company?.contact.map((contact, index) => (
+                      {contacts?.map((contact, index) => (
                         <tr
                           key={index}
                           className={`${
-                            index !== company.contact.length - 1
-                              ? "border-b"
-                              : ""
+                            index !== contacts.length - 1 ? "border-b" : ""
                           }`}
                         >
                           <td className="px-1 py-1">{contact.contact_name}</td>
@@ -673,14 +676,14 @@ export default function ConsultationPage() {
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-medium">
-                    피상담자
+                    고객명
                   </label>
                   <select
                     defaultValue={newConsultation.contact_name}
                     onChange={(e) =>
                       setNewConsultation({
                         ...newConsultation,
-                        contact_name: e.target.value, // 선택된 담당자의 이름 저장
+                        contact_name: e.target.value,
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
@@ -698,12 +701,12 @@ export default function ConsultationPage() {
                     상담자
                   </label>
                   <select
-                    value={newConsultation.user_id} // 로그인한 유저를 기본값으로 설정
+                    value={newConsultation.user_id}
                     disabled
                     onChange={(e) =>
                       setNewConsultation({
                         ...newConsultation,
-                        user_id: e.target.value, // 유저가 선택한 값으로 설정
+                        user_id: e.target.value,
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
@@ -820,7 +823,7 @@ export default function ConsultationPage() {
                     onChange={(e) =>
                       setNewConsultation({
                         ...newConsultation,
-                        contact_name: e.target.value, // 선택된 담당자의 이름 저장
+                        contact_name: e.target.value,
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
@@ -882,7 +885,7 @@ export default function ConsultationPage() {
                   onClick={() => {
                     setOpenEditModal(false);
                     setNewConsultation({
-                      date: new Date().toISOString().split("T")[0], // 초기화
+                      date: new Date().toISOString().split("T")[0],
                       follow_up_date: "",
                       user_id: "",
                       content: "",
@@ -957,7 +960,7 @@ export default function ConsultationPage() {
                       {consultation.date}
                     </td>
                     <td className="px-4 py-2 border-b border-r-[1px]">
-                      {consultation.contact_name}
+                      {consultation.contact_name} {consultation.contact_level}
                     </td>
                     <td className="px-4 py-2 border-b border-r-[1px]">
                       {
@@ -982,11 +985,7 @@ export default function ConsultationPage() {
                     <td className="px-4 py-2 border-b border-r-[1px]">
                       <span
                         className={`mr-2 cursor-pointer ${
-                          documents.some(
-                            (doc) =>
-                              doc.type === "estimate" &&
-                              doc.consultation_id === consultation.id
-                          )
+                          consultation.documents.estimate
                             ? "text-blue-500 hover:font-bold"
                             : "text-gray-400 hover:text-black"
                         }`}
@@ -1000,11 +999,7 @@ export default function ConsultationPage() {
                       </span>
                       <span
                         className={`mr-2 cursor-pointer ${
-                          documents.some(
-                            (doc) =>
-                              doc.type === "order" &&
-                              doc.consultation_id === consultation.id
-                          )
+                          consultation.documents.order
                             ? "text-blue-500 hover:font-bold"
                             : "text-gray-400 hover:text-black"
                         }`}
@@ -1018,11 +1013,7 @@ export default function ConsultationPage() {
                       </span>
                       <span
                         className={`mr-2 cursor-pointer ${
-                          documents.some(
-                            (doc) =>
-                              doc.type === "requestQuote" &&
-                              doc.consultation_id === consultation.id
-                          )
+                          consultation.documents.requestQuote
                             ? "text-blue-500 hover:font-bold"
                             : "text-gray-400 hover:text-black"
                         }`}

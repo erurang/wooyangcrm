@@ -24,7 +24,7 @@ interface Company {
   contact: Contact[]; // 연락처 배열 추가
 }
 
-export default function CompanyInfoPage(id: string) {
+export default function CompanyInfo(id: any) {
   const [company, setCompany] = useState<Company | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [companyLoading, setCompanyLoading] = useState(false); // 🔹 회사 정보 로딩 상태

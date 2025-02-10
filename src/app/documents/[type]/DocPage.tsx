@@ -11,6 +11,7 @@ import { useLoginUser } from "@/app/context/login";
 
 interface Document {
   id: string;
+  contact_name: string;
   consultation_id: string;
   type: string;
   contact: string;
@@ -46,10 +47,27 @@ interface User {
   name: string;
 }
 
+interface Contacts {
+  id: string;
+  contact_name: string;
+  department: string;
+  mobile: string;
+  email: string;
+  company_id: string;
+  level: string;
+}
+
 const DocPage = () => {
   const user = useLoginUser();
   const router = useRouter();
   const { type } = useParams();
+
+  const estimate_payment_method = [
+    "정기결제",
+    "선현금결제",
+    "선금50% 납품시50%",
+    "협의",
+  ];
 
   const searchParams = useSearchParams();
   const id = searchParams.get("consultId") || "";
@@ -61,6 +79,9 @@ const DocPage = () => {
   const [documentToDelete, setDocumentToDelete] = useState<Document | null>(
     null
   );
+
+  const [saving, setSaving] = useState(false);
+  const [contacts, setContacts] = useState<Contacts[] | null>();
 
   const [items, setItems] = useState([
     { name: "", spec: "", quantity: "", unit_price: 0, amount: 0 }, // unit 제거
@@ -196,7 +217,52 @@ const DocPage = () => {
         if (documentError) {
           console.error("문서 불러오기 실패:", documentError.message);
         } else {
-          setDocuments(documentData || []); // 기존 문서 업데이트
+          // setDocuments(documentData || []); // 기존 문서 업데이트
+
+          const documentIds = documentData.map((doc) => doc.id);
+          const { data: contactDocuments, error: contactDocumentsError } =
+            await supabase
+              .from("contacts_documents")
+              .select("document_id, contact_id")
+              .in("document_id", documentIds);
+
+          if (contactDocumentsError) {
+            console.error(
+              "contacts_documents 불러오기 실패:",
+              contactDocumentsError.message
+            );
+            return;
+          }
+
+          const contactIds = contactDocuments.map((cd) => cd.contact_id);
+          const { data: contacts, error: contactsError } = await supabase
+            .from("contacts")
+            .select("id, contact_name")
+            .in("id", contactIds);
+
+          if (contactsError) {
+            console.error("contacts 불러오기 실패:", contactsError.message);
+            return;
+          }
+
+          // 🔹 Step 4: 문서 리스트에 `contact_name` 추가하기
+          const contactsMap = new Map(
+            contacts.map((contact) => [contact.id, contact.contact_name])
+          );
+
+          const contactDocMap = new Map(
+            contactDocuments.map((cd) => [
+              cd.document_id,
+              contactsMap.get(cd.contact_id) || "",
+            ])
+          );
+
+          const updatedDocuments = documentData.map((doc) => ({
+            ...doc,
+            contact_name: contactDocMap.get(doc.id) || "없음", // 연결된 담당자가 없으면 "없음" 표시
+          }));
+
+          setDocuments(updatedDocuments);
         }
 
         // 회사명, 전화, 팩스 가져오기
@@ -237,7 +303,8 @@ const DocPage = () => {
     };
 
     if (id) fetchDocumentsAndCompany();
-  }, [id, type]);
+    if (companyId) fetchContactsByCompanyId(companyId);
+  }, [id, companyId, type]);
 
   const getUserNameById = (userId: string) => {
     const user = users.find((user) => user.id === userId);
@@ -247,6 +314,19 @@ const DocPage = () => {
   const handleDeleteDocument = (document: Document) => {
     setDocumentToDelete(document);
     setOpenDeleteModal(true);
+  };
+
+  const fetchContactsByCompanyId = async (companyId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("contacts")
+        .select("id, contact_name, email, mobile, department, level,company_id")
+        .eq("company_id", companyId);
+
+      setContacts(data);
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -275,15 +355,8 @@ const DocPage = () => {
   // 견적서 추가 함수
   const handleAddDocument = async () => {
     if (type === "estimate") {
-      const {
-        company_name,
-        contact,
-        phone,
-        fax,
-        valid_until,
-        payment_method,
-        notes,
-      } = newDocument;
+      const { company_name, contact, valid_until, payment_method, notes } =
+        newDocument;
 
       if (
         !company_name ||
@@ -318,6 +391,8 @@ const DocPage = () => {
         notes,
       };
 
+      setSaving(true); // 🔹 저장 시작 → 로딩 활성화
+
       try {
         const { data, error } = await supabase
           .from("documents")
@@ -326,20 +401,32 @@ const DocPage = () => {
               content, // 숫자형으로 처리된 content
               user_id: user?.id,
               payment_method,
-              contact,
               consultation_id: id,
               company_id: companyId,
               type, // 문서 타입 지정
             },
           ])
-          .select();
+          .select()
+          .single();
 
         if (error) {
           console.error("문서 추가 실패:", error.message);
         } else {
+          const document_id = data.id; // 🔥 생성된 문서 ID
+
+          const find_contact = contacts?.find((con) => {
+            if (con.contact_name === contact) return con.id;
+          });
+
+          await supabase.from("contacts_documents").insert({
+            document_id,
+            contact_id: find_contact?.id,
+          });
+
           setOpenAddModal(false);
-          if (data && data.length > 0) {
-            setDocuments((prev) => [...prev, data[0]]);
+
+          if (data) {
+            setDocuments((prev) => [...prev, data]);
           }
           setSnackbarMessage("견적서가 추가되었습니다");
           setOpenSnackbar(true);
@@ -347,6 +434,7 @@ const DocPage = () => {
       } catch (error) {
         console.error("추가 중 오류 발생", error);
       } finally {
+        setSaving(false);
         setNewDocument({
           ...newDocument,
           contact: "",
@@ -636,22 +724,62 @@ const DocPage = () => {
           .update({
             content,
             payment_method,
-            contact,
             // status: newDocument.status,
           })
           .eq("id", newDocument.id)
-          .select();
+          .select()
+          .single();
 
         if (error) {
           console.error("문서 수정 실패", error.message);
         } else {
-          if (data && data.length > 0) {
+          if (data) {
             // 수정된 문서를 리스트에서 찾아서 업데이트
-            const updatedDocuments = documents.map((doc) =>
-              doc.id === data[0].id ? { ...doc, ...data[0] } : doc
+
+            setDocuments((prevDocuments) =>
+              prevDocuments.map((doc) =>
+                doc.id === data.id ? { ...doc, ...data } : doc
+              )
             );
 
-            setDocuments(updatedDocuments); // documents 업데이트
+            setNewDocument({
+              ...newDocument,
+              contact: "",
+              valid_until: new Date(
+                new Date().setDate(new Date().getDate() + 14)
+              )
+                .toISOString()
+                .split("T")[0],
+              payment_method: "",
+              notes: "",
+              delivery_place: "",
+              delivery_term: "",
+            });
+            setItems([
+              {
+                name: "",
+                spec: "",
+                quantity: "",
+                unit_price: 0,
+                amount: 0,
+              },
+            ]);
+
+            const document_id = data.id; // 🔥 생성된 문서 ID
+
+            const find_contact = contacts?.find((con) => {
+              if (con.contact_name === contact) return con.id;
+            });
+            if (find_contact?.id) {
+              await supabase
+                .from("contacts_documents")
+                .update({
+                  document_id,
+                  contact_id: find_contact.id,
+                })
+                .eq("contact_id", find_contact.id) // 특정 contact_id 조건 추가
+                .eq("document_id", document_id); // 특정 document_id 조건 추가
+            }
           }
 
           setSnackbarMessage("견적서가 수정되었습니다.");
@@ -837,7 +965,7 @@ const DocPage = () => {
   };
 
   return (
-    <div>
+    <div className="text-sm">
       <div className="mb-2">
         <Link href="/customers" className="text-blue-500 hover:font-bold">
           거래처 관리
@@ -870,6 +998,9 @@ const DocPage = () => {
       ) : (
         <>
           <Estimate
+            contacts={contacts as Contacts[]}
+            saving={saving}
+            paymentMethods={estimate_payment_method}
             user={user as any}
             type={type as string}
             documents={documents}
