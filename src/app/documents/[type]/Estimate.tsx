@@ -1,3 +1,5 @@
+import { CircularProgress } from "@mui/material";
+
 interface User {
   id: string;
   name: string;
@@ -16,6 +18,7 @@ interface Document {
   type: string;
   contact: string;
   contact_name: string;
+  contact_level: string;
   content: {
     items: {
       name: string;
@@ -32,9 +35,9 @@ interface Document {
     total_amount: number;
     delivery_term: string;
     delivery_place: string;
-    payment_method: string; // 결제조건 추가
     delivery_date: string;
   };
+  payment_method: string; // 결제조건 추가
   document_number: string;
   status: string;
   created_at: string;
@@ -96,6 +99,7 @@ interface EsitmateProps {
   paymentMethods: string[];
   saving: boolean;
   contacts: Contacts[];
+  handleEditCloseModal: any;
 }
 
 export default function Estimate({
@@ -121,7 +125,7 @@ export default function Estimate({
   handleEditDocument,
   type,
   user,
-  setOpenEditModal,
+  handleEditCloseModal,
   paymentMethods,
   saving,
   contacts,
@@ -152,9 +156,9 @@ export default function Estimate({
               <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                 총액
               </th>
-              <th className="px-4 py-2 border-b border-r-[1px] text-center ">
+              {/* <th className="px-4 py-2 border-b border-r-[1px] text-center ">
                 상태
-              </th>
+              </th> */}
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
                 문서번호
               </th>
@@ -186,9 +190,9 @@ export default function Estimate({
               <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                 총액
               </th>
-              <th className="px-4 py-2 border-b border-r-[1px] text-center ">
+              {/* <th className="px-4 py-2 border-b border-r-[1px] text-center ">
                 상태
-              </th>
+              </th> */}
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
                 문서번호
               </th>
@@ -220,9 +224,9 @@ export default function Estimate({
               <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                 총액
               </th>
-              <th className="px-4 py-2 border-b border-r-[1px] text-center ">
+              {/* <th className="px-4 py-2 border-b border-r-[1px] text-center ">
                 상태
-              </th>
+              </th> */}
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
                 문서번호
               </th>
@@ -248,7 +252,7 @@ export default function Estimate({
                 {type === "requestQuote" && document.content.delivery_date}
               </td>
               <td className="px-4 py-2 border-b border-r-[1px]">
-                {document.contact_name} {/* 담당자 */}
+                {document.contact_name} {document.contact_level} {/* 담당자 */}
               </td>
               <td className="px-4 py-2 border-b border-r-[1px]">
                 {getUserNameById(document.user_id)}
@@ -274,11 +278,11 @@ export default function Estimate({
                 {document.content.total_amount.toLocaleString()} 원
                 {/* 총액에 콤마 추가 */}
               </td>
-              <td className="px-4 py-2 border-b border-r-[1px]">
+              {/* <td className="px-4 py-2 border-b border-r-[1px]">
                 {document.status === "pending" && "진행"}
                 {document.status === "completed" && "완료"}
                 {document.status === "canceled" && "취소"}
-              </td>
+              </td> */}
               <td
                 className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
                 onClick={() => handleDocumentNumberClick(document)}
@@ -373,7 +377,6 @@ export default function Estimate({
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
                 />
-                ㄹ
               </div>
 
               {/* 팩스 */}
@@ -425,25 +428,24 @@ export default function Estimate({
                 <label className="block mb-2 text-sm font-medium">
                   결제조건
                 </label>
-                {type === "estimate" && (
-                  <select
-                    value={newDocument.payment_method}
-                    onChange={(e) =>
-                      setNewDocument({
-                        ...newDocument,
-                        payment_method: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  >
-                    <option value="">선택</option>
-                    {paymentMethods.map((method) => (
-                      <option key={method} value={method}>
-                        {method}
-                      </option>
-                    ))}
-                  </select>
-                )}
+                <select
+                  value={newDocument.payment_method}
+                  onChange={(e) =>
+                    setNewDocument({
+                      ...newDocument,
+                      payment_method: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value="">선택</option>
+                  {paymentMethods.map((method) => (
+                    <option key={method} value={method}>
+                      {method}
+                    </option>
+                  ))}
+                </select>
+
                 {/* <input
                   type="text"
                   value={newDocument.payment_method}
@@ -683,13 +685,12 @@ export default function Estimate({
                   </div>
                 </>
               )}
-              {type === "order" ||
-                (type === "requestQuote" && (
-                  <>
-                    <div></div>
-                    <div></div>
-                  </>
-                ))}
+              {(type === "order" || type === "requestQuote") && (
+                <>
+                  <div></div>
+                  <div></div>
+                </>
+              )}
               <div className="mb-2">
                 <label className="block mb-2 text-sm font-medium">총액金</label>
                 <input
@@ -814,15 +815,20 @@ export default function Estimate({
             <div className="flex justify-end space-x-4 mt-4">
               <button
                 onClick={() => setOpenAddModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm"
+                className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+                  saving ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={saving}
               >
-                취소
+                취소 {saving && <CircularProgress size={18} className="ml-2" />}
               </button>
               <button
                 onClick={handleAddDocument}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
+                className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+                  saving ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
-                저장
+                저장 {saving && <CircularProgress size={18} className="ml-2" />}
               </button>
             </div>
           </div>
@@ -923,7 +929,7 @@ export default function Estimate({
                   담당자명
                 </label>
                 <select
-                  defaultValue={newDocument.contact}
+                  value={newDocument.contact}
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, contact: e.target.value })
                   }
@@ -944,9 +950,66 @@ export default function Estimate({
                 <label className="block mb-2 text-sm font-medium">
                   결제조건
                 </label>
-                <input
+                {type === "estimate" && (
+                  <select
+                    value={newDocument.payment_method}
+                    onChange={(e) =>
+                      setNewDocument({
+                        ...newDocument,
+                        payment_method: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="">선택</option>
+                    {paymentMethods.map((method) => (
+                      <option key={method} value={method}>
+                        {method}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {type === "order" && (
+                  <select
+                    value={newDocument.payment_method}
+                    onChange={(e) =>
+                      setNewDocument({
+                        ...newDocument,
+                        payment_method: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="">선택</option>
+                    {paymentMethods.map((method) => (
+                      <option key={method} value={method}>
+                        {method}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {type === "requestQuote" && (
+                  <select
+                    value={newDocument.payment_method}
+                    onChange={(e) =>
+                      setNewDocument({
+                        ...newDocument,
+                        payment_method: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  >
+                    <option value="">선택</option>
+                    {paymentMethods.map((method) => (
+                      <option key={method} value={method}>
+                        {method}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {/* <input
                   type="text"
-                  value={newDocument.payment_method} // 기존 데이터 입력
+                  value={newDocument.payment_method}
                   onChange={(e) =>
                     setNewDocument({
                       ...newDocument,
@@ -954,7 +1017,7 @@ export default function Estimate({
                     })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                />
+                /> */}
               </div>
               <div className="mb-2">
                 {type === "estimate" && (
@@ -1281,13 +1344,13 @@ export default function Estimate({
             {/* 아이템 */}
             <div className="flex justify-end space-x-4 mt-4">
               <button
-                onClick={() => setOpenEditModal(false)}
+                onClick={() => handleEditCloseModal()}
                 className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
                   saving ? "opacity-50 cursor-not-allowed" : ""
                 }`}
                 disabled={saving}
               >
-                취소
+                취소 {saving && <CircularProgress size={18} className="ml-2" />}
               </button>
               <button
                 onClick={handleEditDocument}
@@ -1296,7 +1359,7 @@ export default function Estimate({
                 }`}
                 disabled={saving}
               >
-                저장
+                저장 {saving && <CircularProgress size={18} className="ml-2" />}
               </button>
             </div>
           </div>
