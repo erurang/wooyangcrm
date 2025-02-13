@@ -277,7 +277,7 @@ export default function ProductPage() {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-200 text-gray-600 rounded"
+              className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
             >
               이전
             </button>
@@ -289,7 +289,7 @@ export default function ProductPage() {
                 className={`px-4 py-2 rounded ${
                   page === currentPage
                     ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-600"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-200"
                 }`}
               >
                 {page}
@@ -301,7 +301,7 @@ export default function ProductPage() {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-200 text-gray-600 rounded"
+              className="px-4 py-2 bg-gray-50 text-gray-600 rounded"
             >
               다음
             </button>

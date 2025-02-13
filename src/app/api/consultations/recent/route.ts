@@ -53,7 +53,30 @@ export async function GET(request: Request) {
       companyIds = companies.map((company) => company.id);
     }
 
-    // 기본 쿼리 생성
+    // 🔹 상담과 관련된 담당자 목록 가져오기
+    const { data: contactConsultations, error: contactError } =
+      await supabase.from("contacts_consultations").select(`
+        consultation_id,
+        contacts!contacts_consultations_contact_id_fkey(contact_name)
+      `);
+
+    if (contactError) {
+      console.error("Error fetching contact consultations:", contactError);
+      return NextResponse.json(
+        { error: "Failed to fetch contact consultations" },
+        { status: 500 }
+      );
+    }
+
+    // 🔹 `consultation_id` 기준으로 담당자(`contact_name`)를 매핑
+    const contactMap = new Map<string, string>();
+    contactConsultations.forEach(({ consultation_id, contacts }) => {
+      if (contacts[0]?.contact_name) {
+        contactMap.set(consultation_id, contacts[0]?.contact_name);
+      }
+    });
+
+    // 🔹 상담 데이터 가져오기
     let query = supabase
       .from("consultations")
       .select(
@@ -61,9 +84,8 @@ export async function GET(request: Request) {
           id,
           date,
           content,
-          contact,
           companies (id, name),
-          users!consultations_user_id_fkey (id, name),
+          users!consultations_user_id_fkey (id, name , level),
           documents (type, id, document_number, content, user_id)
         `
       )
@@ -99,6 +121,12 @@ export async function GET(request: Request) {
       );
     }
 
+    // 🔹 상담 데이터에 `contact_name` 추가
+    const updatedConsultations = consultations.map((consultation) => ({
+      ...consultation,
+      contact_name: contactMap.get(consultation.id) || "", // 없으면 빈 문자열
+    }));
+
     // 총 레코드 수 계산 (필터 포함)
     let totalQuery = supabase
       .from("consultations")
@@ -133,7 +161,10 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json({ consultations, total: total || 0 });
+    return NextResponse.json({
+      consultations: updatedConsultations,
+      total: total || 0,
+    });
   } catch (error) {
     console.error("Error in consultations/recent API:", error);
     return NextResponse.json(

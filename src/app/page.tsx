@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
-import { Snackbar, Alert, Skeleton } from "@mui/material";
+import { Skeleton } from "@mui/material";
 import { useLoginUser } from "./context/login";
 import UserGreeting from "@/components/dashboard/UserGreeting";
 import GreetingComponent from "@/components/dashboard/Greeting";
@@ -58,11 +58,6 @@ interface DashboardData {
     company_name: string;
     last_consultation: string;
   }[];
-  consultedClients: {
-    company_id: string;
-    company_name: string;
-    created_at: string;
-  }[];
   documentStatusCounts: DocumentStatus[];
   new_sales: {
     new_clients_count: number;
@@ -75,6 +70,16 @@ interface DashboardData {
     total_opportunities: number;
     total_estimate_completed: number;
   };
+
+  recent_consultations: {
+    created_at: string;
+    contact_name: string;
+  }[];
+
+  recent_documents: {
+    company_name: string;
+    created_at: string;
+  }[];
 }
 
 export default function SalesDashboard() {
@@ -92,7 +97,6 @@ export default function SalesDashboard() {
     recentDocuments: [],
     expiringDocuments: [],
     followUpClients: [],
-    consultedClients: [],
     documentStatusCounts: [],
     new_sales: {
       new_clients_count: 0,
@@ -105,6 +109,18 @@ export default function SalesDashboard() {
       total_opportunities: 0,
       total_estimate_completed: 0,
     },
+    recent_consultations: [
+      {
+        created_at: "",
+        contact_name: "",
+      },
+    ],
+    recent_documents: [
+      {
+        company_name: "",
+        created_at: "",
+      },
+    ],
   };
 
   const [dashboardData, setDashboardData] =
@@ -216,37 +232,32 @@ export default function SalesDashboard() {
           <GreetingComponent />
         </div>
 
-        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="font-semibold text-md mb-2">📊 이달의 성과</div>
-              {loading ? (
-                <Skeleton height={100} width="100%" />
-              ) : (
-                <>
-                  <ul className="list-disc pl-4">
-                    <li>
-                      총 매입:{" "}
-                      {dashboardData?.monthlyPerformance.totalPurchases.toLocaleString()}{" "}
-                    </li>
-                    <li>
-                      총 매출:{" "}
-                      {dashboardData?.monthlyPerformance.totalSales.toLocaleString()}{" "}
-                    </li>
-                    <li>
-                      영업 기회:{" "}
-                      {dashboardData?.monthlyPerformance.expectedSales.toLocaleString()}{" "}
-                    </li>
-                  </ul>
-                </>
-              )}
-            </div>
-            <div>
-              <h2 className="font-semibold text-md mb-2">🏢 주요 고객</h2>
-              {loading ? (
-                <Skeleton height={100} width="100%" />
-              ) : (
+        {loading ? (
+          <Skeleton style={{ height: "8rem", width: "100%" }} />
+        ) : (
+          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="font-semibold text-md mb-2">📊 이달의 성과</div>
+
+                <ul className="list-disc pl-4">
+                  <li>
+                    총 매입:{" "}
+                    {dashboardData?.monthlyPerformance.totalPurchases.toLocaleString()}{" "}
+                  </li>
+                  <li>
+                    총 매출:{" "}
+                    {dashboardData?.monthlyPerformance.totalSales.toLocaleString()}{" "}
+                  </li>
+                  <li>
+                    영업 기회:{" "}
+                    {dashboardData?.monthlyPerformance.expectedSales.toLocaleString()}{" "}
+                  </li>
+                </ul>
+              </div>
+              <div>
                 <div>
+                  <h2 className="font-semibold text-md mb-2">🏢 주요 고객</h2>
                   <ul className="list-disc pl-4">
                     {dashboardData?.clients.map((client) => (
                       <li key={client.company_id}>
@@ -257,21 +268,21 @@ export default function SalesDashboard() {
                     ))}
                   </ul>
                 </div>
-              )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-            <h2 className="font-semibold text-md mb-2">
-              🔔 후속 상담 필요 고객
-            </h2>
-            {loading ? (
-              <Skeleton height={150} width="100%" />
-            ) : dashboardData?.followUpClients.length ? (
+          {loading ? (
+            <Skeleton style={{ height: "16rem", width: "100%" }} />
+          ) : dashboardData?.followUpClients.length ? (
+            <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+              <h2 className="font-semibold text-md mb-2">
+                🔔 후속 상담 필요 고객
+              </h2>
               <ul className="list-disc pl-4">
                 {dashboardData.followUpClients.map((client) => (
                   <li key={client.company_id}>
@@ -280,167 +291,180 @@ export default function SalesDashboard() {
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p>✅ 후속 상담이 필요한 고객 없음</p>
-            )}
-          </div>
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-            <div className="flex justify-between">
+            </div>
+          ) : (
+            <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
               <h2 className="font-semibold text-md mb-2">
-                📌 곧 만료되는 견적서
+                🔔 후속 상담 필요 고객
               </h2>
-              <Link
-                href={`/documents/details?type=estimate&status=pending`}
-                className="cursor-pointer"
-              >
-                <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
-                  + 더보기
-                </span>
-              </Link>
+              <p>✅ 후속 상담이 필요한 고객 없음</p>
             </div>
-            {loading ? (
-              <Skeleton height={150} width="100%" />
-            ) : dashboardData?.expiringDocuments.length ? (
-              <ul className="list-disc pl-4">
-                {dashboardData.expiringDocuments.map((doc) => (
-                  <li key={doc.id}>
-                    <strong>{doc.content.company_name}</strong> -{" "}
-                    <span>{doc.content.total_amount.toLocaleString()}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>📅 만료 임박한 견적서 없음</p>
-            )}
-          </div>
+          )}
+
+          {loading ? (
+            <Skeleton style={{ height: "16rem", width: "100%" }} />
+          ) : (
+            <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+              <div className="flex justify-between">
+                <h2 className="font-semibold text-md mb-2">
+                  📌 곧 만료되는 견적서
+                </h2>
+                {/* <Link
+                  href={`/documents/details?type=estimate&status=pending`}
+                  className="cursor-pointer"
+                >
+                  <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
+                    + 더보기
+                  </span>
+                </Link> */}
+              </div>
+              {dashboardData?.expiringDocuments.length ? (
+                <ul className="list-disc pl-4">
+                  {dashboardData.expiringDocuments.map((doc) => (
+                    <li key={doc.id}>
+                      <strong>{doc.content.company_name}</strong> -{" "}
+                      <span>{doc.content.total_amount.toLocaleString()}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>📅 만료 임박한 견적서 없음</p>
+              )}
+            </div>
+          )}
         </div>
-        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-          <div>
-            <div className="flex justify-between">
-              <span className="font-semibold text-md mb-4">당월 영업 실적</span>
-            </div>
-            <div className="grid gap-4">
-              <div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {loading ? (
-                    <>
-                      <Skeleton height={100} width="100%" />
-                      <Skeleton height={100} width="100%" />
-                      <Skeleton height={100} width="100%" />
-                      <Skeleton height={100} width="100%" />
-                    </>
-                  ) : (
-                    <>
-                      <div className="bg-gray-50 shadow-md rounded-lg p-4 text-center">
-                        <p className="text-gray-600 text-sm">신규 고객</p>
-                        <p className="text-lg font-bold">
-                          {dashboardData?.new_sales.new_clients_count}
-                        </p>
-                      </div>
-                      <div className="bg-gray-50 shadow-md rounded-lg p-4 text-center">
-                        <p className="text-gray-600 text-sm">신규 상담</p>
-                        <p className="text-lg font-bold">
-                          {dashboardData?.new_sales.new_consultations_count}
-                        </p>
-                      </div>
-                      <div className="bg-gray-50 shadow-md rounded-lg p-4 text-center">
-                        <p className="text-gray-600 text-sm">신규 영업 기회</p>
-                        <p className="text-lg font-bold">
-                          {dashboardData?.new_sales.new_opportunities.toLocaleString()}{" "}
-                        </p>
-                      </div>
-                      <div className="bg-gray-50 shadow-md rounded-lg p-4 text-center">
-                        <p className="text-gray-600 text-sm">신규 발주 완료</p>
-                        <p className="text-lg font-bold">
-                          {dashboardData?.new_sales.new_estimate_completed.toLocaleString()}{" "}
-                        </p>
-                      </div>
-                    </>
-                  )}
+        {loading ? (
+          <Skeleton style={{ height: "16rem", width: "100%" }} />
+        ) : (
+          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+            <div>
+              <div className="flex justify-between">
+                <span className="font-semibold text-md mb-4">
+                  당월 영업 실적
+                </span>
+              </div>
+              <div className="grid gap-4">
+                <div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className=" shadow-md rounded-lg p-4 text-center">
+                      <p className="text-gray-600 text-sm">신규 고객</p>
+                      <p className="text-lg font-bold">
+                        {dashboardData?.new_sales.new_clients_count}
+                      </p>
+                    </div>
+                    <div className=" shadow-md rounded-lg p-4 text-center">
+                      <p className="text-gray-600 text-sm">신규 상담</p>
+                      <p className="text-lg font-bold">
+                        {dashboardData?.new_sales.new_consultations_count}
+                      </p>
+                    </div>
+                    <div className=" shadow-md rounded-lg p-4 text-center">
+                      <p className="text-gray-600 text-sm">신규 영업 기회</p>
+                      <p className="text-lg font-bold">
+                        {dashboardData?.new_sales.new_opportunities.toLocaleString()}{" "}
+                      </p>
+                    </div>
+                    <div className=" shadow-md rounded-lg p-4 text-center">
+                      <p className="text-gray-600 text-sm">신규 발주 완료</p>
+                      <p className="text-lg font-bold">
+                        {dashboardData?.new_sales.new_estimate_completed.toLocaleString()}{" "}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div></div>
+                  <div className=" shadow-md rounded-lg p-4 text-center">
+                    <p className="text-gray-600 text-sm">상담</p>
+                    <p className="text-lg font-bold">
+                      {
+                        dashboardData?.current_month_performance
+                          .total_consultations
+                      }
+                    </p>
+                  </div>
+                  <div className=" shadow-md rounded-lg p-4 text-center">
+                    <p className="text-gray-600 text-sm">영업 기회</p>
+                    <p className="text-lg font-bold">
+                      {dashboardData?.current_month_performance.total_opportunities.toLocaleString()}{" "}
+                    </p>
+                  </div>
+                  <div className=" shadow-md rounded-lg p-4 text-center">
+                    <p className="text-gray-600 text-sm">발주 완료</p>
+                    <p className="text-lg font-bold">
+                      {dashboardData?.current_month_performance.total_estimate_completed.toLocaleString()}{" "}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {loading ? (
-                  <>
-                    <Skeleton height={100} width="100%" />
-                    <Skeleton height={100} width="100%" />
-                    <Skeleton height={100} width="100%" />
-                    <Skeleton height={100} width="100%" />
-                  </>
-                ) : (
-                  <>
-                    <div></div>
-                    <div className="bg-gray-50 shadow-md rounded-lg p-4 text-center">
-                      <p className="text-gray-600 text-sm">상담</p>
-                      <p className="text-lg font-bold">
-                        {
-                          dashboardData?.current_month_performance
-                            .total_consultations
-                        }
-                      </p>
-                    </div>
-                    <div className="bg-gray-50 shadow-md rounded-lg p-4 text-center">
-                      <p className="text-gray-600 text-sm">영업 기회</p>
-                      <p className="text-lg font-bold">
-                        {dashboardData?.current_month_performance.total_opportunities.toLocaleString()}{" "}
-                      </p>
-                    </div>
-                    <div className="bg-gray-50 shadow-md rounded-lg p-4 text-center">
-                      <p className="text-gray-600 text-sm">발주 완료</p>
-                      <p className="text-lg font-bold">
-                        {dashboardData?.current_month_performance.total_estimate_completed.toLocaleString()}{" "}
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-            <div className="flex justify-between">
-              <span className="font-semibold text-md mb-4">고객사</span>
-              <span>+ 더보기</span>
-            </div>
-            <div>
-              {dashboardData?.consultedClients.map((doc, i) => (
-                <div className="flex justify-between" key={i}>
-                  <span>{doc.company_name}</span>
-                  <span>{doc.created_at.slice(0, 10)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-            <div className="flex justify-between">
-              <span className="font-semibold text-md mb-4">고객</span>
-              <span>+ 더보기</span>
-            </div>
-            <div>
-              {dashboardData?.consultedClients.map((doc, i) => (
-                <div className="flex justify-between" key={i}>
-                  <span>{doc.company_name}</span>
-                  <span>{doc.created_at.slice(0, 10)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-          <h2 className="font-semibold text-md mb-4">📈 당월 영업 차트</h2>
           {loading ? (
-            <Skeleton height={300} width="100%" />
+            <Skeleton style={{ height: "18rem", width: "100%" }} />
           ) : (
+            <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+              <div className="flex justify-between">
+                <span className="font-semibold text-md mb-4">
+                  최근 상담 고객
+                </span>
+                <Link href={`/myContacts`} className="cursor-pointer">
+                  <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
+                    + 더보기
+                  </span>
+                </Link>
+              </div>
+              <div>
+                {dashboardData?.recent_consultations.map((doc, i) => (
+                  <div className="flex justify-between" key={i}>
+                    <span>{doc.contact_name}</span>
+                    <span>{doc.created_at.slice(0, 10)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {loading ? (
+            <Skeleton style={{ height: "18rem", width: "100%" }} />
+          ) : (
+            <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+              <div className="flex justify-between">
+                <span className="font-semibold text-md mb-4">
+                  최근 생성된 문서
+                </span>
+                <Link href={`/documents`} className="cursor-pointer">
+                  <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
+                    + 더보기
+                  </span>
+                </Link>
+              </div>
+              <div>
+                {dashboardData?.recent_documents.map((doc, i) => (
+                  <div className="flex justify-between" key={i}>
+                    <span>{doc.company_name}</span>
+                    <span>{doc.created_at.slice(0, 10)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {loading ? (
+          <Skeleton style={{ height: "18rem", width: "100%" }} />
+        ) : (
+          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 ">
+            <h2 className="font-semibold text-md mb-4">📈 당월 영업 차트</h2>
             <ReactApexChart
               options={chartOptions}
               series={chartSeries}
               type="line"
-              height={300}
+              height={200}
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

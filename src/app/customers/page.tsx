@@ -3,13 +3,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import {
-  Snackbar,
-  Alert,
-  Button,
-  Select,
-  CircularProgress,
-} from "@mui/material"; // MUI Snackbar 임포트
+import { Snackbar, Alert, CircularProgress } from "@mui/material"; // MUI Snackbar 임포트
 import { useRouter } from "next/navigation";
 
 interface Contact {
@@ -758,81 +752,71 @@ export default function Page() {
 
       <div>
         <div className="overflow-x-auto mt-4">
-          {loading ? (
-            <div className="flex justify-center items-center h-40">
-              <CircularProgress />
-            </div>
-          ) : (
-            <table className="min-w-full table-auto border-collapse">
-              <thead>
-                <tr className="bg-gray-100 text-left">
-                  <th className="px-4 py-2 border-b border-r-[1px]">
-                    거래처명
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                    주소
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                    업종
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                    대표 담당자
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                    번호
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                    택배/화물
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
-                  <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+          <table className="min-w-full table-auto border-collapse">
+            <thead>
+              <tr className="bg-gray-100 text-left">
+                <th className="px-4 py-2 border-b border-r-[1px]">거래처명</th>
+                <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                  주소
+                </th>
+                <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                  업종
+                </th>
+                <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                  대표 담당자
+                </th>
+                <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                  번호
+                </th>
+                <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                  택배/화물
+                </th>
+                <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
+                <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                  삭제
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCompanies?.map((company) => (
+                <tr key={company.id} className="hover:bg-gray-50">
+                  <td
+                    className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
+                    onClick={() => router.push(`/consultations/${company.id}`)}
+                  >
+                    {company.name}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                    {company.address}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                    {company.industry?.join(", ")}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                    {company.contact[0]?.contact_name}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                    {company.phone}
+                  </td>
+                  <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
+                    {company.parcel}
+                  </td>
+                  <td
+                    className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
+                    onClick={() => handleEdit(company)}
+                  >
+                    수정
+                  </td>
+                  <td
+                    className="px-4 py-2 border-b border-r-[1px] text-red-500 cursor-pointer hidden md:table-cell"
+                    onClick={() => handleDelete(company)}
+                  >
                     삭제
-                  </th>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredCompanies?.map((company) => (
-                  <tr key={company.id} className="hover:bg-gray-50">
-                    <td
-                      className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
-                      onClick={() =>
-                        router.push(`/consultations/${company.id}`)
-                      }
-                    >
-                      {company.name}
-                    </td>
-                    <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                      {company.address}
-                    </td>
-                    <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                      {company.industry?.join(", ")}
-                    </td>
-                    <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                      {company.contact[0]?.contact_name}
-                    </td>
-                    <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                      {company.phone}
-                    </td>
-                    <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                      {company.parcel}
-                    </td>
-                    <td
-                      className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
-                      onClick={() => handleEdit(company)}
-                    >
-                      수정
-                    </td>
-                    <td
-                      className="px-4 py-2 border-b border-r-[1px] text-red-500 cursor-pointer hidden md:table-cell"
-                      onClick={() => handleDelete(company)}
-                    >
-                      삭제
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -1339,36 +1323,39 @@ export default function Page() {
       )}
 
       <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
-        <Button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-2 md:px-4 py-1 md:py-2 text-xs md:text-sm"
-        >
-          이전
-        </Button>
-
-        {/* 페이지 번호 */}
-        {paginationNumbers().map((page, index) => (
-          <Button
-            key={index}
-            onClick={() => setCurrentPage(Number(page))}
-            className={`w-8 md:w-10 text-xs md:text-sm ${
-              page === currentPage ? "font-bold" : ""
-            }`}
+        <div className="flex justify-center mt-4 space-x-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
           >
-            {page}
-          </Button>
-        ))}
+            이전
+          </button>
 
-        <Button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-          className="px-2 md:px-4 py-1 md:py-2 text-xs md:text-sm"
-        >
-          다음
-        </Button>
+          {paginationNumbers().map((page, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentPage(Number(page))}
+              className={`px-3 py-1 border rounded ${
+                currentPage === page
+                  ? "bg-blue-500 text-white font-bold"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded bg-white"
+          >
+            다음
+          </button>
+        </div>
       </div>
       {/* 스낵바 */}
       <Snackbar

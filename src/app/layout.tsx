@@ -77,6 +77,7 @@ export default function RootLayout({
                 {[
                   { title: "대시보드", path: "/" },
                   { title: "회사 검색", path: "/customers" },
+                  { title: "담당자 검색", path: "/manage/contacts" },
                   { title: "최근 상담내역", path: "/consultations/recent" },
                   { title: "문서 관리", path: "/documents" },
                   {

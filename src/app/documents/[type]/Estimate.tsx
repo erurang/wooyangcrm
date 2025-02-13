@@ -19,6 +19,9 @@ interface Document {
   contact: string;
   contact_name: string;
   contact_level: string;
+  user_name: string;
+  user_level: string;
+  contact_mobile: string;
   content: {
     items: {
       name: string;
@@ -133,7 +136,7 @@ export default function Estimate({
   console.log("documents", documents);
   console.log("newdocuments", newDocument);
   return (
-    <div>
+    <div className="bg-[#FBFBFB] rounded-md border">
       <table className="min-w-full table-auto border-collapse text-center">
         <thead>
           {type === "estimate" && (
@@ -241,7 +244,7 @@ export default function Estimate({
         </thead>
         <tbody>
           {documents?.map((document) => (
-            <tr key={document.id} className="hover:bg-gray-50">
+            <tr key={document.id} className="hover:bg-gray-100">
               <td className="px-4 py-2 border-b border-r-[1px]">
                 {new Date(document.created_at).toLocaleDateString()}
               </td>
@@ -255,7 +258,7 @@ export default function Estimate({
                 {document.contact_name} {document.contact_level} {/* 담당자 */}
               </td>
               <td className="px-4 py-2 border-b border-r-[1px]">
-                {getUserNameById(document.user_id)}
+                {document.user_name} {document.user_level}
               </td>
               <td
                 className="px-4 py-2 border-b border-r-[1px] w-full"
@@ -425,26 +428,30 @@ export default function Estimate({
             <div className="grid grid-cols-4 space-x-4">
               {/* 결제조건 */}
               <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">
-                  결제조건
-                </label>
-                <select
-                  value={newDocument.payment_method}
-                  onChange={(e) =>
-                    setNewDocument({
-                      ...newDocument,
-                      payment_method: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                >
-                  <option value="">선택</option>
-                  {paymentMethods.map((method) => (
-                    <option key={method} value={method}>
-                      {method}
-                    </option>
-                  ))}
-                </select>
+                {type !== "requestQuote" && (
+                  <>
+                    <label className="block mb-2 text-sm font-medium">
+                      결제조건
+                    </label>
+                    <select
+                      value={newDocument.payment_method}
+                      onChange={(e) =>
+                        setNewDocument({
+                          ...newDocument,
+                          payment_method: e.target.value,
+                        })
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    >
+                      <option value="">선택</option>
+                      {paymentMethods.map((method) => (
+                        <option key={method} value={method}>
+                          {method}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                )}
 
                 {/* <input
                   type="text"
@@ -691,24 +698,30 @@ export default function Estimate({
                   <div></div>
                 </>
               )}
-              <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">총액金</label>
-                <input
-                  type="text"
-                  value={`${koreanAmount} 원`}
-                  readOnly
-                  className="block w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block mb-2 text-sm font-medium">원</label>
-                <input
-                  type="text"
-                  value={`₩ ${totalAmount.toLocaleString()}`}
-                  readOnly
-                  className="block w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100"
-                />
-              </div>
+              {type !== "requestQuote" && (
+                <>
+                  <div className="mb-2">
+                    <label className="block mb-2 text-sm font-medium">
+                      총액金
+                    </label>
+                    <input
+                      type="text"
+                      value={`${koreanAmount} 원`}
+                      readOnly
+                      className="block w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block mb-2 text-sm font-medium">원</label>
+                    <input
+                      type="text"
+                      value={`₩ ${totalAmount.toLocaleString()}`}
+                      readOnly
+                      className="block w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100"
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
             {/*  아이템 */}
@@ -759,34 +772,17 @@ export default function Estimate({
 
                   <input
                     type="text" // 'number'에서 'text'로 변경
-                    placeholder="수량"
+                    placeholder={"수량"}
                     value={item.quantity.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
                     onChange={(e) =>
                       handleQuantityChange(index, e.target.value)
                     }
-                    // onChange={(e) => {
-                    //   const numericValue = parseFloat(
-                    //     e.target.value.replace(/,/g, "").replace(/[^\d]/g, "")
-                    //   );
-                    //   const unit = e.target.value.replace(/[\d,]/g, "").trim();
-                    //   setItems((prev) =>
-                    //     prev.map((item, i) =>
-                    //       i === index
-                    //         ? {
-                    //             ...item,
-                    //             quantity: `${numericValue.toLocaleString()}${unit}`, // 결합된 형태로 저장
-                    //             amount: numericValue * item.unit_price, // 계산에는 숫자만 사용
-                    //           }
-                    //         : item
-                    //     )
-                    //   );
-                    // }}
                     className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
                   />
 
                   <input
                     type="text" // 'number'에서 'text'로 변경
-                    placeholder="단가"
+                    placeholder={`${type !== "requestQuote" ? "단가" : "단위"}`}
                     value={item.unit_price.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
                     onChange={(e) =>
                       handleUnitPriceChange(index, e.target.value)

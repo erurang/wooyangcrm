@@ -370,16 +370,14 @@ export default function RecentConsultations() {
         <Alert severity="error">{snackbarMessage}</Alert>
       </Snackbar>
       {/* 모달 */}
-      {openModal && selectedDocument && (
+      {/* {openModal && selectedDocument && (
         <DocumentModal
           type={selectedDocument.type}
-          users={users}
           company_fax={""}
-          company_phone={""}
           document={selectedDocument}
           onClose={handleModalClose}
         />
-      )}
+      )} */}
     </div>
   );
 }

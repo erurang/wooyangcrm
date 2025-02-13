@@ -33,6 +33,8 @@ interface Document {
       amount: number;
     };
   };
+  consultation_id: string;
+  company_id: string;
 }
 
 interface User {
@@ -105,13 +107,14 @@ export default function DocumentsDetailsPage() {
     try {
       const { data, error } = await supabase
         .from("documents")
-        .select("*")
+        .select(`*`)
         .eq("type", type)
         .eq("status", status)
         .eq("user_id", user?.id) // 로그인한 유저의 문서만 가져옴
         .ilike("content->>company_name", `%${searchTerm}%`)
         .gte("created_at", `${startDate}T00:00:00`)
-        .lte("created_at", `${endDate}T23:59:59`);
+        .lte("created_at", `${endDate}T23:59:59`)
+        .order("created_at", { ascending: false });
 
       if (error) {
         throw error;
@@ -318,6 +321,9 @@ export default function DocumentsDetailsPage() {
               </th>
               <th className="px-4 py-2 border-b">회사명</th>
               <th className="px-4 py-2 border-b">문서 번호</th>
+              {status === "pending" && (
+                <th className="px-4 py-2 border-b">수정</th>
+              )}
               <th className="px-4 py-2 border-b">상담자</th>
               <th className="px-4 py-2 border-b">
                 {type === "estimate" && "견적자"}
@@ -344,12 +350,25 @@ export default function DocumentsDetailsPage() {
                 <td className="px-4 py-2 border-b">
                   {doc.content?.company_name}
                 </td>
+
                 <td
                   className="px-4 py-2 border-b text-blue-500 cursor-pointer"
                   onClick={() => setSelectedDocument(doc)}
                 >
                   {doc.document_number}
                 </td>
+                {status === "pending" && (
+                  <td
+                    className="px-4 py-2 border-b text-blue-500 cursor-pointer"
+                    onClick={() =>
+                      router.push(
+                        `/documents/${type}?consultId=${doc.consultation_id}&compId=${doc.company_id}`
+                      )
+                    }
+                  >
+                    이동
+                  </td>
+                )}
                 <td className="px-4 py-2 border-b">{doc.contact}</td>
                 <td className="px-4 py-2 border-b">
                   {users.find((user) => user.id === doc.user_id)?.name}
@@ -405,46 +424,48 @@ export default function DocumentsDetailsPage() {
       </div>
 
       {/* 페이지네이션 */}
-      <div className="mt-4 flex justify-center items-center space-x-2">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-200 rounded-md"
-        >
-          이전
-        </button>
-        {paginationNumbers().map((page, index) =>
-          typeof page === "number" ? (
-            <button
-              key={index}
-              onClick={() => setCurrentPage(page)}
-              className={`px-3 py-1 rounded ${
-                page === currentPage
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              {page}
-            </button>
-          ) : (
-            <span key={index} className="px-2">
-              ...
-            </span>
-          )
-        )}
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-200 rounded-md"
-        >
-          다음
-        </button>
+      <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
+        <div className="flex justify-center mt-4 space-x-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+          >
+            이전
+          </button>
+          {paginationNumbers().map((page, index) =>
+            typeof page === "number" ? (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 py-1 rounded ${
+                  page === currentPage
+                    ? "bg-blue-500 text-white font-bold"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {page}
+              </button>
+            ) : (
+              <span key={index} className="px-2">
+                ...
+              </span>
+            )
+          )}
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
+          >
+            다음
+          </button>
+        </div>
       </div>
 
       {/* 문서 상세 모달 */}
-      {selectedDocument && (
+      {/* {selectedDocument && (
         <DocumentModal
           document={selectedDocument}
           onClose={() => setSelectedDocument(null)}
@@ -453,7 +474,7 @@ export default function DocumentsDetailsPage() {
           company_phone={"02-9876-5432"}
           type={selectedDocument.type}
         />
-      )}
+      )} */}
 
       {/* 상태 변경 모달 */}
       {statusChangeDoc && (

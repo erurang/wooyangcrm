@@ -1,53 +1,68 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const consultationId = searchParams.get("consultation_id"); // 특정 상담 ID로 필터링
-
-  const query = supabase.from("documents").select("*");
-
-  if (consultationId) {
-    query.eq("consultation_id", consultationId); // 특정 상담과 연결된 문서만 필터링
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json(data, { status: 200 });
-}
-
-export async function POST(req: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const body = await req.json();
-    const { consultation_id, type, content } = body;
+    const { searchParams } = new URL(request.url);
 
-    // 필수 필드 검증
-    if (!consultation_id || !type || !content) {
-      return NextResponse.json(
-        {
-          error: "필수 필드(consultation_id, type, content)가 누락되었습니다.",
-        },
-        { status: 400 }
-      );
-    }
+    const role = searchParams.get("role") || "";
+    const userId = searchParams.get("userId") || null;
 
-    const { data, error } = await supabase
+    // 현재 날짜 기준으로 30일 전 날짜 계산
+    const currentDate = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(currentDate.getDate() - 30);
+    // const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
+
+    // 🔹 `documents` 테이블에서 데이터 가져오기
+    let documentsQuery = supabase
       .from("documents")
-      .insert([{ consultation_id, type, content }]);
+      .select(
+        "id, type, status, content, user_id, document_number, created_at"
+      );
+    // .gte("created_at", thirtyDaysAgoISO);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (role === "user" && userId) {
+      documentsQuery = documentsQuery.eq("user_id", userId);
     }
 
-    return NextResponse.json(data, { status: 201 });
-  } catch (err) {
+    const { data: documents, error: documentsError } = await documentsQuery;
+
+    if (documentsError) {
+      throw new Error(`Error fetching documents: ${documentsError.message}`);
+    }
+
+    // 🔹 `documents` 데이터 요약 처리
+    const documentsSummary = documents.reduce(
+      (acc: Record<string, any>, doc) => {
+        const status = doc.status || "unknown";
+        const type = doc.type || "unknown";
+
+        if (!acc[type]) {
+          acc[type] = { pending: 0, completed: 0, canceled: 0, unknown: 0 };
+        }
+
+        acc[type][status] = (acc[type][status] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
+
+    // 🔹 JSON 응답 반환
+    return NextResponse.json({
+      documents: Object.entries(documentsSummary).map(
+        ([type, statusCounts]) => ({
+          type,
+          statusCounts,
+        })
+      ),
+      documentDetails: documents, // 🔥 문서 상세 정보 추가
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
     return NextResponse.json(
-      { error: "Invalid request body." },
-      { status: 400 }
+      { error: "Failed to fetch dashboard data" },
+      { status: 500 }
     );
   }
 }

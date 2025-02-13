@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Line } from "react-chartjs-2";
-import "chart.js/auto";
-import { Tab } from "@headlessui/react";
-import { v4 as uuidv4 } from "uuid";
+import dynamic from "next/dynamic";
 import { useLoginUser } from "../context/login";
 import { useRouter } from "next/navigation";
+
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
 
 interface Document {
   type: "estimate" | "order" | "requestQuote";
@@ -34,7 +35,7 @@ export default function DocumentsDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/dashboard?userId=${user?.id}`);
+        const response = await fetch(`/api/documents?userId=${user?.id}`);
         const data = await response.json();
         setDashboardData({ documentDetails: data.documentDetails });
       } catch (error) {
@@ -52,292 +53,157 @@ export default function DocumentsDashboard() {
   const filterDocumentsByType = (type: string) =>
     dashboardData?.documentDetails.filter((doc) => doc.type === type) || [];
 
-  const getStatusCounts = (documents: Document[]) => ({
-    total: documents.length,
-    pending: documents.filter((doc) => doc.status === "pending").length,
-    completed: documents.filter((doc) => doc.status === "completed").length,
-    canceled: documents.filter((doc) => doc.status === "canceled").length,
-  });
-
-  const groupByDateAndStatus = (documents: Document[]) => {
-    const grouped: Record<string, Record<string, number>> = {};
-
-    documents.forEach((doc) => {
-      const date = doc.created_at?.slice(0, 10);
-      const status = doc.status;
-
-      if (!grouped[date]) {
-        grouped[date] = { pending: 0, completed: 0, canceled: 0, expired: 0 };
-      }
-
-      if (status === "pending") {
-        grouped[date].pending += 1;
-        if (
-          doc.content.valid_until &&
-          new Date(doc.content.valid_until) < new Date()
-        ) {
-          grouped[date].expired += 1;
-        }
-      } else {
-        grouped[date][status] += 1;
-      }
-    });
-
-    return grouped;
-  };
-
   const tabs = [
     { name: "견적서", type: "estimate" },
     { name: "발주서", type: "order" },
-    { name: "의뢰서", type: "request" },
+    { name: "의뢰서", type: "requestQuote" },
   ];
+
+  const documentSummary = tabs.map(({ type }) => {
+    const documents = filterDocumentsByType(type);
+    return {
+      type,
+      pending: documents.filter((doc) => doc.status === "pending").length,
+      completed: documents.filter((doc) => doc.status === "completed").length,
+      canceled: documents.filter((doc) => doc.status === "canceled").length,
+    };
+  });
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold ">문서 관리</p>
+      <p className="mb-4 font-semibold">문서 관리</p>
       {loading ? (
         <p>로딩 중...</p>
       ) : (
-        <Tab.Group>
-          <Tab.List className="flex space-x-4 mb-6">
-            {tabs.map((tab) => (
-              <Tab
-                key={tab.type}
-                className={({ selected }) =>
-                  `px-4 py-2 rounded-md ${
-                    selected
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`
-                }
-              >
-                {tab.name}
-              </Tab>
+        <>
+          {/* 상태 요약을 3개 컬럼으로 나눠서 표시 */}
+          <div className="mb-6 bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md grid grid-cols-3 gap-4">
+            {documentSummary.map((doc) => (
+              <div key={doc.type} className="bg-white p-4 rounded-md shadow-md">
+                <h2 className="font-semibold mb-2">
+                  {tabs.find((t) => t.type === doc.type)?.name} 상태 요약
+                </h2>
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { label: "진행 중", key: "pending" },
+                    { label: "완료됨", key: "completed" },
+                    { label: "취소됨", key: "canceled" },
+                  ].map(({ label, key }) => (
+                    <div
+                      key={key}
+                      className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
+                      onClick={() =>
+                        router.push(
+                          `/documents/details?type=${doc.type}&status=${key}`
+                        )
+                      }
+                    >
+                      <p className="font-semibold text-gray-700">{label}</p>
+                      <h3 className="text-xl font-bold">
+                        {doc[key as keyof typeof doc]}
+                      </h3>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
-          </Tab.List>
-          <Tab.Panels>
-            {tabs.map((tab) => {
-              const documents = filterDocumentsByType(tab.type);
-              const { total, pending, completed, canceled } =
-                getStatusCounts(documents);
+          </div>
 
-              const groupedData = groupByDateAndStatus(documents);
+          {/* 문서 유형별 진행 중 문서 테이블 */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="mb-6 bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md">
+              <h2 className="font-semibold text-md mb-4">문서 진행 현황</h2>
+              {tabs.map((tab) => {
+                const documents = filterDocumentsByType(tab.type).filter(
+                  (doc) => doc.status === "pending"
+                );
 
-              const dates = Object.keys(groupedData).sort();
-              const pendingData = dates.map(
-                (date) => groupedData[date].pending
-              );
-              const completedData = dates.map(
-                (date) => groupedData[date].completed
-              );
-              const canceledData = dates.map(
-                (date) => groupedData[date].canceled
-              );
-              const expiredData = dates.map(
-                (date) => groupedData[date].expired
-              );
-
-              const lineData = {
-                labels: dates,
-                datasets: [
-                  {
-                    label: "진행 중",
-                    data: pendingData,
-                    borderColor: "#42A5F5",
-                    backgroundColor: "rgba(66, 165, 245, 0.2)",
-                    fill: true,
-                    tension: 0.4,
-                  },
-                  {
-                    label: "완료됨",
-                    data: completedData,
-                    borderColor: "#66BB6A",
-                    backgroundColor: "rgba(102, 187, 106, 0.2)",
-                    fill: true,
-                    tension: 0.4,
-                  },
-                  {
-                    label: "취소됨",
-                    data: canceledData,
-                    borderColor: "#8E24AA",
-                    backgroundColor: "rgba(142, 36, 170, 0.2)",
-                    fill: true,
-                    tension: 0.4,
-                  },
-                  {
-                    label: "유효 기간 만료",
-                    data: expiredData,
-                    borderColor: "#FF7043",
-                    backgroundColor: "rgba(255, 112, 67, 0.2)",
-                    fill: true,
-                    tension: 0.4,
-                  },
-                ],
-              };
-
-              return (
-                <Tab.Panel key={tab.type}>
-                  {/* 상태 요약 */}
-                  <div className="mb-6 bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md">
-                    <h2 className="font-semibold mb-2">{tab.name} 상태 요약</h2>
-                    <div className="grid grid-cols-4 gap-4">
-                      {/* 진행 중 */}
-                      <div
-                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
-                        onClick={() =>
-                          router.push(
-                            `/documents/details?type=${tab.type}&status=pending`
-                          )
-                        }
-                      >
-                        <p className="font-semibold text-gray-700">진행 중</p>
-                        <h3 className="text-xl font-bold">{pending}</h3>
-                      </div>
-
-                      {/* 유효 기간 경과 */}
-                      <div
-                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
-                        onClick={() =>
-                          router.push(
-                            `/documents/details?type=${tab.type}&status=pending&expired=true`
-                          )
-                        }
-                      >
-                        <p className="font-semibold text-gray-700">
-                          유효 기간 만료
-                        </p>
-                        <h3 className="text-xl font-bold">
-                          {
-                            documents.filter(
-                              (doc) =>
-                                doc.status === "pending" &&
-                                new Date(doc.content.valid_until || "") <
-                                  new Date()
-                            ).length
-                          }
-                        </h3>
-                      </div>
-
-                      {/* 완료됨 */}
-                      <div
-                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
-                        onClick={() =>
-                          router.push(
-                            `/documents/details?type=${tab.type}&status=completed`
-                          )
-                        }
-                      >
-                        <p className="font-semibold text-gray-700">완료됨</p>
-                        <h3 className="text-xl font-bold">{completed}</h3>
-                      </div>
-
-                      {/* 취소됨 */}
-                      <div
-                        className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
-                        onClick={() =>
-                          router.push(
-                            `/documents/details?type=${tab.type}&status=canceled`
-                          )
-                        }
-                      >
-                        <p className="font-semibold text-gray-700">취소됨</p>
-                        <h3 className="text-xl font-bold">{canceled}</h3>
-                      </div>
-                    </div>
+                return (
+                  <div key={tab.type} className="mb-6">
+                    <h3 className="font-bold mb-2">{tab.name} 진행 중 문서</h3>
+                    <table className="min-w-full table-auto border-collapse text-left">
+                      <thead>
+                        <tr className="bg-gray-100 text-center">
+                          <th className="px-4 py-2 border-b">문서 번호</th>
+                          <th className="px-4 py-2 border-b">회사명</th>
+                          <th className="px-4 py-2 border-b">작성일</th>
+                          <th className="px-4 py-2 border-b">유효 기간</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-center">
+                        {documents.slice(0, 3).map((doc) => (
+                          <tr
+                            key={doc.document_number}
+                            className="hover:bg-gray-50"
+                          >
+                            <td className="px-4 py-2 border-b">
+                              {doc.document_number}
+                            </td>
+                            <td className="px-4 py-2 border-b">
+                              {doc.content.company_name}
+                            </td>
+                            <td className="px-4 py-2 border-b">
+                              {doc.created_at.slice(0, 10)}
+                            </td>
+                            <td className="px-4 py-2 border-b">
+                              {doc.content.valid_until?.slice(0, 10) || "없음"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-
-                  {/* 상태별 문서 테이블 및 차트 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-1 bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md">
-                      <h2 className="font-semibold text-md mb-4">
-                        {tab.name} 상태별 문서
-                      </h2>
-                      {[
-                        { title: "진행 중 문서", documents },
-                        {
-                          title: "유효 기간 만료 문서",
-                          documents: documents.filter(
-                            (doc) =>
-                              doc.status === "pending" &&
-                              new Date(doc.content.valid_until || "") <
-                                new Date()
-                          ),
-                        },
-                        {
-                          title: "취소된 문서",
-                          documents: documents.filter(
-                            (doc) => doc.status === "canceled"
-                          ),
-                        },
-                        {
-                          title: "완료된 문서",
-                          documents: documents.filter(
-                            (doc) => doc.status === "completed"
-                          ),
-                        },
-                      ].map(({ title, documents }) => (
-                        <div key={uuidv4()} className="mb-6">
-                          <h3 className="font-bold mb-2">{title}</h3>
-                          <table className="min-w-full table-auto border-collapse text-left">
-                            <thead>
-                              <tr className="bg-gray-100 text-center">
-                                <th className="px-4 py-2 border-b">
-                                  문서 번호
-                                </th>
-                                <th className="px-4 py-2 border-b">회사명</th>
-                                <th className="px-4 py-2 border-b">작성일</th>
-                                <th className="px-4 py-2 border-b">
-                                  유효 기간
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="text-center">
-                              {documents.slice(0, 3).map((doc) => (
-                                <tr key={uuidv4()} className="hover:bg-gray-50">
-                                  <td className="px-4 py-2 border-b">
-                                    {doc.document_number}
-                                  </td>
-                                  <td className="px-4 py-2 border-b">
-                                    {doc.content.company_name}
-                                  </td>
-                                  <td className="px-4 py-2 border-b">
-                                    {doc.created_at.slice(0, 10)}
-                                  </td>
-                                  <td className="px-4 py-2 border-b">
-                                    {doc.content.valid_until?.slice(0, 10) ||
-                                      "없음"}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="col-span-1 bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md">
-                      <h2 className="font-semibold text-md mb-4">
-                        {tab.name} 상태 요약
-                      </h2>
-                      <div className="min-h-[24rem]">
-                        <Line
-                          data={lineData}
-                          options={{
-                            plugins: {
-                              legend: { display: true },
-                            },
-                            maintainAspectRatio: false,
-                            responsive: true,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </Tab.Panel>
-              );
-            })}
-          </Tab.Panels>
-        </Tab.Group>
+                );
+              })}
+            </div>
+            {/* 차트 */}
+            <div className="bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md">
+              <h2 className="font-semibold text-md mb-4">문서 상태별 개수</h2>
+              <ReactApexChart
+                options={{
+                  chart: { type: "bar" },
+                  plotOptions: {
+                    bar: { horizontal: false, columnWidth: "55%" },
+                  },
+                  dataLabels: { enabled: false },
+                  stroke: { show: true, width: 1, colors: ["transparent"] },
+                  xaxis: {
+                    categories: tabs.map((tab) => tab.name), // X축: 견적서, 발주서, 의뢰서
+                  },
+                  yaxis: {
+                    title: { text: "문서 개수" },
+                    labels: {
+                      formatter: (value: number) =>
+                        Math.floor(value).toString(),
+                    }, // 🔥 string 변환
+                  },
+                  fill: { opacity: 1 },
+                  tooltip: {
+                    y: { formatter: (value: number) => `${value}개` },
+                  },
+                }}
+                series={[
+                  {
+                    name: "진행 중",
+                    data: documentSummary.map((doc) => doc.pending),
+                    color: "#42A5F5",
+                  },
+                  {
+                    name: "완료됨",
+                    data: documentSummary.map((doc) => doc.completed),
+                    color: "#66BB6A",
+                  },
+                  {
+                    name: "취소됨",
+                    data: documentSummary.map((doc) => doc.canceled),
+                    color: "#8E24AA",
+                  },
+                ]}
+                type="bar"
+              />
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

@@ -12,10 +12,13 @@ import { useLoginUser } from "@/app/context/login";
 interface Document {
   id: string;
   contact_name: string;
+  contact_level: string;
+  contact_mobile: string;
   consultation_id: string;
   type: string;
   contact: string;
-  contact_level: string;
+  user_name: string;
+  user_level: string;
   content: {
     items: {
       name: string;
@@ -120,7 +123,7 @@ const DocPage = () => {
   const [selectedDocument, setSelectedDocument] = useState<any>(null); // 선택된 문서
 
   useEffect(() => {
-    fetchUser();
+    // fetchUser();
     fetchCompany();
     fetchContactsData();
 
@@ -179,7 +182,9 @@ const DocPage = () => {
       // 'consultation_id'에 해당하는 견적서 문서를 가져옵니다.
       const { data: documentData, error: documentError } = await supabase
         .from("documents")
-        .select("*")
+        .select(
+          "*, contacts_documents(contacts(contact_name,level,mobile), users(name,level) )"
+        )
         .eq("consultation_id", id)
         .eq("type", type)
         .order("created_at", { ascending: false });
@@ -191,47 +196,25 @@ const DocPage = () => {
         return;
       }
 
-      const documentIds = documentData.map((doc) => doc.id);
+      const transformData = (data: any[]) => {
+        return data.map((document) => {
+          // `contacts_documents[0]`이 존재하는지 체크
+          const userInfo = document.contacts_documents?.[0]?.users || {};
+          const contactInfo = document.contacts_documents?.[0]?.contacts || {};
 
-      const { data: contactDocuments, error: contactDocumentsError } =
-        await supabase
-          .from("contacts_documents")
-          .select("document_id, contact_id")
-          .in("document_id", documentIds);
+          return {
+            user_name: userInfo.name || "퇴사",
+            user_level: userInfo.level || "",
+            contact_name: contactInfo.contact_name || "",
+            contact_level: contactInfo.level || "",
+            contact_mobile: contactInfo.mobile || "",
+            ...document, // 기존 문서 데이터 유지
+            contacts_documents: undefined, // 기존 contacts_documents 제거 (필요할 경우)
+          };
+        });
+      };
 
-      if (contactDocumentsError) {
-        setOpenSnackbar(true);
-        setSnackbarMessage(`담당자-연관문서 불러오기 실패`);
-        console.error(
-          "fetchDocuments-contactDocuments",
-          contactDocumentsError.message
-        );
-        return;
-      }
-
-      // 🔹 Step 4: `contacts_documents`를 기반으로 `document_id`와 `contact` 정보를 매핑
-      const contactsMap = new Map(
-        contacts?.map((contact) => [
-          contact.id,
-          { name: contact.contact_name, level: contact.level },
-        ])
-      );
-
-      const contactDocMap = new Map(
-        contactDocuments.map((cd) => [
-          cd.document_id,
-          contactsMap.get(cd.contact_id) || { name: "없음", level: "없음" },
-        ])
-      );
-
-      // 🔹 Step 5: 문서 리스트에 `contact_name`, `contact_level` 추가
-      const updatedDocuments = documentData.map((doc) => ({
-        ...doc,
-        contact_name: contactDocMap.get(doc.id)?.name || "없음",
-        contact_level: contactDocMap.get(doc.id)?.level || "없음",
-      }));
-
-      setDocuments(updatedDocuments);
+      setDocuments(transformData(documentData));
     } catch (error) {
       console.error("문서 가져오기 오류", error);
     } finally {
@@ -265,7 +248,7 @@ const DocPage = () => {
 
       return;
     } catch (error) {
-      console.error("fetchUser - 유저 목록 불러오기 실패:", error);
+      console.error("fetchCompany - 회사 목록 불러오기 실패:", error);
     }
   };
 
@@ -487,6 +470,7 @@ const DocPage = () => {
           .insert({
             document_id,
             contact_id: find_contact?.id,
+            user_id: user?.id,
           });
 
         if (contacts_doc_error) {
@@ -624,6 +608,7 @@ const DocPage = () => {
           .insert({
             document_id,
             contact_id: find_contact?.id,
+            user_id: user?.id,
           });
 
         if (contacts_doc_error) {
@@ -680,18 +665,6 @@ const DocPage = () => {
 
       if (!contact) {
         setSnackbarMessage("담당자를 선택해주세요");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!delivery_date) {
-        setSnackbarMessage("납기일을 입력해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!payment_method) {
-        setSnackbarMessage("결제방식을 선택해주세요.");
         setOpenSnackbar(true);
         return;
       }
@@ -758,6 +731,7 @@ const DocPage = () => {
           .insert({
             document_id,
             contact_id: find_contact?.id,
+            user_id: user?.id,
           });
 
         if (contacts_doc_error) {
@@ -954,6 +928,7 @@ const DocPage = () => {
           .from("contacts_documents")
           .update({
             contact_id: find_contact?.id,
+            // user_id: user?.id, 유저수정 가능하게할경우
           })
           .eq("document_id", document_id);
 
@@ -1084,6 +1059,7 @@ const DocPage = () => {
           .from("contacts_documents")
           .update({
             contact_id: find_contact?.id,
+            // user_id: user?.id, 유저수정 가능하게할경우
           })
           .eq("document_id", document_id);
 
@@ -1210,6 +1186,7 @@ const DocPage = () => {
           .from("contacts_documents")
           .update({
             contact_id: find_contact?.id,
+            // user_id: user?.id, 유저수정 가능하게할경우
           })
           .eq("document_id", document_id);
 
@@ -1316,7 +1293,8 @@ const DocPage = () => {
         &gt; <span className="font-semibold">{newDocument.company_name}</span>{" "}
         &gt;{" "}
         <span
-          onClick={() => router.push(`/consultations/${companyId}`)}
+          // onClick={() => router.push(`/consultations/${companyId}`)}
+          onClick={() => router.back()}
           className="text-blue-500 hover:font-bold cursor-pointer"
         >
           상담내역
@@ -1405,16 +1383,34 @@ const DocPage = () => {
         </div>
       )}
 
-      {openModal && (
+      {openModal && type === "estimate" && (
         <DocumentModal
           type="estimate"
+          koreanAmount={numberToKorean}
           document={selectedDocument}
           onClose={handleCloseModal}
-          users={users}
           company_fax={newDocument.fax}
-          company_phone={newDocument.phone}
         />
       )}
+      {openModal && type === "order" && (
+        <DocumentModal
+          type="order"
+          koreanAmount={numberToKorean}
+          document={selectedDocument}
+          onClose={handleCloseModal}
+          company_fax={newDocument.fax}
+        />
+      )}
+      {openModal && type === "requestQuote" && (
+        <DocumentModal
+          type="requestQuote"
+          koreanAmount={numberToKorean}
+          document={selectedDocument}
+          onClose={handleCloseModal}
+          company_fax={newDocument.fax}
+        />
+      )}
+
       {/* 스낵바 */}
       <Snackbar
         open={openSnackbar}

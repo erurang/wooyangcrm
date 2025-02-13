@@ -146,79 +146,78 @@ export async function GET(request: Request) {
     const extractTotalAmount = (docs: any[]) =>
       docs.reduce((acc, doc) => acc + (doc.content?.total_amount || 0), 0);
 
-    const newOpportunitiesTotal = extractTotalAmount(newOpportunities);
-    const newEstimatesCompletedTotal = extractTotalAmount(
-      newEstimatesCompleted
-    );
-
     /** 📌 7. 후속 상담 필요 고객 */
-    const { data: followUpClients, error: followUpClientsError } =
-      await supabase
-        .rpc("get_follow_up_clients", { user_id_param: userId })
-        .order("last_consultation", { ascending: false })
-        .limit(10);
+    const [followUpClientsResult, topClientsResult, topCustomerResult] =
+      await Promise.all([
+        supabase
+          .rpc("get_follow_up_clients", { user_id_param: userId })
+          .order("last_consultation", { ascending: false })
+          .limit(10),
 
-    if (followUpClientsError)
+        supabase.rpc("get_top_clients", { user_id_param: userId }).limit(3),
+
+        supabase.rpc("get_top_revenue_customer", { user_id_param: userId }),
+      ]);
+
+    // 🔹 각각의 데이터와 오류 확인
+    if (followUpClientsResult.error) {
       throw new Error(
-        `Error fetching follow-up clients: ${followUpClientsError.message}`
+        `Error fetching follow-up clients: ${followUpClientsResult.error.message}`
       );
-
-    /** 📌 8. 주요 고객 (상담 & 매출 TOP 고객) */
-    const { data: topClients, error: topClientsError } = await supabase
-      .rpc("get_top_clients", { user_id_param: userId })
-      .limit(3);
-
-    if (topClientsError)
-      throw new Error(`Error fetching top clients: ${topClientsError.message}`);
-
-    /** 📌 9. 최고 매출 고객 */
-    const { data: topCustomer, error: topCustomerError } = await supabase.rpc(
-      "get_top_revenue_customer",
-      {
-        user_id_param: userId,
-      }
-    );
-
-    if (topCustomerError)
+    }
+    if (topClientsResult.error) {
       throw new Error(
-        `Error fetching top customer: ${topCustomerError.message}`
+        `Error fetching top clients: ${topClientsResult.error.message}`
       );
+    }
+    if (topCustomerResult.error) {
+      throw new Error(
+        `Error fetching top customer: ${topCustomerResult.error.message}`
+      );
+    }
 
-    /** 📌 10. 최근 상담한 고객 */
-    const { data: consultedClients, error: consultedClientsError } =
+    // 🔹 데이터를 가져와서 사용
+    const followUpClients = followUpClientsResult.data;
+    const topClients = topClientsResult.data;
+    const topCustomer = topCustomerResult.data;
+
+    /** 📌 1️⃣ 최근 상담한 고객 리스트 가져오기 */
+    const { data: recentConsultations, error: consultationsError } =
       await supabase
-        .from("consultations")
-        .select("company_id, created_at")
+        .from("contacts_consultations")
+        .select("contacts(contact_name), created_at")
         .eq("user_id", userId)
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: false }) // 최신순 정렬
         .limit(10);
 
-    if (consultedClientsError)
+    if (consultationsError)
       throw new Error(
-        `Error fetching consulted clients: ${consultedClientsError.message}`
+        `Error fetching recent consultations: ${consultationsError.message}`
       );
 
-    /** 📌 11. 고객사 정보 매핑 */
-    const uniqueCompanyIds = Array.from(
-      new Set([
-        ...newClients,
-        ...consultedClients.map((c) => c.company_id),
-        ...topClients.map((c: any) => c.company_id), // 주요 고객사의 company_id 추가
-      ])
-    );
+    const transformed = recentConsultations.map((rc) => ({
+      created_at: rc.created_at,
+      contact_name: (rc as any).contacts?.contact_name,
+    }));
 
-    const { data: companyData, error: companyError } = await supabase
-      .from("companies")
-      .select("id, name")
-      .in("id", uniqueCompanyIds);
+    /** 📌 2️⃣ 최근 문서를 진행한 고객 리스트 가져오기 */
+    const { data: recentDocuments, error: documentsError2 } = await supabase
+      .from("contacts_documents")
+      .select(`created_at, documents(content)`)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false }) // 최신순 정렬
+      .limit(10);
 
-    if (companyError)
-      throw new Error(`Error fetching company names: ${companyError.message}`);
+    if (documentsError2)
+      throw new Error(
+        `Error fetching recent documents: ${documentsError2.message}`
+      );
 
-    const companyMap = companyData.reduce((acc, company) => {
-      acc[company.id] = company.name;
-      return acc;
-    }, {} as Record<string, string>);
+    // 🔹 최종 데이터 가공
+    const formattedRecentDocuments = recentDocuments?.map((d) => ({
+      company_name: (d as any).documents.content.company_name,
+      created_at: d.created_at,
+    }));
 
     /** 📌 12. 최종 데이터 반환 */
     return NextResponse.json({
@@ -247,12 +246,10 @@ export async function GET(request: Request) {
       },
       clients: topClients.map((client: any) => ({
         ...client,
-        company_name: companyMap[client.company_id] || "알 수 없음",
       })),
-      consultedClients: consultedClients.map((client) => ({
-        ...client,
-        company_name: companyMap[client.company_id] || "알 수 없음",
-      })),
+
+      recent_consultations: transformed,
+      recent_documents: formattedRecentDocuments,
     });
   } catch (error) {
     console.error("Error fetching dashboard data:", error);

@@ -27,7 +27,7 @@ interface Consultation {
   };
   content: string;
   documents: Document[];
-  contact: string;
+  contact_name: string;
 }
 
 interface User {
@@ -255,13 +255,13 @@ export default function RecentConsultations() {
                   {consultation.companies?.name}
                 </td>
                 <td className="px-4 py-2 border-b border-r">
-                  {consultation.contact}
+                  {consultation.contact_name}
                 </td>
                 <td
-                  className="px-4 py-2 border-b border-r "
+                  className="px-4 py-2 border-b border-r"
                   style={{
-                    minHeight: "120px",
-                    maxHeight: "120px",
+                    minHeight: "8rem",
+                    maxHeight: "8rem",
                     overflowY: "auto",
                     display: "block",
                   }}
@@ -269,7 +269,15 @@ export default function RecentConsultations() {
                   {formatContentWithLineBreaks(consultation.content)}
                 </td>
                 <td className="px-4 py-2 border-b">
-                  <div className="gap-4 text-left">
+                  <div
+                    className="gap-4 text-left"
+                    style={{
+                      minHeight: "8rem",
+                      maxHeight: "8rem",
+                      overflowY: "auto",
+                      display: "block",
+                    }}
+                  >
                     {["estimate", "order", "requestQuote"].map((type) => {
                       const filteredDocs = consultation.documents.filter(
                         (doc) => doc.type === type
@@ -309,46 +317,43 @@ export default function RecentConsultations() {
         </table>
       </div>
       {/* 페이지네이션 */}
-      <div className="flex justify-center mt-4 space-x-2">
-        <Button onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
-          처음
-        </Button>
-        <Button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          이전
-        </Button>
-        {paginationNumbers().map((page, index) =>
-          page === "..." ? (
-            <span key={index} className="text-gray-500 px-2">
-              ...
-            </span>
-          ) : (
-            <Button
+
+      <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
+        <div className="flex justify-center mt-4 space-x-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
+          >
+            이전
+          </button>
+
+          {paginationNumbers().map((page, index) => (
+            <button
               key={index}
               onClick={() => setCurrentPage(Number(page))}
-              className={page === currentPage ? "font-bold" : ""}
+              className={`px-4 py-2 rounded ${
+                page === currentPage
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+              }`}
             >
               {page}
-            </Button>
-          )
-        )}
-        <Button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-        >
-          다음
-        </Button>
-        <Button
-          onClick={() => setCurrentPage(totalPages)}
-          disabled={currentPage === totalPages}
-        >
-          끝
-        </Button>
+            </button>
+          ))}
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
+          >
+            다음
+          </button>
+        </div>
       </div>
+
       {/* 스낵바 */}
       <Snackbar
         open={openSnackbar}
@@ -359,7 +364,7 @@ export default function RecentConsultations() {
         <Alert severity="error">{snackbarMessage}</Alert>
       </Snackbar>
       {/* 모달 */}
-      {openModal && selectedDocument && (
+      {/* {openModal && selectedDocument && (
         <DocumentModal
           type={selectedDocument.type}
           users={users}
@@ -368,7 +373,7 @@ export default function RecentConsultations() {
           document={selectedDocument}
           onClose={handleModalClose}
         />
-      )}
+      )} */}
     </div>
   );
 }
