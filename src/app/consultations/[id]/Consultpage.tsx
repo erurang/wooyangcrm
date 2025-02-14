@@ -496,6 +496,21 @@ export default function ConsultationPage() {
     setOpenDeleteModal(true);
   };
 
+  const addFavorite = async () => {
+    try {
+      const res = await fetch(
+        `/api/move/favorite?userId=${loginUser?.id}&type=company&name=${company?.name}&itemId=${id}`,
+        { method: "POST" }
+      );
+      const result = await res.json();
+
+      setOpenSnackbar(true);
+      setSnackbarMessage("즐겨찾기가 추가되었습니다.");
+    } catch (error) {
+      console.error("Error fetching performance data:", error);
+    }
+  };
+
   const handleConfirmDelete = async () => {
     if (!consultationToDelete) return;
 
@@ -643,13 +658,20 @@ export default function ConsultationPage() {
 
         {/* 🚀 추가 버튼 */}
 
-        <div className="flex my-3">
+        <div className="flex my-3 gap-4">
           <div
             className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
             onClick={() => setOpenAddModal(true)}
           >
             <span className="mr-2">+</span>
-            <span>추가</span>
+            <span>상담 추가</span>
+          </div>
+          <div
+            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+            onClick={() => addFavorite()}
+          >
+            <span className="mr-2">+</span>
+            <span>즐겨찾기 추가</span>
           </div>
         </div>
 
@@ -1084,7 +1106,7 @@ export default function ConsultationPage() {
             <button
               onClick={prevPage}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
+              className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
             >
               이전
             </button>
@@ -1093,9 +1115,9 @@ export default function ConsultationPage() {
               <button
                 key={index}
                 onClick={() => handlePageClick(Number(page))}
-                className={`px-4 py-2 rounded ${
-                  page === currentPage
-                    ? "bg-blue-500 text-white"
+                className={`px-3 py-1 border rounded ${
+                  currentPage === page
+                    ? "bg-blue-500 text-white font-bold"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-200"
                 }`}
               >
@@ -1106,7 +1128,7 @@ export default function ConsultationPage() {
             <button
               onClick={nextPage}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
+              className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
             >
               다음
             </button>

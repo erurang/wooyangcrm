@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Snackbar, Alert, Button } from "@mui/material"; // MUI 사용
@@ -8,11 +9,25 @@ import DocumentModal from "@/components/documents/estimate/DocumentModal"; // �
 
 interface Document {
   id: string;
-  type: "estimate" | "purchase_order" | "request";
+  type: "estimate" | "requestQuote" | "order";
   document_number: string;
   content: {
     company_name: string;
+    total_amount: number;
+    delivery_date?: string;
+    valid_until?: string;
+    delivery_place?: string;
+    payment_method?: string;
   };
+  contact_name?: string; // 🔹 상담 담당자 추가
+  contact_level?: string; // 🔹 상담 담당자의 직급 추가
+  contact_mobile?: string; // 🔹 담당자 연락처 추가
+  company_fax?: string; // 🔹 회사 팩스 추가
+  company_tel?: string; // 🔹 회사 전화번호 추가
+  delivery_date?: string; // 🔹 납기일자 추가
+  user_name?: string; // 🔹 견적자 또는 발주자 이름 추가
+  user_level?: string; // 🔹 견적자 또는 발주자 직급 추가
+  payment_method?: string;
 }
 
 interface Consultation {
@@ -21,6 +36,8 @@ interface Consultation {
   companies: {
     name: string;
     id: string;
+    fax?: string;
+    phone?: string;
   };
   users: {
     name: string;
@@ -29,6 +46,13 @@ interface Consultation {
   content: string;
   documents: Document[];
   contact_name: string;
+  contact_level: string;
+  contacts_consultations?: {
+    contacts: {
+      mobile?: string;
+    };
+  }[];
+  payment_method?: string;
 }
 
 interface User {
@@ -38,18 +62,17 @@ interface User {
 
 export default function RecentConsultations() {
   const today = new Date().toISOString().split("T")[0]; // 현재 날짜
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0]; // 7일 전 날짜
+  // const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  //   .toISOString()
+  //   .split("T")[0]; // 7일 전 날짜
 
   const [users, setUsers] = useState<User[]>([]); // 유저 목록
-  const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [filteredConsultations, setFilteredConsultations] = useState<
     Consultation[]
   >([]);
   const [searchTerm, setSearchTerm] = useState<string>(""); // 검색어
   const [userTerm, setUserTerm] = useState<string>(""); // 상담자 필터
-  const [startDate, setStartDate] = useState<string>(sevenDaysAgo); // 시작 날짜
+  const [startDate, setStartDate] = useState<string>(today); // 시작 날짜
   const [endDate, setEndDate] = useState<string>(today); // 종료 날짜
 
   const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지
@@ -83,6 +106,47 @@ export default function RecentConsultations() {
     return pageNumbers;
   };
 
+  const numberToKorean = (num: number): string => {
+    if (num === 0) return "영"; // 0일 경우 예외 처리
+
+    const isNegative = num < 0; // 🚀 음수 여부 확인
+    num = Math.abs(num); // 🚀 절대값으로 변환 후 처리
+
+    const units = ["", "십", "백", "천"];
+    const bigUnits = ["", "만", "억", "조", "경"];
+    const digits = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
+    let result = "";
+
+    let bigUnitIndex = 0;
+
+    while (num > 0) {
+      const chunk = num % 10000;
+      if (chunk > 0) {
+        let chunkResult = "";
+        let unitIndex = 0;
+        let tempChunk = chunk;
+
+        while (tempChunk > 0) {
+          const digit = tempChunk % 10;
+          if (digit > 0) {
+            chunkResult = `${digits[digit]}${units[unitIndex]}${chunkResult}`;
+          }
+          tempChunk = Math.floor(tempChunk / 10);
+          unitIndex++;
+        }
+
+        result = `${chunkResult}${bigUnits[bigUnitIndex]} ${result}`;
+      }
+
+      num = Math.floor(num / 10000);
+      bigUnitIndex++;
+    }
+
+    result = result.trim().replace(/일십/g, "십"); // '일십'을 '십'으로 간략화
+
+    return isNegative ? `마이너스 ${result}` : result; // 🚀 음수일 경우 '마이너스' 추가
+  };
+
   const fetchConsultations = async (pageNumber: number) => {
     setLoading(true);
 
@@ -97,7 +161,6 @@ export default function RecentConsultations() {
       const calculatedTotalPages = Math.ceil(total / consultationsPerPage);
       setTotalPages(calculatedTotalPages);
 
-      setConsultations(data || []);
       setFilteredConsultations(data || []);
       setLoading(false);
     } catch (error) {
@@ -111,10 +174,55 @@ export default function RecentConsultations() {
   };
 
   const handleDocumentClick = (document: Document) => {
-    setSelectedDocument(document);
+    // 🔹 `filteredConsultations`에서 `documents` 배열 안에서 `document.id`와 일치하는 문서를 찾기
+    const consultation = filteredConsultations.find((consultation) =>
+      consultation.documents.some((doc) => doc.id === document.id)
+    );
+
+    if (!consultation) {
+      console.warn("해당 문서를 찾을 수 없습니다.", document);
+      return;
+    }
+
+    // 🔹 `consultation`에서 `document.id`에 해당하는 문서 찾기
+    const doc = consultation.documents.find((doc) => doc.id === document.id);
+
+    if (!doc) {
+      console.warn("해당 문서 정보를 찾을 수 없습니다.", document);
+      return;
+    }
+
+    if (doc.type === "estimate") {
+      setSelectedDocument({
+        ...doc,
+        content: {
+          ...doc.content,
+          payment_method: consultation.payment_method,
+        },
+        contact_level: consultation.contact_level || "",
+        contact_name: consultation.contact_name || "",
+        user_name: consultation.users?.name || "",
+        user_level: consultation.users?.level || "",
+        company_fax: consultation.companies?.fax || "", // 회사 팩스 정보 추가
+        contact_mobile:
+          consultation.contacts_consultations?.[0]?.contacts?.mobile || "", // 연락처 정보 추가
+      });
+    } else if (doc.type === "order") {
+      setSelectedDocument({
+        ...doc,
+        contact_level: consultation.contact_level || "",
+        contact_name: consultation.contact_name || "",
+        user_name: consultation.users?.name || "",
+        user_level: consultation.users?.level || "",
+        company_fax: consultation.companies?.fax || "", // 회사 팩스 정보 추가
+        contact_mobile:
+          consultation.contacts_consultations?.[0]?.contacts?.mobile || "", // 연락처 정보 추가
+        payment_method: consultation.payment_method,
+      });
+    }
+
     setOpenModal(true);
   };
-
   const handleModalClose = () => {
     setOpenModal(false);
     setSelectedDocument(null);
@@ -168,52 +276,81 @@ export default function RecentConsultations() {
   return (
     <div className="text-sm text-[#37352F]">
       <h2 className="text-sm font-semibold mb-4">최근 상담 내역</h2>
-      {/* <div className="text-gray-500 text-sm mb-2">
-        {searchTerm && <span>검색어: {searchTerm} </span>}
-        {userTerm && <span>상담자: {userTerm} </span>}
-        {startDate && endDate && (
-          <span>
-            날짜: {startDate} ~ {endDate}
-          </span>
-        )}
-      </div> */}
       {/* 검색 및 필터 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
         <div className="grid grid-cols-5 gap-4">
-          <div className="flex items-center">
-            <label className="mr-4 font-semibold">검색어</label>
-            <input
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              거래처명
+            </label>
+            <motion.input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="회사명"
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              placeholder="거래처명"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05, // 입력 시 약간 확대
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+              }}
             />
           </div>
-          <div className="flex items-center">
-            <label className="mr-4  font-semibold">시작 날짜</label>
-            <input
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              시작일
+            </label>
+            <motion.input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05, // 입력 시 약간 확대
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+              }}
             />
           </div>
-          <div className="flex items-center">
-            <label className="mr-4  font-semibold">종료 날짜</label>
-            <input
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              종료일
+            </label>
+            <motion.input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05, // 입력 시 약간 확대
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+              }}
             />
           </div>
-          <div></div>
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              상담자
+            </label>
+            <motion.select
+              value={userTerm}
+              onChange={(e) => setUserTerm(e.target.value)}
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05, // 선택 시 약간 확대
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+              }}
+            >
+              <option value="">전체</option> {/* ✅ 기본값 추가 */}
+              {users.map((user) => (
+                <option key={user.id} value={user.name}>
+                  {user.name}
+                </option>
+              ))}
+            </motion.select>
+          </div>
           <div className="flex items-center justify-end">
             <button
               onClick={() => {
                 setSearchTerm("");
                 setUserTerm("");
-                setStartDate(sevenDaysAgo); // 7일 전으로 초기화
+                setStartDate(today); // 7일 전으로 초기화
                 setEndDate(today); // 오늘로 초기화
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
@@ -255,7 +392,7 @@ export default function RecentConsultations() {
                 </td>
                 <td className="px-4 py-2 border-r">{consultation.date}</td>
                 <td className="px-4 py-2 border-r">
-                  {consultation.contact_name}
+                  {consultation.contact_name} {consultation.contact_level}
                 </td>
                 <td className="px-4 py-2 border-r">
                   {consultation.users.name} {consultation.users.level}
@@ -326,7 +463,7 @@ export default function RecentConsultations() {
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
+            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
           >
             이전
           </button>
@@ -335,9 +472,9 @@ export default function RecentConsultations() {
             <button
               key={index}
               onClick={() => setCurrentPage(Number(page))}
-              className={`px-4 py-2 rounded ${
-                page === currentPage
-                  ? "bg-blue-500 text-white"
+              className={`px-3 py-1 border rounded ${
+                currentPage === page
+                  ? "bg-blue-500 text-white font-bold"
                   : "bg-gray-50 text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -350,7 +487,7 @@ export default function RecentConsultations() {
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
+            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
           >
             다음
           </button>
@@ -370,7 +507,7 @@ export default function RecentConsultations() {
       {openModal && selectedDocument && (
         <DocumentModal
           type={selectedDocument.type}
-          koreanAmount={""}
+          koreanAmount={numberToKorean(selectedDocument.content.total_amount)}
           company_fax={""}
           document={selectedDocument}
           onClose={handleModalClose}

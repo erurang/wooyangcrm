@@ -97,7 +97,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                     <td><img src="/images/order/split_line1.gif" style="width: 100%; font-size: 14px;"></td>
                   </tr>
                   <tr>
-                    <td style=" font-weight: bold; font-size: 14px;">담당자명 : ${
+                    <td style=" font-weight: bold; font-size: 14px;"> : ${
                       document.contact_name
                     } ${document.contact_level}님</td>
                   </tr>

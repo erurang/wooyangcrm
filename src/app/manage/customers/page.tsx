@@ -1,7 +1,7 @@
 //test
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion"; // ✨ 추가
+import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Snackbar, Alert, CircularProgress } from "@mui/material"; // MUI Snackbar 임포트
@@ -660,7 +660,7 @@ export default function Page() {
         {/* 검색란 */}
         {/* <div className="bg-[#FBFBFB] rounded-md border-[1px] h-20 px-4 py-3 grid grid-cols-5 marker:items-center space-x-4"> */}
         <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-5 gap-4">
-          <div className="mb-4 flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               거래처명
             </label>
@@ -676,7 +676,7 @@ export default function Page() {
               }}
             />
           </div>
-          <div className="mb-4 flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               주소
             </label>
@@ -692,7 +692,7 @@ export default function Page() {
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
             />
           </div>
-          <div className="mb-4 flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               담당자
             </label>
@@ -709,7 +709,7 @@ export default function Page() {
             />
           </div>
           {/* 나중에 업종해야함 */}
-          <div className=" mb-4 flex items-center justify-center">
+          <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               업종
             </label>
@@ -727,7 +727,7 @@ export default function Page() {
               ))} */}
             </select>
           </div>
-          <div className="mb-4 flex justify-end space-x-2">
+          <div className="flex justify-end space-x-2">
             <button
               onClick={() => {
                 setSearchTerm("");
@@ -1488,7 +1488,7 @@ export default function Page() {
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
             disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded bg-white"
+            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
           >
             다음
           </button>
