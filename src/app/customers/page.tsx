@@ -1,6 +1,7 @@
 //test
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion"; // ✨ 추가
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Snackbar, Alert, CircularProgress } from "@mui/material"; // MUI Snackbar 임포트
@@ -663,19 +664,27 @@ export default function Page() {
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               거래처명
             </label>
-            <input
+            <motion.input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
               placeholder="거래처명"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05, // 입력 시 약간 확대
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+              }}
             />
           </div>
           <div className="mb-4 flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               주소
             </label>
-            <input
+            <motion.input
+              whileFocus={{
+                scale: 1.05, // 입력 시 약간 확대
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+              }}
               value={addressTerm}
               onChange={(e) => setAddressTerm(e.target.value)}
               onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
@@ -687,7 +696,11 @@ export default function Page() {
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               담당자
             </label>
-            <input
+            <motion.input
+              whileFocus={{
+                scale: 1.05, // 입력 시 약간 확대
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+              }}
               value={contactTerm}
               onChange={(e) => setContactTerm(e.target.value)}
               onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
@@ -759,9 +772,9 @@ export default function Page() {
                 <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                   주소
                 </th>
-                <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                {/* <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                   업종
-                </th>
+                </th> */}
                 <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
                   대표 담당자
                 </th>
@@ -789,9 +802,9 @@ export default function Page() {
                   <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                     {company.address}
                   </td>
-                  <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                  {/* <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                     {company.industry?.join(", ")}
-                  </td>
+                  </td> */}
                   <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
                     {company.contact[0]?.contact_name}
                   </td>
@@ -821,506 +834,630 @@ export default function Page() {
       </div>
 
       {/* 모달 */}
-      {isModalOpen && currentCompany && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2">
-          <div
-            className="bg-white p-6 rounded-md 
+      <AnimatePresence>
+        {isModalOpen && currentCompany && (
+          <motion.div
+            className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2"
+            initial={{ opacity: 0, scale: 1 }} // 시작 애니메이션
+            animate={{ opacity: 1, scale: 1 }} // 나타나는 애니메이션
+            exit={{ opacity: 0, scale: 1 }} // 사라질 때 애니메이션
+            transition={{ duration: 0.3 }}
+          >
+            <div
+              className="bg-white p-6 rounded-md 
                     w-11/12 md:w-2/3 
                     max-h-[75vh] md:max-h-[85vh] 
                     overflow-y-auto"
-          >
-            <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
-              거래처 수정
-            </h3>
+            >
+              <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
+                거래처 수정
+              </h3>
 
-            {/* 📌 반응형: 모바일 1열, 데스크톱 4열 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="mb-2">
-                <label className="block mb-1">거래처명</label>
-                <input
-                  type="text"
-                  value={currentCompany.name || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      name: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
+              {/* 📌 반응형: 모바일 1열, 데스크톱 4열 */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="mb-2">
+                  <label className="block mb-1">거래처명</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany.name || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        name: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">사업자 번호</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany.business_number || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        business_number: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">이메일</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="email"
+                    value={currentCompany.email || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        email: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">택배/화물</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany?.parcel || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        parcel: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
               </div>
-              <div className="mb-2">
-                <label className="block mb-1">사업자 번호</label>
-                <input
-                  type="text"
-                  value={currentCompany.business_number || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      business_number: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block mb-1">이메일</label>
-                <input
-                  type="email"
-                  value={currentCompany.email || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      email: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block mb-1">택배/화물</label>
-                <input
-                  type="text"
-                  value={currentCompany?.parcel || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      parcel: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
 
-            {/* 📌 반응형: 모바일은 1열, 데스크톱은 4열 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="mb-2">
-                <label className="block mb-1">주소</label>
-                <input
-                  type="text"
-                  value={currentCompany.address || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      address: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
+              {/* 📌 반응형: 모바일은 1열, 데스크톱은 4열 */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="mb-2">
+                  <label className="block mb-1">주소</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany.address || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        address: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">전화번호</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany.phone || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        phone: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">팩스</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany.fax || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        fax: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
               </div>
-              <div className="mb-2">
-                <label className="block mb-1">전화번호</label>
-                <input
-                  type="text"
-                  value={currentCompany.phone || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      phone: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block mb-1">팩스</label>
-                <input
-                  type="text"
-                  value={currentCompany.fax || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      fax: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
 
-            {/* 담당자 목록 */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center">
-                <label className="block mb-1">담당자</label>
+              {/* 담당자 목록 */}
+              <div className="mb-4">
+                <div className="flex justify-between items-center">
+                  <label className="block mb-1">담당자</label>
+                  <button
+                    className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
+                    onClick={addContact}
+                  >
+                    + 추가
+                  </button>
+                </div>
+
+                {/* 📌 담당자 한 줄 표현 */}
+                <div className="space-y-2">
+                  {(currentCompany?.contact || []).map((contact, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-wrap md:flex-nowrap gap-2"
+                    >
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.contact_name || ""}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "contact_name",
+                            e.target.value
+                          )
+                        }
+                        placeholder="이름"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.mobile || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "mobile", e.target.value)
+                        }
+                        placeholder="휴대폰"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.department || ""}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "department",
+                            e.target.value
+                          )
+                        }
+                        placeholder="부서"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.level || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "level", e.target.value)
+                        }
+                        placeholder="직급"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="email"
+                        value={contact?.email || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "email", e.target.value)
+                        }
+                        placeholder="이메일"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <button
+                        onClick={() => removeContact(index)}
+                        className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 비고 */}
+              <div className="mb-2">
+                <label className="block mb-1">비고</label>
+                <textarea
+                  value={currentCompany.notes || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      notes: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                ></textarea>
+              </div>
+
+              {/* 버튼 영역 */}
+              <div className="flex justify-end space-x-2">
                 <button
-                  className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
-                  onClick={addContact}
+                  onClick={closeModal}
+                  className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+                    saving ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={saving}
                 >
-                  + 추가
+                  취소
+                </button>
+                <button
+                  onClick={handleSave}
+                  className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+                    saving ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={saving}
+                >
+                  저장
+                  {saving && <CircularProgress size={18} className="ml-2" />}
                 </button>
               </div>
+            </div>
+          </motion.div>
+        )}
+        {/* 삭제 확인 모달 */}
 
-              {/* 📌 담당자 한 줄 표현 */}
-              <div className="space-y-2">
-                {(currentCompany?.contact || []).map((contact, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-wrap md:flex-nowrap gap-2"
-                  >
-                    <input
-                      type="text"
-                      value={contact?.contact_name || ""}
-                      onChange={(e) =>
-                        handleContactChange(
-                          index,
-                          "contact_name",
-                          e.target.value
-                        )
-                      }
-                      placeholder="이름"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <input
-                      type="text"
-                      value={contact?.mobile || ""}
-                      onChange={(e) =>
-                        handleContactChange(index, "mobile", e.target.value)
-                      }
-                      placeholder="휴대폰"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <input
-                      type="text"
-                      value={contact?.department || ""}
-                      onChange={(e) =>
-                        handleContactChange(index, "department", e.target.value)
-                      }
-                      placeholder="부서"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <input
-                      type="text"
-                      value={contact?.level || ""}
-                      onChange={(e) =>
-                        handleContactChange(index, "level", e.target.value)
-                      }
-                      placeholder="직급"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <input
-                      type="email"
-                      value={contact?.email || ""}
-                      onChange={(e) =>
-                        handleContactChange(index, "email", e.target.value)
-                      }
-                      placeholder="이메일"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <button
-                      onClick={() => removeContact(index)}
-                      className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
-                    >
-                      삭제
-                    </button>
-                  </div>
-                ))}
+        {isDeleteModalOpen && companyToDelete && (
+          <motion.div
+            initial={{ opacity: 0, scale: 1 }} // 시작 애니메이션
+            animate={{ opacity: 1, scale: 1 }} // 나타나는 애니메이션
+            exit={{ opacity: 0, scale: 1 }} // 사라질 때 애니메이션
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50"
+          >
+            <div className="bg-white p-6 rounded-md w-1/3">
+              <h3 className="text-xl font-semibold mb-4">삭제 확인</h3>
+              <p>정말로 이 거래처를 삭제하시겠습니까?</p>
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={cancelDelete}
+                  className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                >
+                  삭제
+                </button>
               </div>
             </div>
+          </motion.div>
+        )}
 
-            {/* 비고 */}
-            <div className="mb-2">
-              <label className="block mb-1">비고</label>
-              <textarea
-                value={currentCompany.notes || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    notes: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              ></textarea>
-            </div>
-
-            {/* 버튼 영역 */}
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={closeModal}
-                className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
-                  saving ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={saving}
-              >
-                취소
-              </button>
-              <button
-                onClick={handleSave}
-                className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
-                  saving ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={saving}
-              >
-                저장
-                {saving && <CircularProgress size={18} className="ml-2" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 삭제 확인 모달 */}
-      {isDeleteModalOpen && companyToDelete && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md w-1/3">
-            <h3 className="text-xl font-semibold mb-4">삭제 확인</h3>
-            <p>정말로 이 거래처를 삭제하시겠습니까?</p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={cancelDelete}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md"
-              >
-                취소
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
-              >
-                삭제
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 추가 모달 */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2">
-          <div
-            className="bg-white p-6 rounded-md 
+        {/* 추가 모달 */}
+        {isAddModalOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 1 }} // 시작 애니메이션
+            animate={{ opacity: 1, scale: 1 }} // 나타나는 애니메이션
+            exit={{ opacity: 0, scale: 1 }} // 사라질 때 애니메이션
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2"
+          >
+            <div
+              className="bg-white p-6 rounded-md 
                   w-11/12 md:w-2/3 
                   max-h-[75vh] md:max-h-[85vh] 
                   overflow-y-auto"
-          >
-            <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
-              거래처 추가
-            </h3>
+            >
+              <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
+                거래처 추가
+              </h3>
 
-            {/* 📌 반응형: 모바일 2열, 데스크톱 4열 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="mb-2">
-                <label className="block mb-1">거래처명</label>
-                <input
-                  type="text"
-                  value={currentCompany?.name || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      name: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
+              {/* 📌 반응형: 모바일 2열, 데스크톱 4열 */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="mb-2">
+                  <label className="block mb-1">거래처명</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany?.name || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        name: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">사업자 번호</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany?.business_number || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        business_number: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">이메일</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="email"
+                    value={currentCompany?.email || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        email: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">택배/화물</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany?.parcel || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        parcel: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
               </div>
-              <div className="mb-2">
-                <label className="block mb-1">사업자 번호</label>
-                <input
-                  type="text"
-                  value={currentCompany?.business_number || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      business_number: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block mb-1">이메일</label>
-                <input
-                  type="email"
-                  value={currentCompany?.email || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      email: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block mb-1">택배/화물</label>
-                <input
-                  type="text"
-                  value={currentCompany?.parcel || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      parcel: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
 
-            {/* 📌 반응형: 모바일은 2열, 데스크톱은 4열 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="mb-2">
-                <label className="block mb-1">주소</label>
-                <input
-                  type="text"
-                  value={currentCompany?.address || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      address: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
+              {/* 📌 반응형: 모바일은 2열, 데스크톱은 4열 */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="mb-2">
+                  <label className="block mb-1">주소</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany?.address || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        address: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">전화번호</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany?.phone || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        phone: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block mb-1">팩스</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="text"
+                    value={currentCompany?.fax || ""}
+                    onChange={(e) =>
+                      setCurrentCompany({
+                        ...currentCompany,
+                        fax: e.target.value,
+                      })
+                    }
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
               </div>
-              <div className="mb-2">
-                <label className="block mb-1">전화번호</label>
-                <input
-                  type="text"
-                  value={currentCompany?.phone || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      phone: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block mb-1">팩스</label>
-                <input
-                  type="text"
-                  value={currentCompany?.fax || ""}
-                  onChange={(e) =>
-                    setCurrentCompany({
-                      ...currentCompany,
-                      fax: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
 
-            {/* 담당자 목록 */}
-            <div className="mb-4">
-              <div className="flex justify-between items-center">
-                <label className="block mb-1">담당자</label>
+              {/* 담당자 목록 */}
+              <div className="mb-4">
+                <div className="flex justify-between items-center">
+                  <label className="block mb-1">담당자</label>
+                  <button
+                    className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
+                    onClick={addContact}
+                  >
+                    + 추가
+                  </button>
+                </div>
+
+                {/* 📌 담당자 한 줄 표현 & 추가 버튼 클릭 시 맨 위로 */}
+                <div className="space-y-2">
+                  {(currentCompany?.contact || []).map((contact, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-wrap md:flex-nowrap gap-2"
+                    >
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.contact_name || ""}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "contact_name",
+                            e.target.value
+                          )
+                        }
+                        placeholder="이름"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.mobile || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "mobile", e.target.value)
+                        }
+                        placeholder="휴대폰"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.department || ""}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "department",
+                            e.target.value
+                          )
+                        }
+                        placeholder="부서"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.level || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "level", e.target.value)
+                        }
+                        placeholder="직급"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="email"
+                        value={contact?.email || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "email", e.target.value)
+                        }
+                        placeholder="이메일"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <button
+                        onClick={() => removeContact(index)}
+                        className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 비고 */}
+              <div className="mb-2">
+                <label className="block mb-1">비고</label>
+                <textarea
+                  value={currentCompany?.notes || ""}
+                  onChange={(e) =>
+                    setCurrentCompany({
+                      ...currentCompany,
+                      notes: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                ></textarea>
+              </div>
+
+              {/* 버튼 영역 */}
+              <div className="flex justify-end space-x-2">
                 <button
-                  className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
-                  onClick={addContact}
+                  onClick={closeAddModal}
+                  className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+                    saving ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={saving}
                 >
-                  + 추가
+                  취소
+                </button>
+                <button
+                  onClick={handleAddCompany}
+                  className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+                    saving ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  disabled={saving}
+                >
+                  저장
+                  {saving && <CircularProgress size={18} className="ml-2" />}
                 </button>
               </div>
-
-              {/* 📌 담당자 한 줄 표현 & 추가 버튼 클릭 시 맨 위로 */}
-              <div className="space-y-2">
-                {(currentCompany?.contact || []).map((contact, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-wrap md:flex-nowrap gap-2"
-                  >
-                    <input
-                      type="text"
-                      value={contact?.contact_name || ""}
-                      onChange={(e) =>
-                        handleContactChange(
-                          index,
-                          "contact_name",
-                          e.target.value
-                        )
-                      }
-                      placeholder="이름"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <input
-                      type="text"
-                      value={contact?.mobile || ""}
-                      onChange={(e) =>
-                        handleContactChange(index, "mobile", e.target.value)
-                      }
-                      placeholder="휴대폰"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <input
-                      type="text"
-                      value={contact?.department || ""}
-                      onChange={(e) =>
-                        handleContactChange(index, "department", e.target.value)
-                      }
-                      placeholder="부서"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <input
-                      type="text"
-                      value={contact?.level || ""}
-                      onChange={(e) =>
-                        handleContactChange(index, "level", e.target.value)
-                      }
-                      placeholder="직급"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <input
-                      type="email"
-                      value={contact?.email || ""}
-                      onChange={(e) =>
-                        handleContactChange(index, "email", e.target.value)
-                      }
-                      placeholder="이메일"
-                      className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                    />
-                    <button
-                      onClick={() => removeContact(index)}
-                      className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
-                    >
-                      삭제
-                    </button>
-                  </div>
-                ))}
-              </div>
             </div>
-
-            {/* 비고 */}
-            <div className="mb-2">
-              <label className="block mb-1">비고</label>
-              <textarea
-                value={currentCompany?.notes || ""}
-                onChange={(e) =>
-                  setCurrentCompany({
-                    ...currentCompany,
-                    notes: e.target.value,
-                  })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              ></textarea>
-            </div>
-
-            {/* 버튼 영역 */}
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={closeAddModal}
-                className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
-                  saving ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={saving}
-              >
-                취소
-              </button>
-              <button
-                onClick={handleAddCompany}
-                className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
-                  saving ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={saving}
-              >
-                저장
-                {saving && <CircularProgress size={18} className="ml-2" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
         <div className="flex justify-center mt-4 space-x-2">

@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { sendEmail } from "@/lib/sendEmail";
 import jwt from "jsonwebtoken";
 
-const OPEN_CAGE_API_KEY = "d5ec3469dbeb4f158ac70066af8f9020";
+// const OPEN_CAGE_API_KEY = "d5ec3469dbeb4f158ac70066af8f9020";
 const SECRET_KEY = process.env.JWT_SECRET || "default-secret-key";
 
 type RoleData = {
@@ -13,21 +13,21 @@ type RoleData = {
 };
 
 // Reverse Geocoding 함수
-async function getLocationDetails(latitude: number, longitude: number) {
-  const response = await fetch(
-    `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPEN_CAGE_API_KEY}`
-  );
-  const data = await response.json();
+// async function getLocationDetails(latitude: number, longitude: number) {
+//   const response = await fetch(
+//     `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPEN_CAGE_API_KEY}`
+//   );
+//   const data = await response.json();
 
-  if (data && data.results && data.results.length > 0) {
-    return data.results[0].formatted;
-  }
+//   if (data && data.results && data.results.length > 0) {
+//     return data.results[0].formatted;
+//   }
 
-  return "위치 정보를 가져올 수 없습니다.";
-}
+//   return "위치 정보를 가져올 수 없습니다.";
+// }
 
 export async function POST(req: NextRequest) {
-  const { email, code, location } = await req.json();
+  const { email, code } = await req.json();
 
   // 인증번호 검증
   const { data: verificationData, error: verificationError } = await supabase
@@ -35,11 +35,20 @@ export async function POST(req: NextRequest) {
     .select("*")
     .eq("email", email)
     .eq("code", code)
-    .single();
+    .maybeSingle(); // ✅ 조회 결과가 없으면 null 반환
 
-  if (verificationError || !verificationData) {
+  if (!verificationData) {
     return NextResponse.json(
       { error: "잘못된 인증번호입니다." },
+      { status: 400 }
+    );
+  }
+
+  // 인증번호 만료 체크
+  const now = new Date().toISOString();
+  if (verificationData.expires_at < now) {
+    return NextResponse.json(
+      { error: "인증번호가 만료되었습니다." },
       { status: 400 }
     );
   }
@@ -47,9 +56,11 @@ export async function POST(req: NextRequest) {
   // 사용자 역할 가져오기
   const { data: userData, error: userError } = await supabase
     .from("users")
-    .select("roles(role_name)")
+    .select("role_id, roles!inner(role_name)")
     .eq("email", email)
-    .single<RoleData>();
+    .maybeSingle(); // ✅ 데이터가 없으면 null 반환
+
+  console.log("userError", userError);
 
   if (userError || !userData) {
     return NextResponse.json(
@@ -58,15 +69,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const roleName = userData?.roles?.role_name; // 역할 이름 추출
+  const roleName = (userData as any)?.roles?.role_name; // ✅ 역할이 없으면 기본값 설정
 
-  // 위치 정보 가져오기
-  const { latitude, longitude } = location || {};
-  let locationDetails = "위치 정보를 가져올 수 없습니다.";
-
-  if (latitude && longitude) {
-    locationDetails = await getLocationDetails(latitude, longitude);
+  if (userError || !userData) {
+    return NextResponse.json(
+      { error: "사용자 역할을 가져올 수 없습니다." },
+      { status: 500 }
+    );
   }
+
+  // // 위치 정보 가져오기
+  // const { latitude, longitude } = location || {};
+  // let locationDetails = "위치 정보를 가져올 수 없습니다.";
+
+  // if (latitude && longitude) {
+  //   locationDetails = await getLocationDetails(latitude, longitude);
+  // }
 
   // 로그인 기록 저장
   const ip =
@@ -77,21 +95,22 @@ export async function POST(req: NextRequest) {
   await supabase.from("login_logs").insert({
     email,
     ip_address: ip,
-    latitude,
-    longitude,
+    // latitude,
+    // longitude,
     login_time: new Date().toISOString(),
   });
 
   // 관리자에게 이메일 발송
   const adminEmail = "erurang@naver.com";
-  const emailSubject = `${email} / ${locationDetails}`;
+  // const emailSubject = `${email} / ${locationDetails}`;
+  // <p><strong>위치:</strong> ${locationDetails}</p>
+  // <p><strong>위도/경도:</strong> ${latitude || "N/A"}, ${
+  // longitude || "N/A"
+  const emailSubject = `${email}`;
   const emailContent = `
     <h2>로그인 알림</h2>
     <p><strong>로그인한 이메일:</strong> ${email}</p>
     <p><strong>로그인 IP:</strong> ${ip}</p>
-    <p><strong>위치:</strong> ${locationDetails}</p>
-    <p><strong>위도/경도:</strong> ${latitude || "N/A"}, ${
-    longitude || "N/A"
   }</p>
     <p><strong>로그인 시간:</strong> ${new Date().toISOString()}</p>
   `;

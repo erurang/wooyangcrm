@@ -57,7 +57,7 @@ export async function GET(request: Request) {
     const { data: contactConsultations, error: contactError } =
       await supabase.from("contacts_consultations").select(`
         consultation_id,
-        contacts!contacts_consultations_contact_id_fkey(contact_name)
+        contacts(contact_name)
       `);
 
     if (contactError) {
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
           date,
           content,
           companies (id, name),
-          users!consultations_user_id_fkey (id, name , level),
+          users(id, name , level),
           documents (type, id, document_number, content, user_id)
         `
       )

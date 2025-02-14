@@ -24,6 +24,7 @@ interface Consultation {
   };
   users: {
     name: string;
+    level: string;
   };
   content: string;
   documents: Document[];
@@ -229,36 +230,38 @@ export default function RecentConsultations() {
         </div>
       </div>
       {/* 상담 내역 테이블 */}
-      <div className="overflow-x-auto">
+      <div className="bg-[#FBFBFB] rounded-md border">
         <table className="min-w-full table-auto border-collapse text-center">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 border-b border-r w-1/12">상담일자</th>
               <th className="px-4 py-2 border-b border-r w-2/12">회사명</th>
+              <th className="px-4 py-2 border-b border-r w-1/12">상담일자</th>
               <th className="px-4 py-2 border-b border-r w-1/12">피상담자</th>
-              <th className="px-4 py-2 border-b border-r ">내용</th>
+              <th className="px-4 py-2 border-b border-r w-1/12">상담자</th>
+              <th className="px-4 py-2 border-b border-r">내용</th>
               <th className="px-4 py-2 border-b border-r w-3/12">문서</th>
             </tr>
           </thead>
           <tbody>
             {filteredConsultations.map((consultation) => (
-              <tr key={consultation.id} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border-b border-r">
-                  {consultation.date}
-                </td>
+              <tr key={consultation.id} className="hover:bg-gray-100 border-b">
                 <td
-                  className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
+                  className="px-4 py-2 border-r text-blue-500 cursor-pointer"
                   onClick={() =>
                     router.push(`/consultations/${consultation.companies.id}`)
                   }
                 >
                   {consultation.companies?.name}
                 </td>
-                <td className="px-4 py-2 border-b border-r">
+                <td className="px-4 py-2 border-r">{consultation.date}</td>
+                <td className="px-4 py-2 border-r">
                   {consultation.contact_name}
                 </td>
+                <td className="px-4 py-2 border-r">
+                  {consultation.users.name} {consultation.users.level}
+                </td>
                 <td
-                  className="px-4 py-2 border-b border-r"
+                  className="px-4 pt-2 border-r text-start"
                   style={{
                     minHeight: "8rem",
                     maxHeight: "8rem",
@@ -268,12 +271,12 @@ export default function RecentConsultations() {
                 >
                   {formatContentWithLineBreaks(consultation.content)}
                 </td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 pt-2">
                   <div
                     className="gap-4 text-left"
                     style={{
-                      minHeight: "8rem",
-                      maxHeight: "8rem",
+                      minHeight: "7rem",
+                      maxHeight: "7rem",
                       overflowY: "auto",
                       display: "block",
                     }}
@@ -364,16 +367,15 @@ export default function RecentConsultations() {
         <Alert severity="error">{snackbarMessage}</Alert>
       </Snackbar>
       {/* 모달 */}
-      {/* {openModal && selectedDocument && (
+      {openModal && selectedDocument && (
         <DocumentModal
           type={selectedDocument.type}
-          users={users}
+          koreanAmount={""}
           company_fax={""}
-          company_phone={""}
           document={selectedDocument}
           onClose={handleModalClose}
         />
-      )} */}
+      )}
     </div>
   );
 }

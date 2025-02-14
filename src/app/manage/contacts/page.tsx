@@ -274,12 +274,7 @@ export default function ContactsPage() {
             <tbody>
               {contacts.map((contact) => (
                 <tr key={contact.id} className="hover:bg-gray-50">
-                  <td
-                    className="px-4 py-2 border-b text-blue-500 cursor-pointer"
-                    onClick={() =>
-                      router.push(`/manage/companies/${contact.company_id}`)
-                    }
-                  >
+                  <td className="px-4 py-2 border-b">
                     {contact.companies.name}
                   </td>
                   <td

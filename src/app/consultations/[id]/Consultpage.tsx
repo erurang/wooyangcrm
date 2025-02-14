@@ -705,7 +705,7 @@ export default function ConsultationPage() {
                     <option value="">담당자 선택</option>
                     {contacts.map((contact) => (
                       <option key={contact.id} value={contact.contact_name}>
-                        {contact.contact_name} ({contact.department})
+                        {contact.contact_name} ({contact.level})
                       </option>
                     ))}
                   </select>
@@ -966,17 +966,20 @@ export default function ConsultationPage() {
               </thead>
               <tbody>
                 {consultations.map((consultation, index) => (
-                  <tr key={consultation.id} className="hover:bg-gray-100">
-                    <td className="px-4 py-2 border-b border-r-[1px]">
+                  <tr
+                    key={consultation.id}
+                    className="hover:bg-gray-100 border-b"
+                  >
+                    <td className="px-4 py-2 border-r-[1px]">
                       {consultation.id.slice(0, 4)}
                     </td>
-                    <td className="px-4 py-2 border-b border-r-[1px]">
+                    <td className="px-4 py-2 border-r-[1px]">
                       {consultation.date}
                     </td>
-                    <td className="px-4 py-2 border-b border-r-[1px]">
+                    <td className="px-4 py-2 border-r-[1px]">
                       {consultation.contact_name} {consultation.contact_level}
                     </td>
-                    <td className="px-4 py-2 border-b border-r-[1px]">
+                    <td className="px-4 py-2 border-r-[1px]">
                       {
                         users.find((user) => user.id === consultation.user_id)
                           ?.name
@@ -987,7 +990,7 @@ export default function ConsultationPage() {
                       }
                     </td>
                     <td
-                      className="px-4 py-2 border-b border-r-[1px] w-full text-start"
+                      className="px-4 py-2 border-r-[1px] w-full text-start"
                       style={{
                         minHeight: "120px",
                         maxHeight: "120px",
@@ -997,10 +1000,10 @@ export default function ConsultationPage() {
                     >
                       {formatContentWithLineBreaks(consultation.content)}
                     </td>
-                    <td className="px-4 py-2 border-b border-r-[1px]">
+                    <td className="px-4 py-2 border-r-[1px]">
                       {consultation.follow_up_date}
                     </td>
-                    <td className="px-4 py-2 border-b border-r-[1px]">
+                    <td className="px-4 py-2 border-r-[1px]">
                       <span
                         className={`mr-2 cursor-pointer ${
                           consultation.documents.estimate
@@ -1045,7 +1048,7 @@ export default function ConsultationPage() {
                       </span>
                     </td>
                     <td
-                      className={`px-4 py-2 border-b border-r-[1px] ${
+                      className={`px-4 py-2 border-r-[1px] ${
                         loginUser?.id === consultation.user_id &&
                         "text-blue-500 cursor-pointer"
                       }`}
@@ -1057,7 +1060,7 @@ export default function ConsultationPage() {
                       수정
                     </td>
                     <td
-                      className={`px-4 py-2 border-b border-r-[1px] ${
+                      className={`px-4 py-2 border-r-[1px] ${
                         loginUser?.id === consultation.user_id &&
                         "text-red-500 cursor-pointer"
                       }`}
