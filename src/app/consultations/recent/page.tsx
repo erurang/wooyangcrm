@@ -3,9 +3,9 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Snackbar, Alert, Button } from "@mui/material"; // MUI 사용
+import { Snackbar, Alert, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
-import DocumentModal from "@/components/documents/estimate/DocumentModal"; // 모달 컴포넌트 추가
+import DocumentModal from "@/components/documents/estimate/DocumentModal";
 
 interface Document {
   id: string;
@@ -19,14 +19,14 @@ interface Document {
     delivery_place?: string;
     payment_method?: string;
   };
-  contact_name?: string; // 🔹 상담 담당자 추가
-  contact_level?: string; // 🔹 상담 담당자의 직급 추가
-  contact_mobile?: string; // 🔹 담당자 연락처 추가
-  company_fax?: string; // 🔹 회사 팩스 추가
-  company_tel?: string; // 🔹 회사 전화번호 추가
-  delivery_date?: string; // 🔹 납기일자 추가
-  user_name?: string; // 🔹 견적자 또는 발주자 이름 추가
-  user_level?: string; // 🔹 견적자 또는 발주자 직급 추가
+  contact_name?: string;
+  contact_level?: string;
+  contact_mobile?: string;
+  company_fax?: string;
+  company_tel?: string;
+  delivery_date?: string;
+  user_name?: string;
+  user_level?: string;
   payment_method?: string;
 }
 
@@ -61,32 +61,29 @@ interface User {
 }
 
 export default function RecentConsultations() {
-  const today = new Date().toISOString().split("T")[0]; // 현재 날짜
-  // const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-  //   .toISOString()
-  //   .split("T")[0]; // 7일 전 날짜
+  const today = new Date().toISOString().split("T")[0];
 
-  const [users, setUsers] = useState<User[]>([]); // 유저 목록
+  const [users, setUsers] = useState<User[]>([]);
   const [filteredConsultations, setFilteredConsultations] = useState<
     Consultation[]
   >([]);
-  const [searchTerm, setSearchTerm] = useState<string>(""); // 검색어
-  const [userTerm, setUserTerm] = useState<string>(""); // 상담자 필터
-  const [startDate, setStartDate] = useState<string>(today); // 시작 날짜
-  const [endDate, setEndDate] = useState<string>(today); // 종료 날짜
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [userTerm, setUserTerm] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>(today);
+  const [endDate, setEndDate] = useState<string>(today);
 
-  const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지
-  const [totalPages, setTotalPages] = useState<number>(1); // 총 페이지 수
-  const consultationsPerPage = 5; // 페이지당 데이터 수
-  const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const consultationsPerPage = 5;
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false); // 스낵바 상태
-  const [snackbarMessage, setSnackbarMessage] = useState<string>(""); // 스낵바 메시지
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
-  const [openModal, setOpenModal] = useState<boolean>(false); // 모달 상태
+  const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null
-  ); // 선택된 문서
+  );
 
   const router = useRouter();
 
@@ -107,10 +104,10 @@ export default function RecentConsultations() {
   };
 
   const numberToKorean = (num: number): string => {
-    if (num === 0) return "영"; // 0일 경우 예외 처리
+    if (num === 0) return "영";
 
-    const isNegative = num < 0; // 🚀 음수 여부 확인
-    num = Math.abs(num); // 🚀 절대값으로 변환 후 처리
+    const isNegative = num < 0;
+    num = Math.abs(num);
 
     const units = ["", "십", "백", "천"];
     const bigUnits = ["", "만", "억", "조", "경"];
@@ -142,9 +139,9 @@ export default function RecentConsultations() {
       bigUnitIndex++;
     }
 
-    result = result.trim().replace(/일십/g, "십"); // '일십'을 '십'으로 간략화
+    result = result.trim().replace(/일십/g, "십");
 
-    return isNegative ? `마이너스 ${result}` : result; // 🚀 음수일 경우 '마이너스' 추가
+    return isNegative ? `마이너스 ${result}` : result;
   };
 
   const fetchConsultations = async (pageNumber: number) => {
@@ -157,7 +154,6 @@ export default function RecentConsultations() {
 
       const { consultations: data, total } = await response.json();
 
-      // 페이지 수 계산
       const calculatedTotalPages = Math.ceil(total / consultationsPerPage);
       setTotalPages(calculatedTotalPages);
 
@@ -174,7 +170,6 @@ export default function RecentConsultations() {
   };
 
   const handleDocumentClick = (document: Document) => {
-    // 🔹 `filteredConsultations`에서 `documents` 배열 안에서 `document.id`와 일치하는 문서를 찾기
     const consultation = filteredConsultations.find((consultation) =>
       consultation.documents.some((doc) => doc.id === document.id)
     );
@@ -184,7 +179,6 @@ export default function RecentConsultations() {
       return;
     }
 
-    // 🔹 `consultation`에서 `document.id`에 해당하는 문서 찾기
     const doc = consultation.documents.find((doc) => doc.id === document.id);
 
     if (!doc) {
@@ -203,9 +197,9 @@ export default function RecentConsultations() {
         contact_name: consultation.contact_name || "",
         user_name: consultation.users?.name || "",
         user_level: consultation.users?.level || "",
-        company_fax: consultation.companies?.fax || "", // 회사 팩스 정보 추가
+        company_fax: consultation.companies?.fax || "",
         contact_mobile:
-          consultation.contacts_consultations?.[0]?.contacts?.mobile || "", // 연락처 정보 추가
+          consultation.contacts_consultations?.[0]?.contacts?.mobile || "",
       });
     } else if (doc.type === "order") {
       setSelectedDocument({
@@ -214,9 +208,9 @@ export default function RecentConsultations() {
         contact_name: consultation.contact_name || "",
         user_name: consultation.users?.name || "",
         user_level: consultation.users?.level || "",
-        company_fax: consultation.companies?.fax || "", // 회사 팩스 정보 추가
+        company_fax: consultation.companies?.fax || "",
         contact_mobile:
-          consultation.contacts_consultations?.[0]?.contacts?.mobile || "", // 연락처 정보 추가
+          consultation.contacts_consultations?.[0]?.contacts?.mobile || "",
         payment_method: consultation.payment_method,
       });
     }
@@ -242,7 +236,6 @@ export default function RecentConsultations() {
   };
 
   const formatContentWithLineBreaks = (content: string) => {
-    // 줄바꿈 문자를 <br /> 태그로 변환
     return content.split("\n").map((line, index) => (
       <span key={index}>
         {line}
@@ -257,17 +250,14 @@ export default function RecentConsultations() {
   }, [currentPage]);
 
   useEffect(() => {
-    // ESC 키 핸들러
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setOpenModal(false); // 추가 모달 닫기
+        setOpenModal(false);
       }
     };
 
-    // 키다운 이벤트 등록
     window.addEventListener("keydown", handleKeyDown);
 
-    // 언마운트 시 이벤트 제거
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
@@ -289,8 +279,8 @@ export default function RecentConsultations() {
               placeholder="거래처명"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
-                scale: 1.05, // 입력 시 약간 확대
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
               }}
             />
           </div>
@@ -304,8 +294,8 @@ export default function RecentConsultations() {
               onChange={(e) => setStartDate(e.target.value)}
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
-                scale: 1.05, // 입력 시 약간 확대
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
               }}
             />
           </div>
@@ -319,8 +309,8 @@ export default function RecentConsultations() {
               onChange={(e) => setEndDate(e.target.value)}
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
-                scale: 1.05, // 입력 시 약간 확대
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
               }}
             />
           </div>
@@ -333,8 +323,8 @@ export default function RecentConsultations() {
               onChange={(e) => setUserTerm(e.target.value)}
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
-                scale: 1.05, // 선택 시 약간 확대
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
               }}
             >
               <option value="">전체</option> {/* ✅ 기본값 추가 */}
@@ -350,8 +340,8 @@ export default function RecentConsultations() {
               onClick={() => {
                 setSearchTerm("");
                 setUserTerm("");
-                setStartDate(today); // 7일 전으로 초기화
-                setEndDate(today); // 오늘로 초기화
+                setStartDate(today);
+                setEndDate(today);
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
             >

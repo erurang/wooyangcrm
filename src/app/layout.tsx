@@ -17,7 +17,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="ko" data-theme="light">
+    <html lang="ko">
       <body>
         <LoginUserProvider>
           <div
