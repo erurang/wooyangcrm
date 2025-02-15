@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     let { data: documents, error: documentsError } = await supabase
       .from("documents")
       .select("company_id, created_at, status, type, content")
-      .eq("user_id", userId)
+      // .eq("user_id", userId)
       .eq("type", type)
       .gte("created_at", startDate)
       .lte("created_at", endDate)

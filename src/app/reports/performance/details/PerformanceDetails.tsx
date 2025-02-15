@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLoginUser } from "@/app/context/login";
+import { motion } from "framer-motion";
 
 interface CompanyData {
   companyId: string;
@@ -114,34 +115,52 @@ const PerformanceDetails = () => {
         <div className="grid grid-cols-4 gap-4">
           {/* 회사명 검색 */}
           <div className="flex items-center">
-            <label className="mr-4 font-semibold">회사명 검색</label>
-            <input
+            <label className="w-1/5 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              거래처명
+            </label>
+            <motion.input
               type="text"
               value={searchCompany}
               onChange={(e) => setSearchCompany(e.target.value)}
-              placeholder="회사명"
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              placeholder="거래처명"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
 
           {/* 날짜 선택 */}
           <div className="flex items-center">
-            <label className="mr-4 font-semibold">시작 날짜</label>
-            <input
+            <label className="w-1/5 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              시작일
+            </label>
+            <motion.input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
 
           <div className="flex items-center">
-            <label className="mr-4 font-semibold">종료 날짜</label>
-            <input
+            <label className="w-1/5 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              종료일
+            </label>
+            <motion.input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
 
@@ -203,7 +222,7 @@ const PerformanceDetails = () => {
           </thead>
           <tbody>
             {type === "estimate" &&
-              documentData.map((doc) => (
+              documentData?.map((doc) => (
                 <tr key={doc.companyId} className="hover:bg-gray-50">
                   <td
                     className="px-4 py-2 border-b text-blue-500 cursor-pointer border-r-[1px]"

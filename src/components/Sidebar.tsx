@@ -214,7 +214,11 @@ export default function Sidebar({
 const menuSections: MenuSection[] = [
   {
     title: "📊 대시보드",
-    items: [{ id: "dashboard", title: "대시보드", path: "/" }],
+    items: [
+      { id: "dashboard", title: "대시보드", path: "/" },
+      { id: "todos", title: "할일", path: "/manage/todos" },
+      { id: "calendar", title: "캘린더", path: "/manage/calendar" },
+    ],
   },
   {
     title: "🏢 거래처 관리",
@@ -227,7 +231,7 @@ const menuSections: MenuSection[] = [
   {
     title: "📄 문서 관리",
     items: [
-      { id: "documents", title: "문서 전체", path: "/documents" },
+      // { id: "documents", title: "문서 전체", path: "/documents" },
       {
         id: "estimate",
         title: "견적서 관리",

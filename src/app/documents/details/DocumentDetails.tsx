@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -14,7 +15,10 @@ interface Document {
   type: string;
   status: string;
   document_number: string;
-  contact: string;
+  contact_name: string;
+  contact_level: string;
+  user_name: string;
+  user_level: string;
   content: {
     company_name: string;
     valid_until: string;
@@ -49,21 +53,6 @@ export default function DocumentsDetailsPage() {
 
   const type = searchParams.get("type") || "estimate";
   const status = searchParams.get("status") || "pending";
-
-  const [users, setUsers] = useState<User[]>([]); // 유저 목록
-
-  const fetchUsers = async () => {
-    const { data: usersData, error: usersError } = await supabase
-      .from("users")
-      .select("id, name");
-
-    if (usersError) {
-      setSnackbarMessage("유저 목록을 불러오는 데 실패했습니다.");
-      setOpenSnackbar(true);
-    } else {
-      setUsers(usersData || []);
-    }
-  };
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,7 +96,9 @@ export default function DocumentsDetailsPage() {
     try {
       const { data, error } = await supabase
         .from("documents")
-        .select(`*`)
+        .select(
+          `*, contacts_documents(contacts(contact_name,level,mobile)), users(name,level)`
+        )
         .eq("type", type)
         .eq("status", status)
         .eq("user_id", user?.id) // 로그인한 유저의 문서만 가져옴
@@ -120,7 +111,23 @@ export default function DocumentsDetailsPage() {
         throw error;
       }
 
-      setDocuments(data || []);
+      const transformedDocuments = data.map((doc) => {
+        const contact = doc.contacts_documents?.[0]?.contacts || {}; // 첫 번째 연락처 정보 가져오기
+        const user = doc.users || {}; // 사용자 정보 가져오기
+
+        return {
+          ...doc,
+          contact_level: contact.level || "", // 🔹 연락처 직급
+          contact_name: contact.contact_name || "", // 🔹 연락처 이름
+          contact_mobile: contact.contact_mobile || "",
+          user_name: user.name || "", // 🔹 사용자 이름
+          user_level: user.level || "", // 🔹 사용자 직급
+          contacts_documents: undefined, // 필요 없으면 삭제
+          users: undefined, // 필요 없으면 삭제
+        };
+      });
+
+      setDocuments(transformedDocuments || []);
     } catch (error) {
       console.error("Failed to fetch documents:", error);
       setSnackbarMessage("문서 데이터를 불러오는 중 오류가 발생했습니다.");
@@ -130,6 +137,7 @@ export default function DocumentsDetailsPage() {
     }
   };
 
+  console.log(documents);
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -137,13 +145,6 @@ export default function DocumentsDetailsPage() {
         setStatusChangeDoc(null);
       }
     };
-
-    // 키다운 이벤트 등록
-
-    // 언마운트 시 이벤트 제거
-
-    fetchUsers();
-
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
@@ -249,7 +250,10 @@ export default function DocumentsDetailsPage() {
         >
           문서 관리
         </Link>{" "}
-        &gt; <span className="">{typeToKorean[type] || "알 수 없음"} - </span>
+        &gt;{" "}
+        <span className="">
+          {`${typeToKorean[type]} 관리` || "알 수 없음"} -{" "}
+        </span>
         {["pending", "completed", "canceled"].map((state, index) => (
           <Link
             key={state}
@@ -266,34 +270,63 @@ export default function DocumentsDetailsPage() {
       {/* 검색 필터 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
         <div className="grid grid-cols-4 gap-4">
-          <div className="flex items-center">
-            <label className="mr-4 font-semibold">회사명</label>
-            <input
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              거래처명
+            </label>
+            <motion.input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="회사명"
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              placeholder="거래처명"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
-          <div className="flex items-center">
-            <label className="mr-4 font-semibold">시작 날짜</label>
-            <input
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              시작일
+            </label>
+            <motion.input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
-          <div className="flex items-center">
-            <label className="mr-4 font-semibold">종료 날짜</label>
-            <input
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              종료일
+            </label>
+            <motion.input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
           <div className="flex items-center justify-end">
+            <button
+              onClick={() => {
+                setSearchTerm(""); // 검색어 초기화
+                setStartDate(today); // 30일 전으로 설정
+                setEndDate(today); // 오늘 날짜로 설정
+                fetchDocuments(); // 필터 초기화 후 다시 문서 목록 가져오기
+              }}
+              className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
+            >
+              필터리셋
+            </button>
             <button
               onClick={fetchDocuments}
               className="px-4 py-2 bg-blue-500 text-white rounded-md"
@@ -369,9 +402,11 @@ export default function DocumentsDetailsPage() {
                     이동
                   </td>
                 )}
-                <td className="px-4 py-2 border-b">{doc.contact}</td>
                 <td className="px-4 py-2 border-b">
-                  {users.find((user) => user.id === doc.user_id)?.name}
+                  {doc.contact_name} {doc.contact_level}
+                </td>
+                <td className="px-4 py-2 border-b">
+                  {doc.user_name} {doc.user_level}
                 </td>
                 <td className="px-4 py-2 border-b w-1/3">
                   <div className="flex justify-center">
@@ -438,8 +473,8 @@ export default function DocumentsDetailsPage() {
               <button
                 key={index}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 rounded ${
-                  page === currentPage
+                className={`px-3 py-1 border rounded ${
+                  currentPage === page
                     ? "bg-blue-500 text-white font-bold"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-200"
                 }`}
@@ -457,7 +492,7 @@ export default function DocumentsDetailsPage() {
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
+            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
           >
             다음
           </button>
@@ -465,16 +500,15 @@ export default function DocumentsDetailsPage() {
       </div>
 
       {/* 문서 상세 모달 */}
-      {/* {selectedDocument && (
+      {selectedDocument && (
         <DocumentModal
+          koreanAmount={() => {}}
           document={selectedDocument}
           onClose={() => setSelectedDocument(null)}
-          users={users} // 유저 데이터 전달
           company_fax={"02-1234-5678"}
-          company_phone={"02-9876-5432"}
           type={selectedDocument.type}
         />
-      )} */}
+      )}
 
       {/* 상태 변경 모달 */}
       {statusChangeDoc && (

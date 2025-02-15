@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Snackbar, Alert, Button } from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
 import { useRouter } from "next/navigation";
 import DocumentModal from "@/components/documents/estimate/DocumentModal";
 
@@ -58,6 +58,7 @@ interface Consultation {
 interface User {
   id: string;
   name: string;
+  level: string;
 }
 
 export default function RecentConsultations() {
@@ -225,7 +226,7 @@ export default function RecentConsultations() {
   const fetchUsers = async () => {
     const { data: usersData, error: usersError } = await supabase
       .from("users")
-      .select("id, name");
+      .select("id, name, level");
 
     if (usersError) {
       setSnackbarMessage("유저 목록을 불러오는 데 실패했습니다.");
@@ -330,7 +331,7 @@ export default function RecentConsultations() {
               <option value="">전체</option> {/* ✅ 기본값 추가 */}
               {users.map((user) => (
                 <option key={user.id} value={user.name}>
-                  {user.name}
+                  {user.name} {user.level}
                 </option>
               ))}
             </motion.select>
@@ -345,7 +346,7 @@ export default function RecentConsultations() {
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
             >
-              초기화
+              필터리셋
             </button>
             <button
               onClick={() => fetchConsultations(1)}

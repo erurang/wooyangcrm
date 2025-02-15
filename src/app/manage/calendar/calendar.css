@@ -1,0 +1,61 @@
+/* ✨ FullCalendar 기본 스타일 커스텀 */
+.fc .fc-daygrid-day {
+  transition: background-color 0.3s;
+}
+
+.fc .fc-daygrid-day:hover {
+  background-color: #f8f9fa;
+}
+
+/* ✨ 이벤트 스타일 카테고리별 지정 */
+.event-todo {
+  background-color: #4caf50 !important; /* 초록색 */
+  color: white !important;
+  border-radius: 5px;
+}
+
+.event-estimate {
+  background-color: #2196f3 !important; /* 파란색 */
+  color: white !important;
+  border-radius: 5px;
+}
+
+.event-order {
+  background-color: #ff9800 !important; /* 주황색 */
+  color: white !important;
+  border-radius: 5px;
+}
+
+.event-requestQuote {
+  background-color: #9c27b0 !important; /* 보라색 */
+  color: white !important;
+  border-radius: 5px;
+}
+
+.event-consultation {
+  background-color: #e91e63 !important; /* 핑크색 */
+  color: white !important;
+  border-radius: 5px;
+}
+
+/* ✨ 이벤트 Hover 시 강조 */
+.fc-event:hover {
+  filter: brightness(1.2);
+  cursor: pointer;
+}
+
+/* ✨ 모달 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}

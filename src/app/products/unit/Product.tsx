@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { v4 } from "uuid";
 import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 
 interface Product {
   id: string;
@@ -110,6 +111,8 @@ export default function ProductPage() {
         return "완료됨";
       case "canceled":
         return "취소됨";
+      case "backup":
+        return "관리자백업";
       default:
         return status;
     }
@@ -122,98 +125,135 @@ export default function ProductPage() {
       </h1>
 
       {/* 검색 필터 */}
-      <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-6">
+      <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
         <div className="grid grid-cols-12 gap-4 items-center">
           {/* 회사명 */}
           <div className="col-span-3 flex items-center">
-            <label className="w-1/4 text-right mr-2 font-semibold">
-              회사명
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              거래처명
             </label>
-            <input
+            <motion.input
               value={searchCompany}
               onChange={(e) => setSearchCompany(e.target.value)}
-              placeholder="회사명"
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              placeholder="거래처명"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
 
           {/* 물품명 */}
           <div className="col-span-3 flex items-center">
-            <label className="w-1/4 text-right mr-2 font-semibold">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               물품명
             </label>
-            <input
+            <motion.input
               value={searchProduct}
               onChange={(e) => setSearchProduct(e.target.value)}
               placeholder="물품명"
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
 
           {/* 규격 */}
           <div className="col-span-3 flex items-center">
-            <label className="w-1/4 text-right mr-2 font-semibold">규격</label>
-            <input
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              규격
+            </label>
+            <motion.input
               value={searchSpec}
               onChange={(e) => setSearchSpec(e.target.value)}
               placeholder="규격"
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </div>
 
           {/* 단가 */}
           <div className="col-span-3 flex items-center">
-            <label className="w-1/4 text-right mr-2 font-semibold">단가</label>
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              단가
+            </label>
             <div className="w-3/4 flex space-x-2">
-              <input
+              <motion.input
                 type="number"
                 value={minPrice}
                 onChange={(e) => setMinPrice(Number(e.target.value) || "")}
                 placeholder="최소 단가"
-                className="w-1/2 p-2 border border-gray-300 rounded-md"
+                className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+                whileFocus={{
+                  scale: 1.05,
+                  boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+                }}
               />
               <span className="self-center">~</span>
-              <input
+              <motion.input
                 type="number"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value) || "")}
                 placeholder="최대 단가"
-                className="w-1/2 p-2 border border-gray-300 rounded-md"
+                className="w-3/4 p-2 border border-gray-300 rounded-md"
+                whileFocus={{
+                  scale: 1.05,
+                  boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+                }}
               />
             </div>
           </div>
 
           {/* 기간 */}
           <div className="col-span-3 flex items-center">
-            <label className="w-1/4 text-right mr-2 font-semibold">기간</label>
+            <label className="w-1/5 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              기간
+            </label>
             <div className="w-3/4 flex space-x-2">
-              <input
+              <motion.input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-1/2 p-2 border border-gray-300 rounded-md"
+                className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+                whileFocus={{
+                  scale: 1.05,
+                  boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+                }}
               />
               <span className="self-center">~</span>
-              <input
+              <motion.input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-1/2 p-2 border border-gray-300 rounded-md"
+                className="w-3/4 p-2 border border-gray-300 rounded-md"
+                whileFocus={{
+                  scale: 1.05,
+                  boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+                }}
               />
             </div>
           </div>
 
           {/* 상태 */}
           <div className="col-span-3 flex items-center">
-            <label className="w-1/4 text-right mr-2 font-semibold">상태</label>
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              상태
+            </label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-3/4 p-2 border border-gray-300 rounded-md"
+              className="w-3/4 p-2 border-r border-b border-t border-gray-300 rounded-r-md"
             >
               <option value="pending">진행 중</option>
               <option value="completed">완료됨</option>
               <option value="canceled">취소됨</option>
+              <option value="backup">관리자백업</option>
             </select>
           </div>
 

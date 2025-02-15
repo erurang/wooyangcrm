@@ -393,75 +393,81 @@ export default function ContactsPage() {
             ))}
           </div>
         ) : (
-          <table className="min-w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-left">
-                <th className="px-4 py-2 border-b border-r w-1/6">거래처명</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">담당자명</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">부서</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">직급</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">이메일</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">연락처</th>
-                <th className="px-4 py-2 border-b border-r w-1/4">비고</th>
-                <th className="px-4 py-2 border-b border-r ">수정</th>
-                <th className="px-4 py-2 border-b hidden md:table-cell">
-                  삭제
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {contacts?.map((contact) => (
-                <tr key={contact.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 border-b border-r">
-                    {contact.companies?.name}
-                  </td>
-                  <td
-                    className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
-                    onClick={() =>
-                      router.push(`/manage/contacts/${contact.id}`)
-                    }
-                  >
-                    {contact.contact_name}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r">
-                    {contact.department}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r">
-                    {contact.level}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r">
-                    {contact.email}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r">
-                    {contact.mobile}
-                  </td>
-                  <td
-                    style={{
-                      minHeight: "8rem",
-                      maxHeight: "8rem",
-                      overflowY: "auto",
-                      display: "block",
-                    }}
-                    className="px-4 py-2 border-b border-r"
-                  >
-                    {contact.note}
-                  </td>
-                  <td
-                    className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
-                    onClick={() => handleEditContact(contact)}
-                  >
-                    수정
-                  </td>
-                  <td
-                    className="px-4 py-2 border-b text-red-500 cursor-pointer hidden md:table-cell"
-                    onClick={() => handleDeleteContact(contact.id)}
-                  >
+          <div className="bg-[#FBFBFB] rounded-md border">
+            <table className="min-w-full table-auto border-collapse">
+              <thead>
+                <tr className="bg-gray-100 text-left">
+                  <th className="px-4 py-2 border-b border-r w-1/6">
+                    거래처명
+                  </th>
+                  <th className="px-4 py-2 border-b border-r w-1/12">
+                    담당자명
+                  </th>
+                  <th className="px-4 py-2 border-b border-r w-1/12">부서</th>
+                  <th className="px-4 py-2 border-b border-r w-1/12">직급</th>
+                  <th className="px-4 py-2 border-b border-r w-1/12">이메일</th>
+                  <th className="px-4 py-2 border-b border-r w-1/12">연락처</th>
+                  <th className="px-4 py-2 border-b border-r w-1/4">비고</th>
+                  <th className="px-4 py-2 border-b border-r ">수정</th>
+                  <th className="px-4 py-2 border-b hidden md:table-cell">
                     삭제
-                  </td>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {contacts?.map((contact) => (
+                  <tr key={contact.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 border-b border-r">
+                      {contact.companies?.name}
+                    </td>
+                    <td
+                      className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
+                      onClick={() =>
+                        router.push(`/manage/contacts/${contact.id}`)
+                      }
+                    >
+                      {contact.contact_name}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r">
+                      {contact.department}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r">
+                      {contact.level}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r">
+                      {contact.email}
+                    </td>
+                    <td className="px-4 py-2 border-b border-r">
+                      {contact.mobile}
+                    </td>
+                    <td
+                      style={{
+                        minHeight: "8rem",
+                        maxHeight: "8rem",
+                        overflowY: "auto",
+                        display: "block",
+                      }}
+                      className="px-4 py-2 border-b border-r"
+                    >
+                      {contact.note}
+                    </td>
+                    <td
+                      className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
+                      onClick={() => handleEditContact(contact)}
+                    >
+                      수정
+                    </td>
+                    <td
+                      className="px-4 py-2 border-b text-red-500 cursor-pointer hidden md:table-cell"
+                      onClick={() => handleDeleteContact(contact.id)}
+                    >
+                      삭제
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

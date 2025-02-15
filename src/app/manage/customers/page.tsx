@@ -764,7 +764,7 @@ export default function Page() {
       </div>
 
       <div>
-        <div className="overflow-x-auto mt-4">
+        <div className="bg-[#FBFBFB] rounded-md border">
           <table className="min-w-full table-auto border-collapse">
             <thead>
               <tr className="bg-gray-100 text-left">
@@ -792,7 +792,7 @@ export default function Page() {
             </thead>
             <tbody>
               {filteredCompanies?.map((company) => (
-                <tr key={company.id} className="hover:bg-gray-50">
+                <tr key={company.id} className="hover:bg-gray-100">
                   <td
                     className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
                     onClick={() => router.push(`/consultations/${company.id}`)}
