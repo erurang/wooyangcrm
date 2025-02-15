@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useParams, useRouter } from "next/navigation";
-import { useLoginUser } from "@/app/context/login";
+import { useLoginUser } from "@/context/login";
 import dynamic from "next/dynamic";
 import CircularProgress from "@mui/material/CircularProgress"; // ✅ MUI 로딩 스피너 추가
 

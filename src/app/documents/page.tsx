@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { useLoginUser } from "../context/login";
+import { useLoginUser } from "@/context/login";
 import { useRouter } from "next/navigation";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {

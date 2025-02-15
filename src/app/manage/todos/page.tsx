@@ -6,7 +6,7 @@ import { DndContext, closestCorners, useDroppable } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { motion } from "framer-motion";
 import dayjs from "dayjs";
-import { useLoginUser } from "@/app/context/login";
+import { useLoginUser } from "@/context/login";
 
 interface AddTodoModalProps {
   onClose: () => void;

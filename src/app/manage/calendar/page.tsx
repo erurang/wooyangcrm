@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic"; // ✅ 동적 import
 import { supabase } from "@/lib/supabaseClient";
-import { useLoginUser } from "@/app/context/login";
+import { useLoginUser } from "@/context/login";
 import dayjs from "dayjs";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 

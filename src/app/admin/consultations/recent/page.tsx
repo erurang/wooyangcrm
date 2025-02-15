@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Snackbar, Alert, Button } from "@mui/material"; // MUI 사용
 import { useRouter } from "next/navigation";
 import DocumentModal from "@/components/documents/estimate/DocumentModal"; // 모달 컴포넌트 추가
-import { useLoginUser } from "@/app/context/login";
+import { useLoginUser } from "@/context/login";
 
 interface Document {
   id: string;

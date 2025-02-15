@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useLoginUser } from "@/app/context/login";
+import { useLoginUser } from "@/context/login";
 import { motion } from "framer-motion";
 
 interface CompanyData {

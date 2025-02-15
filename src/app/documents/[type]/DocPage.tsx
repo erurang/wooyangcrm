@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabaseClient";
 import DocumentModal from "@/components/documents/estimate/DocumentModal";
 import { Snackbar, Alert } from "@mui/material"; // MUI Snackbar 임포트
 import Estimate from "./Estimate";
-import { useLoginUser } from "@/app/context/login";
+import { useLoginUser } from "@/context/login";
 
 interface Document {
   id: string;

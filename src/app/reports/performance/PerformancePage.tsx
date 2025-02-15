@@ -6,7 +6,7 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 });
 
 import React, { useEffect, useState } from "react";
-import { useLoginUser } from "@/app/context/login";
+import { useLoginUser } from "@/context/login";
 import { useSearchParams, useRouter } from "next/navigation";
 
 interface PerformanceData {

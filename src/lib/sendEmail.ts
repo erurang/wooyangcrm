@@ -25,7 +25,6 @@ export async function sendEmail(
         ${verificationCode}
       </div>
       <p style="font-size: 14px; color: #999;">이 인증번호는 10분 동안 유효합니다.</p>
-      <p style="font-size: 14px; color: #999;">감사합니다! 😊</p>
     </div>
   `;
 

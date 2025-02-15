@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
 
   // JWT 토큰 생성 (role 포함)
   const token = jwt.sign({ email, role: roleName }, SECRET_KEY, {
-    expiresIn: "10h",
+    // expiresIn: "10h",
   });
 
   // JWT를 HttpOnly 쿠키에 저장

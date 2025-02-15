@@ -11,7 +11,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import Link from "next/link";
-import { useLoginUser } from "@/app/context/login";
+import { useLoginUser } from "@/context/login";
 
 interface Consultation {
   id: string;
