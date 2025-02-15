@@ -7,158 +7,19 @@ import { useLoginUser } from "./context/login";
 import UserGreeting from "@/components/dashboard/UserGreeting";
 import GreetingComponent from "@/components/dashboard/Greeting";
 import Link from "next/link";
+import { useDashboardData } from "@/hooks/dashboard/useDashboardData";
+import SnackbarComponent from "@/components/Snackbar";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
-interface DocumentStatus {
-  type: "estimate" | "order";
-  status: "pending" | "completed" | "canceled";
-  count: number;
-}
-
-interface DashboardData {
-  salesData: Record<
-    string,
-    { totalSales: number; totalPurchases: number; expectedSales: number }
-  >;
-  monthlyPerformance: {
-    totalSales: number;
-    totalPurchases: number;
-    expectedSales: number;
-    lastMonthSales: number;
-    lastMonthPurchases: number;
-  };
-  clients: {
-    company_id: string;
-    company_name: string;
-    total_consultations: number;
-    total_estimates: number;
-    total_orders: number;
-  }[];
-  recentDocuments: {
-    type: "estimate" | "order";
-    document_number: string;
-    created_at: string;
-    company_name: string;
-    status: "pending" | "completed" | "canceled";
-    total_amount: number;
-  }[];
-  expiringDocuments: {
-    id: string;
-    document_number: string;
-    content: {
-      valid_until: string;
-      company_name: string;
-      total_amount: number;
-    };
-  }[];
-  followUpClients: {
-    company_id: string;
-    company_name: string;
-    last_consultation: string;
-  }[];
-  documentStatusCounts: DocumentStatus[];
-  new_sales: {
-    new_clients_count: number;
-    new_consultations_count: number;
-    new_opportunities: number;
-    new_estimate_completed: number;
-  };
-  current_month_performance: {
-    total_consultations: number;
-    total_opportunities: number;
-    total_estimate_completed: number;
-  };
-
-  recent_consultations: {
-    created_at: string;
-    contact_name: string;
-  }[];
-
-  recent_documents: {
-    company_name: string;
-    created_at: string;
-  }[];
-}
 
 export default function SalesDashboard() {
   const user = useLoginUser();
-  const initialDashboardData: DashboardData = {
-    salesData: {},
-    monthlyPerformance: {
-      totalSales: 0,
-      totalPurchases: 0,
-      expectedSales: 0,
-      lastMonthSales: 0,
-      lastMonthPurchases: 0,
-    },
-    clients: [],
-    recentDocuments: [],
-    expiringDocuments: [],
-    followUpClients: [],
-    documentStatusCounts: [],
-    new_sales: {
-      new_clients_count: 0,
-      new_consultations_count: 0,
-      new_opportunities: 0,
-      new_estimate_completed: 0,
-    },
-    current_month_performance: {
-      total_consultations: 0,
-      total_opportunities: 0,
-      total_estimate_completed: 0,
-    },
-    recent_consultations: [
-      {
-        created_at: "",
-        contact_name: "",
-      },
-    ],
-    recent_documents: [
-      {
-        company_name: "",
-        created_at: "",
-      },
-    ],
-  };
-
-  const [dashboardData, setDashboardData] =
-    useState<DashboardData>(initialDashboardData);
-
-  const [loading, setLoading] = useState<boolean>(true);
+  const { dashboardData, isLoading, isError } = useDashboardData(
+    user?.id ? user.id : ""
+  );
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
-
-  const fetchDashboardData = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/dashboard?userId=${user?.id}`);
-      const data = await response.json();
-
-      // 데이터가 유효한 경우에만 상태 업데이트
-      if (response.ok) {
-        setDashboardData(data);
-      } else {
-        setSnackbarMessage(
-          "대시보드 데이터를 불러오는 중 문제가 발생했습니다."
-        );
-      }
-    } catch (error) {
-      setSnackbarMessage("대시보드 데이터를 불러오는 중 문제가 발생했습니다.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user?.id) {
-      fetchDashboardData();
-    }
-  }, [user?.id]);
-
-  if (!user) {
-    return null;
-  }
 
   const today = new Date();
   const year = today.getFullYear();
@@ -179,13 +40,13 @@ export default function SalesDashboard() {
       .padStart(2, "0")}-${day.padStart(2, "0")}`;
 
   const totalSalesData = monthDays.map(
-    (day) => dashboardData.salesData[formatDate(day)]?.totalSales || 0
+    (day) => dashboardData?.salesData[formatDate(day)]?.totalSales || 0
   );
   const totalPurchasesData = monthDays.map(
-    (day) => dashboardData.salesData[formatDate(day)]?.totalPurchases || 0
+    (day) => dashboardData?.salesData[formatDate(day)]?.totalPurchases || 0
   );
   const expectedSalesData = monthDays.map(
-    (day) => dashboardData.salesData[formatDate(day)]?.expectedSales || 0
+    (day) => dashboardData?.salesData[formatDate(day)]?.expectedSales || 0
   );
 
   // 📈 차트 옵션
@@ -217,6 +78,24 @@ export default function SalesDashboard() {
     },
   ];
 
+  useEffect(() => {
+    if (isError) {
+      setSnackbarMessage("대시보드 데이터를 불러오는 중 오류가 발생했습니다.");
+    } else if (!isLoading && dashboardData) {
+      setSnackbarMessage("대시보드 데이터를 성공적으로 불러왔습니다.");
+    }
+  }, [isError, isLoading, dashboardData]); // `isError`, `isLoading`, `dashboardData` 변경 시 실행
+
+  if (!user) {
+    return null;
+  }
+
+  if (isError) {
+    return (
+      <p className="text-red-500">대시보드 데이터를 불러오는 중 오류 발생</p>
+    );
+  }
+
   return (
     <div className="text-sm text-[#37352F]">
       <p className="mb-4 font-semibold">대시보드</p>
@@ -232,7 +111,7 @@ export default function SalesDashboard() {
           <GreetingComponent />
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <Skeleton style={{ height: "8rem", width: "100%" }} />
         ) : (
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
@@ -259,7 +138,7 @@ export default function SalesDashboard() {
                 <div>
                   <h2 className="font-semibold text-md mb-2">🏢 주요 고객</h2>
                   <ul className="list-disc pl-4">
-                    {dashboardData?.clients.map((client) => (
+                    {dashboardData?.clients.map((client: any) => (
                       <li key={client.company_id}>
                         <strong>{client.company_name}</strong>: 상담{" "}
                         {client.total_consultations}회, 견적{" "}
@@ -276,7 +155,7 @@ export default function SalesDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="grid grid-cols-2 gap-4">
-          {loading ? (
+          {isLoading ? (
             <Skeleton style={{ height: "16rem", width: "100%" }} />
           ) : dashboardData?.followUpClients.length ? (
             <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
@@ -284,7 +163,7 @@ export default function SalesDashboard() {
                 🔔 후속 상담 필요 고객
               </h2>
               <ul className="list-disc pl-4">
-                {dashboardData.followUpClients.map((client) => (
+                {dashboardData?.followUpClients.map((client: any) => (
                   <li key={client.company_id}>
                     <strong>{client.company_name}</strong>: 마지막 상담일{" "}
                     {new Date(client.last_consultation).toLocaleDateString()}
@@ -301,7 +180,7 @@ export default function SalesDashboard() {
             </div>
           )}
 
-          {loading ? (
+          {isLoading ? (
             <Skeleton style={{ height: "16rem", width: "100%" }} />
           ) : (
             <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
@@ -309,18 +188,10 @@ export default function SalesDashboard() {
                 <h2 className="font-semibold text-md mb-2">
                   📌 곧 만료되는 견적서
                 </h2>
-                {/* <Link
-                  href={`/documents/details?type=estimate&status=pending`}
-                  className="cursor-pointer"
-                >
-                  <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
-                    + 더보기
-                  </span>
-                </Link> */}
               </div>
               {dashboardData?.expiringDocuments.length ? (
                 <ul className="list-disc pl-4">
-                  {dashboardData.expiringDocuments.map((doc) => (
+                  {dashboardData?.expiringDocuments.map((doc: any) => (
                     <li key={doc.id}>
                       <strong>{doc.content.company_name}</strong> -{" "}
                       <span>{doc.content.total_amount.toLocaleString()}</span>
@@ -333,7 +204,7 @@ export default function SalesDashboard() {
             </div>
           )}
         </div>
-        {loading ? (
+        {isLoading ? (
           <Skeleton style={{ height: "16rem", width: "100%" }} />
         ) : (
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
@@ -402,7 +273,7 @@ export default function SalesDashboard() {
         )}
 
         <div className="grid grid-cols-2 gap-4">
-          {loading ? (
+          {isLoading ? (
             <Skeleton style={{ height: "18rem", width: "100%" }} />
           ) : (
             <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
@@ -417,7 +288,7 @@ export default function SalesDashboard() {
                 </Link>
               </div>
               <div>
-                {dashboardData?.recent_consultations.map((doc, i) => (
+                {dashboardData?.recent_consultations.map((doc: any, i: any) => (
                   <div className="flex justify-between" key={i}>
                     <span>{doc.contact_name}</span>
                     <span>{doc.created_at.slice(0, 10)}</span>
@@ -426,7 +297,7 @@ export default function SalesDashboard() {
               </div>
             </div>
           )}
-          {loading ? (
+          {isLoading ? (
             <Skeleton style={{ height: "18rem", width: "100%" }} />
           ) : (
             <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
@@ -441,7 +312,7 @@ export default function SalesDashboard() {
                 </Link>
               </div>
               <div>
-                {dashboardData?.recent_documents.map((doc, i) => (
+                {dashboardData?.recent_documents.map((doc: any, i: any) => (
                   <div className="flex justify-between" key={i}>
                     <span>{doc.company_name}</span>
                     <span>{doc.created_at.slice(0, 10)}</span>
@@ -452,7 +323,7 @@ export default function SalesDashboard() {
           )}
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <Skeleton style={{ height: "18rem", width: "100%" }} />
         ) : (
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 ">
@@ -466,6 +337,11 @@ export default function SalesDashboard() {
           </div>
         )}
       </div>
+      <SnackbarComponent
+        severity="success"
+        message={snackbarMessage}
+        onClose={() => setSnackbarMessage(null)}
+      />
     </div>
   );
 }
