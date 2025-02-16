@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useLoginUser } from "@/context/login";
+import { useFavorites } from "@/hooks/favorites/useFavorites";
 
 interface Consultation {
   id: string;
@@ -59,6 +60,10 @@ export default function ConsultationPage() {
   const router = useRouter();
   const { id } = useParams();
   const searchParams = useSearchParams();
+
+  const { favorites, refetchFavorites, removeFavorite } = useFavorites(
+    loginUser?.id
+  );
 
   const [saving, setSaving] = useState(false);
 
@@ -504,8 +509,9 @@ export default function ConsultationPage() {
       );
       const result = await res.json();
 
+      await refetchFavorites();
       setOpenSnackbar(true);
-      setSnackbarMessage("즐겨찾기가 추가되었습니다.");
+      setSnackbarMessage("즐겨찾기에 추가되었습니다.");
     } catch (error) {
       console.error("Error fetching performance data:", error);
     }
@@ -666,13 +672,24 @@ export default function ConsultationPage() {
             <span className="mr-2">+</span>
             <span>상담 추가</span>
           </div>
-          <div
-            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-            onClick={() => addFavorite()}
-          >
-            <span className="mr-2">+</span>
-            <span>즐겨찾기 추가</span>
-          </div>
+
+          {favorites.find((fav: any) => fav.name === company?.name) ? (
+            <div
+              className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+              onClick={() => removeFavorite(company?.id ?? "")}
+            >
+              <span className="mr-2">-</span>
+              <span>즐겨찾기 삭제</span>
+            </div>
+          ) : (
+            <div
+              className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+              onClick={() => addFavorite()}
+            >
+              <span className="mr-2">+</span>
+              <span>즐겨찾기 추가</span>
+            </div>
+          )}
         </div>
 
         {/* 상담 내역 추가 모달 */}

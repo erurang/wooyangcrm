@@ -21,9 +21,6 @@ export async function PUT(request: Request) {
 
     if (contactsFetchError) throw contactsFetchError;
 
-    // 🔹 2️⃣ 기존 담당자 Map 생성 (id를 키로 사용)
-    const existingContactsMap = new Map(existingContacts.map((c) => [c.id, c]));
-
     // 🔹 3️⃣ 새 담당자 Map 생성 (id를 키로 사용, 없으면 새로운 데이터로 간주)
     const newContactsMap = new Map(contact.map((c: any) => [c.id, c]));
 

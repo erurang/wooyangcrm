@@ -39,5 +39,6 @@ export function useFavorites(userId: string | undefined) {
     isLoading: !data && !error,
     isError: !!error,
     removeFavorite,
+    refetchFavorites: mutate,
   };
 }

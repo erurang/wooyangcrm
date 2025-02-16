@@ -17,8 +17,6 @@ export function useUpdateContacts() {
         body: { contact, companyId },
       });
 
-      await mutate(`/api/tests/contacts/list?companyIds=${[companyId]}`, true);
-
       return response;
     } catch (error) {
       console.error("Error updating company:", error);
@@ -30,5 +28,6 @@ export function useUpdateContacts() {
     updateContacts,
     isLoading: isMutating,
     error,
+    refetchContacts: mutate,
   };
 }
