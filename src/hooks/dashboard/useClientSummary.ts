@@ -5,7 +5,7 @@ import useSWR from "swr";
 export function useClientSummary(userId: string) {
   const { data, error, isLoading, mutate } = useSWR(
     userId ? `/api/tests/clients/summary?userId=${userId}` : null,
-    fetcher,
+    (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,
       dedupingInterval: 60000, // 60초 동안 동일 요청 중복 방지

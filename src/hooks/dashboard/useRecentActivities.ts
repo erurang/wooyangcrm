@@ -4,7 +4,7 @@ import { fetcher } from "@/lib/fetcher";
 export function useRecentActivities(userId: string) {
   const { data, error, isLoading, mutate } = useSWR(
     userId ? `/api/tests/dashboard/recent-activities?userId=${userId}` : null,
-    fetcher,
+    (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,
       dedupingInterval: 60000, // 1분 동안 동일한 요청 방지

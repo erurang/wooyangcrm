@@ -11,7 +11,7 @@ export function useCompaniesByDocument(documents: any[]) {
     companyIds.length > 0
       ? `/api/tests/companies/byDocument?companyIds=${companyIds.join(",")}`
       : null,
-    fetcher,
+    (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false, // 포커스 시 자동 갱신 여부
       dedupingInterval: 60000, // 60초 동안 동일한 요청 중복 방지

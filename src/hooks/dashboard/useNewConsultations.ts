@@ -4,7 +4,7 @@ import useSWR from "swr";
 export function useNewConsultations(userId: string) {
   const { data, error, isLoading, mutate } = useSWR(
     userId ? `/api/tests/consultations/new?userId=${userId}` : null,
-    fetcher,
+    (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,
       dedupingInterval: 60000, // 60초 동안 중복 요청 방지

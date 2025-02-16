@@ -39,7 +39,7 @@ export default function Sidebar() {
     }));
   };
 
-  if (isLoading) return <p>로딩 중...</p>;
+  if (isLoading) return <></>;
   if (isError) return <p>데이터를 불러오는 중 오류가 발생했습니다.</p>;
 
   return (

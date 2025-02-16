@@ -5,7 +5,7 @@ import useSWR from "swr";
 export function useDocumentsList(userId: string) {
   const { data, error, isLoading, mutate } = useSWR(
     userId ? `/api/tests/documents/list?userId=${userId}` : null,
-    fetcher,
+    (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false, // 포커스 시 자동 갱신 여부 (필요하면 true)
     }
