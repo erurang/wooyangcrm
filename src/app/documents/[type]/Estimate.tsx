@@ -77,7 +77,6 @@ interface Contacts {
 
 interface EsitmateProps {
   documents: Document[];
-  getUserNameById: (userId: string) => string;
   handleDocumentNumberClick: (document: Document) => void;
   handleEditModal: (document: Document) => void;
   handleDeleteDocument: (document: Document) => void;
@@ -107,7 +106,6 @@ interface EsitmateProps {
 
 export default function Estimate({
   documents,
-  getUserNameById,
   handleDocumentNumberClick,
   handleEditModal,
   handleDeleteDocument,
@@ -133,8 +131,6 @@ export default function Estimate({
   saving,
   contacts,
 }: EsitmateProps) {
-  console.log("documents", documents);
-  console.log("newdocuments", newDocument);
   return (
     <div className="bg-[#FBFBFB] rounded-md border">
       <table className="min-w-full table-auto border-collapse text-center">

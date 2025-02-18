@@ -1,13 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
-import DocumentModal from "@/components/documents/estimate/DocumentModal";
-import { Snackbar, Alert } from "@mui/material"; // MUI Snackbar 임포트
 import Estimate from "./Estimate";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+
+import { supabase } from "@/lib/supabaseClient";
+
 import { useLoginUser } from "@/context/login";
+import DocumentModal from "@/components/documents/estimate/DocumentModal";
+
+import { useContactsByCompany } from "@/hooks/manage/customers/useContactsByCompany";
+import { useDocuments } from "@/hooks/documents/useDocumentsList";
+import { useAddDocument } from "@/hooks/documents/useAddDocument";
+import { useUpdateDocument } from "@/hooks/documents/useUpdateDocument";
+import { useDeleteDocument } from "@/hooks/documents/useDeleteDocument";
+import SnackbarComponent from "@/components/Snackbar";
+import { useCompanyInfo } from "@/hooks/documents/useCompanyInfo";
 
 interface Document {
   id: string;
@@ -46,11 +55,6 @@ interface Document {
   user_id: string;
 }
 
-interface User {
-  id: string;
-  name: string;
-}
-
 interface Contacts {
   id: string;
   contact_name: string;
@@ -76,16 +80,12 @@ const DocPage = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("consultId") || "";
   const companyId = searchParams.get("compId") || "";
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [users, setUsers] = useState<User[]>([]); // 유저 목록 추가
-  const [loading, setLoading] = useState<boolean>(true);
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [documentToDelete, setDocumentToDelete] = useState<Document | null>(
     null
   );
 
   const [saving, setSaving] = useState(false);
-  const [contacts, setContacts] = useState<Contacts[]>([]);
 
   const [items, setItems] = useState([
     { name: "", spec: "", quantity: "", unit_price: 0, amount: 0 }, // unit 제거
@@ -95,7 +95,6 @@ const DocPage = () => {
   const [koreanAmount, setKoreanAmount] = useState("");
 
   // 토스트 관련 상태
-  const [openSnackbar, setOpenSnackbar] = useState(false); // 스낵바 상태
   const [snackbarMessage, setSnackbarMessage] = useState<string>(""); // 스낵바 메시지
 
   const [openAddModal, setOpenAddModal] = useState(false); // 모달 상태 관리
@@ -123,10 +122,6 @@ const DocPage = () => {
   const [selectedDocument, setSelectedDocument] = useState<any>(null); // 선택된 문서
 
   useEffect(() => {
-    // fetchUser();
-    fetchCompany();
-    fetchContactsData();
-
     // ESC 키 이벤트 리스너 추가
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -144,131 +139,244 @@ const DocPage = () => {
     };
   }, [companyId]); // 🔥 companyId가 변경될 때만 실행
 
-  const fetchContactsData = async () => {
-    if (!companyId) return;
+  // swr
+  const { contacts } = useContactsByCompany([companyId]);
+  const { documents, refreshDocuments } = useDocuments(id, type as string);
 
-    try {
-      const { data: contactsData, error: contactsError } = await supabase
-        .from("contacts")
-        .select("id, contact_name, mobile, department, level, email,company_id")
-        .eq("company_id", companyId);
+  const { company, isLoading, refreshCompany } = useCompanyInfo(companyId);
+  const { addDocument, isAdding } = useAddDocument();
+  const { updateDocument, isUpdating } = useUpdateDocument();
+  const { deleteDocument, isDeleting } = useDeleteDocument();
+  // swr
 
-      if (contactsError) {
-        setSnackbarMessage("담당자를 불러오는 데 실패했습니다.");
-        setOpenSnackbar(true);
-      }
+  const transformedDocuments = useMemo(() => {
+    return documents.map((document: any) => {
+      // `contacts_documents[0]`이 존재하는지 체크
+      const userInfo = document.contacts_documents?.[0]?.users || {};
+      const contactInfo = document.contacts_documents?.[0]?.contacts || {};
 
-      setContacts(contactsData || []);
-    } catch (error) {
-      console.error("담당자 로딩 중 오류 발생:", error);
-      setSnackbarMessage(
-        "담당자 가져오는 중 오류가 발생했습니다.-fetchContactsData"
-      );
-      setOpenSnackbar(true);
-    }
-  };
+      return {
+        user_name: userInfo.name || "퇴사",
+        user_level: userInfo.level || "",
+        contact_name: contactInfo.contact_name || "",
+        contact_level: contactInfo.level || "",
+        contact_mobile: contactInfo.mobile || "",
+        ...document, // 기존 문서 데이터 유지
+        contacts_documents: undefined, // 기존 contacts_documents 제거 (필요할 경우)
+      };
+    });
+  }, [documents]); // 🔥 의존성 배열: documents가 변경될 때만 실행됨
 
   useEffect(() => {
     calculateTotalAmount();
   }, [items]);
 
   useEffect(() => {
-    if (id) fetchDocuments();
-  }, [id, contacts, type]);
+    if (company && company.name !== newDocument.company_name) {
+      setNewDocument((prev) => ({
+        ...prev,
+        company_name: company.name,
+        phone: company.phone,
+        fax: company.fax,
+      }));
+    }
+  }, [company, newDocument.company_name]);
 
-  const fetchDocuments = async () => {
-    setLoading(true);
+  const handleConfirmDelete = async () => {
+    if (!documentToDelete) return;
+
     try {
-      // 'consultation_id'에 해당하는 견적서 문서를 가져옵니다.
-      const { data: documentData, error: documentError } = await supabase
+      await supabase
+        .from("contacts_documents")
+        .delete()
+        .eq("document_id", documentToDelete.id);
+
+      const { error } = await supabase
         .from("documents")
-        .select(
-          "*, contacts_documents(contacts(contact_name,level,mobile), users(name,level) )"
-        )
-        .eq("consultation_id", id)
-        .eq("type", type)
-        .order("created_at", { ascending: false });
+        .delete()
+        .eq("id", documentToDelete.id);
 
-      if (documentError) {
-        setOpenSnackbar(true);
-        setSnackbarMessage(`${type} 불러오기 실패`);
-        console.error("문서 불러오기 실패:", documentError.message);
+      if (error) {
+        console.error("삭제 실패:", error.message);
         return;
       }
 
-      const transformData = (data: any[]) => {
-        return data.map((document) => {
-          // `contacts_documents[0]`이 존재하는지 체크
-          const userInfo = document.contacts_documents?.[0]?.users || {};
-          const contactInfo = document.contacts_documents?.[0]?.contacts || {};
+      setSnackbarMessage("문서가 삭제되었습니다.");
 
-          return {
-            user_name: userInfo.name || "퇴사",
-            user_level: userInfo.level || "",
-            contact_name: contactInfo.contact_name || "",
-            contact_level: contactInfo.level || "",
-            contact_mobile: contactInfo.mobile || "",
-            ...document, // 기존 문서 데이터 유지
-            contacts_documents: undefined, // 기존 contacts_documents 제거 (필요할 경우)
-          };
-        });
-      };
-
-      setDocuments(transformData(documentData));
+      setOpenDeleteModal(false);
     } catch (error) {
-      console.error("문서 가져오기 오류", error);
-    } finally {
-      setLoading(false);
+      console.error("삭제 중 오류 발생", error);
     }
   };
 
-  const fetchCompany = async () => {
-    if (!companyId) return;
+  const handleAddDocument = async () => {
+    if (isAdding) return;
 
-    try {
-      const { data: companyData, error: companyError } = await supabase
-        .from("companies")
-        .select("name, phone, fax")
-        .eq("id", companyId)
-        .single();
+    const { contact, payment_method, notes } = newDocument;
+    let { delivery_place, valid_until, delivery_date } = newDocument;
 
-      if (companyError) {
-        setOpenSnackbar(true);
-        setSnackbarMessage(`fetchCompany - 회사명 불러오기 실패`);
-        console.error("회사명 불러오기 실패:", companyError.message);
-      }
-
-      if (companyData)
-        setNewDocument({
-          ...newDocument,
-          company_name: companyData.name,
-          phone: companyData.phone,
-          fax: companyData.fax,
-        });
-
+    if (!contact) {
+      setSnackbarMessage("담당자를 선택해주세요.");
       return;
+    }
+    if (!payment_method) {
+      setSnackbarMessage("결제방식을 선택해주세요.");
+      return;
+    }
+    if (!items.length) {
+      setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
+      return;
+    }
+
+    // 🔹 문서 타입별 필수 필드 검증
+    if (type === "estimate" && !valid_until) {
+      setSnackbarMessage("견적 만료일을 입력해주세요.");
+      return;
+    }
+    if (type === "order" && !delivery_date) {
+      setSnackbarMessage("납품일을 입력해주세요.");
+      return;
+    }
+    if (type === "requestQuote" && !delivery_date) {
+      setSnackbarMessage("납품일을 입력해주세요.");
+      return;
+    }
+
+    setSaving(true);
+
+    // 🔹 공통 `items` 변환
+    const itemsData = items.map((item, index) => ({
+      number: index + 1,
+      name: item.name,
+      spec: item.spec,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      amount: item.unit_price * parseFloat(item.quantity.replace(/,/g, "")),
+    }));
+
+    // 🔹 문서 타입별 `content` 데이터 생성
+    let content: any = {
+      items: itemsData,
+      company_name: newDocument.company_name,
+      total_amount: totalAmount,
+      payment_method,
+      notes,
+    };
+
+    if (type === "estimate") {
+      content = { ...content, valid_until, delivery_place };
+    } else if (type === "order") {
+      content = { ...content, delivery_date };
+    } else if (type === "requestQuote") {
+      content = { ...content, delivery_date };
+    }
+
+    try {
+      const addedDocument = await addDocument({
+        method: "POST",
+        body: {
+          content,
+          user_id: user?.id,
+          payment_method,
+          consultation_id: id,
+          company_id: companyId,
+          type,
+          contact_id: contacts.find((c: any) => c.contact_name === contact)?.id,
+        },
+      });
+
+      if (!addedDocument?.document) {
+        throw new Error("문서 추가 실패");
+      }
+
+      setSnackbarMessage("문서가 생성되었습니다");
+      setOpenAddModal(false);
+      await refreshDocuments(); // 문서 목록 최신화
     } catch (error) {
-      console.error("fetchCompany - 회사 목록 불러오기 실패:", error);
+      setSnackbarMessage("문서 추가 중 오류 발생");
+    } finally {
+      setSaving(false);
     }
   };
 
-  const fetchUser = async () => {
-    // 유저 목록 가져오기
-    try {
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("id, name");
+  const handleEditDocument = async () => {
+    if (isUpdating) return;
 
-      if (userError) {
-        setOpenSnackbar(true);
-        setSnackbarMessage(`fetchUser - 유저목록 불러오기 실패`);
-        console.error("fetchDocuments-contactDocuments", userError.message);
-        return;
+    const { contact, payment_method, notes } = newDocument;
+    let { delivery_place, valid_until, delivery_date } = newDocument;
+
+    if (!contact) {
+      setSnackbarMessage("담당자를 선택해주세요.");
+      return;
+    }
+    if (!payment_method) {
+      setSnackbarMessage("결제방식을 선택해주세요.");
+      return;
+    }
+    if (!items.length) {
+      setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
+      return;
+    }
+
+    // 🔹 문서 타입별 필수 필드 검증
+    if (type === "estimate" && !valid_until) {
+      setSnackbarMessage("견적 만료일을 입력해주세요.");
+      return;
+    }
+    if ((type === "order" || type === "requestQuote") && !delivery_date) {
+      setSnackbarMessage("납품일을 입력해주세요.");
+      return;
+    }
+
+    setSaving(true);
+
+    // 🔹 공통 `items` 변환
+    const itemsData = items.map((item, index) => ({
+      number: index + 1,
+      name: item.name,
+      spec: item.spec,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      amount: item.unit_price * parseFloat(item.quantity.replace(/,/g, "")),
+    }));
+
+    // 🔹 문서 타입별 `content` 데이터 생성
+    let content: any = {
+      items: itemsData,
+      company_name: newDocument.company_name,
+      total_amount: totalAmount,
+      payment_method,
+      notes,
+    };
+
+    if (type === "estimate") {
+      content = { ...content, valid_until, delivery_place };
+    } else {
+      content = { ...content, delivery_date };
+    }
+
+    try {
+      const updatedDocument = await updateDocument({
+        method: "PATCH",
+        body: {
+          document_id: newDocument.id,
+          content,
+          payment_method,
+          contact_id: contacts.find((c: any) => c.contact_name === contact)?.id,
+        },
+      });
+
+      if (!updatedDocument?.document) {
+        throw new Error("문서 수정 실패");
       }
 
-      setUsers(userData || []);
+      setSnackbarMessage("문서가 수정되었습니다");
+      setOpenEditModal(false);
+      await refreshDocuments(); // 문서 목록 최신화
     } catch (error) {
-      console.error("fetchUser - 유저 목록 불러오기 실패:", error);
+      setSnackbarMessage("문서 수정 중 오류 발생");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -338,451 +446,9 @@ const DocPage = () => {
     setItems(items.filter((_, i) => i !== index));
   };
 
-  // 함수오류
-  const getUserNameById = (userId: string) => {
-    const user = users.find((user) => user.id === userId);
-    return user ? user.name : "Unknown User";
-  };
-
   const handleDeleteDocument = (document: Document) => {
     setDocumentToDelete(document);
     setOpenDeleteModal(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!documentToDelete) return;
-
-    try {
-      await supabase
-        .from("contacts_documents")
-        .delete()
-        .eq("document_id", documentToDelete.id);
-
-      const { error } = await supabase
-        .from("documents")
-        .delete()
-        .eq("id", documentToDelete.id);
-
-      if (error) {
-        console.error("삭제 실패:", error.message);
-        return;
-      }
-
-      setDocuments((prev) =>
-        prev.filter((doc) => doc.id !== documentToDelete.id)
-      );
-
-      setSnackbarMessage("문서가 삭제되었습니다.");
-      setOpenSnackbar(true);
-      setOpenDeleteModal(false);
-    } catch (error) {
-      console.error("삭제 중 오류 발생", error);
-    }
-  };
-
-  // 문서 추가 함수
-  const handleAddDocument = async () => {
-    if (type === "estimate") {
-      const {
-        company_name,
-        contact,
-        valid_until,
-        payment_method,
-        notes,
-        delivery_place,
-      } = newDocument;
-
-      if (!contact) {
-        setSnackbarMessage("담당자를 선택해주세요");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!delivery_place) {
-        setSnackbarMessage("납품장소를 입력해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!payment_method) {
-        setSnackbarMessage("결제방식을 선택헤주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!items.length) {
-        setSnackbarMessage("품목을 최소 1개이상 추가해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      setSaving(true); // 🔹 저장 시작 → 로딩 활성화
-
-      const content = {
-        items: items.map((item, index) => ({
-          number: index + 1, // number는 숫자형으로 처리
-          name: item.name,
-          spec: item.spec,
-          quantity: item.quantity, // 숫자형으로 처리
-          unit_price: item.unit_price, // 숫자형으로 처리
-          amount:
-            item.unit_price *
-            parseFloat(item.quantity.replace(/,/g, "").replace(/[^\d]/g, "")),
-        })),
-        company_name,
-        total_amount: totalAmount, // totalAmount는 숫자형으로 처리
-        valid_until,
-        delivery_place: newDocument.delivery_place,
-        delivery_term: newDocument.delivery_term,
-        notes,
-      };
-
-      try {
-        const { data, error } = await supabase
-          .from("documents")
-          .insert([
-            {
-              content,
-              user_id: user?.id,
-              payment_method,
-              consultation_id: id,
-              company_id: companyId,
-              type,
-            },
-          ])
-          .select()
-          .single();
-
-        if (error) {
-          setOpenSnackbar(true);
-          setSnackbarMessage("문서 추가 실패");
-          console.error("문서 추가 실패:", error.message);
-        }
-
-        const document_id = data.id;
-
-        const find_contact = contacts?.find(
-          (con) => con.contact_name === contact
-        );
-
-        const { error: contacts_doc_error } = await supabase
-          .from("contacts_documents")
-          .insert({
-            document_id,
-            contact_id: find_contact?.id,
-            user_id: user?.id,
-          });
-
-        if (contacts_doc_error) {
-          setSnackbarMessage("문서 - 담당자 연결 실패");
-          setOpenSnackbar(true);
-          console.log("contacts_doc_error", contacts_doc_error);
-          return;
-        }
-
-        const updatedContactInfo = {
-          contact_name: find_contact?.contact_name || "없음",
-          contact_level: find_contact?.level || "없음",
-        };
-
-        // 🔹 문서 목록 업데이트
-        setDocuments((prev) => [
-          {
-            ...data,
-            ...updatedContactInfo, // 🔹 contact_name과 contact_level 추가
-          },
-          ...prev,
-        ]);
-
-        setOpenAddModal(false);
-        setOpenSnackbar(true);
-        setSnackbarMessage("문서가 생성되었습니다");
-
-        setNewDocument({
-          ...newDocument,
-          contact: "",
-          valid_until: new Date(new Date().setDate(new Date().getDate() + 14))
-            .toISOString()
-            .split("T")[0],
-          payment_method: "",
-          notes: "",
-          delivery_place: "",
-          delivery_term: "",
-        });
-
-        setItems([
-          {
-            name: "",
-            spec: "",
-            quantity: "",
-            unit_price: 0,
-            amount: 0,
-          },
-        ]);
-      } catch (error) {
-        console.error("추가 중 오류 발생", error);
-      } finally {
-        setSaving(false);
-      }
-    } else if (type === "order") {
-      const { company_name, contact, delivery_date, payment_method, notes } =
-        newDocument;
-
-      if (!contact) {
-        setSnackbarMessage("담당자를 선택해주세요");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!delivery_date) {
-        setSnackbarMessage("납기일을 입력해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!payment_method) {
-        setSnackbarMessage("결제방식을 선택해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!items.length) {
-        setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      setSaving(true); // 🔹 저장 시작 → 로딩 활성화
-
-      const content = {
-        items: items.map((item, index) => ({
-          number: index + 1, // 품목 번호
-          name: item.name,
-          spec: item.spec,
-          quantity: item.quantity, // 숫자형으로 변환
-          unit_price: item.unit_price, // 숫자형으로 변환
-          amount:
-            item.unit_price *
-            parseFloat(item.quantity.replace(/,/g, "").replace(/[^\d]/g, "")), // 총 금액 계산
-        })),
-        company_name,
-        total_amount: totalAmount, // 총 금액
-        delivery_date,
-        payment_method,
-        notes,
-      };
-
-      try {
-        // 🔹 Step 1: `documents` 테이블에 새 문서 추가
-        const { data, error } = await supabase
-          .from("documents")
-          .insert([
-            {
-              content,
-              user_id: user?.id,
-              payment_method,
-              consultation_id: id,
-              company_id: companyId,
-              type: "order",
-            },
-          ])
-          .select()
-          .single();
-
-        if (error) {
-          setOpenSnackbar(true);
-          setSnackbarMessage("문서 추가 실패");
-          console.error("문서 추가 실패:", error.message);
-          return;
-        }
-
-        const document_id = data.id; // 새 문서 ID 가져오기
-
-        // 🔹 Step 2: `contacts_documents` 테이블에 문서 - 담당자 연결
-        const find_contact = contacts?.find(
-          (con) => con.contact_name === contact
-        );
-
-        const { error: contacts_doc_error } = await supabase
-          .from("contacts_documents")
-          .insert({
-            document_id,
-            contact_id: find_contact?.id,
-            user_id: user?.id,
-          });
-
-        if (contacts_doc_error) {
-          setSnackbarMessage("문서 - 담당자 연결 실패");
-          setOpenSnackbar(true);
-          console.log("contacts_doc_error", contacts_doc_error);
-          return;
-        }
-
-        const updatedContactInfo = {
-          contact_name: find_contact?.contact_name || "없음",
-          contact_level: find_contact?.level || "없음",
-        };
-
-        // 🔹 문서 목록 업데이트
-        setDocuments((prev) => [
-          {
-            ...data,
-            ...updatedContactInfo, // 🔹 contact_name과 contact_level 추가
-          },
-          ...prev,
-        ]);
-
-        setOpenAddModal(false);
-        setOpenSnackbar(true);
-        setSnackbarMessage("발주서가 추가되었습니다");
-
-        // 🔹 입력 필드 초기화
-        setNewDocument({
-          ...newDocument,
-          contact: "",
-          delivery_date: "",
-          payment_method: "",
-          notes: "",
-        });
-
-        setItems([
-          {
-            name: "",
-            spec: "",
-            quantity: "",
-            unit_price: 0,
-            amount: 0,
-          },
-        ]);
-      } catch (error) {
-        console.error("추가 중 오류 발생", error);
-      } finally {
-        setSaving(false);
-      }
-    } else {
-      const { company_name, contact, delivery_date, notes, payment_method } =
-        newDocument;
-
-      if (!contact) {
-        setSnackbarMessage("담당자를 선택해주세요");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!items.length) {
-        setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      setSaving(true); // 🔹 저장 시작 → 로딩 활성화
-
-      const content = {
-        items: items.map((item, index) => ({
-          number: index + 1, // 품목 번호
-          name: item.name,
-          spec: item.spec,
-          quantity: item.quantity, // 숫자형으로 변환
-          unit_price: item.unit_price, // 숫자형으로 변환
-          amount:
-            item.unit_price *
-            parseFloat(item.quantity.replace(/,/g, "").replace(/[^\d]/g, "")), // 총 금액 계산
-        })),
-        company_name,
-        total_amount: totalAmount, // 총 금액
-        delivery_date,
-        payment_method,
-        notes,
-      };
-
-      try {
-        // 🔹 Step 1: `documents` 테이블에 새 문서 추가
-        const { data, error } = await supabase
-          .from("documents")
-          .insert([
-            {
-              content,
-              user_id: user?.id,
-              payment_method,
-              consultation_id: id,
-              company_id: companyId,
-              type: "requestQuote", // 문서 타입 지정
-            },
-          ])
-          .select()
-          .single();
-
-        if (error) {
-          setOpenSnackbar(true);
-          setSnackbarMessage("문서 추가 실패");
-          console.error("문서 추가 실패:", error.message);
-          return;
-        }
-
-        const document_id = data.id; // 새 문서 ID 가져오기
-
-        // 🔹 Step 2: `contacts_documents` 테이블에 문서 - 담당자 연결
-        const find_contact = contacts?.find(
-          (con) => con.contact_name === contact
-        );
-
-        const { error: contacts_doc_error } = await supabase
-          .from("contacts_documents")
-          .insert({
-            document_id,
-            contact_id: find_contact?.id,
-            user_id: user?.id,
-          });
-
-        if (contacts_doc_error) {
-          setSnackbarMessage("문서 - 담당자 연결 실패");
-          setOpenSnackbar(true);
-          console.log("contacts_doc_error", contacts_doc_error);
-          return;
-        }
-
-        const updatedContactInfo = {
-          contact_name: find_contact?.contact_name || "없음",
-          contact_level: find_contact?.level || "없음",
-        };
-
-        // 🔹 문서 목록 업데이트
-        setDocuments((prev) => [
-          {
-            ...data,
-            ...updatedContactInfo, // 🔹 contact_name과 contact_level 추가
-          },
-          ...prev,
-        ]);
-
-        setOpenAddModal(false);
-        setOpenSnackbar(true);
-        setSnackbarMessage("견적의뢰서가 추가되었습니다");
-
-        // 🔹 입력 필드 초기화
-        setNewDocument({
-          ...newDocument,
-          contact: "",
-          delivery_date: "",
-          payment_method: "",
-          notes: "",
-        });
-
-        setItems([
-          {
-            name: "",
-            spec: "",
-            quantity: "",
-            unit_price: 0,
-            amount: 0,
-          },
-        ]);
-      } catch (error) {
-        console.error("추가 중 오류 발생", error);
-      } finally {
-        setSaving(false);
-      }
-    }
   };
 
   // 문서 수정 함수
@@ -843,402 +509,6 @@ const DocPage = () => {
     ]);
   };
 
-  const handleEditDocument = async () => {
-    if (type === "estimate") {
-      const {
-        company_name,
-        contact,
-        delivery_place,
-        notes,
-        payment_method,
-        valid_until,
-      } = newDocument;
-
-      if (!contact) {
-        setSnackbarMessage("담당자를 선택해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!delivery_place) {
-        setSnackbarMessage("납품장소를 입력해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!payment_method) {
-        setSnackbarMessage("결제조건을 선택해주세요");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!items.length) {
-        setSnackbarMessage("품목을 최소 1개이상 추가해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      setSaving(true); // 🔹 저장 시작 → 로딩 활성화
-
-      const content = {
-        items: items.map((item, index) => ({
-          number: index + 1,
-          name: item.name,
-          spec: item.spec,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          amount:
-            item.unit_price *
-            parseFloat(item.quantity.replace(/,/g, "").replace(/[^\d]/g, "")),
-        })),
-        company_name,
-        total_amount: totalAmount,
-        valid_until,
-        delivery_place: newDocument.delivery_place,
-        delivery_term: newDocument.delivery_term,
-        notes,
-      };
-
-      try {
-        const { data, error } = await supabase
-          .from("documents")
-          .update({
-            content,
-            payment_method,
-            // status: newDocument.status,
-          })
-          .eq("id", newDocument.id)
-          .select()
-          .single();
-
-        if (error) {
-          setOpenSnackbar(true);
-          setSnackbarMessage("문서 수정 실패");
-          console.error("문서 수정 실패:", error.message);
-        }
-
-        const document_id = data.id; // 🔥 생성된 문서 ID
-
-        const find_contact = contacts?.find(
-          (con) => con.contact_name === contact
-        );
-
-        const { error: contacts_doc_error } = await supabase
-
-          .from("contacts_documents")
-          .update({
-            contact_id: find_contact?.id,
-            // user_id: user?.id, 유저수정 가능하게할경우
-          })
-          .eq("document_id", document_id);
-
-        if (contacts_doc_error) {
-          setSnackbarMessage("문서 - 담당자 연결 수정 실패");
-          setOpenSnackbar(true);
-          console.log("contacts_doc_error", contacts_doc_error);
-          return;
-        }
-
-        const updatedContactInfo = {
-          contact_name: find_contact?.contact_name || "없음",
-          contact_level: find_contact?.level || "없음",
-        };
-
-        setDocuments((prev) =>
-          prev.map((doc) =>
-            doc.id === document_id // 🔥 기존 문서의 ID와 수정된 문서의 ID가 같으면 업데이트
-              ? { ...doc, ...data, ...updatedContactInfo }
-              : doc
-          )
-        );
-
-        setNewDocument({
-          ...newDocument,
-          contact: "",
-          valid_until: new Date(new Date().setDate(new Date().getDate() + 14))
-            .toISOString()
-            .split("T")[0],
-          payment_method: "",
-          notes: "",
-          delivery_place: "",
-          delivery_term: "",
-        });
-
-        setItems([
-          {
-            name: "",
-            spec: "",
-            quantity: "",
-            unit_price: 0,
-            amount: 0,
-          },
-        ]);
-
-        setSnackbarMessage("견적서가 수정되었습니다.");
-        setOpenSnackbar(true);
-        setOpenEditModal(false);
-      } catch (error) {
-        console.error("수정 중 오류 발생", error);
-      } finally {
-        setSaving(false);
-      }
-    } else if (type === "order") {
-      const { company_name, contact, delivery_date, notes, payment_method } =
-        newDocument;
-
-      if (!contact) {
-        setSnackbarMessage("담당자를 선택해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!delivery_date) {
-        setSnackbarMessage("납품 날짜를 입력해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!payment_method) {
-        setSnackbarMessage("결제조건을 선택해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!items.length) {
-        setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      console.log(newDocument);
-      setSaving(true); // 🔹 저장 시작 → 로딩 활성화
-
-      const content = {
-        items: items.map((item, index) => ({
-          number: index + 1,
-          name: item.name,
-          spec: item.spec,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          amount:
-            item.unit_price *
-            parseFloat(item.quantity.replace(/,/g, "").replace(/[^\d]/g, "")),
-        })),
-        company_name,
-        total_amount: totalAmount,
-        delivery_date,
-        payment_method,
-        notes,
-      };
-
-      try {
-        const { data, error } = await supabase
-          .from("documents")
-          .update({
-            content,
-            payment_method,
-          })
-          .eq("id", newDocument.id)
-          .select()
-          .single();
-
-        if (error) {
-          setSnackbarMessage("발주서 수정 실패");
-          setOpenSnackbar(true);
-          console.error("문서 수정 실패:", error.message);
-          return;
-        }
-
-        const document_id = data.id; // 🔥 생성된 문서 ID
-
-        const find_contact = contacts?.find(
-          (con) => con.contact_name === contact
-        );
-
-        const { error: contacts_doc_error } = await supabase
-          .from("contacts_documents")
-          .update({
-            contact_id: find_contact?.id,
-            // user_id: user?.id, 유저수정 가능하게할경우
-          })
-          .eq("document_id", document_id);
-
-        if (contacts_doc_error) {
-          setSnackbarMessage("문서 - 담당자 연결 수정 실패");
-          setOpenSnackbar(true);
-          console.error("contacts_doc_error", contacts_doc_error);
-          return;
-        }
-
-        const updatedContactInfo = {
-          contact_name: find_contact?.contact_name || "없음",
-          contact_level: find_contact?.level || "없음",
-        };
-
-        setDocuments((prev) =>
-          prev.map((doc) =>
-            doc.id === document_id // 🔥 기존 문서의 ID와 수정된 문서의 ID가 같으면 업데이트
-              ? { ...doc, ...data, ...updatedContactInfo }
-              : doc
-          )
-        );
-
-        setNewDocument({
-          ...newDocument,
-          contact: "",
-          delivery_date: new Date().toISOString().split("T")[0], // 🔹 기본값: 오늘 날짜
-          payment_method: "",
-          notes: "",
-        });
-
-        setItems([
-          {
-            name: "",
-            spec: "",
-            quantity: "",
-            unit_price: 0,
-            amount: 0,
-          },
-        ]);
-
-        setSnackbarMessage("발주서가 수정되었습니다.");
-        setOpenSnackbar(true);
-        setOpenEditModal(false);
-      } catch (error) {
-        console.error("수정 중 오류 발생", error);
-      } finally {
-        setSaving(false);
-      }
-    } else {
-      const { company_name, contact, delivery_date, notes, payment_method } =
-        newDocument;
-
-      if (!contact) {
-        setSnackbarMessage("담당자를 선택해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!delivery_date) {
-        setSnackbarMessage("납품 날짜를 입력해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!payment_method) {
-        setSnackbarMessage("결제조건을 선택해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      if (!items.length) {
-        setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
-        setOpenSnackbar(true);
-        return;
-      }
-
-      console.log(newDocument);
-      setSaving(true); // 🔹 저장 시작 → 로딩 활성화
-
-      const content = {
-        items: items.map((item, index) => ({
-          number: index + 1,
-          name: item.name,
-          spec: item.spec,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          amount:
-            item.unit_price *
-            parseFloat(item.quantity.replace(/,/g, "").replace(/[^\d]/g, "")),
-        })),
-        company_name,
-        total_amount: totalAmount,
-        delivery_date,
-        payment_method,
-        notes,
-      };
-
-      try {
-        const { data, error } = await supabase
-          .from("documents")
-          .update({
-            content,
-            payment_method,
-          })
-          .eq("id", newDocument.id)
-          .select()
-          .single();
-
-        if (error) {
-          setSnackbarMessage("의뢰서 수정 실패");
-          setOpenSnackbar(true);
-          console.error("문서 수정 실패:", error.message);
-          return;
-        }
-
-        const document_id = data.id; // 🔥 수정된 문서 ID
-
-        const find_contact = contacts?.find(
-          (con) => con.contact_name === contact
-        );
-
-        const { error: contacts_doc_error } = await supabase
-          .from("contacts_documents")
-          .update({
-            contact_id: find_contact?.id,
-            // user_id: user?.id, 유저수정 가능하게할경우
-          })
-          .eq("document_id", document_id);
-
-        if (contacts_doc_error) {
-          setSnackbarMessage("문서 - 담당자 연결 수정 실패");
-          setOpenSnackbar(true);
-          console.error("contacts_doc_error", contacts_doc_error);
-          return;
-        }
-
-        const updatedContactInfo = {
-          contact_name: find_contact?.contact_name || "없음",
-          contact_level: find_contact?.level || "없음",
-        };
-
-        setDocuments((prev) =>
-          prev.map((doc) =>
-            doc.id === document_id // 🔥 기존 문서의 ID와 수정된 문서의 ID가 같으면 업데이트
-              ? { ...doc, ...data, ...updatedContactInfo }
-              : doc
-          )
-        );
-
-        setNewDocument({
-          ...newDocument,
-          contact: "",
-          delivery_date: new Date().toISOString().split("T")[0], // 🔹 기본값: 오늘 날짜
-          payment_method: "",
-          notes: "",
-        });
-
-        setItems([
-          {
-            name: "",
-            spec: "",
-            quantity: "",
-            unit_price: 0,
-            amount: 0,
-          },
-        ]);
-
-        setSnackbarMessage("의뢰서가 수정되었습니다.");
-        setOpenSnackbar(true);
-        setOpenEditModal(false);
-      } catch (error) {
-        console.error("수정 중 오류 발생", error);
-      } finally {
-        setSaving(false);
-      }
-    }
-  };
-
   const handleUnitPriceChange = (index: number, value: string) => {
     // 입력값에서 쉼표 제거 및 숫자로 변환 (음수도 허용)
     const numericValue = parseFloat(value.replace(/,/g, ""));
@@ -1262,27 +532,48 @@ const DocPage = () => {
   };
 
   const handleQuantityChange = (index: number, value: string) => {
-    // 수량에서 숫자와 단위 분리 (음수도 허용)
-    const numericValue = parseFloat(
-      value.replace(/,/g, "").replace(/[^\d.-]/g, "")
-    );
-    const unit = value.replace(/[\d,.-]/g, "").trim();
+    // 숫자만 추출 (음수 허용)
+    const numericPart = value.match(/-?\d+(\.\d+)?/g);
+    const validQuantity = numericPart ? parseFloat(numericPart[0]) : 0;
 
-    // NaN 방지: 숫자로 변환이 실패하면 0을 기본값으로 설정
-    const validQuantity = isNaN(numericValue) ? 0 : numericValue;
+    // 단위 추출
+    const unit = value.replace(/[\d,.-]/g, "").trim();
 
     setItems((prev) =>
       prev.map((item, i) =>
         i === index
           ? {
               ...item,
-              quantity: `${validQuantity.toLocaleString()}${unit}`, // 수량과 단위 결합
-              amount: validQuantity * item.unit_price, // 🚀 음수 계산 가능하도록 처리
+              quantity: `${validQuantity}${unit}`, // 숫자 그대로 유지 (쉼표 제거)
+              amount: validQuantity * item.unit_price,
             }
           : item
       )
     );
   };
+
+  // const handleQuantityChange = (index: number, value: string) => {
+  //   // 수량에서 숫자와 단위 분리 (음수도 허용)
+  //   const numericValue = parseFloat(
+  //     value.replace(/,/g, "").replace(/[^\d.-]/g, "")
+  //   );
+  //   const unit = value.replace(/[\d,.-]/g, "").trim();
+
+  //   // NaN 방지: 숫자로 변환이 실패하면 0을 기본값으로 설정
+  //   const validQuantity = isNaN(numericValue) ? 0 : numericValue;
+
+  //   setItems((prev) =>
+  //     prev.map((item, i) =>
+  //       i === index
+  //         ? {
+  //             ...item,
+  //             quantity: `${validQuantity.toLocaleString()}${unit}`, // 수량과 단위 결합
+  //             amount: validQuantity * item.unit_price, // 🚀 음수 계산 가능하도록 처리
+  //           }
+  //         : item
+  //     )
+  //   );
+  // };
 
   return (
     <div className="text-sm">
@@ -1314,41 +605,34 @@ const DocPage = () => {
         </div>
       </div>
 
-      {loading ? (
-        <div>로딩 중...</div>
-      ) : (
-        <>
-          <Estimate
-            contacts={contacts as Contacts[]}
-            saving={saving}
-            paymentMethods={estimate_payment_method}
-            user={user as any}
-            type={type as string}
-            documents={documents}
-            getUserNameById={getUserNameById}
-            handleDocumentNumberClick={handleDocumentNumberClick}
-            handleEditModal={handleEditModal}
-            handleDeleteDocument={handleDeleteDocument}
-            openAddModal={openAddModal}
-            newDocument={newDocument}
-            setNewDocument={setNewDocument}
-            koreanAmount={koreanAmount}
-            totalAmount={totalAmount}
-            addItem={addItem}
-            items={items}
-            setItems={setItems}
-            handleQuantityChange={handleQuantityChange}
-            handleUnitPriceChange={handleUnitPriceChange}
-            setOpenAddModal={setOpenAddModal}
-            handleAddDocument={handleAddDocument}
-            removeItem={removeItem}
-            handleEditDocument={handleEditDocument}
-            openEditModal={openEditModal}
-            setOpenEditModal={setOpenEditModal}
-            handleEditCloseModal={handleEditCloseModal}
-          />
-        </>
-      )}
+      <Estimate
+        contacts={contacts as Contacts[]}
+        saving={saving}
+        paymentMethods={estimate_payment_method}
+        user={user as any}
+        type={type as string}
+        documents={transformedDocuments}
+        handleDocumentNumberClick={handleDocumentNumberClick}
+        handleEditModal={handleEditModal}
+        handleDeleteDocument={handleDeleteDocument}
+        openAddModal={openAddModal}
+        newDocument={newDocument}
+        setNewDocument={setNewDocument}
+        koreanAmount={koreanAmount}
+        totalAmount={totalAmount}
+        addItem={addItem}
+        items={items}
+        setItems={setItems}
+        handleQuantityChange={handleQuantityChange}
+        handleUnitPriceChange={handleUnitPriceChange}
+        setOpenAddModal={setOpenAddModal}
+        handleAddDocument={handleAddDocument}
+        removeItem={removeItem}
+        handleEditDocument={handleEditDocument}
+        openEditModal={openEditModal}
+        setOpenEditModal={setOpenEditModal}
+        handleEditCloseModal={handleEditCloseModal}
+      />
 
       {openDeleteModal && documentToDelete && (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
@@ -1412,17 +696,10 @@ const DocPage = () => {
       )}
 
       {/* 스낵바 */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{
-          vertical: "bottom", // 하단
-          horizontal: "right", // 오른쪽
-        }}
-      >
-        <Alert severity="success">{snackbarMessage}</Alert>
-      </Snackbar>
+      <SnackbarComponent
+        message={snackbarMessage}
+        onClose={() => setSnackbarMessage("")}
+      />
     </div>
   );
 };
