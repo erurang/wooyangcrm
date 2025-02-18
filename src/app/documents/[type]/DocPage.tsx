@@ -510,21 +510,19 @@ const DocPage = () => {
   };
 
   const handleUnitPriceChange = (index: number, value: string) => {
-    // 입력값에서 쉼표 제거 및 숫자로 변환 (음수도 허용)
-    const numericValue = parseFloat(value.replace(/,/g, ""));
-
-    // NaN 방지: 숫자로 변환이 실패하면 0을 기본값으로 설정
-    const validUnitPrice = isNaN(numericValue) ? 0 : numericValue;
+    // 단가에서 음수 포함된 숫자만 추출
+    const numericValue =
+      value.replace(/,/g, "").match(/-?\d*\.?\d*/)?.[0] || "0";
 
     setItems((prev) =>
       prev.map((item, i) =>
         i === index
           ? {
               ...item,
-              unit_price: validUnitPrice, // 단가 업데이트
+              unit_price: parseFloat(numericValue), // 🚀 음수 적용된 단가 저장
               amount:
-                validUnitPrice *
-                (parseFloat(item.quantity.replace(/[^\d.-]/g, "")) || 0), // 🚀 음수 가능하도록 처리
+                parseFloat(numericValue) *
+                parseFloat(item.quantity.replace(/[^\d.-]/g, "")), // 🚀 음수 적용된 계산 반영
             }
           : item
       )
@@ -532,48 +530,23 @@ const DocPage = () => {
   };
 
   const handleQuantityChange = (index: number, value: string) => {
-    // 숫자만 추출 (음수 허용)
-    const numericPart = value.match(/-?\d+(\.\d+)?/g);
-    const validQuantity = numericPart ? parseFloat(numericPart[0]) : 0;
-
-    // 단위 추출
-    const unit = value.replace(/[\d,.-]/g, "").trim();
+    // 수량에서 숫자와 단위 분리 (음수 허용)
+    const numericValue =
+      value.replace(/,/g, "").match(/-?\d*\.?\d*/)?.[0] || "0"; // 🚀 음수 포함된 숫자 추출
+    const unit = value.replace(/[-\d,]/g, "").trim(); // 🚀 숫자(- 포함) 제외하고 단위만 추출
 
     setItems((prev) =>
       prev.map((item, i) =>
         i === index
           ? {
               ...item,
-              quantity: `${validQuantity}${unit}`, // 숫자 그대로 유지 (쉼표 제거)
-              amount: validQuantity * item.unit_price,
+              quantity: `${numericValue}${unit}`, // 🚀 음수 포함된 수량 저장
+              amount: parseFloat(numericValue) * item.unit_price, // 🚀 음수 적용된 계산 반영
             }
           : item
       )
     );
   };
-
-  // const handleQuantityChange = (index: number, value: string) => {
-  //   // 수량에서 숫자와 단위 분리 (음수도 허용)
-  //   const numericValue = parseFloat(
-  //     value.replace(/,/g, "").replace(/[^\d.-]/g, "")
-  //   );
-  //   const unit = value.replace(/[\d,.-]/g, "").trim();
-
-  //   // NaN 방지: 숫자로 변환이 실패하면 0을 기본값으로 설정
-  //   const validQuantity = isNaN(numericValue) ? 0 : numericValue;
-
-  //   setItems((prev) =>
-  //     prev.map((item, i) =>
-  //       i === index
-  //         ? {
-  //             ...item,
-  //             quantity: `${validQuantity.toLocaleString()}${unit}`, // 수량과 단위 결합
-  //             amount: validQuantity * item.unit_price, // 🚀 음수 계산 가능하도록 처리
-  //           }
-  //         : item
-  //     )
-  //   );
-  // };
 
   return (
     <div className="text-sm">

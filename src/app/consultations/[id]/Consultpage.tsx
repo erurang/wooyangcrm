@@ -905,6 +905,56 @@ export default function ConsultationPage() {
                             : "text-gray-400 hover:text-black"
                         }`}
                         onClick={() =>
+                          window.open(
+                            `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                            "_blank",
+                            "width=1200,height=800,top=100,left=100"
+                          )
+                        }
+                      >
+                        견적서
+                      </span>
+                      <span
+                        className={`mr-2 cursor-pointer ${
+                          consultation.documents.order
+                            ? "text-blue-500 hover:font-bold"
+                            : "text-gray-400 hover:text-black"
+                        }`}
+                        onClick={() =>
+                          window.open(
+                            `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                            "_blank",
+                            "width=1200,height=800,top=100,left=100"
+                          )
+                        }
+                      >
+                        발주서
+                      </span>
+                      <span
+                        className={`mr-2 cursor-pointer ${
+                          consultation.documents.requestQuote
+                            ? "text-blue-500 hover:font-bold"
+                            : "text-gray-400 hover:text-black"
+                        }`}
+                        onClick={() =>
+                          window.open(
+                            `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                            "_blank",
+                            "width=1200,height=800,top=100,left=100"
+                          )
+                        }
+                      >
+                        의뢰서
+                      </span>
+                    </td>
+                    {/* <td className="px-4 py-2 border-r-[1px]">
+                      <span
+                        className={`mr-2 cursor-pointer ${
+                          consultation.documents.estimate
+                            ? "text-blue-500 hover:font-bold"
+                            : "text-gray-400 hover:text-black"
+                        }`}
+                        onClick={() =>
                           router.push(
                             `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}`
                           )
@@ -940,7 +990,7 @@ export default function ConsultationPage() {
                       >
                         의뢰서
                       </span>
-                    </td>
+                    </td> */}
                     <td
                       className={`px-4 py-2 border-r-[1px] ${
                         loginUser?.id === consultation.user_id &&

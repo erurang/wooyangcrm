@@ -208,6 +208,11 @@ const menuSections: MenuSection[] = [
     title: "📈 영업 성과 분석",
     items: [
       {
+        id: "sales-report",
+        title: "매출/매입 리포트",
+        path: "/reports",
+      },
+      {
         id: "performance",
         title: "영업 성과 요약",
         path: `/reports/performance?year=${new Date().getFullYear()}`,
