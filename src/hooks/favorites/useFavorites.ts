@@ -9,18 +9,46 @@ interface Favorite {
 
 export function useFavorites(userId: string | undefined) {
   const { data, error, mutate } = useSWR(
-    userId ? `/api/move/favorite?userId=${userId}&type=company` : null,
+    userId ? `/api/tests/favorite?userId=${userId}&type=company` : null,
     fetcher
   );
 
-  const removeFavorite = async (id: string) => {
+  const addFavorite = async (userId: any, companyId: any, companyName: any) => {
     try {
-      const res = await fetch(`/api/move/favorite?favoriteId=${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/tests/favorite?userId=${userId}&type=company&name=${companyName}&itemId=${companyId}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (res.ok) {
-        mutate((prevData: { favorites: Favorite[] } | undefined) => {
+        const newFavorite: Favorite = { id: companyId, name: companyName };
+
+        await mutate((prevData: { favorites: Favorite[] } | undefined) => {
+          if (!prevData) return { favorites: [newFavorite] };
+          return { favorites: [...prevData.favorites, newFavorite] };
+        }, false);
+      } else {
+        console.error("Failed to add favorite");
+      }
+    } catch (error) {
+      console.error("Error adding favorite:", error);
+    }
+  };
+
+  const removeFavorite = async (id: string) => {
+    try {
+      const res = await fetch(
+        `/api/tests/favorite?userId=${userId}&companyId=${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (res.ok) {
+        await mutate((prevData: { favorites: Favorite[] } | undefined) => {
           if (!prevData) return { favorites: [] };
           return {
             favorites: prevData.favorites.filter((fav) => fav.id !== id),
@@ -38,6 +66,7 @@ export function useFavorites(userId: string | undefined) {
     favorites: data?.favorites || [],
     isLoading: !data && !error,
     isError: !!error,
+    addFavorite,
     removeFavorite,
     refetchFavorites: mutate,
   };

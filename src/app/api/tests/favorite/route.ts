@@ -70,36 +70,31 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const favoriteId = searchParams.get("favoriteId"); // 즐겨찾기 ID
-    const userId = searchParams.get("userId"); // 유저 ID
-    const itemId = searchParams.get("itemId"); // 삭제할 항목 ID
+    const userId = searchParams.get("userId");
+    const itemId = searchParams.get("companyId");
 
-    if (!favoriteId && (!userId || !itemId)) {
+    if (!userId || !itemId) {
       return NextResponse.json(
-        { error: "Favorite ID or userId & itemId required" },
+        { error: "Missing userId or itemId" },
         { status: 400 }
       );
     }
 
-    let query = supabase.from("favorites").delete();
-
-    if (favoriteId) {
-      query = query.eq("id", favoriteId);
-    } else {
-      query = query.eq("user_id", userId).eq("item_id", itemId);
-    }
-
-    const { error } = await query;
+    const { error } = await supabase
+      .from("favorites")
+      .delete()
+      .eq("user_id", userId)
+      .eq("item_id", itemId);
 
     if (error) {
-      throw new Error(`Error deleting favorite: ${error.message}`);
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ message: "Favorite deleted successfully" });
+    return NextResponse.json({ message: "즐겨찾기 삭제 완료" });
   } catch (error) {
     console.error("Error deleting favorite:", error);
     return NextResponse.json(
-      { error: "Failed to delete favorite" },
+      { error: "즐겨찾기 삭제 중 오류 발생" },
       { status: 500 }
     );
   }

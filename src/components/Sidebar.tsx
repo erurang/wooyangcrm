@@ -20,18 +20,14 @@ interface MenuSection {
 
 export default function Sidebar() {
   const user = useLoginUser();
-
-  // 즐겨찾기
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [openFavorites, setOpenFavorites] = useState<boolean>(false);
-  // snackbar
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const { favorites, isLoading, isError, removeFavorite } = useFavorites(
     user?.id
   );
 
-  /** 🔹 메뉴 섹션 토글 */
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
       ...prev,
@@ -87,12 +83,15 @@ export default function Sidebar() {
                         <Link href={`/consultations/${menu.item_id}`}>
                           <span>{menu.name}</span>
                         </Link>
-                        <span
+                        {/* <span
                           className="text-red-500 cursor-pointer"
-                          onClick={() => removeFavorite(menu.id)}
+                          onClick={async () => {
+                            await removeFavorite(menu.id);
+                            setSnackbarMessage("즐겨찾기에서 삭제되었습니다.");
+                          }}
                         >
                           삭제
-                        </span>
+                        </span> */}
                       </motion.div>
                     ))
                   ) : (

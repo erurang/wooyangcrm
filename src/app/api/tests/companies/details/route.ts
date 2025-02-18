@@ -12,15 +12,15 @@ export async function GET(request: Request) {
     );
 
   try {
-    const { data: company, error } = await supabase
+    const { data, error } = await supabase
       .from("companies")
-      .select("*, contacts(*)")
+      .select("*")
       .eq("id", companyId)
       .single();
 
     if (error) throw error;
 
-    return NextResponse.json({ company });
+    return NextResponse.json({ ...data });
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch company details" },
