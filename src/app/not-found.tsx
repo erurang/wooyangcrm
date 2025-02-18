@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 export default function NotFoundPage() {
-  const router = useRouter();
+  // const router = useRouter();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-gray-800">
@@ -18,13 +18,13 @@ export default function NotFoundPage() {
       {/* 버튼 */}
       <div className="mt-6 flex space-x-4">
         <button
-          onClick={() => router.push("/")}
+          // onClick={() => router.push("/")}
           className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition"
         >
           홈으로 가기
         </button>
         <button
-          onClick={() => router.back()}
+          // onClick={() => router.back()}
           className="px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-400 transition"
         >
           이전 페이지

@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 
 const ITEMS_PER_PAGE = 10; // 한 페이지당 표시할 개수
 
-export const useCompletedReports = () => {
+const useCompletedReports = () => {
   const fetchReports = async () => {
     const { data, error } = await supabase
       .from("documents")
