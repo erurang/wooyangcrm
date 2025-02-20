@@ -19,6 +19,7 @@ export default function RootLayout({
         <LoginUserProvider>
           <div className="h-screen flex">
             {/* {!isFullscreen && <Sidebar />}{" "} */}
+            <Sidebar />
             {/* 🔥 fullscreen 모드가 아닐 때만 Sidebar 렌더링 */}
             <main className="overflow-auto w-full p-4">{children}</main>
           </div>

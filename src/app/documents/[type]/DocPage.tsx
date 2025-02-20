@@ -219,7 +219,7 @@ const DocPage = () => {
       setSnackbarMessage("담당자를 선택해주세요.");
       return;
     }
-    if (!payment_method) {
+    if ((type === "estimate" || type === "order") && !payment_method) {
       setSnackbarMessage("결제방식을 선택해주세요.");
       return;
     }
@@ -309,7 +309,7 @@ const DocPage = () => {
       setSnackbarMessage("담당자를 선택해주세요.");
       return;
     }
-    if (!payment_method) {
+    if ((type === "estimate" || type === "order") && !payment_method) {
       setSnackbarMessage("결제방식을 선택해주세요.");
       return;
     }

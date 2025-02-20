@@ -1,14 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { Snackbar, Alert } from "@mui/material";
+
 import { useLoginUser } from "@/context/login";
-import dayjs from "dayjs";
 import DocumentModal from "@/components/documents/estimate/DocumentModal";
-import Link from "next/link";
+import SnackbarComponent from "@/components/Snackbar";
+
+import { useDebounce } from "@/hooks/useDebounce";
+import { useUsersList } from "@/hooks/useUserList";
+import { useDocumentsStatusList } from "@/hooks/documents/details/useDocumentsStatusList";
+import { useUpdateDocumentStatus } from "@/hooks/documents/details/useUpdateDocumentStatus";
 
 interface Document {
   id: string;
@@ -48,15 +52,11 @@ interface User {
 
 export default function DocumentsDetailsPage() {
   const user = useLoginUser();
-  const searchParams = useSearchParams();
   const router = useRouter();
-
+  const searchParams = useSearchParams();
   const type = searchParams.get("type") || "estimate";
   const status = searchParams.get("status") || "pending";
 
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null
@@ -74,70 +74,45 @@ export default function DocumentsDetailsPage() {
     },
   });
 
-  const [selectedStatus, setSelectedStatus] = useState<
-    "canceled" | "completed"
-  >("canceled"); // ""는 초기값
+  const [selectedStatus, setSelectedStatus] = useState<string>(
+    searchParams.get("status") || ""
+  );
 
   const documentsPerPage = 10;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const today = dayjs().format("YYYY-MM-DD");
-  const thirtyDaysAgo = dayjs().subtract(30, "day").format("YYYY-MM-DD");
-  const [startDate, setStartDate] = useState(thirtyDaysAgo);
-  const [endDate, setEndDate] = useState(today);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  // 🔹 로그인한 유저를 기본 선택값으로 설정
 
-  const fetchDocuments = async () => {
-    if (!user?.id) {
-      console.error("User ID is undefined");
-      return;
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  // swr
+  const { users } = useUsersList();
+
+  const { documents, total, isLoading, refreshDocuments } =
+    useDocumentsStatusList(
+      selectedUser,
+      type,
+      selectedStatus || "",
+      debouncedSearchTerm,
+      currentPage,
+      documentsPerPage
+    );
+
+  const { trigger: updateStatus, isMutating } = useUpdateDocumentStatus();
+
+  ///
+
+  useEffect(() => {
+    if (user?.id) {
+      setSelectedUser(user.id);
     }
+  }, [user]);
 
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("documents")
-        .select(
-          `*, contacts_documents(contacts(contact_name,level,mobile)), users(name,level)`
-        )
-        .eq("type", type)
-        .eq("status", status)
-        .eq("user_id", user?.id) // 로그인한 유저의 문서만 가져옴
-        .ilike("content->>company_name", `%${searchTerm}%`)
-        .gte("created_at", `${startDate}T00:00:00`)
-        .lte("created_at", `${endDate}T23:59:59`)
-        .order("created_at", { ascending: false });
+  useEffect(() => {
+    refreshDocuments();
+  }, [selectedUser]);
 
-      if (error) {
-        throw error;
-      }
-
-      const transformedDocuments = data.map((doc) => {
-        const contact = doc.contacts_documents?.[0]?.contacts || {}; // 첫 번째 연락처 정보 가져오기
-        const user = doc.users || {}; // 사용자 정보 가져오기
-
-        return {
-          ...doc,
-          contact_level: contact.level || "", // 🔹 연락처 직급
-          contact_name: contact.contact_name || "", // 🔹 연락처 이름
-          contact_mobile: contact.contact_mobile || "",
-          user_name: user.name || "", // 🔹 사용자 이름
-          user_level: user.level || "", // 🔹 사용자 직급
-          contacts_documents: undefined, // 필요 없으면 삭제
-          users: undefined, // 필요 없으면 삭제
-        };
-      });
-
-      setDocuments(transformedDocuments || []);
-    } catch (error) {
-      console.error("Failed to fetch documents:", error);
-      setSnackbarMessage("문서 데이터를 불러오는 중 오류가 발생했습니다.");
-      setOpenSnackbar(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  console.log(documents);
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -151,67 +126,37 @@ export default function DocumentsDetailsPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      fetchDocuments();
-    }
-  }, [type, status, currentPage, user]);
-
   const handleStatusChange = async () => {
-    if (!statusChangeDoc || !statusReason || !selectedStatus) return;
+    if (!statusChangeDoc || !selectedStatus) return;
+    if (isMutating) return;
 
     const confirmChange = window.confirm(
       "상태 변경은 되돌릴 수 없습니다. 변경할까요?"
     );
-
-    if (!confirmChange) {
-      return; // 사용자가 취소한 경우 중단
-    }
+    if (!confirmChange) return;
 
     try {
-      const { error } = await supabase
-        .from("documents")
-        .update({
-          status: selectedStatus,
-          status_reason: statusReason,
-        })
-        .eq("id", statusChangeDoc.id);
+      // 🔹 selectedStatus를 명확한 타입으로 캐스팅
+      const reason = statusReason[selectedStatus as "canceled" | "completed"];
 
-      if (error) {
-        throw error;
-      }
+      await updateStatus({
+        id: statusChangeDoc.id,
+        status: selectedStatus,
+        status_reason: reason, // ✅ 타입 오류 해결
+      });
 
-      setSnackbarMessage("문서 상태가 성공적으로 업데이트되었습니다.");
-      setOpenSnackbar(true);
-      setDocuments((prev) =>
-        prev.map((doc) =>
-          doc.id === statusChangeDoc.id
-            ? { ...doc, status: selectedStatus }
-            : doc
-        )
-      );
       setStatusChangeDoc(null);
       setStatusReason({
-        canceled: {
-          reason: "",
-          amount: 0,
-        },
-        completed: {
-          reason: "",
-          amount: 0,
-        },
+        canceled: { reason: "", amount: 0 },
+        completed: { reason: "", amount: 0 },
       });
+      await refreshDocuments();
     } catch (error) {
-      console.error("Failed to update document status:", error);
-      setSnackbarMessage("문서 상태 업데이트 중 오류가 발생했습니다.");
-      setOpenSnackbar(true);
+      console.error("문서 상태 업데이트 실패:", error);
     }
   };
 
-  const totalPages = Math.ceil(documents.length / documentsPerPage);
-  const indexOfLastDoc = currentPage * documentsPerPage;
-  const indexOfFirstDoc = indexOfLastDoc - documentsPerPage;
-  const currentDocuments = documents.slice(indexOfFirstDoc, indexOfLastDoc);
+  const totalPages = Math.ceil(total / documentsPerPage);
 
   const typeToKorean: Record<string, string> = {
     estimate: "견적서",
@@ -251,21 +196,7 @@ export default function DocumentsDetailsPage() {
           문서 관리
         </Link>{" "}
         &gt;{" "}
-        <span className="">
-          {`${typeToKorean[type]} 관리` || "알 수 없음"} -{" "}
-        </span>
-        {["pending", "completed", "canceled"].map((state, index) => (
-          <Link
-            key={state}
-            href={`/documents/details?type=${type}&status=${state}`}
-            className={`${
-              status === state ? "font-semibold" : "text-blue-500"
-            } `}
-          >
-            {statusToKorean[state] || "알 수 없음"}
-            {index < 2 && " | "} {/* 상태 간 구분자 */}
-          </Link>
-        ))}
+        <span className="font-semibold">{`${typeToKorean[type]} 관리`}</span>
       </div>
       {/* 검색 필터 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
@@ -285,53 +216,49 @@ export default function DocumentsDetailsPage() {
               }}
             />
           </div>
+
           <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              시작일
+              상태
             </label>
-            <motion.input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+            <motion.select
+              value={selectedStatus} // 🔹 선택된 상태 유지
+              onChange={(e) => setSelectedStatus(e.target.value)} // 🔹 상태 변경 이벤트 핸들러
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+            >
+              <option value="pending">진행</option>
+              <option value="completed">완료</option>
+              <option value="canceled">취소</option>
+            </motion.select>
           </div>
+
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              종료일
+            <label className="w-1/4 block p-2 border rounded-l-md">
+              상담자
             </label>
-            <motion.input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+            <motion.select
+              value={selectedUser || ""} // 🔹 로그인한 유저를 기본 선택값으로 설정
+              onChange={(e) => setSelectedUser(e.target.value)} // 🔹 선택 변경 시 상태 업데이트
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+            >
+              <option value="">전체</option> {/* ✅ 기본값 추가 */}
+              {users.map((u: any) => (
+                <option key={u.id} value={u.id}>
+                  {u.name} {u.level}
+                </option>
+              ))}
+            </motion.select>
           </div>
+
           <div className="flex items-center justify-end">
             <button
               onClick={() => {
-                setSearchTerm(""); // 검색어 초기화
-                setStartDate(today); // 30일 전으로 설정
-                setEndDate(today); // 오늘 날짜로 설정
-                fetchDocuments(); // 필터 초기화 후 다시 문서 목록 가져오기
+                setSearchTerm("");
+                setSelectedUser(user?.id || ""); // 🔹 필터 초기화 시 로그인한 유저로 다시 설정
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
             >
               필터리셋
-            </button>
-            <button
-              onClick={fetchDocuments}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md"
-            >
-              검색
             </button>
           </div>
         </div>
@@ -369,7 +296,7 @@ export default function DocumentsDetailsPage() {
             </tr>
           </thead>
           <tbody>
-            {currentDocuments.map((doc) => (
+            {documents.map((doc: any) => (
               <tr key={doc.id} className="hover:bg-gray-50 text-center">
                 <td className="px-4 py-2 border-b">
                   {doc.created_at.slice(0, 10)}
@@ -440,12 +367,12 @@ export default function DocumentsDetailsPage() {
                         {doc.status === "completed" ? (
                           <>
                             {doc.status_reason &&
-                              doc.status_reason.completed.reason}
+                              doc.status_reason.completed?.reason}
                           </>
                         ) : (
                           <>
                             {doc.status_reason &&
-                              doc.status_reason.canceled.reason}
+                              doc.status_reason.canceled?.reason}
                           </>
                         )}
                       </>
@@ -518,11 +445,16 @@ export default function DocumentsDetailsPage() {
             <textarea
               placeholder="발주처리, 단가로 인한 취소, 프로젝트 취소.. 등등"
               className="w-full min-h-32 p-2 border border-gray-300 rounded-md"
-              value={selectedStatus ? statusReason[selectedStatus]?.reason : ""}
+              value={
+                selectedStatus
+                  ? statusReason[selectedStatus as "canceled" | "completed"]
+                      ?.reason
+                  : ""
+              }
               onChange={(e) =>
                 setStatusReason((prev) => ({
                   ...prev,
-                  [selectedStatus]: {
+                  [selectedStatus as "canceled" | "completed"]: {
                     amount: statusChangeDoc.content.total_amount,
                     reason: e.target.value,
                   },
@@ -546,18 +478,10 @@ export default function DocumentsDetailsPage() {
           </div>
         </div>
       )}
-
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-      >
-        <Alert severity="info">{snackbarMessage}</Alert>
-      </Snackbar>
+      <SnackbarComponent
+        message={snackbarMessage}
+        onClose={() => setSnackbarMessage("")}
+      />
     </div>
   );
 }
