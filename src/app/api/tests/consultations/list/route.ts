@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const consultationsPerPage = 5;
+  const consultationsPerPage = 4;
   const pageNumber = parseInt(page, 10);
 
   const from = (pageNumber - 1) * consultationsPerPage;

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
-import { v4 } from "uuid";
-import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
+import { useProductsList } from "@/hooks/products/useProductsList";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface Product {
   id: string;
@@ -24,11 +25,6 @@ export default function ProductPage() {
   const today = dayjs().format("YYYY-MM-DD");
   const fiveYearsAgo = dayjs().subtract(5, "year").format("YYYY-MM-DD");
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [currentProducts, setCurrentProducts] = useState<Product[]>([]);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [loading, setLoading] = useState(true);
-
   const [searchCompany, setSearchCompany] = useState("");
   const [searchProduct, setSearchProduct] = useState("");
   const [searchSpec, setSearchSpec] = useState("");
@@ -42,64 +38,42 @@ export default function ProductPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
 
-  useEffect(() => {
-    fetchProducts();
-  }, [type]);
+  const debounceSearchCompany = useDebounce(searchCompany, 300);
+  const debounceSearchProduct = useDebounce(searchProduct, 300);
+  const debounceSearchSpec = useDebounce(searchSpec, 300);
+  const debounceMinPrice = useDebounce(minPrice, 300);
+  const debounceMaxPrice = useDebounce(maxPrice, 300);
 
-  useEffect(() => {
-    updateCurrentProducts();
-  }, [products, currentPage]);
+  // swr
+  const { products, total, isLoading, mutate } = useProductsList(
+    type,
+    debounceSearchCompany,
+    debounceSearchProduct,
+    debounceSearchSpec,
+    debounceMinPrice,
+    debounceMaxPrice,
+    status,
+    currentPage,
+    productsPerPage
+  );
 
-  const fetchProducts = async () => {
-    setLoading(true);
+  //
 
-    try {
-      const queryParams = new URLSearchParams({
-        company_name: searchCompany,
-        product_name: searchProduct,
-        specification: searchSpec,
-        type,
-        min_price: minPrice?.toString() || "",
-        max_price: maxPrice?.toString() || "",
-        start_date: startDate,
-        end_date: endDate,
-        status,
-      });
-
-      const response = await fetch(`/api/products?${queryParams}`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch orders.");
-      }
-
-      setProducts(data.products || []);
-      setTotalProducts(data.total || 0);
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateCurrentProducts = () => {
-    const startIndex = (currentPage - 1) * productsPerPage;
-    const endIndex = startIndex + productsPerPage;
-    setCurrentProducts(products.slice(startIndex, endIndex));
-  };
-
-  const totalPages = Math.ceil(totalProducts / productsPerPage);
+  const totalPages = Math.ceil(total / productsPerPage);
 
   const paginationNumbers = () => {
-    const maxButtons = 5;
-    const pageNumbers = [];
-    const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-    const endPage = Math.min(totalPages, startPage + maxButtons - 1);
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i);
+    let pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - 2 && i <= currentPage + 2)
+      ) {
+        pageNumbers.push(i);
+      } else if (i === currentPage - 3 || i === currentPage + 3) {
+        pageNumbers.push("...");
+      }
     }
-
     return pageNumbers;
   };
 
@@ -178,6 +152,23 @@ export default function ProductPage() {
             />
           </div>
 
+          {/* 상태 */}
+          <div className="col-span-3 flex items-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              상태
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-3/4 p-2 border-r border-b border-t border-gray-300 rounded-r-md"
+            >
+              <option value="pending">진행 중</option>
+              <option value="completed">완료됨</option>
+              <option value="canceled">취소됨</option>
+              <option value="backup">관리자백업</option>
+            </select>
+          </div>
+
           {/* 단가 */}
           <div className="col-span-3 flex items-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
@@ -209,115 +200,53 @@ export default function ProductPage() {
               />
             </div>
           </div>
-
-          {/* 기간 */}
-          <div className="col-span-3 flex items-center">
-            <label className="w-1/5 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              기간
-            </label>
-            <div className="w-3/4 flex space-x-2">
-              <motion.input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
-                whileFocus={{
-                  scale: 1.05,
-                  boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                }}
-              />
-              <span className="self-center">~</span>
-              <motion.input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-3/4 p-2 border border-gray-300 rounded-md"
-                whileFocus={{
-                  scale: 1.05,
-                  boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* 상태 */}
-          <div className="col-span-3 flex items-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              상태
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-3/4 p-2 border-r border-b border-t border-gray-300 rounded-r-md"
-            >
-              <option value="pending">진행 중</option>
-              <option value="completed">완료됨</option>
-              <option value="canceled">취소됨</option>
-              <option value="backup">관리자백업</option>
-            </select>
-          </div>
-
-          {/* 검색 버튼 */}
-          <div className="col-span-3 flex justify-end items-center">
-            <button
-              onClick={() => {
-                setCurrentPage(1);
-                fetchProducts();
-              }}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md"
-            >
-              검색
-            </button>
-          </div>
         </div>
       </div>
 
       {/* 물품 목록 */}
-      {loading ? (
-        <p>로딩 중...</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-center">
-                <th className="px-4 py-2 border-b">
-                  {type === "estimate" ? "견적" : "발주"} 날짜
-                </th>
-                <th className="px-4 py-2 border-b">회사명</th>
-                <th className="px-4 py-2 border-b">물품명</th>
-                <th className="px-4 py-2 border-b">규격</th>
-                <th className="px-4 py-2 border-b">수량</th>
-                <th className="px-4 py-2 border-b">단가</th>
-                <th className="px-4 py-2 border-b">상태</th>
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto border-collapse">
+          <thead>
+            <tr className="bg-gray-100 text-center">
+              <th className="px-4 py-2 border-b">
+                {type === "estimate" ? "견적" : "발주"} 날짜
+              </th>
+              <th className="px-4 py-2 border-b">회사명</th>
+              <th className="px-4 py-2 border-b">물품명</th>
+              <th className="px-4 py-2 border-b">규격</th>
+              <th className="px-4 py-2 border-b">수량</th>
+              <th className="px-4 py-2 border-b">단가</th>
+              <th className="px-4 py-2 border-b">직원</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products?.map((product: any, index: any) => (
+              <tr className="hover:bg-gray-50 text-center" key={index}>
+                <td className="px-4 py-2 border-b">
+                  {dayjs(product.estimate_date).format("YYYY-MM-DD")}
+                </td>
+                <td className="px-4 py-2 border-b">{product.company_name}</td>
+                <td className="px-4 py-2 border-b">{product.name}</td>
+                <td className="px-4 py-2 border-b">{product.spec}</td>
+                <td className="px-4 py-2 border-b">{product.quantity}</td>
+                <td className="px-4 py-2 border-b">
+                  {product.unit_price.toLocaleString()} 원
+                </td>
+                <td className="px-4 py-2 border-b">
+                  {product.user_name} {product.user_level}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {currentProducts?.map((product) => (
-                <tr className="hover:bg-gray-50 text-center" key={v4()}>
-                  <td className="px-4 py-2 border-b">
-                    {dayjs(product.estimate_date).format("YYYY-MM-DD")}
-                  </td>
-                  <td className="px-4 py-2 border-b">{product.company_name}</td>
-                  <td className="px-4 py-2 border-b">{product.name}</td>
-                  <td className="px-4 py-2 border-b">{product.spec}</td>
-                  <td className="px-4 py-2 border-b">{product.quantity}</td>
-                  <td className="px-4 py-2 border-b">
-                    {product.unit_price.toLocaleString()} 원
-                  </td>
-                  <td className="px-4 py-2 border-b">
-                    {statusToKorean(product.status)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+        </table>
 
-          {/* 페이지네이션 */}
+        {/* 페이지네이션 */}
+        <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
           <div className="flex justify-center mt-4 space-x-2">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-50 text-gray-600 rounded hover:bg-gray-200"
+              className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
             >
               이전
             </button>
@@ -325,10 +254,10 @@ export default function ProductPage() {
             {paginationNumbers().map((page, index) => (
               <button
                 key={index}
-                onClick={() => setCurrentPage(page)}
-                className={`px-4 py-2 rounded ${
-                  page === currentPage
-                    ? "bg-blue-500 text-white"
+                onClick={() => setCurrentPage(+page)}
+                className={`px-3 py-1 border rounded ${
+                  currentPage === page
+                    ? "bg-blue-500 text-white font-bold"
                     : "bg-gray-50 text-gray-600 hover:bg-gray-200"
                 }`}
               >
@@ -341,13 +270,13 @@ export default function ProductPage() {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-50 text-gray-600 rounded"
+              className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
             >
               다음
             </button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -296,11 +296,11 @@ export default function SalesDashboard() {
                 <span className="font-semibold text-md mb-4">
                   최근 상담 고객
                 </span>
-                <Link href={`/myContacts`} className="cursor-pointer">
+                {/* <Link href={`/myContacts`} className="cursor-pointer">
                   <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
                     + 더보기
                   </span>
-                </Link>
+                </Link> */}
               </div>
               <div>
                 {recentActivities?.recent_consultations.map(
@@ -322,11 +322,11 @@ export default function SalesDashboard() {
                 <span className="font-semibold text-md mb-4">
                   최근 생성된 문서
                 </span>
-                <Link href={`/documents`} className="cursor-pointer">
+                {/* <Link href={`/documents`} className="cursor-pointer">
                   <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
                     + 더보기
                   </span>
-                </Link>
+                </Link> */}
               </div>
               <div>
                 {recentActivities?.recent_documents.map((doc: any, i: any) => (

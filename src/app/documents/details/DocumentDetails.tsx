@@ -78,6 +78,8 @@ export default function DocumentsDetailsPage() {
     searchParams.get("status") || ""
   );
 
+  const [changedStatus, setChangedStatus] = useState("");
+
   const documentsPerPage = 10;
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -141,7 +143,7 @@ export default function DocumentsDetailsPage() {
 
       await updateStatus({
         id: statusChangeDoc.id,
-        status: selectedStatus,
+        status: changedStatus,
         status_reason: reason, // ✅ 타입 오류 해결
       });
 
@@ -348,9 +350,7 @@ export default function DocumentsDetailsPage() {
                           }`}
                           onClick={() => {
                             if (status !== doc.status) {
-                              setSelectedStatus(
-                                status as "completed" | "canceled"
-                              );
+                              setChangedStatus(status);
                               setStatusChangeDoc(doc);
                             }
                           }}

@@ -156,8 +156,8 @@ const menuSections: MenuSection[] = [
     title: "📊 대시보드",
     items: [
       { id: "dashboard", title: "대시보드", path: "/" },
-      { id: "todos", title: "할일", path: "/manage/todos" },
-      { id: "calendar", title: "캘린더", path: "/manage/calendar" },
+      { id: "todos", title: "할일", path: "" },
+      { id: "calendar", title: "캘린더", path: "" },
     ],
   },
   {
