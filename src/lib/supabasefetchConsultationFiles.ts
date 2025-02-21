@@ -1,14 +1,14 @@
 import { supabase } from "@/lib/supabaseClient";
 
 export const supabasefetchConsultationFiles = async (
-  consultationId: string,
-  userId: string
+  consultationId: string
+  // userId: string
 ) => {
   const { data, error } = await supabase
     .from("consultation_files")
-    .select("id, file_url") // ✅ file_url과 id를 가져옴
-    .eq("consultation_id", consultationId)
-    .eq("user_id", userId);
+    .select("id, file_url,user_id, file_name ") // ✅ file_url과 id를 가져옴
+    .eq("consultation_id", consultationId);
+  // .eq("user_id", userId);
 
   if (error) {
     console.error("❌ 파일 목록 불러오기 실패:", error.message);
@@ -27,7 +27,7 @@ export const supabasefetchConsultationFiles = async (
       const { data: signedUrlData, error: signedUrlError } =
         await supabase.storage
           .from("consultation_files") // ✅ 올바른 버킷 이름 확인
-          .createSignedUrl(filePath, 60 * 10);
+          .createSignedUrl(filePath, 60 * 5);
 
       if (signedUrlError) {
         console.error("❌ Signed URL 생성 실패:", signedUrlError.message);
@@ -36,9 +36,10 @@ export const supabasefetchConsultationFiles = async (
 
       return {
         id: file.id, // ✅ 고유한 파일 ID 추가
-        name: file.file_url.split("/").pop() || "unknown_file", // ✅ 파일명 추출
+        name: file.file_name || "unknown_file", // ✅ 파일명 추출
         url: signedUrlData.signedUrl, // ✅ Signed URL 반환
         filePath: filePath, // ✅ 원본 파일 경로 저장
+        user_id: file.user_id,
       };
     })
   );

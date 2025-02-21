@@ -5,9 +5,6 @@ export const supabaseDeleteConsultationFiles = async (
   filePath: string // ✅ 파일 경로로 스토리지에서 삭제
 ): Promise<boolean> => {
   try {
-    console.log("삭제 요청 파일 ID:", fileId);
-    console.log("삭제 요청 파일 경로:", filePath);
-
     // ✅ Supabase 스토리지에서 파일 삭제
     const { error: storageError } = await supabase.storage
       .from("consultation_files") // ✅ 버킷 이름

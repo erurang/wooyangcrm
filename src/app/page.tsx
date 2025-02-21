@@ -291,16 +291,42 @@ export default function SalesDashboard() {
           {isLoading ? (
             <Skeleton style={{ height: "18rem", width: "100%" }} />
           ) : (
+            // <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+            //   <div className="flex justify-between">
+            //     <span className="font-semibold text-md mb-4">
+            //       🏢 내 담당 회사
+            //     </span>
+            //     <Link href={`/manage/customers`} className="cursor-pointer">
+            //       <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
+            //         + 더보기
+            //       </span>
+            //     </Link>
+            //   </div>
+            //   <div>
+            //     {clients.length > 0 ? (
+            //       clients.map((client: any) => (
+            //         <div
+            //           key={client.company_id}
+            //           className="flex justify-between hover:bg-gray-100 p-2 rounded-md cursor-pointer"
+            //           // onClick={() => router.push(`/manage/myCustomers/${client.company_id}`)}
+            //         >
+            //           <span>{client.company_name}</span>
+            //           <span className="text-gray-500">
+            //             상담 {client.total_consultations}회 · 문서{" "}
+            //             {client.total_estimates + client.total_orders}건
+            //           </span>
+            //         </div>
+            //       ))
+            //     ) : (
+            //       <p className="text-gray-400">내 담당 회사가 없습니다.</p>
+            //     )}
+            //   </div>
+            // </div>
             <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
               <div className="flex justify-between">
                 <span className="font-semibold text-md mb-4">
                   최근 상담 고객
                 </span>
-                {/* <Link href={`/myContacts`} className="cursor-pointer">
-                  <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
-                    + 더보기
-                  </span>
-                </Link> */}
               </div>
               <div>
                 {recentActivities?.recent_consultations.map(
@@ -317,16 +343,43 @@ export default function SalesDashboard() {
           {isLoading ? (
             <Skeleton style={{ height: "18rem", width: "100%" }} />
           ) : (
+            // <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+            //   <div className="flex justify-between">
+            //     <span className="font-semibold text-md mb-4">
+            //       👤 내 담당 담당자
+            //     </span>
+            //     <Link href={`/manage/contacts`} className="cursor-pointer">
+            //       <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
+            //         + 더보기
+            //       </span>
+            //     </Link>
+            //   </div>
+            //   <div>
+            //     {clients.length > 0 ? (
+            //       clients.map((client: any) => (
+            //         <div
+            //           key={client.contact_id}
+            //           className="flex justify-between hover:bg-gray-100 p-2 rounded-md cursor-pointer"
+            //           // onClick={() => router.push(`/manage/contacts/${client.contact_id}`)}
+            //         >
+            //           <span>
+            //             {client.contact_name} ({client.company_name})
+            //           </span>
+            //           <span className="text-gray-500">
+            //             {client.contact_level}
+            //           </span>
+            //         </div>
+            //       ))
+            //     ) : (
+            //       <p className="text-gray-400">내 담당 담당자가 없습니다.</p>
+            //     )}
+            //   </div>
+            // </div>
             <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
               <div className="flex justify-between">
                 <span className="font-semibold text-md mb-4">
                   최근 생성된 문서
                 </span>
-                {/* <Link href={`/documents`} className="cursor-pointer">
-                  <span className="text-gray-400 hover:text-black cursor-pointer text-sm">
-                    + 더보기
-                  </span>
-                </Link> */}
               </div>
               <div>
                 {recentActivities?.recent_documents.map((doc: any, i: any) => (

@@ -18,7 +18,6 @@ import { useAddConsultation } from "@/hooks/consultations/useAddConsultation";
 import { useAssignConsultationContact } from "@/hooks/consultations/useAssignConsultationContact";
 import { useUpdateConsultation } from "@/hooks/consultations/useUpdateConsultation";
 import FileUpload from "@/components/consultations/FileUpload";
-import { supabaseUploadFile } from "@/lib/supabaseUploadFile";
 
 interface Consultation {
   id: string;

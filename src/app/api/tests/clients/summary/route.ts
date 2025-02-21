@@ -19,7 +19,7 @@ export async function GET(request: Request) {
         .rpc("get_follow_up_clients", { user_id_param: userId })
         .order("last_consultation", { ascending: false })
         .limit(10),
-      supabase.rpc("get_top_clients", { user_id_param: userId }).limit(3),
+      supabase.rpc("get_top_clients", { user_id_param: userId }).limit(6),
     ]);
 
     // 🔹 에러 확인

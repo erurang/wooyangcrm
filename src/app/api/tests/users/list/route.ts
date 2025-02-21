@@ -5,7 +5,8 @@ export async function GET() {
   try {
     const { data, error } = await supabase
       .from("users")
-      .select("id, name, level");
+      .select("id, name, level, position")
+      .order("name", { ascending: true });
 
     if (error) {
       console.error("Error fetching users:", error);

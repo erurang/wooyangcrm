@@ -213,10 +213,15 @@ const menuSections: MenuSection[] = [
         path: "/reports",
       },
       {
-        id: "performance",
-        title: "영업 성과 요약",
-        path: `/reports/performance?year=${new Date().getFullYear()}`,
+        id: "sales-users",
+        title: "영업 직원",
+        path: `/reports/users`,
       },
+      // {
+      //   id: "performance",
+      //   title: "영업 성과 요약",
+      //   path: `/reports/performance?year=${new Date().getFullYear()}`,
+      // },
       {
         id: "performance-order",
         title: "영업 상세 (매입)",
