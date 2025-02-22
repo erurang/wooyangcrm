@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { useLoginUser } from "@/context/login";
 import DocumentModal from "@/components/documents/estimate/DocumentModal";
 import SnackbarComponent from "@/components/Snackbar";
 
@@ -13,6 +12,8 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useUsersList } from "@/hooks/useUserList";
 import { useDocumentsStatusList } from "@/hooks/documents/details/useDocumentsStatusList";
 import { useUpdateDocumentStatus } from "@/hooks/documents/details/useUpdateDocumentStatus";
+import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
+import { useLoginUser } from "@/context/login";
 
 interface Document {
   id: string;
@@ -45,8 +46,14 @@ interface Document {
   company_id: string;
 }
 
+interface User {
+  id: string;
+  name: string;
+  level: string;
+}
+
 export default function DocumentsDetailsPage() {
-  const user = useLoginUser();
+  const loginUser = useLoginUser();
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "estimate";
@@ -78,33 +85,70 @@ export default function DocumentsDetailsPage() {
   const documentsPerPage = 10;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   // 🔹 로그인한 유저를 기본 선택값으로 설정
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debounceSearchTerm = useDebounce(searchTerm, 300);
+  const { companies } = useCompanySearch(debounceSearchTerm);
+  const companyIds = companies.map((company: any) => company.id);
+  const debounceCompanyIds = useDebounce(companyIds, 300);
 
   // swr
   const { users } = useUsersList();
 
-  const { documents, total, isLoading, refreshDocuments } =
-    useDocumentsStatusList(
-      selectedUser,
-      type,
-      selectedStatus || "",
-      debouncedSearchTerm,
-      currentPage,
-      documentsPerPage
-    );
+  const { documents, total, refreshDocuments } = useDocumentsStatusList({
+    userId: selectedUser?.id as string,
+    type,
+    status: selectedStatus || "",
+    page: currentPage,
+    limit: documentsPerPage,
+    companyIds: debounceCompanyIds,
+  });
 
   const { trigger: updateStatus, isMutating } = useUpdateDocumentStatus();
 
   ///
 
-  useEffect(() => {
-    if (user?.id) {
-      setSelectedUser(user.id);
+  const numberToKorean = (num: number): string => {
+    if (num === 0) return "영"; // 0일 경우 예외 처리
+
+    const isNegative = num < 0; // 🚀 음수 여부 확인
+    num = Math.abs(num); // 🚀 절대값으로 변환 후 처리
+
+    const units = ["", "십", "백", "천"];
+    const bigUnits = ["", "만", "억", "조", "경"];
+    const digits = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
+    let result = "";
+
+    let bigUnitIndex = 0;
+
+    while (num > 0) {
+      const chunk = num % 10000;
+      if (chunk > 0) {
+        let chunkResult = "";
+        let unitIndex = 0;
+        let tempChunk = chunk;
+
+        while (tempChunk > 0) {
+          const digit = tempChunk % 10;
+          if (digit > 0) {
+            chunkResult = `${digits[digit]}${units[unitIndex]}${chunkResult}`;
+          }
+          tempChunk = Math.floor(tempChunk / 10);
+          unitIndex++;
+        }
+
+        result = `${chunkResult}${bigUnits[bigUnitIndex]} ${result}`;
+      }
+
+      num = Math.floor(num / 10000);
+      bigUnitIndex++;
     }
-  }, [user]);
+
+    result = result.trim().replace(/일십/g, "십"); // '일십'을 '십'으로 간략화
+
+    return isNegative ? `마이너스 ${result}` : result; // 🚀 음수일 경우 '마이너스' 추가
+  };
 
   useEffect(() => {
     refreshDocuments();
@@ -124,7 +168,7 @@ export default function DocumentsDetailsPage() {
   }, []);
 
   const handleStatusChange = async () => {
-    if (!statusChangeDoc || !selectedStatus) return;
+    if (!statusChangeDoc || !changedStatus) return;
     if (isMutating) return;
 
     const confirmChange = window.confirm(
@@ -133,15 +177,18 @@ export default function DocumentsDetailsPage() {
     if (!confirmChange) return;
 
     try {
-      // 🔹 selectedStatus를 명확한 타입으로 캐스팅
-      const reason = statusReason[selectedStatus as "canceled" | "completed"];
+      const reason = {
+        [changedStatus]:
+          statusReason[changedStatus as "canceled" | "completed"],
+      };
 
       await updateStatus({
         id: statusChangeDoc.id,
         status: changedStatus,
-        status_reason: reason, // ✅ 타입 오류 해결
+        status_reason: reason, // ✅ 수정된 형식으로 전달
       });
 
+      setCurrentPage(1); // ✅ 변경 시 현재 페이지 초기화
       setStatusChangeDoc(null);
       setStatusReason({
         canceled: { reason: "", amount: 0 },
@@ -198,7 +245,10 @@ export default function DocumentsDetailsPage() {
             </label>
             <motion.input
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
+              }}
               placeholder="거래처명"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
@@ -214,7 +264,10 @@ export default function DocumentsDetailsPage() {
             </label>
             <motion.select
               value={selectedStatus} // 🔹 선택된 상태 유지
-              onChange={(e) => setSelectedStatus(e.target.value)} // 🔹 상태 변경 이벤트 핸들러
+              onChange={(e) => {
+                setSelectedStatus(e.target.value);
+                setCurrentPage(1); // ✅ 상태 변경 시 현재 페이지 초기화
+              }}
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
             >
               <option value="pending">진행</option>
@@ -228,11 +281,17 @@ export default function DocumentsDetailsPage() {
               상담자
             </label>
             <motion.select
-              value={selectedUser || ""} // 🔹 로그인한 유저를 기본 선택값으로 설정
-              onChange={(e) => setSelectedUser(e.target.value)} // 🔹 선택 변경 시 상태 업데이트
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+              value={selectedUser?.id || ""} // ✅ userId 저장
+              onChange={(e) => {
+                const user =
+                  users.find((user: User) => user.id === e.target.value) ||
+                  null;
+                setSelectedUser(user);
+                setCurrentPage(1); // ✅ 상담자 변경 시 현재 페이지 초기화
+              }}
             >
-              <option value="">전체</option> {/* ✅ 기본값 추가 */}
+              <option value="">전체</option>
               {users.map((u: any) => (
                 <option key={u.id} value={u.id}>
                   {u.name} {u.level}
@@ -245,7 +304,8 @@ export default function DocumentsDetailsPage() {
             <button
               onClick={() => {
                 setSearchTerm("");
-                setSelectedUser(user?.id || ""); // 🔹 필터 초기화 시 로그인한 유저로 다시 설정
+                setSelectedUser(null);
+                setCurrentPage(1); // ✅ 필터 리셋 시 현재 페이지 초기화
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
             >
@@ -256,61 +316,61 @@ export default function DocumentsDetailsPage() {
       </div>
 
       {/* 문서 목록 */}
-      <div className="overflow-x-auto">
+      <div className="bg-[#FBFBFB] rounded-md border">
         <table className="min-w-full table-auto border-collapse">
           <thead>
             <tr className="bg-gray-100 text-center">
-              <th className="px-4 py-2 border-b">
+              <th className="px-4 py-2 border-b border-r-[1px]">
                 {type === "estimate" && "견적일"}
                 {type === "order" && "발주일"}
                 {type === "requestQuote" && "의뢰일"}
               </th>
-              <th className="px-4 py-2 border-b">
+              <th className="px-4 py-2 border-b border-r-[1px]">
                 {type === "estimate" && "견적유효기간"}
                 {type === "order" && "납기일"}
                 {type === "requestQuote" && "희망견적일"}
               </th>
-              <th className="px-4 py-2 border-b">회사명</th>
-              <th className="px-4 py-2 border-b">문서 번호</th>
+              <th className="px-4 py-2 border-b border-r-[1px]">회사명</th>
+              <th className="px-4 py-2 border-b border-r-[1px]">문서 번호</th>
               {status === "pending" && (
-                <th className="px-4 py-2 border-b">수정</th>
+                <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
               )}
-              <th className="px-4 py-2 border-b">상담자</th>
-              <th className="px-4 py-2 border-b">
+              <th className="px-4 py-2 border-b border-r-[1px]">상담자</th>
+              <th className="px-4 py-2 border-b border-r-[1px]">
                 {type === "estimate" && "견적자"}
                 {type === "order" && "발주자"}
                 {type === "requestQuote" && "의뢰자"}
               </th>
-              <th className="px-4 py-2 border-b">
+              <th className="px-4 py-2 border-b border-r-[1px]">
                 {status === "pending" ? <>변경</> : <>사유</>}
               </th>
             </tr>
           </thead>
           <tbody>
             {documents.map((doc: any) => (
-              <tr key={doc.id} className="hover:bg-gray-50 text-center">
-                <td className="px-4 py-2 border-b">
+              <tr key={doc.id} className="hover:bg-gray-100 text-center">
+                <td className="px-4 py-2 border-b border-r-[1px]">
                   {doc.created_at.slice(0, 10)}
                 </td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b border-r-[1px]">
                   {type === "estimate" &&
                     new Date(doc.content?.valid_until).toLocaleDateString()}
                   {type === "order" && doc.content?.delivery_date}
                   {type === "requestQuote" && doc.content?.delivery_date}
                 </td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b border-r-[1px]">
                   {doc.content?.company_name}
                 </td>
 
                 <td
-                  className="px-4 py-2 border-b text-blue-500 cursor-pointer"
+                  className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
                   onClick={() => setSelectedDocument(doc)}
                 >
                   {doc.document_number}
                 </td>
                 {status === "pending" && (
                   <td
-                    className="px-4 py-2 border-b text-blue-500 cursor-pointer"
+                    className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
                     onClick={() =>
                       router.push(
                         `/documents/${type}?consultId=${doc.consultation_id}&compId=${doc.company_id}`
@@ -320,37 +380,42 @@ export default function DocumentsDetailsPage() {
                     이동
                   </td>
                 )}
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b border-r-[1px]">
                   {doc.contact_name} {doc.contact_level}
                 </td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b border-r-[1px]">
                   {doc.user_name} {doc.user_level}
                 </td>
-                <td className="px-4 py-2 border-b w-1/3">
+                <td className="px-4 py-2 border-b border-r-[1px] w-1/3">
                   <div className="flex justify-center">
                     {doc.status === "pending" ? (
-                      ["pending", "completed", "canceled"].map((status) => (
-                        <button
-                          key={status}
-                          className={`px-6 py-2 rounded-md ${
-                            status === doc.status
-                              ? "text-blue-500"
-                              : "hover:text-black text-gray-400 cursor-pointer "
-                          }`}
-                          onClick={() => {
-                            if (status !== doc.status) {
-                              setChangedStatus(status);
-                              setStatusChangeDoc(doc);
-                            }
-                          }}
-                        >
-                          {status === "pending"
-                            ? "진행 중"
-                            : status === "completed"
-                            ? "완료"
-                            : "취소"}
-                        </button>
-                      ))
+                      // 🔹 로그인한 사용자와 문서를 작성한 사용자가 같을 때만 버튼 활성화
+                      doc.user_id === loginUser?.id ? (
+                        ["pending", "completed", "canceled"].map((status) => (
+                          <button
+                            key={status}
+                            className={`px-6 py-2 rounded-md ${
+                              status === doc.status
+                                ? "text-blue-500"
+                                : "hover:text-black text-gray-400 cursor-pointer"
+                            }`}
+                            onClick={() => {
+                              if (status !== doc.status) {
+                                setChangedStatus(status);
+                                setStatusChangeDoc(doc);
+                              }
+                            }}
+                          >
+                            {status === "pending"
+                              ? "진행 중"
+                              : status === "completed"
+                              ? "완료"
+                              : "취소"}
+                          </button>
+                        ))
+                      ) : (
+                        <span className="text-gray-400">수정 권한 없음</span>
+                      )
                     ) : (
                       <>
                         {doc.status === "completed" ? (
@@ -418,7 +483,7 @@ export default function DocumentsDetailsPage() {
       {/* 문서 상세 모달 */}
       {selectedDocument && (
         <DocumentModal
-          koreanAmount={() => {}}
+          koreanAmount={numberToKorean}
           document={selectedDocument}
           onClose={() => setSelectedDocument(null)}
           company_fax={"02-1234-5678"}

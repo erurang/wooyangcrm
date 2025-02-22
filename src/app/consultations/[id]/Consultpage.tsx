@@ -544,7 +544,7 @@ export default function ConsultationPage() {
 
         {/* 🚀 추가 버튼 */}
 
-        <div className="flex my-3 gap-4">
+        <div className="flex my-4 gap-4">
           <div
             className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
             onClick={() => setOpenAddModal(true)}
@@ -923,8 +923,8 @@ export default function ConsultationPage() {
                     <td
                       className="px-4 py-2 w-full text-start"
                       style={{
-                        minHeight: "120px",
-                        maxHeight: "120px",
+                        minHeight: "140px",
+                        maxHeight: "140px",
                         overflowY: "auto",
                         display: "block",
                       }}

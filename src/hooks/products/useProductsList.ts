@@ -6,20 +6,31 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
-export const useProductsList = (
-  type: "estimate" | "order",
-  searchCompany: string,
-  searchProduct: string,
-  searchSpec: string,
-  minPrice: number | "",
-  maxPrice: number | "",
-  status: string,
-  page: number,
-  limit: number
-) => {
+export const useProductsList = ({
+  type,
+  userId,
+  companyIds,
+  searchProduct,
+  searchSpec,
+  minPrice,
+  maxPrice,
+  status,
+  page,
+  limit,
+}: {
+  type: "estimate" | "order";
+  userId: string;
+  companyIds: string[];
+  searchProduct: string;
+  searchSpec: string;
+  minPrice: number | "";
+  maxPrice: number | "";
+  status: string;
+  page: number;
+  limit: number;
+}) => {
   const queryParams = new URLSearchParams({
     type,
-    company_name: searchCompany,
     product_name: searchProduct,
     specification: searchSpec,
     min_price: minPrice ? minPrice.toString() : "",
@@ -29,8 +40,14 @@ export const useProductsList = (
     limit: limit.toString(),
   });
 
+  // ✅ userId가 있을 때만 추가
+  if (userId) queryParams.append("userId", userId);
+
+  // ✅ companyIds가 있을 때만 추가
+  companyIds.forEach((id) => queryParams.append("companyIds", id));
+
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/tests/products?${queryParams}`,
+    `/api/tests/products?${queryParams.toString()}`,
     fetcher,
     { revalidateOnFocus: false }
   );

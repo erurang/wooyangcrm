@@ -14,7 +14,6 @@ export async function GET(request: Request) {
       .from("companies")
       .select("id, name")
       .ilike("name", `%${searchTerm}%`)
-
       .limit(30);
 
     if (error) {

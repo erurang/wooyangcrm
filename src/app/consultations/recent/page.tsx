@@ -2,10 +2,15 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { Snackbar, Alert } from "@mui/material";
 import { useRouter } from "next/navigation";
+
+import { useUsersList } from "@/hooks/useUserList";
+import SnackbarComponent from "@/components/Snackbar";
 import DocumentModal from "@/components/documents/estimate/DocumentModal";
+
+import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useConsultationsList } from "@/hooks/consultations/recent/useConsultationsList";
 
 interface Document {
   id: string;
@@ -30,31 +35,6 @@ interface Document {
   payment_method?: string;
 }
 
-interface Consultation {
-  id: string;
-  date: string;
-  companies: {
-    name: string;
-    id: string;
-    fax?: string;
-    phone?: string;
-  };
-  users: {
-    name: string;
-    level: string;
-  };
-  content: string;
-  documents: Document[];
-  contact_name: string;
-  contact_level: string;
-  contacts_consultations?: {
-    contacts: {
-      mobile?: string;
-    };
-  }[];
-  payment_method?: string;
-}
-
 interface User {
   id: string;
   name: string;
@@ -64,21 +44,15 @@ interface User {
 export default function RecentConsultations() {
   const today = new Date().toISOString().split("T")[0];
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredConsultations, setFilteredConsultations] = useState<
-    Consultation[]
-  >([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [userTerm, setUserTerm] = useState<string>("");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
   const [startDate, setStartDate] = useState<string>(today);
   const [endDate, setEndDate] = useState<string>(today);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
   const consultationsPerPage = 5;
-  const [loading, setLoading] = useState<boolean>(false);
 
-  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -87,6 +61,33 @@ export default function RecentConsultations() {
   );
 
   const router = useRouter();
+
+  // swr
+  const { users } = useUsersList();
+
+  const debounceSearchTerm = useDebounce(searchTerm, 300);
+  const { companies, isLoading, isError } =
+    useCompanySearch(debounceSearchTerm);
+
+  const companyIds = companies.map((company: any) => company.id);
+  const debounceCompanyIds = useDebounce(companyIds, 300);
+  const debounceStartDate = useDebounce(startDate, 300);
+  const debounceEndDate = useDebounce(endDate, 300);
+
+  const {
+    consultations,
+    totalPages,
+    isLoading: isConsultationsLoading,
+  } = useConsultationsList({
+    page: currentPage,
+    limit: consultationsPerPage,
+    selectedUser,
+    startDate: debounceStartDate,
+    endDate: debounceEndDate,
+    companyIds: debounceCompanyIds,
+  });
+
+  //
 
   const paginationNumbers = () => {
     let pageNumbers = [];
@@ -145,34 +146,9 @@ export default function RecentConsultations() {
     return isNegative ? `마이너스 ${result}` : result;
   };
 
-  const fetchConsultations = async (pageNumber: number) => {
-    setLoading(true);
-
-    try {
-      const response = await fetch(
-        `/api/consultations/recent?page=${pageNumber}&limit=${consultationsPerPage}&search=${searchTerm}&user=${userTerm}&startDate=${startDate}&endDate=${endDate}`
-      );
-
-      const { consultations: data, total } = await response.json();
-
-      const calculatedTotalPages = Math.ceil(total / consultationsPerPage);
-      setTotalPages(calculatedTotalPages);
-
-      setFilteredConsultations(data || []);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching consultations:", error);
-      setSnackbarMessage(
-        "데이터를 불러오는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
-      );
-      setOpenSnackbar(true);
-      setLoading(false);
-    }
-  };
-
   const handleDocumentClick = (document: Document) => {
-    const consultation = filteredConsultations.find((consultation) =>
-      consultation.documents.some((doc) => doc.id === document.id)
+    const consultation = consultations?.find((consultation: any) =>
+      consultation.documents.some((doc: any) => doc.id === document.id)
     );
 
     if (!consultation) {
@@ -180,7 +156,9 @@ export default function RecentConsultations() {
       return;
     }
 
-    const doc = consultation.documents.find((doc) => doc.id === document.id);
+    const doc = consultation.documents.find(
+      (doc: any) => doc.id === document.id
+    );
 
     if (!doc) {
       console.warn("해당 문서 정보를 찾을 수 없습니다.", document);
@@ -218,22 +196,10 @@ export default function RecentConsultations() {
 
     setOpenModal(true);
   };
+
   const handleModalClose = () => {
     setOpenModal(false);
     setSelectedDocument(null);
-  };
-
-  const fetchUsers = async () => {
-    const { data: usersData, error: usersError } = await supabase
-      .from("users")
-      .select("id, name, level");
-
-    if (usersError) {
-      setSnackbarMessage("유저 목록을 불러오는 데 실패했습니다.");
-      setOpenSnackbar(true);
-    } else {
-      setUsers(usersData || []);
-    }
   };
 
   const formatContentWithLineBreaks = (content: string) => {
@@ -244,11 +210,6 @@ export default function RecentConsultations() {
       </span>
     ));
   };
-
-  useEffect(() => {
-    fetchUsers();
-    fetchConsultations(currentPage);
-  }, [currentPage]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -276,7 +237,10 @@ export default function RecentConsultations() {
             </label>
             <motion.input
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="거래처명"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
@@ -320,17 +284,19 @@ export default function RecentConsultations() {
               상담자
             </label>
             <motion.select
-              value={userTerm}
-              onChange={(e) => setUserTerm(e.target.value)}
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+              value={selectedUser?.id || ""} // ✅ userId 저장
+              onChange={(e) => {
+                const user =
+                  users.find((user: User) => user.id === e.target.value) ||
+                  null;
+                setSelectedUser(user);
               }}
             >
-              <option value="">전체</option> {/* ✅ 기본값 추가 */}
-              {users.map((user) => (
-                <option key={user.id} value={user.name}>
+              <option value="">전체</option>
+              {users.map((user: User) => (
+                <option key={user.id} value={user.id}>
+                  {" "}
                   {user.name} {user.level}
                 </option>
               ))}
@@ -340,19 +306,12 @@ export default function RecentConsultations() {
             <button
               onClick={() => {
                 setSearchTerm("");
-                setUserTerm("");
                 setStartDate(today);
                 setEndDate(today);
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
             >
               필터리셋
-            </button>
-            <button
-              onClick={() => fetchConsultations(1)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md"
-            >
-              검색
             </button>
           </div>
         </div>
@@ -371,7 +330,7 @@ export default function RecentConsultations() {
             </tr>
           </thead>
           <tbody>
-            {filteredConsultations.map((consultation) => (
+            {consultations?.map((consultation: any) => (
               <tr key={consultation.id} className="hover:bg-gray-100 border-b">
                 <td
                   className="px-4 py-2 border-r text-blue-500 cursor-pointer"
@@ -383,10 +342,10 @@ export default function RecentConsultations() {
                 </td>
                 <td className="px-4 py-2 border-r">{consultation.date}</td>
                 <td className="px-4 py-2 border-r">
-                  {consultation.contact_name} {consultation.contact_level}
+                  {consultation?.contact_name} {consultation?.contact_level}
                 </td>
                 <td className="px-4 py-2 border-r">
-                  {consultation.users.name} {consultation.users.level}
+                  {consultation.users?.name} {consultation.users?.level}
                 </td>
                 <td
                   className="px-4 pt-2 border-r text-start"
@@ -411,7 +370,7 @@ export default function RecentConsultations() {
                   >
                     {["estimate", "order", "requestQuote"].map((type) => {
                       const filteredDocs = consultation.documents.filter(
-                        (doc) => doc.type === type
+                        (doc: any) => doc.type === type
                       );
                       if (filteredDocs.length > 0) {
                         return (
@@ -424,7 +383,7 @@ export default function RecentConsultations() {
                                 : "의뢰서"}
                             </span>
                             :{" "}
-                            {filteredDocs.map((doc, index) => (
+                            {filteredDocs.map((doc: any, index: any) => (
                               <span key={doc.id}>
                                 <span
                                   className="text-blue-500 cursor-pointer"
@@ -486,19 +445,15 @@ export default function RecentConsultations() {
       </div>
 
       {/* 스낵바 */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert severity="error">{snackbarMessage}</Alert>
-      </Snackbar>
+      <SnackbarComponent
+        message={snackbarMessage}
+        onClose={() => setSnackbarMessage("")}
+      />
       {/* 모달 */}
       {openModal && selectedDocument && (
         <DocumentModal
           type={selectedDocument.type}
-          koreanAmount={numberToKorean(selectedDocument.content.total_amount)}
+          koreanAmount={numberToKorean}
           company_fax={""}
           document={selectedDocument}
           onClose={handleModalClose}

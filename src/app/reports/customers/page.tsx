@@ -95,13 +95,6 @@ export default function CompanySalesReport() {
     return pageNumbers;
   };
 
-  // ✅ Enter 키 검색 실행
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      setCurrentPage(1);
-    }
-  };
-
   return (
     <div className="text-sm text-[#333]">
       <p className="mb-4 font-semibold">거래처별 분석</p>
@@ -118,7 +111,6 @@ export default function CompanySalesReport() {
               setSearchTerm(e.target.value);
               setCurrentPage(1); // ✅ 검색 시 페이지 1로 이동
             }}
-            onKeyDown={handleKeyPress}
             placeholder="거래처명"
             className="w-3/4 p-2 border rounded-r-md"
           />
@@ -135,20 +127,19 @@ export default function CompanySalesReport() {
               setSalesRepTerm(e.target.value);
               setCurrentPage(1); // ✅ 검색 시 페이지 1로 이동
             }}
-            onKeyDown={handleKeyPress}
             placeholder="담당 영업사원"
             className="w-3/4 p-2 border rounded-r-md"
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           {/* 🔹 라벨 */}
-          <label className="block p-2 border rounded-md bg-gray-100 min-w-[70px]">
+          <label className="block p-2 border rounded-tl rounded-bl bg-gray-100 min-w-[70px]">
             기간선택
           </label>
 
           <select
-            className="border-2 border-blue-400 p-2 rounded-md text-gray-700"
+            className="border h-full p-2 rounded-tr rounded-br text-gray-700"
             value={selectedYear}
             onChange={(e) => {
               setSelectedYear(Number(e.target.value));
@@ -169,7 +160,7 @@ export default function CompanySalesReport() {
           </select>
 
           <select
-            className="border p-2 rounded-md"
+            className="border h-full p-2 rounded text-gray-700 ml-4"
             value={dateFilter}
             onChange={(e) => {
               setDateFilter(e.target.value as "year" | "quarter" | "month");
@@ -183,7 +174,7 @@ export default function CompanySalesReport() {
 
           {dateFilter === "quarter" && (
             <select
-              className="border p-2 rounded-md"
+              className="border h-full p-2 rounded text-gray-700 ml-4"
               value={selectedQuarter}
               onChange={(e) => {
                 setSelectedQuarter(Number(e.target.value));
@@ -199,7 +190,7 @@ export default function CompanySalesReport() {
 
           {dateFilter === "month" && (
             <select
-              className="border p-2 rounded-md"
+              className="border h-full p-2 rounded text-gray-700 ml-4"
               value={selectedMonth}
               onChange={(e) => {
                 setSelectedMonth(Number(e.target.value));
@@ -215,7 +206,7 @@ export default function CompanySalesReport() {
           )}
         </div>
       </div>
-      <div className="mt-4 bg-[#FBFBFB] rounded-md border p-4">
+      <div className="bg-[#FBFBFB] rounded-md border mt-4">
         <table className="min-w-full table-auto border-collapse">
           <thead>
             <tr className="bg-gray-100 text-left">

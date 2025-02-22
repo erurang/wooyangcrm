@@ -1,29 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { useProductsList } from "@/hooks/products/useProductsList";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useUsersList } from "@/hooks/useUserList";
+import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
 
-interface Product {
+interface User {
   id: string;
-  estimate_date: string;
-  company_name: string;
   name: string;
-  spec: string;
-  unit_price: number;
-  quantity: number;
-  status: string;
+  level: string;
 }
 
 export default function ProductPage() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type") as "estimate" | "order";
-
-  const today = dayjs().format("YYYY-MM-DD");
-  const fiveYearsAgo = dayjs().subtract(5, "year").format("YYYY-MM-DD");
 
   const [searchCompany, setSearchCompany] = useState("");
   const [searchProduct, setSearchProduct] = useState("");
@@ -31,8 +25,7 @@ export default function ProductPage() {
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
 
-  const [startDate, setStartDate] = useState(fiveYearsAgo); // 시작 날짜
-  const [endDate, setEndDate] = useState(today); // 종료 날짜
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const [status, setStatus] = useState("pending");
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,18 +37,24 @@ export default function ProductPage() {
   const debounceMinPrice = useDebounce(minPrice, 300);
   const debounceMaxPrice = useDebounce(maxPrice, 300);
 
+  const { companies } = useCompanySearch(debounceSearchCompany);
+  const companyIds = companies.map((company: any) => company.id);
+  const debounceCompanyIds = useDebounce(companyIds, 300);
+
   // swr
-  const { products, total, isLoading, mutate } = useProductsList(
+  const { users } = useUsersList();
+  const { products, total, isLoading, mutate } = useProductsList({
     type,
-    debounceSearchCompany,
-    debounceSearchProduct,
-    debounceSearchSpec,
-    debounceMinPrice,
-    debounceMaxPrice,
+    userId: selectedUser?.id || "", // ✅ 사용자 필터 추가
+    companyIds: debounceCompanyIds, // ✅ 회사 필터 추가
+    searchProduct: debounceSearchProduct,
+    searchSpec: debounceSearchSpec,
+    minPrice: debounceMinPrice,
+    maxPrice: debounceMaxPrice,
     status,
-    currentPage,
-    productsPerPage
-  );
+    page: currentPage,
+    limit: productsPerPage,
+  });
 
   //
 
@@ -77,21 +76,6 @@ export default function ProductPage() {
     return pageNumbers;
   };
 
-  const statusToKorean = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "진행 중";
-      case "completed":
-        return "완료됨";
-      case "canceled":
-        return "취소됨";
-      case "backup":
-        return "관리자백업";
-      default:
-        return status;
-    }
-  };
-
   return (
     <div className="text-sm text-[#37352F]">
       <h1 className="font-semibold mb-4">
@@ -100,9 +84,9 @@ export default function ProductPage() {
 
       {/* 검색 필터 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
-        <div className="grid grid-cols-12 gap-4 items-center">
+        <div className="grid grid-cols-3 gap-4 items-center">
           {/* 회사명 */}
-          <div className="col-span-3 flex items-center">
+          <div className="col-span-1 flex items-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               거래처명
             </label>
@@ -119,13 +103,16 @@ export default function ProductPage() {
           </div>
 
           {/* 물품명 */}
-          <div className="col-span-3 flex items-center">
+          <div className="col-span-1 flex items-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               물품명
             </label>
             <motion.input
               value={searchProduct}
-              onChange={(e) => setSearchProduct(e.target.value)}
+              onChange={(e) => {
+                setSearchProduct(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="물품명"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
@@ -136,13 +123,16 @@ export default function ProductPage() {
           </div>
 
           {/* 규격 */}
-          <div className="col-span-3 flex items-center">
+          <div className="col-span-1 flex items-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               규격
             </label>
             <motion.input
               value={searchSpec}
-              onChange={(e) => setSearchSpec(e.target.value)}
+              onChange={(e) => {
+                setSearchSpec(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="규격"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
@@ -152,25 +142,8 @@ export default function ProductPage() {
             />
           </div>
 
-          {/* 상태 */}
-          <div className="col-span-3 flex items-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              상태
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-3/4 p-2 border-r border-b border-t border-gray-300 rounded-r-md"
-            >
-              <option value="pending">진행 중</option>
-              <option value="completed">완료됨</option>
-              <option value="canceled">취소됨</option>
-              <option value="backup">관리자백업</option>
-            </select>
-          </div>
-
           {/* 단가 */}
-          <div className="col-span-3 flex items-center">
+          <div className="col-span-1 flex items-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               단가
             </label>
@@ -178,7 +151,10 @@ export default function ProductPage() {
               <motion.input
                 type="number"
                 value={minPrice}
-                onChange={(e) => setMinPrice(Number(e.target.value) || "")}
+                onChange={(e) => {
+                  setMinPrice(Number(e.target.value) || "");
+                  setCurrentPage(1);
+                }}
                 placeholder="최소 단가"
                 className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
                 whileFocus={{
@@ -190,7 +166,10 @@ export default function ProductPage() {
               <motion.input
                 type="number"
                 value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value) || "")}
+                onChange={(e) => {
+                  setMaxPrice(Number(e.target.value) || "");
+                  setCurrentPage(1);
+                }}
                 placeholder="최대 단가"
                 className="w-3/4 p-2 border border-gray-300 rounded-md"
                 whileFocus={{
@@ -200,36 +179,83 @@ export default function ProductPage() {
               />
             </div>
           </div>
+          {/* 상담자 */}
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border rounded-l-md">
+              상담자
+            </label>
+            <motion.select
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+              value={selectedUser?.id || ""} // ✅ userId 저장
+              onChange={(e) => {
+                const user =
+                  users.find((user: User) => user.id === e.target.value) ||
+                  null;
+                setSelectedUser(user);
+                setCurrentPage(1); // ✅ 상담자 변경 시 현재 페이지 초기화
+              }}
+            >
+              <option value="">전체</option>
+              {users.map((u: any) => (
+                <option key={u.id} value={u.id}>
+                  {u.name} {u.level}
+                </option>
+              ))}
+            </motion.select>
+          </div>
+          {/* 상태 */}
+          <div className="col-span-1 flex items-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              상태
+            </label>
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-3/4 p-2 border-r border-b border-t border-gray-300 rounded-r-md"
+            >
+              <option value="pending">진행 중</option>
+              <option value="completed">완료됨</option>
+              <option value="canceled">취소됨</option>
+              {/* <option value="backup">관리자백업</option> */}
+            </select>
+          </div>
         </div>
       </div>
 
       {/* 물품 목록 */}
-      <div className="overflow-x-auto">
+      <div className="bg-[#FBFBFB] rounded-md border">
         <table className="min-w-full table-auto border-collapse">
           <thead>
             <tr className="bg-gray-100 text-center">
-              <th className="px-4 py-2 border-b">
+              <th className="px-4 py-2 border-b border-r">
                 {type === "estimate" ? "견적" : "발주"} 날짜
               </th>
-              <th className="px-4 py-2 border-b">회사명</th>
-              <th className="px-4 py-2 border-b">물품명</th>
-              <th className="px-4 py-2 border-b">규격</th>
-              <th className="px-4 py-2 border-b">수량</th>
-              <th className="px-4 py-2 border-b">단가</th>
-              <th className="px-4 py-2 border-b">직원</th>
+              <th className="px-4 py-2 border-b border-r">회사명</th>
+              <th className="px-4 py-2 border-b border-r">물품명</th>
+              <th className="px-4 py-2 border-b border-r">규격</th>
+              <th className="px-4 py-2 border-b border-r">수량</th>
+              <th className="px-4 py-2 border-b border-r">단가</th>
+              <th className="px-4 py-2 border-b border-r">직원</th>
             </tr>
           </thead>
           <tbody>
             {products?.map((product: any, index: any) => (
               <tr className="hover:bg-gray-50 text-center" key={index}>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b border-r">
                   {dayjs(product.estimate_date).format("YYYY-MM-DD")}
                 </td>
-                <td className="px-4 py-2 border-b">{product.company_name}</td>
-                <td className="px-4 py-2 border-b">{product.name}</td>
-                <td className="px-4 py-2 border-b">{product.spec}</td>
-                <td className="px-4 py-2 border-b">{product.quantity}</td>
-                <td className="px-4 py-2 border-b">
+                <td className="px-4 py-2 border-b border-r">
+                  {product.company_name}
+                </td>
+                <td className="px-4 py-2 border-b border-r">{product.name}</td>
+                <td className="px-4 py-2 border-b border-r">{product.spec}</td>
+                <td className="px-4 py-2 border-b border-r">
+                  {product.quantity}
+                </td>
+                <td className="px-4 py-2 border-b border-r">
                   {product.unit_price.toLocaleString()} 원
                 </td>
                 <td className="px-4 py-2 border-b">
@@ -241,40 +267,40 @@ export default function ProductPage() {
         </table>
 
         {/* 페이지네이션 */}
-        <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
-          <div className="flex justify-center mt-4 space-x-2">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-            >
-              이전
-            </button>
+      </div>
+      <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
+        <div className="flex justify-center mt-4 space-x-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+          >
+            이전
+          </button>
 
-            {paginationNumbers().map((page, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentPage(+page)}
-                className={`px-3 py-1 border rounded ${
-                  currentPage === page
-                    ? "bg-blue-500 text-white font-bold"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
+          {paginationNumbers().map((page, index) => (
             <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+              key={index}
+              onClick={() => setCurrentPage(+page)}
+              className={`px-3 py-1 border rounded ${
+                currentPage === page
+                  ? "bg-blue-500 text-white font-bold"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+              }`}
             >
-              다음
+              {page}
             </button>
-          </div>
+          ))}
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+          >
+            다음
+          </button>
         </div>
       </div>
     </div>

@@ -227,16 +227,16 @@ const menuSections: MenuSection[] = [
       //   title: "영업 성과 요약",
       //   path: `/reports/performance?year=${new Date().getFullYear()}`,
       // },
-      {
-        id: "performance-order",
-        title: "영업 상세 (매입)",
-        path: `/reports/performance/details?type=order`,
-      },
-      {
-        id: "performance-estimate",
-        title: "영업 상세 (매출)",
-        path: `/reports/performance/details?type=estimate`,
-      },
+      // {
+      //   id: "performance-order",
+      //   title: "영업 상세 (매입)",
+      //   path: `/reports/performance/details?type=order`,
+      // },
+      // {
+      //   id: "performance-estimate",
+      //   title: "영업 상세 (매출)",
+      //   path: `/reports/performance/details?type=estimate`,
+      // },
     ],
   },
 ];

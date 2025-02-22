@@ -4,8 +4,6 @@ import { supabase } from "@/lib/supabaseClient";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
-  const searchCompany =
-    searchParams.get("company_name")?.trim().toLowerCase() || "";
   const searchProduct =
     searchParams.get("product_name")?.trim().toLowerCase() || "";
   const searchSpec =
@@ -16,6 +14,9 @@ export async function GET(request: Request) {
   const maxPrice = searchParams.get("max_price");
   const status = searchParams.get("status") || ""; // 상태 필터 추가
 
+  const userId = searchParams.get("userId") || null;
+  const companyIds = searchParams.getAll("companyIds"); // ✅ 회사 ID 필터 추가
+
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "10", 10);
   const from = (page - 1) * limit;
@@ -24,12 +25,21 @@ export async function GET(request: Request) {
   try {
     let query = supabase
       .from("documents")
-      .select("id, content, created_at, status, users(name,level)")
+      .select("id, content, created_at, status, users(name,level), company_id") // ✅ company_id 추가
       .eq("type", searchType)
-      .ilike("content->>company_name", `%${searchCompany}%`)
       .order("created_at", { ascending: false });
 
-    // 상태 필터 추가
+    // ✅ 특정 회사의 제품만 조회
+    if (companyIds.length > 0) {
+      query = query.in("company_id", companyIds);
+    }
+
+    // ✅ 특정 사용자의 제품만 조회
+    if (userId) {
+      query = query.eq("user_id", userId);
+    }
+
+    // ✅ 상태 필터 추가
     if (status) {
       query = query.eq("status", status);
     }

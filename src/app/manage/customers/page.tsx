@@ -517,7 +517,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="flex mt-6">
+      <div className="flex my-4">
         <div
           className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
           onClick={handleAdd}

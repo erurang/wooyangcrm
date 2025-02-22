@@ -9,9 +9,14 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
+    // ✅ `status_reason`을 올바른 JSON 형태로 감싸서 저장
+    const formattedStatusReason = {
+      [status]: status_reason,
+    };
+
     const { error } = await supabase
       .from("documents")
-      .update({ status, status_reason })
+      .update({ status, status_reason: formattedStatusReason }) // ✅ JSONB 필드로 저장
       .eq("id", id);
 
     if (error) throw error;

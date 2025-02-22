@@ -8,54 +8,12 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
     const search = searchParams.get("search") || ""; // 회사명 및 내용 검색
-    const userName = searchParams.get("user") || ""; // 상담자 이름 검색
     const startDate = searchParams.get("startDate") || "";
     const endDate = searchParams.get("endDate") || "";
+    const userId = searchParams.get("userId") || null; // ✅ 프론트에서 직접 넘김
+    const companyIds = searchParams.getAll("companyIds"); // ✅ 프론트에서 직접 넘김
 
     const offset = (page - 1) * limit;
-
-    // 🔹 병렬 쿼리 실행을 위한 Promise 배열
-    const promises = [];
-
-    // 🔹 상담자 ID 조회
-    let userId: string | null = null;
-    if (userName) {
-      promises.push(
-        supabase
-          .from("users")
-          .select("id")
-          .ilike("name", `%${userName}%`)
-          .single()
-          .then(({ data, error }) => {
-            if (error) {
-              console.error("Error fetching user ID:", error);
-              throw new Error("Failed to fetch user ID");
-            }
-            userId = data?.id || null;
-          })
-      );
-    }
-
-    // 🔹 회사 ID 검색 처리
-    let companyIds: string[] = [];
-    if (search) {
-      promises.push(
-        supabase
-          .from("companies")
-          .select("id")
-          .ilike("name", `%${search}%`)
-          .then(({ data, error }) => {
-            if (error) {
-              console.error("Error fetching company IDs:", error);
-              throw new Error("Failed to fetch company IDs");
-            }
-            companyIds = data.map((company) => company.id);
-          })
-      );
-    }
-
-    // 🔹 병렬로 실행 후 데이터 저장
-    await Promise.all(promises);
 
     // 🔹 상담 데이터 쿼리 생성
     let query = supabase

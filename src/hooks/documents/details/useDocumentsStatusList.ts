@@ -6,19 +6,37 @@ const fetchDocuments = async (url: string) => {
   return res.json();
 };
 
-export const useDocumentsStatusList = (
-  userId: string | null,
-  type: string,
-  status: string,
-  searchTerm: string,
-  page: number,
-  limit: number
-) => {
-  const shouldFetch = userId !== null;
+export const useDocumentsStatusList = ({
+  userId = null, // ✅ 기본값 설정 (userId 없어도 가능)
+  type,
+  status,
+  page,
+  limit,
+  companyIds = [], // ✅ 기본값 설정 (빈 배열 허용)
+}: {
+  userId?: string | null;
+  type: string;
+  status: string;
+  page: number;
+  limit: number;
+  companyIds?: string[];
+}) => {
+  // ✅ URL 동적 생성
+  const queryParams = new URLSearchParams({
+    type,
+    status,
+    page: page.toString(),
+    limit: limit.toString(),
+  });
 
-  const key = shouldFetch
-    ? `/api/tests/documents/status/list?userId=${userId}&type=${type}&status=${status}&searchTerm=${searchTerm}&page=${page}&limit=${limit}`
-    : null;
+  // ✅ userId가 있을 때만 추가 (없으면 전체 조회)
+  if (userId) queryParams.append("userId", userId);
+
+  // ✅ companyIds가 있을 때만 추가
+  companyIds.forEach((id) => queryParams.append("companyIds", id));
+
+  // ✅ userId 없어도 요청 가능
+  const key = `/api/tests/documents/status/list?${queryParams.toString()}`;
 
   const { data, error, isLoading, mutate } = useSWR(key, fetchDocuments, {
     revalidateOnFocus: false,
