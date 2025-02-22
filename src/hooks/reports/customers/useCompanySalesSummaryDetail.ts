@@ -14,7 +14,7 @@ export function useCompanySalesSummaryDetail(
   );
 
   return {
-    companySalesSummary: data ? data[0] : {},
+    companySalesSummary: data || {},
     isLoading,
     isError: error,
   };

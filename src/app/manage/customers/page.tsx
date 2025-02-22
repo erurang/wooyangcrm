@@ -531,7 +531,7 @@ export default function Page() {
         <div className="bg-[#FBFBFB] rounded-md border">
           <table className="min-w-full table-auto border-collapse">
             <thead>
-              <tr className="bg-gray-100 text-left">
+              <tr className="bg-gray-100 text-center">
                 <th className="px-4 py-2 border-b border-r-[1px]">거래처명</th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                   주소
@@ -556,9 +556,9 @@ export default function Page() {
             </thead>
             <tbody>
               {companies?.map((company: any) => (
-                <tr key={company.id} className="hover:bg-gray-100">
+                <tr key={company.id} className="hover:bg-gray-100 text-center">
                   <td
-                    className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
+                    className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer "
                     onClick={() => router.push(`/consultations/${company.id}`)}
                   >
                     {company.name}

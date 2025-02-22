@@ -5,12 +5,11 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log("??");
   const { id } = await params;
   const { searchParams } = req.nextUrl;
 
-  const startDate = searchParams.get("startDate") || "2024-01-01";
-  const endDate = searchParams.get("endDate") || "2024-12-31";
+  const startDate = searchParams.get("startDate") || "";
+  const endDate = searchParams.get("endDate") || "";
 
   if (!id) {
     return NextResponse.json({ error: "Missing company ID" }, { status: 400 });
@@ -27,5 +26,5 @@ export async function GET(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data.length > 0 ? data[0] : {});
 }

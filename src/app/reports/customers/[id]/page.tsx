@@ -75,7 +75,30 @@ export default function CompanyDetailPage() {
   const salesChart = getChartData(companySalesSummary?.sales_items || []);
   const purchaseChart = getChartData(companySalesSummary?.purchase_items || []);
 
-  console.log("companySalesSummary", companySalesSummary);
+  // ✅ 영업사원별 매출/매입 차트 데이터 변환 함수
+  const getUserChartData = (
+    users: any[],
+    key: "total_sales" | "total_purchases"
+  ) => {
+    return {
+      categories: users.map((u) => u.user_name), // X축 (사용자 이름)
+      data: users.map((u) => u[key]), // Y축 (총 매출 또는 매입 금액)
+    };
+  };
+
+  // ✅ 영업사원별 매출 차트 데이터 생성
+  const salesByUserChart = getUserChartData(
+    companySalesSummary?.sales_by_users || [],
+    "total_sales"
+  );
+
+  // ✅ 영업사원별 매입 차트 데이터 생성
+  const purchaseByUserChart = getUserChartData(
+    companySalesSummary?.purchases_by_users || [],
+    "total_purchases"
+  );
+
+  //
 
   return (
     <div className="text-sm text-[#333]">
@@ -177,6 +200,7 @@ export default function CompanyDetailPage() {
       </div>
 
       {/* 🔹 차트 (거래처별 매출 & 매입) */}
+
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-4">📈 매출 품목 비중</p>
@@ -184,6 +208,11 @@ export default function CompanyDetailPage() {
             options={{
               labels: salesChart.labels,
               legend: { position: "bottom" },
+              yaxis: {
+                labels: {
+                  formatter: (value: number) => value.toLocaleString(), // ✅ 콤마 추가
+                },
+              },
             }}
             series={salesChart.data}
             type="pie"
@@ -196,12 +225,81 @@ export default function CompanyDetailPage() {
             options={{
               labels: purchaseChart.labels,
               legend: { position: "bottom" },
+              yaxis: {
+                labels: {
+                  formatter: (value: number) => value.toLocaleString(), // ✅ 콤마 추가
+                },
+              },
             }}
             series={purchaseChart.data}
             type="pie"
             height={300}
           />
         </div>
+
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+          <p className="text-lg font-semibold mb-4">👤 영업사원별 매출</p>
+          {salesByUserChart.data.length > 0 ? (
+            <ReactApexChart
+              options={{
+                chart: { type: "bar" },
+                xaxis: { categories: salesByUserChart.categories }, // ✅ 영업사원 이름 표시
+                yaxis: {
+                  labels: {
+                    formatter: (value: number) => value.toLocaleString(), // ✅ 천 단위 콤마 추가
+                    style: { colors: "#333", fontSize: "14px" }, // ✅ Y축 글씨 색상
+                  },
+                },
+                plotOptions: {
+                  bar: { horizontal: true },
+                },
+                dataLabels: {
+                  enabled: true,
+                  formatter: (val: number) => val.toLocaleString(), // ✅ 데이터 라벨 콤마 추가
+                  style: { colors: ["#333"], fontSize: "12px" }, // ✅ 바 내부 글씨 색상
+                },
+              }}
+              series={[{ name: "총 매출", data: salesByUserChart.data }]}
+              type="bar"
+              height={300}
+            />
+          ) : (
+            <p className="text-gray-500">매출 데이터 없음</p>
+          )}
+        </div>
+
+        {/* 🔹 영업사원별 매입 차트 */}
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+          <p className="text-lg font-semibold mb-4">👤 영업사원별 매입</p>
+          {purchaseByUserChart.data.length > 0 ? (
+            <ReactApexChart
+              options={{
+                chart: { type: "bar" },
+                xaxis: { categories: purchaseByUserChart.categories }, // ✅ 영업사원 이름 표시
+                yaxis: {
+                  labels: {
+                    formatter: (value: number) => value.toLocaleString(), // ✅ 천 단위 콤마 추가
+                    style: { colors: "#333", fontSize: "14px" }, // ✅ Y축 글씨 색상
+                  },
+                },
+                plotOptions: {
+                  bar: { horizontal: true },
+                },
+                dataLabels: {
+                  enabled: true,
+                  formatter: (val: number) => val.toLocaleString(), // ✅ 데이터 라벨 콤마 추가
+                  style: { colors: ["#333"], fontSize: "12px" }, // ✅ 바 내부 글씨 색상
+                },
+              }}
+              series={[{ name: "총 매입", data: purchaseByUserChart.data }]}
+              type="bar"
+              height={300}
+            />
+          ) : (
+            <p className="text-gray-500">매입 데이터 없음</p>
+          )}
+        </div>
+
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-2">📦 매출 품목</p>
           {companySalesSummary?.sales_items?.length > 0 ? (

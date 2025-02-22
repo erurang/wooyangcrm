@@ -285,6 +285,11 @@ export default function UserDetailPage() {
             options={{
               labels: salesChart.labels,
               legend: { position: "bottom" },
+              yaxis: {
+                labels: {
+                  formatter: (value: number) => value.toLocaleString(), // ✅ 콤마 추가
+                },
+              },
             }}
             series={salesChart.data}
             type="pie"
@@ -298,6 +303,11 @@ export default function UserDetailPage() {
             options={{
               labels: purchaseChart.labels,
               legend: { position: "bottom" },
+              yaxis: {
+                labels: {
+                  formatter: (value: number) => value.toLocaleString(), // ✅ 콤마 추가
+                },
+              },
             }}
             series={purchaseChart.data}
             type="pie"

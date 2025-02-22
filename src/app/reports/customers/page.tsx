@@ -209,36 +209,36 @@ export default function CompanySalesReport() {
       <div className="bg-[#FBFBFB] rounded-md border mt-4">
         <table className="min-w-full table-auto border-collapse">
           <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="px-4 py-2 border-b border-r">거래처명</th>
-              <th className="px-4 py-2 border-b border-r">견적서</th>
-              <th className="px-4 py-2 border-b border-r">발주서</th>
-              <th className="px-4 py-2 border-b border-r">총 매출</th>
-              <th className="px-4 py-2 border-b border-r">총 매입</th>
+            <tr className="bg-gray-100 text-center">
+              <th className="px-4 py-2 border-b border-r w-2/12">거래처명</th>
+              <th className="px-4 py-2 border-b border-r w-1/12">견적서</th>
+              <th className="px-4 py-2 border-b border-r w-1/12">발주서</th>
+              <th className="px-4 py-2 border-b border-r w-2/12">총 매출</th>
+              <th className="px-4 py-2 border-b border-r w-2/12">총 매입</th>
               <th className="px-4 py-2 border-b border-r">담당 영업사원</th>
             </tr>
           </thead>
           <tbody>
             {paginatedData.map((company: any) => (
-              <tr key={company.company_id}>
+              <tr key={company.company_id} className="text-start">
                 <td
-                  className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
+                  className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer text-center"
                   onClick={() =>
                     router.push(`/reports/customers/${company.company_id}`)
                   }
                 >
                   {company.company_name}
                 </td>
-                <td className="px-4 py-2 border-b border-r">
+                <td className="px-4 py-2 border-b border-r text-center">
                   {company.completed_estimates}
                 </td>
-                <td className="px-4 py-2 border-b border-r">
+                <td className="px-4 py-2 border-b border-r text-center">
                   {company.completed_orders}
                 </td>
-                <td className="px-4 py-2 border-b border-r">
+                <td className="px-4 py-2 border-b border-r text-right">
                   {company.total_sales_amount.toLocaleString()} 원
                 </td>
-                <td className="px-4 py-2 border-b border-r">
+                <td className="px-4 py-2 border-b border-r text-right">
                   {company.total_purchase_amount.toLocaleString()} 원
                 </td>
                 <td className="px-4 py-2 border-b border-r">
