@@ -49,7 +49,7 @@ export default function Sidebar() {
           <div>
             <div className="text-sm font-semibold">
               <span>
-                반갑습니다. {user?.name} {user?.level}님!
+                반갑습니다. {user?.name} {user?.level}님
               </span>
             </div>
           </div>

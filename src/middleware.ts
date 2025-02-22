@@ -31,8 +31,6 @@ export async function middleware(req: NextRequest) {
     }
     const response = NextResponse.next();
 
-    // ⚠️ 클라이언트에서 새로고침 없이 리렌더링하도록 캐시 무효화
-    response.headers.set("Cache-Control", "no-store, must-revalidate");
     return response;
   } catch (err: any) {
     console.error("JWT 검증 실패:", err.message);
