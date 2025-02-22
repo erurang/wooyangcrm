@@ -11,7 +11,7 @@ const useCompletedReports = () => {
     const { data, error } = await supabase
       .from("documents")
       .select("created_at, type")
-      .eq("status", "backup")
+      .eq("status", "completed")
       .order("created_at", { ascending: false });
 
     if (error) {

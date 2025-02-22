@@ -45,11 +45,6 @@ interface Document {
   company_id: string;
 }
 
-interface User {
-  id: string;
-  name: string;
-}
-
 export default function DocumentsDetailsPage() {
   const user = useLoginUser();
   const router = useRouter();
@@ -164,12 +159,6 @@ export default function DocumentsDetailsPage() {
     estimate: "견적서",
     order: "발주서",
     requestQuote: "의뢰서",
-  };
-
-  const statusToKorean: Record<string, string> = {
-    pending: "진행 중",
-    completed: "완료됨",
-    canceled: "취소됨",
   };
 
   const paginationNumbers = () => {

@@ -8,6 +8,7 @@ import { useUserDetail } from "@/hooks/useUserDetail";
 import { useUserSalesSummary } from "@/hooks/reports/useUserSalesSummary";
 import { useUserTransactions } from "@/hooks/reports/userDetail/useUserTransactions";
 import Link from "next/link";
+import { useUserDocumentsCount } from "@/hooks/reports/useUserDocumentsCount";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -29,8 +30,6 @@ export default function UserDetailPage() {
   const [selectedMonth, setSelectedMonth] = useState<number>(
     new Date().getMonth() + 1
   );
-  const [searchCompany, setSearchCompany] = useState(""); // 거래처 검색
-  const [searchProduct, setSearchProduct] = useState(""); // 품목 검색
 
   // ✅ 날짜 변환 (연도별, 분기별, 월별)
   let startDate: string;
@@ -66,25 +65,22 @@ export default function UserDetailPage() {
     isLoading: isTransactionsLoading,
   } = useUserTransactions(userId, startDate, endDate);
 
+  const { documents, isLoading: isConsultationsLoading } =
+    useUserDocumentsCount([userId], startDate, endDate);
   //
 
-  // ✅ 검색 필터링
-  const filteredSalesCompanies = salesCompanies.filter((c: any) =>
-    c.name.toLowerCase().includes(searchCompany.toLowerCase())
-  );
+  const userDocuments = documents?.[userId] || {
+    estimates: { pending: 0, completed: 0, canceled: 0, total: 0 },
+    orders: { pending: 0, completed: 0, canceled: 0, total: 0 },
+  };
 
-  const filteredPurchaseCompanies = purchaseCompanies.filter((c: any) =>
-    c.name.toLowerCase().includes(searchCompany.toLowerCase())
-  );
+  const estimates = userDocuments.estimates;
+  const orders = userDocuments.orders;
 
-  const filteredSalesProducts = salesProducts.filter((p: any) =>
-    p.name.toLowerCase().includes(searchProduct.toLowerCase())
-  );
-
-  const filteredPurchaseProducts = purchaseProducts.filter((p: any) =>
-    p.name.toLowerCase().includes(searchProduct.toLowerCase())
-  );
-  //
+  // ✅ 진행 중 / 완료 / 취소 개수 계산
+  const totalPending = (estimates.pending || 0) + (orders.pending || 0);
+  const totalCompleted = (estimates.completed || 0) + (orders.completed || 0);
+  const totalCanceled = (estimates.canceled || 0) + (orders.canceled || 0);
 
   // ✅ 중복 제거 및 총합 계산 함수
   const aggregateData = (data: any[], key: string) => {
@@ -133,32 +129,44 @@ export default function UserDetailPage() {
       {/* 🔹 유저 기본 정보 + 견적/매출 실적 */}
       <div className="mb-4">
         <Link
-          href="/customers"
-          className="text-blue-500 hover:underline hover:font-bold"
+          href="/reports/users"
+          className="text-blue-500 hover:font-semibold"
         >
-          직원 목록
+          영업 직원 목록{" "}
         </Link>
+        <span className="text-[#333] font-semibold">
+          - {user?.position} {user?.name} {user?.level}
+        </span>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <p className="text-xl font-bold">
-          {user?.name} ({user?.position})
-        </p>
-        <p className="text-gray-600">📧 {user?.email || "-"}</p>
-        <p className="text-gray-600">
-          🎯 목표 금액:{" "}
-          <span className="font-semibold text-blue-600">
-            {user?.target?.toLocaleString() || "-"} 원
-          </span>
-        </p>
+      {/* 🔹 유저 정보 섹션 */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-6 shadow-sm">
+          {/* 🔹 유저 정보 섹션 */}
+          <div className="flex justify-between items-center border-b pb-4 mb-4">
+            <div>
+              <p className="text-xl font-bold text-gray-800">
+                {user?.name} {user?.level}{" "}
+                <span className="text-gray-600">({user?.position})</span>
+              </p>
+              <p className="text-gray-600 text-sm mt-1">
+                🎯 목표 금액:{" "}
+                <span className="font-semibold text-blue-600">
+                  {user?.target?.toLocaleString() || "-"} 원
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
 
-        {/* 🔹 필터 옵션 */}
-        <div className="flex flex-wrap justify-between items-center mt-4">
-          <p className="font-semibold text-lg">📅 데이터 기간 선택</p>
-          <div className="flex space-x-4">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+          <p className="text-lg font-semibold text-gray-700 ">
+            📅 데이터 기간 선택
+          </p>
+          <div className="grid grid-cols-3 gap-4 mt-2">
             {/* 🔹 연도 선택 */}
             <select
-              className="border p-2 rounded-md"
+              className="border-2 border-blue-400 p-2 rounded-md text-gray-700 w-full"
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
             >
@@ -177,7 +185,7 @@ export default function UserDetailPage() {
 
             {/* 🔹 필터 선택 */}
             <select
-              className="border p-2 rounded-md"
+              className="border p-2 rounded-md w-full"
               value={dateFilter}
               onChange={(e) =>
                 setDateFilter(e.target.value as "year" | "quarter" | "month")
@@ -191,7 +199,7 @@ export default function UserDetailPage() {
             {/* 🔹 분기 선택 */}
             {dateFilter === "quarter" && (
               <select
-                className="border p-2 rounded-md"
+                className="border p-2 rounded-md w-full"
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(Number(e.target.value))}
               >
@@ -205,7 +213,7 @@ export default function UserDetailPage() {
             {/* 🔹 월 선택 */}
             {dateFilter === "month" && (
               <select
-                className="border p-2 rounded-md"
+                className="border p-2 rounded-md w-full"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
               >
@@ -217,12 +225,65 @@ export default function UserDetailPage() {
               </select>
             )}
           </div>
+          <div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              {/* ✅ 견적서 */}
+              <div className="bg-white p-4 rounded-lg shadow">
+                <p className="text-md font-semibold">📄 견적서</p>
+                <ul className="mt-2 space-y-2">
+                  <li className="flex justify-between text-sm text-yellow-700 font-medium">
+                    진행 중{" "}
+                    <span className="font-bold text-yellow-600">
+                      {estimates.pending}건
+                    </span>
+                  </li>
+                  <li className="flex justify-between text-sm text-green-700 font-medium">
+                    완료됨{" "}
+                    <span className="font-bold text-green-600">
+                      {estimates.completed}건
+                    </span>
+                  </li>
+                  <li className="flex justify-between text-sm text-red-700 font-medium">
+                    취소됨{" "}
+                    <span className="font-bold text-red-600">
+                      {estimates.canceled}건
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* ✅ 발주서 */}
+              <div className="bg-white p-4 rounded-lg shadow">
+                <p className="text-md font-semibold ">📑 발주서</p>
+                <ul className="mt-2 space-y-2">
+                  <li className="flex justify-between text-sm text-yellow-700 font-medium">
+                    진행 중{" "}
+                    <span className="font-bold text-yellow-600">
+                      {orders.pending}건
+                    </span>
+                  </li>
+                  <li className="flex justify-between text-sm text-green-700 font-medium">
+                    완료됨{" "}
+                    <span className="font-bold text-green-600">
+                      {orders.completed}건
+                    </span>
+                  </li>
+                  <li className="flex justify-between text-sm text-red-700 font-medium">
+                    취소됨{" "}
+                    <span className="font-bold text-red-600">
+                      {orders.canceled}건
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* 🔹 차트 (견적 & 발주 실적) */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-4">🏢 거래처별 매출 비중</p>
           {/* 🔹 매출 차트 */}
           <ReactApexChart
@@ -235,7 +296,8 @@ export default function UserDetailPage() {
             height={300}
           />
         </div>
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
+          {" "}
           <p className="text-lg font-semibold mb-4">🏢 거래처별 매입 비중</p>
           <ReactApexChart
             options={{
@@ -249,7 +311,7 @@ export default function UserDetailPage() {
         </div>
 
         {/* 🟦 견적 실적 (Area Chart) */}
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-4">📈 견적 금액</p>
           <ReactApexChart
             options={{
@@ -287,7 +349,7 @@ export default function UserDetailPage() {
         </div>
 
         {/* 🟩 발주 실적 (Area Chart) */}
-        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-4">📈 발주 금액</p>
           <ReactApexChart
             options={{
@@ -326,9 +388,9 @@ export default function UserDetailPage() {
       </div>
 
       {/* 🔹 거래처 & 품목 테이블 */}
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-2 gap-4 my-4">
         {/* 🔹 매출 거래처 목록 */}
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-2">🏢 매출 거래처</p>
           {aggregatedSalesCompanies.length > 0 ? (
             aggregatedSalesCompanies.map((c: any) => (
@@ -342,7 +404,7 @@ export default function UserDetailPage() {
         </div>
 
         {/* 🔹 매입 거래처 목록 */}
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-2">🏢 매입 거래처</p>
           {aggregatedPurchaseCompanies.length > 0 ? (
             aggregatedPurchaseCompanies.map((c: any) => (
@@ -354,7 +416,7 @@ export default function UserDetailPage() {
             <p className="text-gray-500">매입 거래처 없음</p>
           )}
         </div>
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-2">📦 매출 품목</p>
           {aggregatedSalesProducts.length > 0 ? (
             aggregatedSalesProducts.map((p: any) => (
@@ -368,7 +430,7 @@ export default function UserDetailPage() {
         </div>
 
         {/* 🔹 매입 품목 목록 */}
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-2">📦 매입 품목</p>
           {aggregatedPurchaseProducts.length > 0 ? (
             aggregatedPurchaseProducts.map((p: any) => (

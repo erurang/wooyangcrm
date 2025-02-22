@@ -44,7 +44,7 @@ const fetchReports = async (type: "estimate" | "order", date: string) => {
     .from("documents")
     .select("id, content, created_at, company_id, type, users(name,level)")
     .eq("type", type)
-    .eq("status", "backup") // ✅ 완료된 문서만 조회
+    .eq("status", "completed") // ✅ 완료된 문서만 조회
     .gte("created_at", startDate) // ✅ 한국 시간 기준 시작
     .lte("created_at", endDate) // ✅ 한국 시간 기준 끝
     .order("content -> company_name", { ascending: true });

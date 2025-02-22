@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+
 import { useParams, useRouter } from "next/navigation";
 import { CircularProgress, Button } from "@mui/material";
 import dynamic from "next/dynamic";
