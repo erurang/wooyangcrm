@@ -330,12 +330,12 @@ export default function DocumentsDetailsPage() {
                 {type === "order" && "납기일"}
                 {type === "requestQuote" && "희망견적일"}
               </th>
-              <th className="px-4 py-2 border-b border-r-[1px]">회사명</th>
+              <th className="px-4 py-2 border-b border-r-[1px]">거래처명</th>
               <th className="px-4 py-2 border-b border-r-[1px]">문서 번호</th>
               {status === "pending" && (
                 <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
               )}
-              <th className="px-4 py-2 border-b border-r-[1px]">상담자</th>
+              <th className="px-4 py-2 border-b border-r-[1px]">피상담자</th>
               <th className="px-4 py-2 border-b border-r-[1px]">
                 {type === "estimate" && "견적자"}
                 {type === "order" && "발주자"}

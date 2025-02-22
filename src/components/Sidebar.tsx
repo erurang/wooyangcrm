@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "./Snackbar";
 import { useFavorites } from "@/hooks/favorites/useFavorites";
+import TokenInfo from "./TokenInfo";
 
 interface MenuItem {
   id: string; // ✅ 유니크한 ID 추가
@@ -41,12 +42,19 @@ export default function Sidebar() {
   return (
     <>
       <motion.div
-        className="w-56 bg-[#F8F8F7] min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B] transition-all duration-300"
+        className="w-56 bg-[#F8F8F7] min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B] transition-all duration-300 relative"
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <div className="py-1 px-2 rounded-sm flex items-center">
-          {user?.position} {user?.name} {user?.level}
+        <div className="py-1 px-3 rounded-sm flex items-center">
+          <div>
+            <div className="text-sm font-semibold">
+              <span>
+                반갑습니다. {user?.name} {user?.level}님!
+              </span>
+            </div>
+          </div>
         </div>
+        <TokenInfo />
         <nav className="mt-2">
           <div>
             <div

@@ -321,7 +321,7 @@ export default function RecentConsultations() {
         <table className="min-w-full table-auto border-collapse text-center">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 border-b border-r w-2/12">회사명</th>
+              <th className="px-4 py-2 border-b border-r w-2/12">거래처명</th>
               <th className="px-4 py-2 border-b border-r w-1/12">상담일자</th>
               <th className="px-4 py-2 border-b border-r w-1/12">피상담자</th>
               <th className="px-4 py-2 border-b border-r w-1/12">상담자</th>

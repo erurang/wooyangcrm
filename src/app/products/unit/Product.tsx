@@ -233,12 +233,12 @@ export default function ProductPage() {
               <th className="px-4 py-2 border-b border-r">
                 {type === "estimate" ? "견적" : "발주"} 날짜
               </th>
-              <th className="px-4 py-2 border-b border-r">회사명</th>
+              <th className="px-4 py-2 border-b border-r">거래처명</th>
               <th className="px-4 py-2 border-b border-r">물품명</th>
               <th className="px-4 py-2 border-b border-r">규격</th>
               <th className="px-4 py-2 border-b border-r">수량</th>
               <th className="px-4 py-2 border-b border-r">단가</th>
-              <th className="px-4 py-2 border-b border-r">직원</th>
+              <th className="px-4 py-2 border-b border-r">담당</th>
             </tr>
           </thead>
           <tbody>

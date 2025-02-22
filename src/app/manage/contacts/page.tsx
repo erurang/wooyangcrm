@@ -40,7 +40,7 @@ export default function ContactsPage() {
   const [email, setEmail] = useState<string>("");
   const [mobile, setMobile] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
-  const contactsPerPage = 5;
+  const contactsPerPage = 6;
   const router = useRouter();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false); // 추가 모달 상태
   const [snackbarMessage, setSnackbarMessage] = useState<string>(""); // 스낵바 메시지
@@ -350,7 +350,83 @@ export default function ContactsPage() {
       </div>
 
       {/* 🔹 리스트 테이블 */}
-      <div className="overflow-x-auto mt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {contacts?.map((contact: any) => (
+          <div
+            key={contact.id}
+            className="bg-white rounded-lg border shadow-sm p-6 relative overflow-hidden flex flex-col justify-between transition-all hover:shadow-md"
+          >
+            {/* 🔹 수정 & 삭제 버튼 (우측 상단) */}
+            <div className="absolute top-3 right-4 flex space-x-2 text-sm">
+              <button
+                className="text-gray-500 hover:text-blue-500"
+                onClick={() => handleEditContact(contact)}
+              >
+                수정
+              </button>
+              <button
+                className="text-gray-500 hover:text-red-500"
+                onClick={() => handleDeleteContact(contact.id)}
+              >
+                삭제
+              </button>
+            </div>
+
+            {/* 🔹 담당자 이름 및 직급 */}
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-lg font-bold text-gray-700">
+                {contact.contact_name[0]} {/* 첫 글자로 아바타 생성 */}
+              </div>
+              <div>
+                <p
+                  className="text-xl font-bold text-blue-500 cursor-pointer"
+                  // onClick={() => router.push(`/manage/contacts/${contact.id}`)}
+                >
+                  {contact.contact_name || "이름을 재설정해주세요"}
+                </p>
+                <p className="text-gray-500 text-sm">
+                  {contact.level || "직급 없음"}
+                </p>
+              </div>
+            </div>
+
+            {/* 🔹 회사명 */}
+            <p className="text-gray-700 font-semibold text-sm bg-gray-100 px-2 py-1 rounded-md w-fit">
+              {contact.companies?.name || "거래처 없음"}
+            </p>
+
+            {/* 🔹 연락처 및 이메일 */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mt-4 text-sm text-gray-600">
+                <p>
+                  <span className="font-medium text-gray-800">부서:</span>{" "}
+                  {contact.department || "없음"}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-800">이메일:</span>{" "}
+                  {contact.email || "없음"}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-800">연락처:</span>{" "}
+                  {contact.mobile || "없음"}
+                </p>
+              </div>
+
+              {/* 🔹 부서 & 비고 */}
+              <div className="mt-4 text-sm text-gray-600">
+                <p className="font-medium text-gray-800">비고:</p>
+                <div
+                  className="max-h-28 overflow-y-auto rounded-md  text-gray-700"
+                  style={{ wordBreak: "break-word" }} // 긴 단어 줄바꿈 방지
+                >
+                  {contact.note || "없음"}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* <div className="overflow-x-auto mt-4">
         <div className="bg-[#FBFBFB] rounded-md border">
           <table className="min-w-full table-auto border-collapse">
             <thead>
@@ -422,7 +498,7 @@ export default function ContactsPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
 
       {/* 🔹 페이지네이션 UI */}
       <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">

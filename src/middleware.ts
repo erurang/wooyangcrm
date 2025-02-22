@@ -29,14 +29,17 @@ export async function middleware(req: NextRequest) {
       console.log("권한 없음: 관리자만 접근 가능");
       return NextResponse.redirect("/403"); // 권한 없음 페이지로 리다이렉트
     }
+    const response = NextResponse.next();
+
+    // ⚠️ 클라이언트에서 새로고침 없이 리렌더링하도록 캐시 무효화
+    response.headers.set("Cache-Control", "no-store, must-revalidate");
+    return response;
   } catch (err: any) {
     console.error("JWT 검증 실패:", err.message);
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("redirectTo", req.nextUrl.pathname);
     return NextResponse.redirect(loginUrl); // JWT 검증 실패 시 로그인 페이지로 이동
   }
-
-  return NextResponse.next();
 }
 
 export const config = {

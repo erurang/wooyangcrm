@@ -3,31 +3,19 @@ import { supabase } from "@/lib/supabaseClient";
 import { sendEmail } from "@/lib/sendEmail";
 import jwt from "jsonwebtoken";
 
-// const OPEN_CAGE_API_KEY = "d5ec3469dbeb4f158ac70066af8f9020";
 const SECRET_KEY = process.env.JWT_SECRET || "default-secret-key";
+const IP_CHANGE_THRESHOLD = 3; // ✅ 거리 차이 기준 (단위: km)
 
 type RoleData = {
   roles: {
     role_name: string;
   };
 };
-
-// Reverse Geocoding 함수
-// async function getLocationDetails(latitude: number, longitude: number) {
-//   const response = await fetch(
-//     `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${OPEN_CAGE_API_KEY}`
-//   );
-//   const data = await response.json();
-
-//   if (data && data.results && data.results.length > 0) {
-//     return data.results[0].formatted;
-//   }
-
-//   return "위치 정보를 가져올 수 없습니다.";
-// }
-
 export async function POST(req: NextRequest) {
   const { email, code } = await req.json();
+
+  const forwarded = req.headers.get("x-forwarded-for");
+  const currentIp = forwarded ? forwarded.split(",")[0].trim() : "알 수 없음";
 
   // 인증번호 검증
   const { data: verificationData, error: verificationError } = await supabase
@@ -60,8 +48,6 @@ export async function POST(req: NextRequest) {
     .eq("email", email)
     .maybeSingle(); // ✅ 데이터가 없으면 null 반환
 
-  console.log("userError", userError);
-
   if (userError || !userData) {
     return NextResponse.json(
       { error: "사용자 역할을 가져올 수 없습니다." },
@@ -78,14 +64,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // // 위치 정보 가져오기
-  // const { latitude, longitude } = location || {};
-  // let locationDetails = "위치 정보를 가져올 수 없습니다.";
-
-  // if (latitude && longitude) {
-  //   locationDetails = await getLocationDetails(latitude, longitude);
-  // }
-
   // 로그인 기록 저장
   const ip =
     req.headers.get("x-forwarded-for") ||
@@ -95,13 +73,11 @@ export async function POST(req: NextRequest) {
   await supabase.from("login_logs").insert({
     email,
     ip_address: ip,
-    // latitude,
-    // longitude,
     login_time: new Date().toISOString(),
   });
 
   // 관리자에게 이메일 발송
-  const adminEmail = "erurang@naver.com";
+  const adminEmail = "info@iwooyang.com";
   // const emailSubject = `${email} / ${locationDetails}`;
   // <p><strong>위치:</strong> ${locationDetails}</p>
   // <p><strong>위도/경도:</strong> ${latitude || "N/A"}, ${
@@ -123,8 +99,8 @@ export async function POST(req: NextRequest) {
   }
 
   // JWT 토큰 생성 (role 포함)
-  const token = jwt.sign({ email, role: roleName }, SECRET_KEY, {
-    // expiresIn: "10h",
+  const token = jwt.sign({ email, role: roleName, ip: currentIp }, SECRET_KEY, {
+    expiresIn: "12h",
   });
 
   // JWT를 HttpOnly 쿠키에 저장
