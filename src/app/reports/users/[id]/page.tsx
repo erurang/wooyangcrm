@@ -77,11 +77,6 @@ export default function UserDetailPage() {
   const estimates = userDocuments.estimates;
   const orders = userDocuments.orders;
 
-  // ✅ 진행 중 / 완료 / 취소 개수 계산
-  const totalPending = (estimates.pending || 0) + (orders.pending || 0);
-  const totalCompleted = (estimates.completed || 0) + (orders.completed || 0);
-  const totalCanceled = (estimates.canceled || 0) + (orders.canceled || 0);
-
   // ✅ 중복 제거 및 총합 계산 함수
   const aggregateData = (data: any[], key: string) => {
     return Object.values(

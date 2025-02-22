@@ -208,14 +208,19 @@ const menuSections: MenuSection[] = [
     title: "📈 영업 성과 분석",
     items: [
       {
+        id: "sales-users",
+        title: "직원",
+        path: `/reports/users`,
+      },
+      {
+        id: "sales-customers",
+        title: "거래처",
+        path: `/reports/customers`,
+      },
+      {
         id: "sales-report",
         title: "매출/매입 리포트",
         path: "/reports",
-      },
-      {
-        id: "sales-users",
-        title: "영업 직원",
-        path: `/reports/users`,
       },
       // {
       //   id: "performance",

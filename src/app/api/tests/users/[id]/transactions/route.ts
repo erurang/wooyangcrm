@@ -26,55 +26,32 @@ export async function GET(
       end_date: endDate,
     });
 
-    console.log("data", data);
-
     if (error) throw error;
 
-    // ✅ 데이터 가공
-    const salesCompanies: any[] = [];
-    const purchaseCompanies: any[] = [];
-    const salesProducts: any[] = [];
-    const purchaseProducts: any[] = [];
+    // ✅ 응답 데이터가 없을 경우 예외 처리
+    if (!data || data.length === 0) {
+      console.log("❌ 데이터 없음, 빈 배열 반환");
+      return NextResponse.json(
+        {
+          salesCompanies: [],
+          purchaseCompanies: [],
+          salesProducts: [],
+          purchaseProducts: [],
+        },
+        { status: 200 }
+      );
+    }
 
-    data.forEach((item: any) => {
-      // 거래처 데이터 분류
-      if (item.total_sales > 0) {
-        salesCompanies.push({
-          name: item.company_name,
-          total: item.total_sales,
-        });
-      }
-      if (item.total_purchases > 0) {
-        purchaseCompanies.push({
-          name: item.company_name,
-          total: item.total_purchases,
-        });
-      }
+    // ✅ data가 배열 형태라면 첫 번째 요소만 사용
+    const responseData = Array.isArray(data) ? data[0] : data;
 
-      // 제품 데이터 분류
-      if (item.type === "estimate") {
-        salesProducts.push({
-          name: item.product_name,
-          spec: item.spec,
-          total: item.amount,
-          quantity: item.quantity,
-        });
-      } else if (item.type === "order") {
-        purchaseProducts.push({
-          name: item.product_name,
-          spec: item.spec,
-          total: item.amount,
-          quantity: item.quantity,
-        });
-      }
-    });
-
+    // ✅ 올바른 데이터 가공
     return NextResponse.json(
       {
-        salesCompanies,
-        purchaseCompanies,
-        salesProducts,
-        purchaseProducts,
+        salesCompanies: responseData?.salescompanies ?? [],
+        purchaseCompanies: responseData?.purchasecompanies ?? [],
+        salesProducts: responseData?.salesproducts ?? [],
+        purchaseProducts: responseData?.purchaseproducts ?? [],
       },
       { status: 200 }
     );

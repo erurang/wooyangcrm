@@ -21,7 +21,6 @@ export const LoginUserProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [loginUser, setLoginUser] = useState<LoginUser | undefined>(undefined);
 
-  console.log("loginUsertest", loginUser);
   useEffect(() => {
     const fetchUser = async () => {
       try {
