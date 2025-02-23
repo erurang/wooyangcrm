@@ -40,7 +40,7 @@ export default function ContactsPage() {
   const [email, setEmail] = useState<string>("");
   const [mobile, setMobile] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
-  const contactsPerPage = 6;
+  const contactsPerPage = 10;
   const router = useRouter();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false); // 추가 모달 상태
   const [snackbarMessage, setSnackbarMessage] = useState<string>(""); // 스낵바 메시지
@@ -350,13 +350,13 @@ export default function ContactsPage() {
       </div>
 
       {/* 🔹 리스트 테이블 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {contacts?.map((contact: any) => (
           <div
             key={contact.id}
             className="bg-white rounded-lg border shadow-sm p-6 relative overflow-hidden flex flex-col justify-between transition-all hover:shadow-md"
           >
-            {/* 🔹 수정 & 삭제 버튼 (우측 상단) */}
+            
             <div className="absolute top-3 right-4 flex space-x-2 text-sm">
               <button
                 className="text-gray-500 hover:text-blue-500"
@@ -372,10 +372,10 @@ export default function ContactsPage() {
               </button>
             </div>
 
-            {/* 🔹 담당자 이름 및 직급 */}
+            
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-lg font-bold text-gray-700">
-                {contact.contact_name[0]} {/* 첫 글자로 아바타 생성 */}
+                {contact.contact_name[0]}
               </div>
               <div>
                 <p
@@ -390,12 +390,12 @@ export default function ContactsPage() {
               </div>
             </div>
 
-            {/* 🔹 회사명 */}
+            
             <p className="text-gray-700 font-semibold text-sm bg-gray-100 px-2 py-1 rounded-md w-fit">
               {contact.companies?.name || "거래처 없음"}
             </p>
 
-            {/* 🔹 연락처 및 이메일 */}
+            
             <div className="grid grid-cols-2 gap-4">
               <div className="mt-4 text-sm text-gray-600">
                 <p>
@@ -412,7 +412,7 @@ export default function ContactsPage() {
                 </p>
               </div>
 
-              {/* 🔹 부서 & 비고 */}
+              
               <div className="mt-4 text-sm text-gray-600">
                 <p className="font-medium text-gray-800">비고:</p>
                 <div
@@ -425,28 +425,26 @@ export default function ContactsPage() {
             </div>
           </div>
         ))}
-      </div>
-      {/* <div className="overflow-x-auto mt-4">
+      </div> */}
+      <div className="overflow-x-auto mt-4">
         <div className="bg-[#FBFBFB] rounded-md border">
           <table className="min-w-full table-auto border-collapse">
             <thead>
-              <tr className="bg-gray-100 text-left">
-                <th className="px-4 py-2 border-b border-r w-1/6">거래처명</th>
+              <tr className="bg-gray-100 text-center">
+                <th className="px-4 py-2 border-b border-r w-2/12">거래처명</th>
                 <th className="px-4 py-2 border-b border-r w-1/12">담당자명</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">부서</th>
                 <th className="px-4 py-2 border-b border-r w-1/12">직급</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">이메일</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">연락처</th>
-                <th className="px-4 py-2 border-b border-r w-1/4">비고</th>
-                <th className="px-4 py-2 border-b border-r ">수정</th>
-                <th className="px-4 py-2 border-b hidden md:table-cell">
-                  삭제
-                </th>
+                <th className="px-4 py-2 border-b border-r w-1/12">부서</th>
+                <th className="px-4 py-2 border-b border-r w-2/12">이메일</th>
+                <th className="px-4 py-2 border-b border-r w-2/12">연락처</th>
+                {/* <th className="px-4 py-2 border-b border-r w-1/4">비고</th> */}
+                <th className="px-4 py-2 border-b border-r w-1/12">수정</th>
+                <th className="px-4 py-2 border-b w-1/12">삭제</th>
               </tr>
             </thead>
             <tbody>
               {contacts?.map((contact: any) => (
-                <tr key={contact.id} className="hover:bg-gray-50">
+                <tr key={contact.id} className="hover:bg-gray-100 text-center">
                   <td className="px-4 py-2 border-b border-r">
                     {contact.companies?.name}
                   </td>
@@ -459,10 +457,10 @@ export default function ContactsPage() {
                     {contact.contact_name}
                   </td>
                   <td className="px-4 py-2 border-b border-r">
-                    {contact.department}
+                    {contact.level}
                   </td>
                   <td className="px-4 py-2 border-b border-r">
-                    {contact.level}
+                    {contact.department}
                   </td>
                   <td className="px-4 py-2 border-b border-r">
                     {contact.email}
@@ -470,7 +468,7 @@ export default function ContactsPage() {
                   <td className="px-4 py-2 border-b border-r">
                     {contact.mobile}
                   </td>
-                  <td
+                  {/* <td
                     style={{
                       minHeight: "8rem",
                       maxHeight: "8rem",
@@ -480,7 +478,7 @@ export default function ContactsPage() {
                     className="px-4 py-2 border-b border-r"
                   >
                     {contact.note}
-                  </td>
+                  </td> */}
                   <td
                     className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
                     onClick={() => handleEditContact(contact)}
@@ -498,7 +496,7 @@ export default function ContactsPage() {
             </tbody>
           </table>
         </div>
-      </div> */}
+      </div>
 
       {/* 🔹 페이지네이션 UI */}
       <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">

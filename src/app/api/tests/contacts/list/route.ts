@@ -28,7 +28,8 @@ export async function GET(request: Request) {
       const { data: contacts, error } = await supabase
         .from("contacts")
         .select("id,company_id, contact_name, mobile, department, level, email")
-        .in("company_id", companyIds);
+        .in("company_id", companyIds)
+        .order("company_id", { ascending: true });
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

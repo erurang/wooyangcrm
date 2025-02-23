@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useContactDetails } from "@/hooks/manage/contacts/detail/useContactDetails";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -13,10 +14,6 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 export default function ContactDetailPage() {
   const { id } = useParams();
   const contactId = Array.isArray(id) ? id[0] : id || "";
-
-  const [contactData, setContactData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // ✅ 필터 상태 추가
   const [dateFilter, setDateFilter] = useState<"year" | "quarter" | "month">(
@@ -49,33 +46,13 @@ export default function ContactDetailPage() {
       .split("T")[0];
   }
 
-  useEffect(() => {
-    async function fetchContactDetails() {
-      if (!contactId) return;
+  const { contactData, isLoading, error } = useContactDetails(
+    contactId,
+    startDate,
+    endDate
+  );
 
-      setLoading(true);
-      setError(null);
-
-      const { data, error } = await supabase.rpc("get_contact_details", {
-        contact_param: contactId,
-        start_date: startDate,
-        end_date: endDate,
-      });
-
-      if (error) {
-        console.error("Error fetching contact details:", error);
-        setError("데이터를 불러오는 중 오류가 발생했습니다.");
-      } else {
-        setContactData(data[0] || {});
-      }
-
-      setLoading(false);
-    }
-
-    fetchContactDetails();
-  }, [contactId, startDate, endDate]);
-
-  if (loading) {
+  if (isLoading) {
     return <div className="text-center py-10">⏳ 데이터 불러오는 중...</div>;
   }
 
@@ -89,30 +66,100 @@ export default function ContactDetailPage() {
     );
   }
 
-  // ✅ 차트 데이터 생성 함수
-  const getChartData = (items: any[]) => {
-    const sorted = [...items].sort((a, b) => b.amount - a.amount);
-    const top5 = sorted.slice(0, 5);
-    const otherTotal = sorted.slice(5).reduce((sum, c) => sum + c.amount, 0);
+  // ✅ 상태별로 문서 필터링
+  const confirmedDocuments = contactData.consultations.flatMap((c: any) =>
+    c.documents.filter((doc: any) => doc.status === "completed")
+  );
+  const expectedDocuments = contactData.consultations.flatMap((c: any) =>
+    c.documents.filter((doc: any) => doc.status === "pending")
+  );
+  const canceledDocuments = contactData.consultations.flatMap((c: any) =>
+    c.documents.filter((doc: any) => doc.status === "canceled")
+  );
 
-    return {
-      labels: [...top5.map((c) => c.name), otherTotal > 0 ? "기타" : ""].filter(
-        Boolean
-      ),
-      data: [
-        ...top5.map((c) => c.amount),
-        otherTotal > 0 ? otherTotal : 0,
-      ].filter((v) => v > 0),
-    };
-  };
+  // ✅ 상태별 매입/매출 금액 계산
+  // ✅ 상태별 매입/매출 금액 계산
+  const confirmedPurchases = confirmedDocuments
+    .filter((doc: any) => doc.type === "order") // 🟢 실제 매입 (우리가 이 담당자에게서 구매한 금액)
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        doc.items.reduce((subSum: any, item: any) => subSum + item.amount, 0),
+      0
+    );
 
-  const estimateChart = getChartData(contactData.estimate_items || []);
-  const orderChart = getChartData(contactData.order_items || []);
+  const confirmedSales = confirmedDocuments
+    .filter((doc: any) => doc.type === "estimate") // 🟢 실제 매출 (이 담당자가 우리에게서 구매한 금액)
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        doc.items.reduce((subSum: any, item: any) => subSum + item.amount, 0),
+      0
+    );
+
+  const expectedPurchases = expectedDocuments
+    .filter((doc: any) => doc.type === "order") // 🟡 진행 중인 매입
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        doc.items.reduce((subSum: any, item: any) => subSum + item.amount, 0),
+      0
+    );
+
+  const expectedSales = expectedDocuments
+    .filter((doc: any) => doc.type === "estimate") // 🟡 진행 중인 매출
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        doc.items.reduce((subSum: any, item: any) => subSum + item.amount, 0),
+      0
+    );
+
+  const canceledPurchases = canceledDocuments
+    .filter((doc: any) => doc.type === "order") // 🔴 취소된 매입
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        doc.items.reduce((subSum: any, item: any) => subSum + item.amount, 0),
+      0
+    );
+
+  const canceledSales = canceledDocuments
+    .filter((doc: any) => doc.type === "estimate") // 🔴 취소된 매출
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        doc.items.reduce((subSum: any, item: any) => subSum + item.amount, 0),
+      0
+    );
+
+  // ✅ 상담 데이터 가공
+  const userConsultationStats = contactData.consultations.reduce(
+    (acc: any, consultation: any) => {
+      const userName = consultation.documents?.[0]?.user?.name || "미지정"; // 상담자 정보
+      const status = consultation.documents?.[0]?.status || "pending"; // 상태 (기본값 pending)
+
+      if (!acc[userName]) {
+        acc[userName] = { completed: 0, pending: 0, canceled: 0, count: 0 };
+      }
+
+      acc[userName][status] += consultation.documents.reduce(
+        (sum: any, doc: any) =>
+          sum +
+          doc.items.reduce((subSum: any, item: any) => subSum + item.amount, 0),
+        0
+      );
+
+      acc[userName].count += 1; // 상담 건수 증가
+      return acc;
+    },
+    {}
+  );
+
+  // ✅ 차트 데이터 변환
 
   return (
     <div className="text-sm text-[#333]">
-      {/* 🔹 담당자 정보 */}
-
       <div className="mb-4">
         <Link
           href="/manage/contacts"
@@ -148,26 +195,7 @@ export default function ContactDetailPage() {
                 {contactData.mobile || "-"}
               </p>
             </div>
-            <div>
-              <p className="text-gray-700 text-sm">
-                총 매입 금액:
-                <span className="font-bold text-green-600">
-                  {contactData.estimate_items
-                    .reduce((sum: any, item: any) => sum + item.amount, 0)
-                    .toLocaleString()}{" "}
-                  원
-                </span>
-              </p>
-              <p className="text-gray-700 text-sm">
-                총 매출 금액:
-                <span className="font-bold text-blue-600">
-                  {contactData.order_items
-                    .reduce((sum: any, item: any) => sum + item.amount, 0)
-                    .toLocaleString()}{" "}
-                  원
-                </span>
-              </p>
-            </div>
+            <div></div>
           </div>
         </div>
 
@@ -230,564 +258,162 @@ export default function ContactDetailPage() {
             )}
           </div>
         </div>
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 grid grid-cols-2 gap-4">
+          {/* 🟢 확정된 매입 & 매출 */}
+          <div className="bg-white p-4 rounded-md border shadow-sm">
+            <p className="text-sm text-gray-500">🟢 확정된 매입</p>
+            <p className="text-xl font-bold text-green-600">
+              {confirmedPurchases.toLocaleString()} 원
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-md border shadow-sm">
+            <p className="text-sm text-gray-500">🟢 확정된 매출</p>
+            <p className="text-xl font-bold text-blue-600">
+              {confirmedSales.toLocaleString()} 원
+            </p>
+          </div>
+
+          {/* 🟡 진행 중인 매입 & 매출 */}
+          <div className="bg-white p-4 rounded-md border shadow-sm">
+            <p className="text-sm text-gray-500">🟡 진행 중인 매입</p>
+            <p className="text-xl font-bold text-yellow-600">
+              {expectedPurchases.toLocaleString()} 원
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-md border shadow-sm">
+            <p className="text-sm text-gray-500">🟡 진행 중인 매출</p>
+            <p className="text-xl font-bold text-yellow-600">
+              {expectedSales.toLocaleString()} 원
+            </p>
+          </div>
+
+          {/* 🔴 취소된 매입 & 매출 */}
+          <div className="bg-white p-4 rounded-md border shadow-sm">
+            <p className="text-sm text-gray-500">🔴 취소된 매입</p>
+            <p className="text-xl font-bold text-red-600">
+              {canceledPurchases.toLocaleString()} 원
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-md border shadow-sm">
+            <p className="text-sm text-gray-500">🔴 취소된 매출</p>
+            <p className="text-xl font-bold text-red-600">
+              {canceledSales.toLocaleString()} 원
+            </p>
+          </div>
+        </div>
+        {/*  */}
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-          <h2 className="text-lg font-bold mb-4">상담 내역</h2>
-          <div className="space-y-4 max-h-[400px] overflow-y-auto">
+          <h2 className="text-lg font-bold mb-4">📊 상담자별 상담 현황</h2>
+
+          <div className="grid grid-cols-[1fr_2fr] gap-6">
+            {/* 🔹 상담자별 정보 */}
+            <ul className="space-y-2">
+              {Object.entries(userConsultationStats).map(
+                ([user, stats]: any) => (
+                  <li
+                    key={user}
+                    className="flex justify-between items-center text-sm p-2 border rounded-md "
+                  >
+                    <span className="font-semibold">{user}</span>
+                    <span className="text-gray-500">{stats.count}건</span>
+                  </li>
+                )
+              )}
+            </ul>
+
+            <div className="p-4 border rounded-md bg-white shadow-sm"></div>
+          </div>
+        </div>
+        {/*  */}
+      </div>
+      {/*  */}
+      <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 mt-4">
+        <h2 className="text-lg font-bold mb-4">상담 내역 & 문서 & 품목</h2>
+
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-[2fr_1fr_2fr] gap-6 min-w-[900px] font-semibold text-gray-700">
+            <div>상담 기록</div>
+            <div>관련 문서</div>
+            <div>품목 리스트</div>
+          </div>
+
+          {/* 🔹 스크롤 가능 영역 */}
+          <div className="space-y-4 mt-2 overflow-y-auto max-h-[700px]">
             {contactData.consultations.map((consultation: any, index: any) => (
               <div
                 key={index}
-                className="p-4 border rounded-lg bg-white shadow-sm"
+                className="grid grid-cols-[2fr_1fr_2fr] gap-6 items-center border-b pb-4"
               >
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">
+                {/* 🔹 상담 기록 */}
+                <div className="p-3 border rounded-md bg-white">
+                  <div className="text-sm text-gray-600">
                     {consultation.date}
-                  </span>
+                  </div>
+                  <p className="text-gray-800 whitespace-pre-line">
+                    {consultation.content}
+                  </p>
                 </div>
-                <p className="mt-2 text-gray-800 whitespace-pre-line">
-                  {consultation.content}
-                </p>
+
+                {/* 🔹 관련 문서 (문서 유형 추가) */}
+                <div className="p-3 border rounded-md bg-white">
+                  {consultation.documents.length > 0 ? (
+                    consultation.documents.map((doc: any, docIndex: number) => (
+                      <div
+                        key={docIndex}
+                        className="p-2 border rounded-md bg-gray-50 shadow-sm"
+                      >
+                        <p className="text-sm font-semibold text-blue-600">
+                          {doc.type === "estimate" ? "📄 견적서" : "📑 발주서"}
+                        </p>
+                        <p className="text-xs text-gray-700">
+                          문서번호:{" "}
+                          <span className="font-semibold">
+                            {doc.document_number}
+                          </span>
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          생성일: {doc.created_at.split("T")[0]}
+                        </p>
+                        <p className="text-xs">
+                          담당자:{" "}
+                          <span className="font-semibold">{doc.user.name}</span>{" "}
+                          ({doc.user.level})
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-400 text-sm">📂 관련 문서 없음</p>
+                  )}
+                </div>
+
+                {/* 🔹 품목 리스트 (quantity 추가 + 순서 변경) */}
+                <div className="p-3 border rounded-md bg-white">
+                  {consultation.documents.length > 0 ? (
+                    consultation.documents.map((doc: any) =>
+                      doc.items.map((item: any, itemIndex: number) => (
+                        <div
+                          key={itemIndex}
+                          className="grid grid-cols-4 gap-4 p-2 border rounded-md bg-gray-50 text-sm"
+                        >
+                          <span className="text-gray-700">{item.name}</span>
+                          <span className="text-gray-500">{item.spec}</span>
+                          <span className="text-gray-500">{item.quantity}</span>
+                          <span className="text-blue-600 font-semibold">
+                            {Number(item.amount).toLocaleString()} 원
+                          </span>
+                        </div>
+                      ))
+                    )
+                  ) : (
+                    <p className="text-gray-400 text-sm">📦 품목 없음</p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 flex flex-col">
-            <p className="text-lg font-semibold mb-4">📦 구매 품목 비중</p>
-
-            <ReactApexChart
-              options={{
-                labels: estimateChart.labels,
-                legend: { position: "bottom" }, // ✅ 범례 활성화 (아래 배치)
-                yaxis: {
-                  labels: {
-                    formatter: (value: number) => value.toLocaleString(), // ✅ 콤마 추가
-                  },
-                },
-              }}
-              series={estimateChart.data}
-              type="pie"
-              height={300}
-            />
-          </div>
-
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 flex flex-col ">
-            <p className="text-lg font-semibold mb-4">📦 판매 품목 비중</p>
-
-            <ReactApexChart
-              options={{
-                labels: orderChart.labels,
-                legend: { position: "bottom" }, // ✅ 범례 활성화 (아래 배치)
-                yaxis: {
-                  labels: {
-                    formatter: (value: number) => value.toLocaleString(), // ✅ 콤마 추가
-                  },
-                },
-              }}
-              series={orderChart.data}
-              type="pie"
-              height={300}
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-            <h2 className="text-lg font-bold mb-4">📜 발주 문서 목록</h2>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
-              {contactData.order_documents.length > 0 ? (
-                contactData.order_documents.map((doc: any, index: any) => (
-                  <div
-                    key={index}
-                    className="p-4 border rounded-lg bg-white shadow-sm"
-                  >
-                    <p className="text-gray-600 text-sm">
-                      📄 문서번호:{" "}
-                      <span className="font-semibold">
-                        {doc.document_number}
-                      </span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      📅 생성일:{" "}
-                      <span className="font-semibold">
-                        {doc.created_at.split("T")[0]}
-                      </span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      📌 상태:{" "}
-                      <span className="font-semibold">
-                        {doc.status === "completed" ? "완료됨" : "진행 중"}
-                      </span>
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-gray-500">
-                  발주 문서가 없습니다.
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-            <h2 className="text-lg font-bold mb-4">📦 발주 품목 목록</h2>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
-              {contactData.order_items.length > 0 ? (
-                contactData.order_items.map((item: any, index: any) => (
-                  <div
-                    key={index}
-                    className="p-4 border rounded-lg bg-white shadow-sm"
-                  >
-                    <p className="text-gray-600 text-sm">
-                      📌 품목명:{" "}
-                      <span className="font-semibold">{item.name}</span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      🏷️ 사양:{" "}
-                      <span className="font-semibold">{item.spec}</span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      💰 금액:{" "}
-                      <span className="font-semibold">
-                        {item.amount.toLocaleString()} 원
-                      </span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      📦 수량:{" "}
-                      <span className="font-semibold">{item.quantity}</span>
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-gray-500">
-                  발주 품목이 없습니다.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-            <h2 className="text-lg font-bold mb-4">📜 매입 문서 목록</h2>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
-              {contactData.estimate_documents.length > 0 ? (
-                contactData.estimate_documents.map((doc: any, index: any) => (
-                  <div
-                    key={index}
-                    className="p-4 border rounded-lg bg-white shadow-sm"
-                  >
-                    <p className="text-gray-600 text-sm">
-                      📄 문서번호:{" "}
-                      <span className="font-semibold">
-                        {doc.document_number}
-                      </span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      📅 생성일:{" "}
-                      <span className="font-semibold">
-                        {doc.created_at.split("T")[0]}
-                      </span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      📌 상태:{" "}
-                      <span className="font-semibold">
-                        {doc.status === "completed" ? "완료됨" : "진행 중"}
-                      </span>
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-gray-500">
-                  매입 문서가 없습니다.
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-            <h2 className="text-lg font-bold mb-4">📦 매입 품목 목록</h2>
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
-              {contactData.estimate_items.length > 0 ? (
-                contactData.estimate_items.map((item: any, index: any) => (
-                  <div
-                    key={index}
-                    className="p-4 border rounded-lg bg-white shadow-sm"
-                  >
-                    <p className="text-gray-600 text-sm">
-                      📌 품목명:{" "}
-                      <span className="font-semibold">{item.name}</span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      🏷️ 사양:{" "}
-                      <span className="font-semibold">{item.spec}</span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      💰 금액:{" "}
-                      <span className="font-semibold">
-                        {item.amount.toLocaleString()} 원
-                      </span>
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      📦 수량:{" "}
-                      <span className="font-semibold">{item.quantity}</span>
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-gray-500">
-                  매입 품목이 없습니다.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
+      {/*  */}
     </div>
   );
 }
-// "use client";
-
-// import { useState, useEffect } from "react";
-
-// import { useParams, useRouter } from "next/navigation";
-// import { CircularProgress, Button } from "@mui/material";
-// import dynamic from "next/dynamic";
-
-// const ReactApexChart = dynamic(() => import("react-apexcharts"), {
-//   ssr: false,
-// });
-// interface Contact {
-//   id: string;
-//   contact_name: string;
-//   mobile: string;
-//   department: string;
-//   level: string;
-//   email: string;
-//   company_name: string;
-//   company_id: string;
-// }
-
-// interface Consultation {
-//   id: string;
-//   date: string;
-//   content: string;
-//   priority: string;
-// }
-
-// interface Document {
-//   id: string;
-//   document_number: string;
-//   type: string;
-//   created_at: string;
-//   content: {
-//     items: {
-//       name: string;
-//       spec: string;
-//       amount: number;
-//       number: number;
-//       quantity: string;
-//       unit_price: number;
-//       unit: string;
-//     }[];
-//     notes: string;
-//     valid_until: string;
-//     company_name: string;
-//     total_amount: number;
-//     delivery_term: string;
-//     delivery_place: string;
-//     delivery_date: string;
-//   };
-// }
-
-// interface RevenueAnalysis {
-//   totalRevenue: number;
-//   averageEstimateValue: number;
-//   monthlyRevenue: Record<string, number>; // 월별 매출
-//   totalPurchaseAmount: number;
-// }
-
-// export default function ContactDetailPage() {
-//   const { id } = useParams();
-//   const [contact, setContact] = useState<Contact | null>(null);
-//   const [consultations, setConsultations] = useState<Consultation[]>([]);
-//   const [revenueAnalysis, setRevenueAnalysis] =
-//     useState<RevenueAnalysis | null>(null);
-//   const [documents, setDocuments] = useState<Document[]>([]);
-//   const [loading, setLoading] = useState(true);
-//   const router = useRouter();
-
-//   // 페이지네이션 상태
-//   const [consultationPage, setConsultationPage] = useState(1);
-//   const [documentPage, setDocumentPage] = useState(1);
-//   const itemsPerPage = 10; // 한 페이지당 표시할 아이템 개수
-
-//   useEffect(() => {
-//     const fetchContactData = async () => {
-//       try {
-//         setLoading(true);
-//         const response = await fetch(`/api/manage/contacts/${id}`);
-//         const data = await response.json();
-
-//         if (!response.ok)
-//           throw new Error(data.error || "데이터를 불러오는 데 실패했습니다.");
-
-//         setContact(data.contact);
-//         setConsultations(data.consultations);
-//         setDocuments(data.documents);
-//         setRevenueAnalysis(data.revenueAnalysis); // 🔹 추가된 매출 분석 데이터 저장
-//       } catch (error) {
-//         console.error("Error fetching contact details:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchContactData();
-//   }, [id]);
-
-//   if (loading)
-//     return (
-//       <div className="flex justify-center items-center h-40">
-//         <CircularProgress />
-//       </div>
-//     );
-
-//   // 페이지네이션 처리 함수
-//   const paginate = (data: any[], page: number) =>
-//     data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-
-//   const estimateData = documents
-//     .filter((doc) => doc.type === "estimate")
-//     .flatMap((doc) => doc.content.items);
-
-//   const estimateNames = estimateData.map((item) => item.name);
-//   const estimatePrices = estimateData.map((item) => item.amount);
-
-//   // 🔹 발주서(order)에서 품명과 구매액 추출
-//   const orderData = documents
-//     .filter((doc) => doc.type === "order")
-//     .flatMap((doc) => doc.content.items);
-
-//   const orderNames = orderData.map((item) => item.name);
-//   const orderPrices = orderData.map((item) => item.amount);
-
-//   // 🔹 월별 매출 차트 데이터 변환
-//   const monthlyLabels = revenueAnalysis
-//     ? Object.keys(revenueAnalysis.monthlyRevenue)
-//     : [];
-//   const monthlyValues = revenueAnalysis
-//     ? Object.values(revenueAnalysis.monthlyRevenue)
-//     : [];
-
-//   return (
-//     <div className="p-4">
-//       <h1 className="text-xl font-semibold">담당자 상세 정보</h1>
-
-//       {/* 담당자 기본 정보 */}
-//       {contact && (
-//         <div className="bg-[#FBFBFB] p-4 rounded-md mt-4">
-//           <p>
-//             <strong>이름:</strong> {contact.contact_name}
-//           </p>
-//           <p>
-//             <strong>전화번호:</strong> {contact.mobile}
-//           </p>
-//           <p>
-//             <strong>이메일:</strong> {contact.email}
-//           </p>
-//           <p>
-//             <strong>부서:</strong> {contact.department}
-//           </p>
-//           <p>
-//             <strong>직급:</strong> {contact.level}
-//           </p>
-//         </div>
-//       )}
-
-//       {/* 🔹 매출 분석 데이터 표시 */}
-//       {revenueAnalysis && (
-//         <div className="bg-[#FBFBFB] p-4 rounded-md mt-4 flex justify-between">
-//           <div>
-//             <h2 className="font-semibold text-lg">총 매출</h2>
-//             <p className="text-xl font-bold">
-//               {revenueAnalysis.totalRevenue.toLocaleString()} 원
-//             </p>
-//           </div>
-//           <div>
-//             <h2 className="font-semibold text-lg">총 매입</h2>
-//             <p className="text-xl font-bold">
-//               {revenueAnalysis.totalPurchaseAmount.toLocaleString()} 원
-//             </p>
-//           </div>
-//           <div>
-//             <h2 className="font-semibold text-lg">평균 견적 금액</h2>
-//             <p className="text-xl font-bold">
-//               {revenueAnalysis.averageEstimateValue.toLocaleString()} 원
-//             </p>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* 🔹 월별 매출 차트 */}
-//       {monthlyLabels.length > 0 && (
-//         <div className="bg-[#FBFBFB] p-4 rounded-md mt-6">
-//           <h2 className="font-semibold text-md mb-2">월별 매출</h2>
-//           <ReactApexChart
-//             options={{
-//               xaxis: { categories: monthlyLabels },
-//             }}
-//             series={[{ name: "매출", data: monthlyValues }]}
-//             type="area"
-//             height={300}
-//           />
-//         </div>
-//       )}
-
-//       <div className="grid grid-cols-2 gap-4 mt-6">
-//         {/* 견적서(estimate) 도넛 차트 */}
-//         <div className="bg-[#FBFBFB] rounded-md border p-4">
-//           <h2 className="font-semibold text-md mb-2">구매한 제품 (견적서)</h2>
-
-//           <ReactApexChart
-//             options={{
-//               labels: estimateNames,
-//               chart: { type: "donut" },
-//               legend: { position: "right" },
-//             }}
-//             series={estimatePrices}
-//             type="donut"
-//             height={300}
-//           />
-//         </div>
-
-//         {/* 발주서(order) 바 차트 */}
-//         <div className="bg-[#FBFBFB] rounded-md border p-4">
-//           <h2 className="font-semibold text-md mb-2">발주한 품목 (발주서)</h2>
-//           <ReactApexChart
-//             options={{
-//               chart: { type: "donut" },
-//               labels: orderNames, // 🔹 각 항목의 라벨 추가
-//               legend: { position: "right" }, // 🔹 범례 하단 배치
-//               dataLabels: { enabled: true }, // 🔹 데이터 레이블 표시
-//             }}
-//             series={orderPrices} // 🔹 도넛 차트는 배열만 받음
-//             type="donut"
-//             height={300}
-//           />
-//         </div>
-//       </div>
-
-//       {/* 상담 내역 & 문서 내역 테이블 */}
-//       <div className="grid grid-cols-2 gap-4 mt-6">
-//         {/* 상담 내역 테이블 */}
-//         <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-64 flex flex-col">
-//           <h2 className="font-semibold text-md mb-2">상담 내역</h2>
-//           <div className="h-40 overflow-y-auto">
-//             <table className="w-full text-xs border-collapse">
-//               <thead className="border-b font-semibold bg-gray-100 sticky top-0">
-//                 <tr>
-//                   <th className="px-2 py-1">상담일</th>
-//                   <th className="px-2 py-1">내용</th>
-//                   <th className="px-2 py-1">우선순위</th>
-//                 </tr>
-//               </thead>
-//               <tbody className="text-sm">
-//                 {paginate(consultations, consultationPage).map((c, index) => (
-//                   <tr
-//                     key={index}
-//                     className="border-b cursor-pointer hover:bg-gray-100"
-//                     onClick={() => router.push(`/consultations/${c.id}`)}
-//                   >
-//                     <td className="px-2 py-1">{c.date}</td>
-//                     <td className="px-2 py-1 truncate">{c.content}</td>
-//                     <td className="px-2 py-1">{c.priority}</td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-
-//           {/* 상담 내역 페이지네이션 */}
-//           <div className="flex justify-center mt-2 space-x-2">
-//             <Button
-//               onClick={() =>
-//                 setConsultationPage((prev) => Math.max(prev - 1, 1))
-//               }
-//               disabled={consultationPage === 1}
-//               size="small"
-//             >
-//               이전
-//             </Button>
-//             <Button
-//               onClick={() =>
-//                 setConsultationPage((prev) =>
-//                   Math.min(
-//                     prev + 1,
-//                     Math.ceil(consultations.length / itemsPerPage)
-//                   )
-//                 )
-//               }
-//               disabled={
-//                 consultationPage >=
-//                 Math.ceil(consultations.length / itemsPerPage)
-//               }
-//               size="small"
-//             >
-//               다음
-//             </Button>
-//           </div>
-//         </div>
-
-//         {/* 문서 내역 테이블 */}
-//         <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-64 flex flex-col">
-//           <h2 className="font-semibold text-md mb-2">문서 내역</h2>
-//           <div className="h-40 overflow-y-auto">
-//             <table className="w-full text-xs border-collapse">
-//               <thead className="border-b font-semibold bg-gray-100 sticky top-0">
-//                 <tr>
-//                   <th className="px-2 py-1">문서번호</th>
-//                   <th className="px-2 py-1">유형</th>
-//                   <th className="px-2 py-1">작성일</th>
-//                 </tr>
-//               </thead>
-//               <tbody className="text-sm">
-//                 {paginate(documents, documentPage).map((d, index) => (
-//                   <tr
-//                     key={index}
-//                     className="border-b cursor-pointer hover:bg-gray-100"
-//                   >
-//                     <td className="px-2 py-1">{d.document_number}</td>
-//                     <td className="px-2 py-1">{d.type}</td>
-//                     <td className="px-2 py-1">{d.created_at}</td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-
-//           {/* 문서 내역 페이지네이션 추가 */}
-//           <div className="flex justify-center mt-2 space-x-2">
-//             <Button
-//               onClick={() => setDocumentPage((prev) => Math.max(prev - 1, 1))}
-//               disabled={documentPage === 1}
-//               size="small"
-//             >
-//               이전
-//             </Button>
-//             <Button
-//               onClick={() =>
-//                 setDocumentPage((prev) =>
-//                   Math.min(prev + 1, Math.ceil(documents.length / itemsPerPage))
-//                 )
-//               }
-//               disabled={
-//                 documentPage >= Math.ceil(documents.length / itemsPerPage)
-//               }
-//               size="small"
-//             >
-//               다음
-//             </Button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
