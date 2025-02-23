@@ -512,7 +512,14 @@ export default function ConsultationPage() {
                             index !== contacts.length - 1 ? "border-b" : ""
                           }`}
                         >
-                          <td className="px-1 py-1">{contact.contact_name}</td>
+                          <td
+                            className="px-1 py-1 text-blue-500 cursor-pointer hover:font-semibold"
+                            onClick={() =>
+                              router.push(`/manage/contacts/${contact.id}`)
+                            }
+                          >
+                            {contact.contact_name}
+                          </td>
                           <td className="px-1 py-1">{contact.level}</td>
                           <td className="px-1 py-1">{contact.department}</td>
                           <td className="px-1 py-1">{contact.mobile}</td>

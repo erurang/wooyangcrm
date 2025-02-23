@@ -9,6 +9,7 @@ import { useUserSalesSummary } from "@/hooks/reports/useUserSalesSummary";
 import { useUserTransactions } from "@/hooks/reports/userDetail/useUserTransactions";
 import Link from "next/link";
 import { useUserDocumentsCount } from "@/hooks/reports/useUserDocumentsCount";
+import { useUserDocumentList } from "@/hooks/reports/userDetail/documents/useUserDocumentList";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -50,7 +51,7 @@ export default function UserDetailPage() {
       .split("T")[0];
   }
 
-  // ✅ 데이터 가져오기
+  // swr
   const { user, isLoading: isUserLoading } = useUserDetail(userId);
   const { salesSummary, isLoading: isSalesLoading } = useUserSalesSummary(
     [userId],
@@ -67,6 +68,10 @@ export default function UserDetailPage() {
 
   const { documents, isLoading: isConsultationsLoading } =
     useUserDocumentsCount([userId], startDate, endDate);
+
+  const { documentsDetails } = useUserDocumentList(userId, startDate, endDate);
+
+  console.log("documentsDetails", documentsDetails);
   //
 
   const userDocuments = documents?.[userId] || {
@@ -119,6 +124,90 @@ export default function UserDetailPage() {
   const salesChart = getChartData(aggregatedSalesCompanies);
   const purchaseChart = getChartData(aggregatedPurchaseCompanies);
 
+  const completedSales: any = (documentsDetails ?? [])
+    .flatMap((user: any) => user.consultations ?? [])
+    .flatMap((consultation: any) => consultation.documents ?? [])
+    .filter((doc: any) => doc.status === "completed" && doc.type === "estimate")
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        (doc.items ?? []).reduce(
+          (subSum: any, item: any) => subSum + (item.amount ?? 0),
+          0
+        ),
+      0
+    );
+
+  const completedPurchases: any = (documentsDetails ?? [])
+    .flatMap((user: any) => user.consultations ?? [])
+    .flatMap((consultation: any) => consultation.documents ?? [])
+    .filter((doc: any) => doc.status === "completed" && doc.type === "order")
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        (doc.items ?? []).reduce(
+          (subSum: any, item: any) => subSum + (item.amount ?? 0),
+          0
+        ),
+      0
+    );
+
+  const pendingSales: any = (documentsDetails ?? [])
+    .flatMap((user: any) => user.consultations ?? [])
+    .flatMap((consultation: any) => consultation.documents ?? [])
+    .filter((doc: any) => doc.status === "pending" && doc.type === "estimate")
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        (doc.items ?? []).reduce(
+          (subSum: any, item: any) => subSum + (item.amount ?? 0),
+          0
+        ),
+      0
+    );
+
+  const pendingPurchases: any = (documentsDetails ?? [])
+    .flatMap((user: any) => user.consultations ?? [])
+    .flatMap((consultation: any) => consultation.documents ?? [])
+    .filter((doc: any) => doc.status === "pending" && doc.type === "order")
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        (doc.items ?? []).reduce(
+          (subSum: any, item: any) => subSum + (item.amount ?? 0),
+          0
+        ),
+      0
+    );
+
+  const canceledSales: any = (documentsDetails ?? [])
+    .flatMap((user: any) => user.consultations ?? [])
+    .flatMap((consultation: any) => consultation.documents ?? [])
+    .filter((doc: any) => doc.status === "canceled" && doc.type === "estimate")
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        (doc.items ?? []).reduce(
+          (subSum: any, item: any) => subSum + (item.amount ?? 0),
+          0
+        ),
+      0
+    );
+
+  const canceledPurchases: any = (documentsDetails ?? [])
+    .flatMap((user: any) => user.consultations ?? [])
+    .flatMap((consultation: any) => consultation.documents ?? [])
+    .filter((doc: any) => doc.status === "canceled" && doc.type === "order")
+    .reduce(
+      (sum: any, doc: any) =>
+        sum +
+        (doc.items ?? []).reduce(
+          (subSum: any, item: any) => subSum + (item.amount ?? 0),
+          0
+        ),
+      0
+    );
+
   return (
     <div className="text-sm text-[#333]">
       {/* 🔹 유저 기본 정보 + 견적/매출 실적 */}
@@ -151,6 +240,44 @@ export default function UserDetailPage() {
                 </span>
               </p>
             </div>
+          </div>
+          <div className="text-sm text-gray-600 mt-2 space-y-1 grid grid-cols-3">
+            <p>
+              🟢 확정된 매출 -{" "}
+              <span className="font-semibold text-gray-800">
+                {completedSales.toLocaleString()} 원
+              </span>
+            </p>
+            <p>
+              🟢 확정된 매입 -{" "}
+              <span className="font-semibold text-gray-800">
+                {completedPurchases.toLocaleString()} 원
+              </span>
+            </p>
+            <p>
+              🟡 진행 중 매출 -{" "}
+              <span className="font-semibold text-gray-800">
+                {pendingSales.toLocaleString()} 원
+              </span>
+            </p>
+            <p>
+              🟡 진행 중 매입 -{" "}
+              <span className="font-semibold text-gray-800">
+                {pendingPurchases.toLocaleString()} 원
+              </span>
+            </p>
+            <p>
+              🔴 취소된 매출 -{" "}
+              <span className="font-semibold text-gray-800">
+                {canceledSales.toLocaleString()} 원
+              </span>
+            </p>
+            <p>
+              🔴 취소된 매입 -{" "}
+              <span className="font-semibold text-gray-800">
+                {canceledPurchases.toLocaleString()} 원
+              </span>
+            </p>
           </div>
         </div>
 
@@ -276,6 +403,103 @@ export default function UserDetailPage() {
         </div>
       </div>
 
+      {/*  */}
+      <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 mb-4">
+        <h2 className="text-lg font-bold mb-4">상담 내역 & 문서 & 품목</h2>
+
+        {/* 🔹 스크롤 가능 영역 */}
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-[2fr_1fr_2fr] gap-6 min-w-[900px] font-semibold text-gray-700">
+            <div>상담 기록</div>
+            <div>관련 문서</div>
+            <div>품목 리스트</div>
+          </div>
+
+          {/* 🔹 상담 기록 + 문서 + 품목 */}
+          <div className="space-y-4 mt-2 overflow-y-auto max-h-[700px]">
+            {documentsDetails?.map((user: any) =>
+              user.consultations.map((consultation: any) => (
+                <div
+                  key={consultation.consultation_id}
+                  className="grid grid-cols-[2fr_1fr_2fr] gap-6 items-center border-b pb-4"
+                >
+                  {/* 🔹 상담 기록 */}
+                  <div className="p-3 border rounded-md bg-white">
+                    <div className="text-sm text-gray-600">
+                      {consultation.date}
+                    </div>
+                    <p className="text-gray-800 whitespace-pre-line">
+                      {consultation.content}
+                    </p>
+                  </div>
+
+                  {/* 🔹 관련 문서 */}
+                  <div className="p-3 border rounded-md bg-white">
+                    {consultation.documents.length > 0 ? (
+                      consultation.documents.map((doc: any) => (
+                        <div
+                          key={doc.document_id}
+                          className="p-2 border rounded-md bg-gray-50 shadow-sm"
+                        >
+                          <p className="text-sm font-semibold text-blue-600">
+                            {doc.type === "estimate"
+                              ? "📄 견적서"
+                              : "📑 발주서"}
+                          </p>
+                          <p className="text-xs text-gray-700">
+                            문서번호:{" "}
+                            <span className="font-semibold">
+                              {doc.document_number}
+                            </span>
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            생성일: {doc.created_at.split("T")[0]}
+                          </p>
+                          <p className="text-xs">
+                            담당자:{" "}
+                            <span className="font-semibold">
+                              {doc.user.name}
+                            </span>{" "}
+                            ({doc.user.level})
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 text-sm">📂 관련 문서 없음</p>
+                    )}
+                  </div>
+
+                  {/* 🔹 품목 리스트 */}
+                  <div className="p-3 border rounded-md bg-white">
+                    {consultation.documents.length > 0 ? (
+                      consultation.documents.map((doc: any) =>
+                        doc.items.map((item: any, itemIndex: any) => (
+                          <div
+                            key={itemIndex}
+                            className="grid grid-cols-4 gap-4 p-2 border rounded-md bg-gray-50 text-sm"
+                          >
+                            <span className="text-gray-700">{item.name}</span>
+                            <span className="text-gray-500">{item.spec}</span>
+                            <span className="text-gray-500">
+                              {item.quantity}
+                            </span>
+                            <span className="text-blue-600 font-semibold">
+                              {Number(item.amount).toLocaleString()} 원
+                            </span>
+                          </div>
+                        ))
+                      )
+                    ) : (
+                      <p className="text-gray-400 text-sm">📦 품목 없음</p>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+      {/*  */}
       {/* 🔹 차트 (견적 & 발주 실적) */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
