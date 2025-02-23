@@ -158,6 +158,19 @@ export default function ContactDetailPage() {
 
   // ✅ 차트 데이터 변환
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "진행 중";
+      case "completed":
+        return "완료됨";
+      case "canceled":
+        return "취소됨";
+      default:
+        return "알 수 없음";
+    }
+  };
+
   return (
     <div className="text-sm text-[#333]">
       <div className="mb-4">
@@ -170,35 +183,64 @@ export default function ContactDetailPage() {
         <span className="text-[#333] font-semibold">- 상세정보</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-          <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-[#FBFBFB] rounded-md border px-6 py-6 shadow-sm">
+          {/* 🔹 유저 정보 섹션 */}
+          <div className="flex justify-between items-center border-b pb-4 mb-4">
             <div>
-              <p>
-                <span className="font-semibold">이름:</span>{" "}
-                {contactData.contact_name}
+              <p className="text-xl font-bold text-gray-800">
+                {contactData.contact_name}{" "}
+                <span className="text-gray-600">
+                  {contactData.department || "-"} / {contactData.level || "-"}
+                </span>
               </p>
-              <p>
-                <span className="font-semibold">거래처:</span>{" "}
-                {contactData.company_name}
-              </p>
-              <p>
-                <span className="font-semibold">부서 / 직급:</span>{" "}
-                {contactData.department || "-"} / {contactData.level || "-"}
-              </p>
-              <p>
-                <span className="font-semibold">이메일:</span>{" "}
-                {contactData.email || "-"}
-              </p>
-              <p>
-                <span className="font-semibold">연락처:</span>{" "}
-                {contactData.mobile || "-"}
+              <p className="text-gray-600 text-sm mt-1">
+                {contactData.company_name}{" "}
+                <span className="font-semibold text-blue-600">
+                  {contactData.mobile || "-"} {contactData.email || "-"}
+                </span>
               </p>
             </div>
-            <div></div>
+          </div>
+          <div className="text-sm text-gray-600 mt-2 grid grid-cols-3">
+            <p>
+              🟢 확정된 매출 -{" "}
+              <span className="font-semibold text-gray-800">
+                {confirmedSales.toLocaleString()} 원
+              </span>
+            </p>
+            <p>
+              🟢 확정된 매입 -{" "}
+              <span className="font-semibold text-gray-800">
+                {confirmedPurchases.toLocaleString()} 원 원
+              </span>
+            </p>
+            <p>
+              🟡 진행 중 매출 -{" "}
+              <span className="font-semibold text-gray-800">
+                {expectedSales.toLocaleString()} 원
+              </span>
+            </p>
+            <p>
+              🟡 진행 중 매입 -{" "}
+              <span className="font-semibold text-gray-800">
+                {expectedPurchases.toLocaleString()} 원
+              </span>
+            </p>
+            <p>
+              🔴 취소된 매출 -{" "}
+              <span className="font-semibold text-gray-800">
+                {canceledSales.toLocaleString()} 원
+              </span>
+            </p>
+            <p>
+              🔴 취소된 매입 -{" "}
+              <span className="font-semibold text-gray-800">
+                {canceledPurchases.toLocaleString()} 원
+              </span>
+            </p>
           </div>
         </div>
-
         {/* 🔹 날짜 필터 */}
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold">📅 데이터 기간 선택</p>
@@ -258,55 +300,13 @@ export default function ContactDetailPage() {
             )}
           </div>
         </div>
-        <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 grid grid-cols-2 gap-4">
-          {/* 🟢 확정된 매입 & 매출 */}
-          <div className="bg-white p-4 rounded-md border shadow-sm">
-            <p className="text-sm text-gray-500">🟢 확정된 매입</p>
-            <p className="text-xl font-bold text-green-600">
-              {confirmedPurchases.toLocaleString()} 원
-            </p>
-          </div>
-          <div className="bg-white p-4 rounded-md border shadow-sm">
-            <p className="text-sm text-gray-500">🟢 확정된 매출</p>
-            <p className="text-xl font-bold text-blue-600">
-              {confirmedSales.toLocaleString()} 원
-            </p>
-          </div>
+      </div>
 
-          {/* 🟡 진행 중인 매입 & 매출 */}
-          <div className="bg-white p-4 rounded-md border shadow-sm">
-            <p className="text-sm text-gray-500">🟡 진행 중인 매입</p>
-            <p className="text-xl font-bold text-yellow-600">
-              {expectedPurchases.toLocaleString()} 원
-            </p>
-          </div>
-          <div className="bg-white p-4 rounded-md border shadow-sm">
-            <p className="text-sm text-gray-500">🟡 진행 중인 매출</p>
-            <p className="text-xl font-bold text-yellow-600">
-              {expectedSales.toLocaleString()} 원
-            </p>
-          </div>
-
-          {/* 🔴 취소된 매입 & 매출 */}
-          <div className="bg-white p-4 rounded-md border shadow-sm">
-            <p className="text-sm text-gray-500">🔴 취소된 매입</p>
-            <p className="text-xl font-bold text-red-600">
-              {canceledPurchases.toLocaleString()} 원
-            </p>
-          </div>
-          <div className="bg-white p-4 rounded-md border shadow-sm">
-            <p className="text-sm text-gray-500">🔴 취소된 매출</p>
-            <p className="text-xl font-bold text-red-600">
-              {canceledSales.toLocaleString()} 원
-            </p>
-          </div>
-        </div>
-        {/*  */}
+      {/* <div className="grid grid-cols-2 gap-4">
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <h2 className="text-lg font-bold mb-4">📊 상담자별 상담 현황</h2>
 
           <div className="grid grid-cols-[1fr_2fr] gap-6">
-            {/* 🔹 상담자별 정보 */}
             <ul className="space-y-2">
               {Object.entries(userConsultationStats).map(
                 ([user, stats]: any) => (
@@ -324,8 +324,8 @@ export default function ContactDetailPage() {
             <div className="p-4 border rounded-md bg-white shadow-sm"></div>
           </div>
         </div>
-        {/*  */}
-      </div>
+        
+      </div> */}
       {/*  */}
       <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 mt-4">
         <h2 className="text-lg font-bold mb-4">상담 내역 & 문서 & 품목</h2>
@@ -364,6 +364,9 @@ export default function ContactDetailPage() {
                       >
                         <p className="text-sm font-semibold text-blue-600">
                           {doc.type === "estimate" ? "📄 견적서" : "📑 발주서"}
+                          <span className="pl-2">
+                            ({getStatusText(doc.status)})
+                          </span>
                         </p>
                         <p className="text-xs text-gray-700">
                           문서번호:{" "}

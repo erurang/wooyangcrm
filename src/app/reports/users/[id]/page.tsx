@@ -208,6 +208,19 @@ export default function UserDetailPage() {
       0
     );
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "진행 중";
+      case "completed":
+        return "완료됨";
+      case "canceled":
+        return "취소됨";
+      default:
+        return "알 수 없음";
+    }
+  };
+
   return (
     <div className="text-sm text-[#333]">
       {/* 🔹 유저 기본 정보 + 견적/매출 실적 */}
@@ -241,7 +254,7 @@ export default function UserDetailPage() {
               </p>
             </div>
           </div>
-          <div className="text-sm text-gray-600 mt-2 space-y-1 grid grid-cols-3">
+          <div className="text-sm text-gray-600 mt-2 grid grid-cols-3">
             <p>
               🟢 확정된 매출 -{" "}
               <span className="font-semibold text-gray-800">
@@ -427,6 +440,9 @@ export default function UserDetailPage() {
                   <div className="p-3 border rounded-md bg-white">
                     <div className="text-sm text-gray-600">
                       {consultation.date}
+                      <span className="font-bold ml-2">
+                        {consultation.company_name}
+                      </span>
                     </div>
                     <p className="text-gray-800 whitespace-pre-line">
                       {consultation.content}
@@ -445,6 +461,9 @@ export default function UserDetailPage() {
                             {doc.type === "estimate"
                               ? "📄 견적서"
                               : "📑 발주서"}
+                            <span className="pl-2">
+                              ({getStatusText(doc.status)})
+                            </span>
                           </p>
                           <p className="text-xs text-gray-700">
                             문서번호:{" "}

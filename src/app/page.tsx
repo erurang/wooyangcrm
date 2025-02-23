@@ -19,6 +19,7 @@ import { useCompaniesByDocument } from "@/hooks/dashboard/useCompaniesByDocument
 import { calculateNewSales } from "@/utils/calculateNewSales";
 import { useNewConsultations } from "@/hooks/dashboard/useNewConsultations";
 import { useRecentActivities } from "@/hooks/dashboard/useRecentActivities";
+import TodoList from "@/components/dashboard/Todos";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -406,6 +407,7 @@ export default function SalesDashboard() {
             />
           </div>
         )}
+        <TodoList userId={user.id} />
       </div>
       <SnackbarComponent
         severity="success"
