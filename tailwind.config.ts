@@ -12,6 +12,9 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        nanum: ["NanumSquareNeo", "sans-serif"], // 🟢 Tailwind에서 사용할 폰트 추가
+      },
     },
   },
   plugins: [],
