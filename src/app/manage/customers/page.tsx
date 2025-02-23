@@ -432,7 +432,10 @@ export default function Page() {
             </label>
             <motion.input
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
               placeholder="거래처명"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
@@ -452,7 +455,10 @@ export default function Page() {
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
               }}
               value={addressTerm}
-              onChange={(e) => setAddressTerm(e.target.value)}
+              onChange={(e) => {
+                setAddressTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
               placeholder="주소"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
@@ -468,7 +474,10 @@ export default function Page() {
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
               }}
               value={contactTerm}
-              onChange={(e) => setContactTerm(e.target.value)}
+              onChange={(e) => {
+                setContactTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
               placeholder="담당자"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
