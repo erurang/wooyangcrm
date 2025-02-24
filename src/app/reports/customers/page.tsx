@@ -26,7 +26,7 @@ export default function CompanySalesReport() {
 
   // ✅ 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // 페이지당 항목 개수
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // ✅ 날짜 변환 (연도별, 분기별, 월별)
   let startDate: string;
@@ -205,6 +205,22 @@ export default function CompanySalesReport() {
             </select>
           )}
         </div>
+      </div>
+      <div className="flex justify-end items-center my-4">
+        <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+        <select
+          value={itemsPerPage}
+          onChange={(e) => {
+            setItemsPerPage(Number(e.target.value));
+            setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
+          }}
+          className="border border-gray-300 p-2 rounded-md text-sm"
+        >
+          <option value="10">10개</option>
+          <option value="20">20개</option>
+          <option value="30">30개</option>
+          <option value="50">50개</option>
+        </select>
       </div>
       <div className="bg-[#FBFBFB] rounded-md border mt-4">
         <table className="min-w-full table-auto border-collapse">

@@ -389,7 +389,7 @@ export default function RecentConsultations() {
                       const filteredDocs = consultation.documents.filter(
                         (doc: any) => doc.type === type
                       );
-                      if (filteredDocs.length > 0) {
+                      if (filteredDocs?.length > 0) {
                         return (
                           <div key={type} className="mb-2">
                             <span className="font-semibold">
@@ -400,7 +400,7 @@ export default function RecentConsultations() {
                                 : "의뢰서"}
                             </span>
                             :{" "}
-                            {filteredDocs.map((doc: any, index: any) => (
+                            {filteredDocs?.map((doc: any, index: any) => (
                               <span key={doc.id}>
                                 <span
                                   className="text-blue-500 cursor-pointer"
@@ -408,7 +408,7 @@ export default function RecentConsultations() {
                                 >
                                   {doc.document_number}
                                 </span>
-                                {index < filteredDocs.length - 1 && " | "}
+                                {index < filteredDocs?.length - 1 && " | "}
                               </span>
                             ))}
                           </div>

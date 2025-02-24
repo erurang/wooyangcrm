@@ -239,7 +239,7 @@ export default function CompanyDetailPage() {
 
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-4">👤 영업사원별 매출</p>
-          {salesByUserChart.data.length > 0 ? (
+          {salesByUserChart.data?.length > 0 ? (
             <ReactApexChart
               options={{
                 chart: { type: "bar" },
@@ -271,7 +271,7 @@ export default function CompanyDetailPage() {
         {/* 🔹 영업사원별 매입 차트 */}
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-4">👤 영업사원별 매입</p>
-          {purchaseByUserChart.data.length > 0 ? (
+          {purchaseByUserChart.data?.length > 0 ? (
             <ReactApexChart
               options={{
                 chart: { type: "bar" },
