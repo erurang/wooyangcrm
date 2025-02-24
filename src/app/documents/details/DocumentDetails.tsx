@@ -358,7 +358,12 @@ export default function DocumentsDetailsPage() {
                   {type === "order" && doc.content?.delivery_date}
                   {type === "requestQuote" && doc.content?.delivery_date}
                 </td>
-                <td className="px-4 py-2 border-b border-r-[1px]">
+                <td
+                  className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
+                  onClick={() =>
+                    router.push(`/consultations/${doc.company_id}`)
+                  }
+                >
                   {doc.content?.company_name}
                 </td>
 

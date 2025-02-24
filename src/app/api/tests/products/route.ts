@@ -25,7 +25,9 @@ export async function GET(request: Request) {
   try {
     let query = supabase
       .from("documents")
-      .select("id, content, created_at, status, users(name,level), company_id") // ✅ company_id 추가
+      .select(
+        "id, content, created_at, status, users(id,name,level), company_id"
+      ) // ✅ company_id 추가
       .eq("type", searchType)
       .order("created_at", { ascending: false });
 
@@ -50,6 +52,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    console.log("data", data);
     // 데이터 변환 및 필터링
     const allProducts = data.flatMap((doc: any) =>
       doc.content.items
@@ -77,12 +80,14 @@ export async function GET(request: Request) {
         .map((item: any) => ({
           id: doc.id,
           estimate_date: doc.created_at,
+          company_id: doc.company_id,
           company_name: doc.content.company_name,
           name: item.name,
           spec: item.spec,
           unit_price: parseFloat(item.unit_price),
           quantity: item.quantity,
           status: doc.status,
+          user_id: doc.users?.id || "",
           user_name: doc.users?.name || "",
           user_level: doc.users?.level || "",
         }))

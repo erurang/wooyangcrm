@@ -104,10 +104,10 @@ export default function UsersListPage() {
             return (
               <div
                 key={user.id}
-                className="bg-white rounded-lg border p-4 cursor-pointer hover:shadow-md transition-all"
+                className="rounded-lg border p-4 cursor-pointer hover:shadow-md transition-all bg-[#FBFBFB]"
                 onClick={() => router.push(`/reports/users/${user.id}`)}
               >
-                <p className="font-bold">
+                <p className="font-bold text-blue-500">
                   {user.name} ({user.position})
                 </p>
                 <div className="grid grid-cols-2">

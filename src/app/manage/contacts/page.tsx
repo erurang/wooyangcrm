@@ -445,7 +445,12 @@ export default function ContactsPage() {
             <tbody>
               {contacts?.map((contact: any) => (
                 <tr key={contact.id} className="hover:bg-gray-100 text-center">
-                  <td className="px-4 py-2 border-b border-r">
+                  <td
+                    className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
+                    onClick={() =>
+                      router.push(`/consultations/${contact.company_id}`)
+                    }
+                  >
                     {contact.companies?.name}
                   </td>
                   <td

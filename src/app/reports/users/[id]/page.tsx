@@ -71,7 +71,6 @@ export default function UserDetailPage() {
 
   const { documentsDetails } = useUserDocumentList(userId, startDate, endDate);
 
-  console.log("documentsDetails", documentsDetails);
   //
 
   const userDocuments = documents?.[userId] || {
@@ -440,7 +439,14 @@ export default function UserDetailPage() {
                   <div className="p-3 border rounded-md bg-white">
                     <div className="text-sm text-gray-600">
                       {consultation.date}
-                      <span className="font-bold ml-2">
+                      <span
+                        className="font-bold ml-2 text-blue-500 cursor-pointer"
+                        onClick={() =>
+                          router.push(
+                            `/consultations/${consultation.company_id}`
+                          )
+                        }
+                      >
                         {consultation.company_name}
                       </span>
                     </div>

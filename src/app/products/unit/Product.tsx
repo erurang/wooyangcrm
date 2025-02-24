@@ -3,7 +3,7 @@
 import { useState } from "react";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useProductsList } from "@/hooks/products/useProductsList";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUsersList } from "@/hooks/useUserList";
@@ -17,6 +17,7 @@ interface User {
 
 export default function ProductPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const type = searchParams.get("type") as "estimate" | "order";
 
   const [searchCompany, setSearchCompany] = useState("");
@@ -56,6 +57,7 @@ export default function ProductPage() {
     limit: productsPerPage,
   });
 
+  console.log(products);
   //
 
   const totalPages = Math.ceil(total / productsPerPage);
@@ -247,7 +249,12 @@ export default function ProductPage() {
                 <td className="px-4 py-2 border-b border-r">
                   {dayjs(product.estimate_date).format("YYYY-MM-DD")}
                 </td>
-                <td className="px-4 py-2 border-b border-r">
+                <td
+                  className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
+                  onClick={() =>
+                    router.push(`/consultations/${product.company_id}`)
+                  }
+                >
                   {product.company_name}
                 </td>
                 <td className="px-4 py-2 border-b border-r">{product.name}</td>
@@ -258,7 +265,12 @@ export default function ProductPage() {
                 <td className="px-4 py-2 border-b border-r">
                   {product.unit_price.toLocaleString()} 원
                 </td>
-                <td className="px-4 py-2 border-b">
+                <td
+                  className="px-4 py-2 border-b text-blue-500 cursor-pointer"
+                  onClick={() =>
+                    router.push(`/reports/users/${product.user_id}`)
+                  }
+                >
                   {product.user_name} {product.user_level}
                 </td>
               </tr>
