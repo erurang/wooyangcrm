@@ -85,6 +85,7 @@ export default function DocumentsDetailsPage() {
   const documentsPerPage = 10;
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchDocNumber, setSearchDocNumber] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   // 🔹 로그인한 유저를 기본 선택값으로 설정
 
@@ -92,6 +93,7 @@ export default function DocumentsDetailsPage() {
   const { companies } = useCompanySearch(debounceSearchTerm);
   const companyIds = companies.map((company: any) => company.id);
   const debounceCompanyIds = useDebounce(companyIds, 300);
+  const debounceDocNumber = useDebounce(searchDocNumber, 300);
 
   // swr
   const { users } = useUsersList();
@@ -100,6 +102,7 @@ export default function DocumentsDetailsPage() {
     userId: selectedUser?.id as string,
     type,
     status: selectedStatus, // ✅ "all"이면 빈 값으로 설정
+    docNumber: debounceDocNumber,
     page: currentPage,
     limit: documentsPerPage,
     companyIds: debounceCompanyIds,
@@ -238,7 +241,7 @@ export default function DocumentsDetailsPage() {
       </div>
       {/* 검색 필터 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               거래처명
@@ -250,6 +253,25 @@ export default function DocumentsDetailsPage() {
                 setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
               }}
               placeholder="거래처명"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
+            />
+          </div>
+
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              문서번호
+            </label>
+            <motion.input
+              value={searchDocNumber}
+              onChange={(e) => {
+                setSearchDocNumber(e.target.value);
+                setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
+              }}
+              placeholder="WY-YYYYMMDD-NNNN"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
                 scale: 1.05,
@@ -306,6 +328,7 @@ export default function DocumentsDetailsPage() {
               onClick={() => {
                 setSearchTerm("");
                 setSelectedUser(null);
+                setSearchDocNumber("");
                 setCurrentPage(1); // ✅ 필터 리셋 시 현재 페이지 초기화
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"

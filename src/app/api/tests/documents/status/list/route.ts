@@ -6,7 +6,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId") || null;
     const type = searchParams.get("type") || "estimate";
-    const status = searchParams.get("status") || "all"; // ✅ 기본값을 "all"로 설정
+    const status = searchParams.get("status") || "all";
+    const docNumber = searchParams.get("docNumber") || "";
     const companyIds = searchParams.getAll("companyIds");
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(searchParams.get("limit") || 10);
@@ -27,6 +28,10 @@ export async function GET(request: Request) {
     // 🔹 상태 필터 추가 (✅ "all"이 아닐 때만 적용)
     if (status !== "all") {
       query = query.eq("status", status);
+    }
+
+    if (docNumber) {
+      query = query.eq("document_number", docNumber);
     }
 
     // 🔹 사용자 필터 추가 (선택적 적용)
