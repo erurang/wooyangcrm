@@ -9,7 +9,7 @@ const fetchDocuments = async (url: string) => {
 export const useDocumentsStatusList = ({
   userId = null, // ✅ 기본값 설정 (userId 없어도 가능)
   type,
-  status,
+  status = "all",
   page,
   limit,
   companyIds = [], // ✅ 기본값 설정 (빈 배열 허용)
@@ -24,13 +24,16 @@ export const useDocumentsStatusList = ({
   // ✅ URL 동적 생성
   const queryParams = new URLSearchParams({
     type,
-    status,
     page: page.toString(),
     limit: limit.toString(),
   });
 
   // ✅ userId가 있을 때만 추가 (없으면 전체 조회)
   if (userId) queryParams.append("userId", userId);
+
+  if (status !== "all") {
+    queryParams.append("status", status);
+  }
 
   // ✅ companyIds가 있을 때만 추가
   companyIds.forEach((id) => queryParams.append("companyIds", id));

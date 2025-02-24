@@ -6,8 +6,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId") || null;
     const type = searchParams.get("type") || "estimate";
-    const status = searchParams.get("status") || "pending";
-    const companyIds = searchParams.getAll("companyIds"); // ✅ 회사 ID 리스트 추가
+    const status = searchParams.get("status") || "all"; // ✅ 기본값을 "all"로 설정
+    const companyIds = searchParams.getAll("companyIds");
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(searchParams.get("limit") || 10);
     const start = (page - 1) * limit;
@@ -18,12 +18,16 @@ export async function GET(request: Request) {
       .from("documents")
       .select(
         `*, contacts_documents(contacts(contact_name, level, mobile)), users(name, level)`,
-        { count: "exact" } // ✅ 한 번의 요청으로 개수 포함
+        { count: "exact" }
       )
       .eq("type", type)
-      .eq("status", status)
       .order("created_at", { ascending: false })
       .range(start, end);
+
+    // 🔹 상태 필터 추가 (✅ "all"이 아닐 때만 적용)
+    if (status !== "all") {
+      query = query.eq("status", status);
+    }
 
     // 🔹 사용자 필터 추가 (선택적 적용)
     if (userId) query = query.eq("user_id", userId);

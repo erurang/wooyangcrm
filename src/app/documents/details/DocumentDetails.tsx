@@ -77,7 +77,7 @@ export default function DocumentsDetailsPage() {
   });
 
   const [selectedStatus, setSelectedStatus] = useState<string>(
-    searchParams.get("status") || ""
+    searchParams.get("status") || "all" // ✅ 기본값을 "all"로 변경
   );
 
   const [changedStatus, setChangedStatus] = useState("");
@@ -99,7 +99,7 @@ export default function DocumentsDetailsPage() {
   const { documents, total, refreshDocuments } = useDocumentsStatusList({
     userId: selectedUser?.id as string,
     type,
-    status: selectedStatus || "",
+    status: selectedStatus, // ✅ "all"이면 빈 값으로 설정
     page: currentPage,
     limit: documentsPerPage,
     companyIds: debounceCompanyIds,
@@ -263,13 +263,14 @@ export default function DocumentsDetailsPage() {
               상태
             </label>
             <motion.select
-              value={selectedStatus} // 🔹 선택된 상태 유지
+              value={selectedStatus}
               onChange={(e) => {
                 setSelectedStatus(e.target.value);
-                setCurrentPage(1); // ✅ 상태 변경 시 현재 페이지 초기화
+                setCurrentPage(1);
               }}
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
             >
+              <option value="all">전체</option> {/* ✅ "전체" 옵션 추가 */}
               <option value="pending">진행</option>
               <option value="completed">완료</option>
               <option value="canceled">취소</option>

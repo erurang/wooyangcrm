@@ -183,17 +183,17 @@ const menuSections: MenuSection[] = [
       {
         id: "estimate",
         title: "견적서 관리",
-        path: "/documents/details?type=estimate&status=pending",
+        path: "/documents/details?type=estimate&status=all",
       },
       {
         id: "order",
         title: "발주서 관리",
-        path: "/documents/details?type=order&status=pending",
+        path: "/documents/details?type=order&status=all",
       },
       {
         id: "requestQuote",
         title: "의뢰서 관리",
-        path: "/documents/details?type=requestQuote&status=pending",
+        path: "/documents/details?type=requestQuote&status=all",
       },
     ],
   },
