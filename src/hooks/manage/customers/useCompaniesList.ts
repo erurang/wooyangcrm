@@ -4,6 +4,7 @@ import { useContactsByCompany } from "./useContactsByCompany";
 
 export function useCompaniesList(
   page: number,
+  limit: number,
   searchTerm: string,
   addressTerm: string,
   contactCompanyIds: string[]
@@ -13,7 +14,7 @@ export function useCompaniesList(
     : "";
 
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/tests/companies/list?page=${page}&limit=10&name=${searchTerm}&address=${addressTerm}${companyIdString}`,
+    `/api/tests/companies/list?page=${page}&limit=${limit}&name=${searchTerm}&address=${addressTerm}${companyIdString}`,
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
 
     {

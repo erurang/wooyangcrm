@@ -588,7 +588,7 @@ export default function Estimate({
                     <input
                       disabled
                       type="text"
-                      value={user.name}
+                      value={user?.name}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </>
@@ -602,7 +602,7 @@ export default function Estimate({
                     <input
                       disabled
                       type="text"
-                      value={user.name}
+                      value={user?.name}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </>
@@ -616,7 +616,7 @@ export default function Estimate({
                     <input
                       disabled
                       type="text"
-                      value={user.name}
+                      value={user?.name}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </>
@@ -631,7 +631,7 @@ export default function Estimate({
                 >
                   {users.map((user) => (
                     <option key={user?.id} value={user?.id}>
-                      {user.name}
+                      {user?.name}
                     </option>
                   ))}
                 </select> */}
@@ -1137,7 +1137,7 @@ export default function Estimate({
                     <input
                       disabled
                       type="text"
-                      value={user.name}
+                      value={user?.name}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </>
@@ -1151,7 +1151,7 @@ export default function Estimate({
                     <input
                       disabled
                       type="text"
-                      value={user.name}
+                      value={user?.name}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </>
@@ -1165,7 +1165,7 @@ export default function Estimate({
                     <input
                       disabled
                       type="text"
-                      value={user.name}
+                      value={user?.name}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </>

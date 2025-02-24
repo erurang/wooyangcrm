@@ -51,7 +51,7 @@ export default function RecentConsultations() {
   const [endDate, setEndDate] = useState<string>(today);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const consultationsPerPage = 5;
+  const [consultationsPerPage, setConsultationsPerPage] = useState(5);
 
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
@@ -317,6 +317,23 @@ export default function RecentConsultations() {
         </div>
       </div>
       {/* 상담 내역 테이블 */}
+      <div className="flex justify-end items-center mb-4">
+        <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+        <select
+          value={consultationsPerPage}
+          onChange={(e) => {
+            setConsultationsPerPage(Number(e.target.value));
+            setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
+          }}
+          className="border border-gray-300 p-2 rounded-md text-sm"
+        >
+          <option value="5">5개</option>
+          <option value="10">10개</option>
+          <option value="15">15개</option>
+          <option value="20">20개</option>
+        </select>
+      </div>
+
       <div className="bg-[#FBFBFB] rounded-md border">
         <table className="min-w-full table-auto border-collapse text-center">
           <thead>

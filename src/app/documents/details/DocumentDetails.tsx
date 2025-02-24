@@ -82,7 +82,7 @@ export default function DocumentsDetailsPage() {
 
   const [changedStatus, setChangedStatus] = useState("");
 
-  const documentsPerPage = 10;
+  const [documentsPerPage, setDocumentsPerPage] = useState(10);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchDocNumber, setSearchDocNumber] = useState("");
@@ -338,6 +338,22 @@ export default function DocumentsDetailsPage() {
           </div>
         </div>
       </div>
+      <div className="flex justify-end items-center mb-4">
+        <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+        <select
+          value={documentsPerPage}
+          onChange={(e) => {
+            setDocumentsPerPage(Number(e.target.value));
+            setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
+          }}
+          className="border border-gray-300 p-2 rounded-md text-sm"
+        >
+          <option value="10">10개</option>
+          <option value="20">20개</option>
+          <option value="30">30개</option>
+          <option value="50">50개</option>
+        </select>
+      </div>
 
       {/* 문서 목록 */}
       <div className="bg-[#FBFBFB] rounded-md border">
@@ -366,9 +382,7 @@ export default function DocumentsDetailsPage() {
                 {type === "requestQuote" && "의뢰자"}
               </th>
               <th className="px-4 py-2 border-b border-r-[1px]">상태</th>
-              <th className="px-4 py-2 border-b border-r-[1px]">
-                {status === "pending" ? <>변경</> : <>사유</>}
-              </th>
+              <th className="px-4 py-2 border-b border-r-[1px]">비고</th>
             </tr>
           </thead>
           <tbody>
@@ -516,6 +530,7 @@ export default function DocumentsDetailsPage() {
       </div>
 
       {/* 문서 상세 모달 */}
+
       {selectedDocument && (
         <DocumentModal
           koreanAmount={numberToKorean}

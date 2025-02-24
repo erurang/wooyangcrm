@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import CircularProgress from "@mui/material/CircularProgress"; // ✅ MUI 로딩 추가
 import { useTodos } from "@/hooks/dashboard/useTodos";
+import { Skeleton } from "@mui/material";
 
 export default function TodoList({ userId }: { userId: string }) {
   const {
@@ -30,6 +31,8 @@ export default function TodoList({ userId }: { userId: string }) {
   const handleContentChange = (id: string, newContent: string) => {
     setEditingTodos((prev) => ({ ...prev, [id]: newContent }));
   };
+
+  if (isLoading) return <Skeleton style={{ height: "16rem", width: "100%" }} />;
 
   return (
     <div className="p-4 rounded-md border bg-[#FBFBFB]">

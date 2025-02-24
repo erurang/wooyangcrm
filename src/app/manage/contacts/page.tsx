@@ -40,7 +40,7 @@ export default function ContactsPage() {
   const [email, setEmail] = useState<string>("");
   const [mobile, setMobile] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
-  const contactsPerPage = 10;
+  const [contactsPerPage, setContactsPerPage] = useState(10);
   const router = useRouter();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false); // 추가 모달 상태
   const [snackbarMessage, setSnackbarMessage] = useState<string>(""); // 스낵바 메시지
@@ -339,16 +339,6 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      <div className="flex mt-6">
-        <button
-          className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-          onClick={() => setIsAddModalOpen(true)}
-        >
-          <span className="mr-2">+</span>
-          <span>추가</span>
-        </button>
-      </div>
-
       {/* 🔹 리스트 테이블 */}
       {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {contacts?.map((contact: any) => (
@@ -426,7 +416,36 @@ export default function ContactsPage() {
           </div>
         ))}
       </div> */}
-      <div className="overflow-x-auto mt-4">
+      <div>
+        <div className="flex justify-between items-center my-4">
+          <div className="flex">
+            <button
+              className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+              onClick={() => setIsAddModalOpen(true)}
+            >
+              <span className="mr-2">+</span>
+              <span>추가</span>
+            </button>
+          </div>
+
+          <div className="flex items-center">
+            <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+            <select
+              value={contactsPerPage}
+              onChange={(e) => {
+                setContactsPerPage(Number(e.target.value));
+                setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
+              }}
+              className="border border-gray-300 p-2 rounded-md text-sm"
+            >
+              <option value="10">10개</option>
+              <option value="20">20개</option>
+              <option value="30">30개</option>
+              <option value="50">50개</option>
+            </select>
+          </div>
+        </div>
+
         <div className="bg-[#FBFBFB] rounded-md border">
           <table className="min-w-full table-auto border-collapse">
             <thead>

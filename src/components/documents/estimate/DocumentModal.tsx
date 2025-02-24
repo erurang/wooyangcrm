@@ -272,7 +272,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   item.quantity
                 }</td>
                 <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${item.unit_price.toLocaleString()}</td>
-                <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; ">${item.amount.toLocaleString()}</td>
+                <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; ">${item.amount?.toLocaleString()}</td>
               </tr>`
               )
               .join("")}
@@ -582,7 +582,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   item.quantity
                 }</td>
                 <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">${item.unit_price.toLocaleString()}</td>
-                <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; ">${item.amount.toLocaleString()}</td>
+                <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; ">${item.amount?.toLocaleString()}</td>
               </tr>`
               )
               .join("")}
@@ -950,7 +950,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-md w-2/3 max-w-6xl">
+      <div className="bg-white p-6 rounded-md w-2/3 max-w-6xl max-h-screen overflow-y-scroll">
         {type === "estimate" && (
           <>
             <div className="flex justify-center relative">
@@ -1114,7 +1114,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                         {item.unit_price.toLocaleString()}
                       </td>
                       <td className="px-4 py-2 border-black border-r-[1px]">
-                        {item.amount.toLocaleString()}
+                        {item.amount?.toLocaleString()}
                       </td>
                     </tr>
                   ))}
@@ -1315,7 +1315,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                         {item.unit_price.toLocaleString()}
                       </td>
                       <td className="px-4 py-2 border-black border-r-[1px]">
-                        {item.amount.toLocaleString()}
+                        {item.amount?.toLocaleString()}
                       </td>
                     </tr>
                   ))}
@@ -1506,7 +1506,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                         {item.unit_price}
                       </td>
                       <td className="px-4 py-2 border-black border-r-[1px]">
-                        {/* {item.amount.toLocaleString()} */}
+                        {/* {item.amount?.toLocaleString()} */}
                       </td>
                     </tr>
                   ))}

@@ -30,7 +30,7 @@ export default function ProductPage() {
 
   const [status, setStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 10;
+  const [productsPerPage, setProductsPerPage] = useState(10);
 
   const debounceSearchCompany = useDebounce(searchCompany, 300);
   const debounceSearchProduct = useDebounce(searchProduct, 300);
@@ -56,9 +56,6 @@ export default function ProductPage() {
     page: currentPage,
     limit: productsPerPage,
   });
-
-  console.log(products);
-  //
 
   const totalPages = Math.ceil(total / productsPerPage);
 
@@ -228,6 +225,24 @@ export default function ProductPage() {
       </div>
 
       {/* 물품 목록 */}
+      <div className="flex justify-end items-center mb-4">
+        <div className="flex items-center">
+          <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+          <select
+            value={productsPerPage}
+            onChange={(e) => {
+              setProductsPerPage(Number(e.target.value));
+              setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
+            }}
+            className="border border-gray-300 p-2 rounded-md text-sm"
+          >
+            <option value="10">10개</option>
+            <option value="20">20개</option>
+            <option value="30">30개</option>
+            <option value="50">50개</option>
+          </select>
+        </div>
+      </div>
       <div className="bg-[#FBFBFB] rounded-md border">
         <table className="min-w-full table-auto border-collapse">
           <thead>

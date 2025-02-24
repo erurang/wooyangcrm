@@ -50,7 +50,7 @@ export default function Page() {
 
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
   const [totalPages, setTotalPages] = useState(1); // 총 페이지 수
-  const companiesPerPage = 10; // 페이지당 거래처 수
+  const [companiesPerPage, setCompaniesPerPage] = useState(10);
   const [contactTerm, setContactTerm] = useState<string>(""); // 주소 검색어
 
   const router = useRouter();
@@ -92,6 +92,7 @@ export default function Page() {
   const { companies, total, isLoading, isError, refreshCompanies } =
     useCompaniesList(
       currentPage,
+      companiesPerPage,
       debouncedSearchTerm,
       debouncedAddressTerm,
       companyIds
@@ -526,17 +527,35 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="flex my-4">
-        <div
-          className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-          onClick={handleAdd}
-        >
-          <span className="mr-2">+</span>
-          <span>추가</span>
-        </div>
-      </div>
-
       <div>
+        <div className="flex justify-between items-center my-4">
+          <div className="flex">
+            <div
+              className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+              onClick={handleAdd}
+            >
+              <span className="mr-2">+</span>
+              <span>추가</span>
+            </div>
+          </div>
+
+          <div className="flex items-center">
+            <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+            <select
+              value={companiesPerPage}
+              onChange={(e) => {
+                setCompaniesPerPage(Number(e.target.value));
+                setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
+              }}
+              className="border border-gray-300 p-2 rounded-md text-sm"
+            >
+              <option value="10">10개</option>
+              <option value="20">20개</option>
+              <option value="30">30개</option>
+              <option value="50">50개</option>
+            </select>
+          </div>
+        </div>
         <div className="bg-[#FBFBFB] rounded-md border">
           <table className="min-w-full table-auto border-collapse">
             <thead>
