@@ -5,9 +5,17 @@ import { useRouter } from "next/navigation";
 import { useUsersList } from "@/hooks/useUserList";
 import { useUserSalesSummary } from "@/hooks/reports/useUserSalesSummary";
 import { useUserDocumentsCount } from "@/hooks/reports/useUserDocumentsCount";
+import { useLoginUser } from "@/context/login";
 
 export default function UsersListPage() {
   const router = useRouter();
+  const loginUser = useLoginUser();
+
+  if (loginUser?.role === "admin") {
+    router.push(`/reports/users/${loginUser?.id}`);
+    return <div>잘못된 접근입니다</div>;
+  }
+
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState<"year" | "quarter" | "month">(
     "year"

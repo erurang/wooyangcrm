@@ -4,7 +4,7 @@ import { useState } from "react";
 import useSWR from "swr";
 import { supabase } from "@/lib/supabaseClient";
 
-const ITEMS_PER_PAGE = 10; // 한 페이지당 표시할 개수
+const ItemsPerPage = 20; // 한 페이지당 표시할 개수
 
 const useCompletedReports = () => {
   const fetchReports = async () => {
@@ -71,17 +71,17 @@ const ReportsOverview = () => {
   const [currentDailyPage, setCurrentDailyPage] = useState<number>(1);
   const [currentMonthlyPage, setCurrentMonthlyPage] = useState<number>(1);
 
-  const dailyTotalPages = Math.ceil(dailyReports.length / ITEMS_PER_PAGE);
-  const monthlyTotalPages = Math.ceil(monthlyReports.length / ITEMS_PER_PAGE);
+  const dailyTotalPages = Math.ceil(dailyReports.length / ItemsPerPage);
+  const monthlyTotalPages = Math.ceil(monthlyReports.length / ItemsPerPage);
 
   const paginatedDailyReports = dailyReports.slice(
-    (currentDailyPage - 1) * ITEMS_PER_PAGE,
-    currentDailyPage * ITEMS_PER_PAGE
+    (currentDailyPage - 1) * ItemsPerPage,
+    currentDailyPage * ItemsPerPage
   );
 
   const paginatedMonthlyReports = monthlyReports.slice(
-    (currentMonthlyPage - 1) * ITEMS_PER_PAGE,
-    currentMonthlyPage * ITEMS_PER_PAGE
+    (currentMonthlyPage - 1) * ItemsPerPage,
+    currentMonthlyPage * ItemsPerPage
   );
 
   if (isLoading) return <p>Loading...</p>;
