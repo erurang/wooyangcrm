@@ -31,8 +31,6 @@ export default function TodoList({ userId }: { userId: string }) {
     setEditingTodos((prev) => ({ ...prev, [id]: newContent }));
   };
 
-  if (isLoading) return <p>로딩 중...</p>;
-
   return (
     <div className="p-4 rounded-md border bg-[#FBFBFB]">
       <div className="flex justify-between items-center mb-4">

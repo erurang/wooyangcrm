@@ -35,13 +35,13 @@ export const useProductsList = ({
     specification: searchSpec,
     min_price: minPrice ? minPrice.toString() : "",
     max_price: maxPrice ? maxPrice.toString() : "",
-    status,
     page: page.toString(),
     limit: limit.toString(),
   });
 
   // ✅ userId가 있을 때만 추가
   if (userId) queryParams.append("userId", userId);
+  if (status !== "all") queryParams.append("status", status);
 
   // ✅ companyIds가 있을 때만 추가
   companyIds.forEach((id) => queryParams.append("companyIds", id));

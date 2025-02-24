@@ -42,8 +42,8 @@ export async function GET(request: Request) {
     }
 
     // ✅ 상태 필터 추가
-    if (status) {
-      query = query.eq("status", status);
+    if (status && status !== "all") {
+      query = query.eq("status", status); // ✅ "all"일 때 필터 제외
     }
 
     const { data, error } = await query;

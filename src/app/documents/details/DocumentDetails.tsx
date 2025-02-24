@@ -365,6 +365,7 @@ export default function DocumentsDetailsPage() {
                 {type === "order" && "발주자"}
                 {type === "requestQuote" && "의뢰자"}
               </th>
+              <th className="px-4 py-2 border-b border-r-[1px]">상태</th>
               <th className="px-4 py-2 border-b border-r-[1px]">
                 {status === "pending" ? <>변경</> : <>사유</>}
               </th>
@@ -414,6 +415,11 @@ export default function DocumentsDetailsPage() {
                 </td>
                 <td className="px-4 py-2 border-b border-r-[1px]">
                   {doc.user_name} {doc.user_level}
+                </td>
+                <td className="px-4 py-2 border-b border-r-[1px]">
+                  {doc.status === "pending" && "진행중"}
+                  {doc.status === "completed" && "완료"}
+                  {doc.status === "canceled" && "취소"}
                 </td>
                 <td className="px-4 py-2 border-b border-r-[1px] w-1/3">
                   <div className="flex justify-center">

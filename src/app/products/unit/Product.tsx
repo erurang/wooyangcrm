@@ -28,7 +28,7 @@ export default function ProductPage() {
 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const [status, setStatus] = useState("pending");
+  const [status, setStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
 
@@ -218,10 +218,10 @@ export default function ProductPage() {
               }}
               className="w-3/4 p-2 border-r border-b border-t border-gray-300 rounded-r-md"
             >
+              <option value="all">전체</option>
               <option value="pending">진행 중</option>
               <option value="completed">완료됨</option>
               <option value="canceled">취소됨</option>
-              {/* <option value="backup">관리자백업</option> */}
             </select>
           </div>
         </div>
@@ -241,6 +241,7 @@ export default function ProductPage() {
               <th className="px-4 py-2 border-b border-r">수량</th>
               <th className="px-4 py-2 border-b border-r">단가</th>
               <th className="px-4 py-2 border-b border-r">담당</th>
+              <th className="px-4 py-2 border-b border-r">상태</th>
             </tr>
           </thead>
           <tbody>
@@ -266,12 +267,17 @@ export default function ProductPage() {
                   {product.unit_price.toLocaleString()} 원
                 </td>
                 <td
-                  className="px-4 py-2 border-b text-blue-500 cursor-pointer"
+                  className="px-4 py-2 border-b text-blue-500 cursor-pointer border-r"
                   onClick={() =>
                     router.push(`/reports/users/${product.user_id}`)
                   }
                 >
                   {product.user_name} {product.user_level}
+                </td>
+                <td className="px-4 py-2 border-b cursor-pointer">
+                  {product.status === "pending" && "진행중"}
+                  {product.status === "canceled" && "취소"}
+                  {product.status === "completed" && "완료"}
                 </td>
               </tr>
             ))}
