@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
@@ -69,6 +70,8 @@ export default function ConsultationPage() {
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
   const [openAddModal, setOpenAddModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
+
+  const [deleteReason, setDeleteReason] = useState("");
   const [newConsultation, setNewConsultation] = useState({
     date: new Date().toISOString().split("T")[0],
     follow_up_date: "",
@@ -300,13 +303,20 @@ export default function ConsultationPage() {
 
   const handleConfirmDelete = async () => {
     if (!consultationToDelete) return;
+    if (deleteReason.length === 0) return;
 
     try {
       const { error } = await supabase.from("deletion_requests").insert([
         {
           related_id: consultationToDelete.id,
           status: "pending",
-          type: "consultation",
+          type: "consultations",
+          request_date: new Date(),
+          user_id: loginUser?.id || "",
+          delete_reason: deleteReason,
+          content: {
+            consultations: `상담삭제 : ${consultationToDelete?.contact_name} ${consultationToDelete?.contact_level} ${consultationToDelete?.content}`,
+          },
         },
       ]);
 
@@ -1057,6 +1067,9 @@ export default function ConsultationPage() {
                           loginUser?.id === consultation.user_id &&
                           "text-red-500 cursor-pointer"
                         }`}
+                        // onClick={() => {
+                        //   handleDeleteConsultation(consultation);
+                        // }}
                         onClick={() => {
                           if (loginUser?.id === consultation.user_id)
                             handleDeleteConsultation(consultation);
@@ -1121,30 +1134,37 @@ export default function ConsultationPage() {
       </>
 
       {openDeleteModal && consultationToDelete && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md w-1/3 max-w-lg">
-            <h3 className="text-xl font-semibold mb-4">상담 내역 삭제</h3>
-            <p>
-              정말로 "{consultationToDelete.content}"의 상담 내역을
-              삭제하시겠습니까?
-            </p>
+        <motion.div
+          initial={{ opacity: 0, scale: 1 }} // 시작 애니메이션
+          animate={{ opacity: 1, scale: 1 }} // 나타나는 애니메이션
+          exit={{ opacity: 0, scale: 1 }} // 사라질 때 애니메이션
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50"
+        >
+          <div className="bg-white p-6 rounded-md w-1/3">
+            <h3 className="text-xl font-semibold mb-4">삭제 요청</h3>
+            <textarea
+              className="w-full border rounded-md p-4 h-48"
+              placeholder="삭제 사유를 입력해주세요."
+              onChange={(e) => setDeleteReason(e.target.value)}
+            />
 
-            <div className="flex justify-end space-x-4 mt-4">
+            <div className="flex justify-end space-x-4">
               <button
                 onClick={() => setOpenDeleteModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm"
+                className="bg-gray-500 text-white px-4 py-2 rounded-md"
               >
                 취소
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded-md text-sm"
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
               >
                 삭제
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
       {openEditNotesModal && (
         <>

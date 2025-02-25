@@ -1,6 +1,7 @@
 "use client";
 
 import Estimate from "./Estimate";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -99,6 +100,7 @@ const DocPage = () => {
 
   const [openAddModal, setOpenAddModal] = useState(false); // 모달 상태 관리
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
 
   const [newDocument, setNewDocument] = useState({
     id,
@@ -146,7 +148,7 @@ const DocPage = () => {
   const { company, isLoading, refreshCompany } = useCompanyInfo(companyId);
   const { addDocument, isAdding } = useAddDocument();
   const { updateDocument, isUpdating } = useUpdateDocument();
-  const { deleteDocument, isDeleting } = useDeleteDocument();
+  // const { deleteDocument, isDeleting } = useDeleteDocument();
   // swr
 
   const transformedDocuments = useMemo(() => {
@@ -184,30 +186,78 @@ const DocPage = () => {
 
   const handleConfirmDelete = async () => {
     if (!documentToDelete) return;
+    if (deleteReason.length === 0) return;
 
     try {
-      await supabase
-        .from("contacts_documents")
-        .delete()
-        .eq("document_id", documentToDelete.id);
+      // 2️⃣ 회사 삭제 요청 추가
+      const { error } = await supabase.from("deletion_requests").insert([
+        {
+          type: "documents",
+          related_id: documentToDelete.id,
+          status: "pending",
+          request_date: new Date(),
+          user_id: user?.id || "",
+          delete_reason: deleteReason,
+          content: {
+            documents: `
+            문서번호 : ${documentToDelete.document_number}/
+            ${documentToDelete.type === "estimate" && "견적서"}/${
+              documentToDelete.type === "order" && "발주서"
+            }/${documentToDelete.type === "requestQuote" && "의뢰서"}삭제 : 
+            
+            특기사항 : ${documentToDelete.content.notes}/
+            담당자 : ${documentToDelete.contact_name} ${
+              documentToDelete.contact_level
+            }/
+            품목 : ${documentToDelete.content.items.map(
+              (n) => n.name
+            )} / ${documentToDelete.content.items.map(
+              (n) => n.spec
+            )} / ${documentToDelete.content.items.map(
+              (n) => n.quantity
+            )} / ${documentToDelete.content.items.map((n) => n.amount)}
+            `,
+          },
+        },
+      ]);
 
-      const { error } = await supabase
-        .from("documents")
-        .delete()
-        .eq("id", documentToDelete.id);
+      if (error) throw error;
 
-      if (error) {
-        console.error("삭제 실패:", error.message);
-        return;
-      }
-
-      setSnackbarMessage("문서가 삭제되었습니다.");
+      setSnackbarMessage("삭제 요청 완료");
 
       setOpenDeleteModal(false);
     } catch (error) {
-      console.error("삭제 중 오류 발생", error);
+      console.error("Error deleting consultations:", error);
+      setSnackbarMessage("삭제 요청 실패");
     }
   };
+
+  // const handleConfirmDelete = async () => {
+  //   if (!documentToDelete) return;
+
+  //   try {
+  //     await supabase
+  //       .from("contacts_documents")
+  //       .delete()
+  //       .eq("document_id", documentToDelete.id);
+
+  //     const { error } = await supabase
+  //       .from("documents")
+  //       .delete()
+  //       .eq("id", documentToDelete.id);
+
+  //     if (error) {
+  //       console.error("삭제 실패:", error.message);
+  //       return;
+  //     }
+
+  //     setSnackbarMessage("문서가 삭제되었습니다.");
+
+  //     setOpenDeleteModal(false);
+  //   } catch (error) {
+  //     console.error("삭제 중 오류 발생", error);
+  //   }
+  // };
 
   const handleAddDocument = async () => {
     if (isAdding) return;
@@ -607,7 +657,7 @@ const DocPage = () => {
         handleEditCloseModal={handleEditCloseModal}
       />
 
-      {openDeleteModal && documentToDelete && (
+      {/* {openDeleteModal && documentToDelete && (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-md w-1/3 max-w-lg">
             <h3 className="text-xl font-semibold mb-2">
@@ -638,6 +688,40 @@ const DocPage = () => {
             </div>
           </div>
         </div>
+      )} */}
+
+      {openDeleteModal && documentToDelete && (
+        <motion.div
+          initial={{ opacity: 0, scale: 1 }} // 시작 애니메이션
+          animate={{ opacity: 1, scale: 1 }} // 나타나는 애니메이션
+          exit={{ opacity: 0, scale: 1 }} // 사라질 때 애니메이션
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50"
+        >
+          <div className="bg-white p-6 rounded-md w-1/3">
+            <h3 className="text-xl font-semibold mb-4">삭제 요청</h3>
+            <textarea
+              className="w-full border rounded-md p-4 h-48"
+              placeholder="삭제 사유를 입력해주세요."
+              onChange={(e) => setDeleteReason(e.target.value)}
+            />
+
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setOpenDeleteModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-md"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => handleConfirmDelete()}
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </motion.div>
       )}
 
       {openModal && type === "estimate" && (

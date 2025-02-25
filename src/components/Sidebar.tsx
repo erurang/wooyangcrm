@@ -142,24 +142,19 @@ export default function Sidebar() {
       title: "관리자",
       items: [
         {
-          id: "admin",
-          title: "거래처 관리",
-          path: "",
+          id: "deleteRequest",
+          title: "삭제 요청",
+          path: "/admin/delete_request",
         },
         {
-          id: "admin1",
-          title: "상담 관리",
-          path: "",
-        },
-        {
-          id: "admin2",
-          title: "문서 관리",
-          path: "",
-        },
-        {
-          id: "admin3",
+          id: "manageUsers",
           title: "직원 관리",
-          path: "",
+          path: "/admin/manage/users",
+        },
+        {
+          id: "logs",
+          title: "로그",
+          path: "/admin/manage/logs",
         },
       ],
     });
@@ -240,7 +235,7 @@ export default function Sidebar() {
           {menuSections.map((section) => (
             <div key={section.title}>
               <div
-                className="py-2 px-3 cursor-pointer hover:bg-slate-300 rounded-sm font-bold flex justify-between"
+                className="py-2 px-3 cursor-pointer hover:bg-slate-300 rounded-sm font-bold flex justify-between "
                 onClick={() => toggleSection(section.title)}
               >
                 {section.title}

@@ -16,6 +16,7 @@ import { useAddContacts } from "@/hooks/manage/customers/useAddContacts";
 import { useUpdateCompany } from "@/hooks/manage/customers/useUpdateCompany";
 import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useLoginUser } from "@/context/login";
 
 interface Contact {
   contact_name: string;
@@ -41,6 +42,7 @@ interface Company {
 }
 
 export default function Page() {
+  const user = useLoginUser();
   const [searchTerm, setSearchTerm] = useState<string>(""); // 거래처 검색어
   const [addressTerm, setAddressTerm] = useState<string>(""); // 주소 검색어
   const [industries, setIndustries] = useState<{ id: number; name: string }[]>(
@@ -52,6 +54,7 @@ export default function Page() {
   const [totalPages, setTotalPages] = useState(1); // 총 페이지 수
   const [companiesPerPage, setCompaniesPerPage] = useState(10);
   const [contactTerm, setContactTerm] = useState<string>(""); // 주소 검색어
+  const [deleteReason, setDeleteReason] = useState("");
 
   const router = useRouter();
 
@@ -253,20 +256,21 @@ export default function Page() {
   };
 
   const confirmDelete = async () => {
+    if (deleteReason.length === 0) return;
     if (companyToDelete) {
       try {
-        // 1️⃣ 해당 회사의 contacts 삭제
-        await supabase
-          .from("contacts")
-          .delete()
-          .eq("company_id", companyToDelete.id);
-
         // 2️⃣ 회사 삭제 요청 추가
         const { error } = await supabase.from("deletion_requests").insert([
           {
-            type: "company",
+            type: "companies",
             related_id: companyToDelete.id,
             status: "pending",
+            request_date: new Date(),
+            user_id: user?.id || "",
+            delete_reason: deleteReason,
+            content: {
+              companies: `거래처삭제 : ${companyToDelete.name}`,
+            },
           },
         ]);
 
@@ -282,10 +286,43 @@ export default function Page() {
       }
     }
   };
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setCompanyToDelete(null);
-  };
+
+  // const confirmDelete = async () => {
+  //   if (companyToDelete) {
+  //     try {
+  //       // 1️⃣ 해당 회사의 contacts 삭제
+  // await supabase
+  //   .from("contacts")
+  //   .delete()
+  //   .eq("company_id", companyToDelete.id);
+
+  //       // 2️⃣ 회사 삭제 요청 추가
+  //       const { error } = await supabase.from("deletion_requests").insert([
+  //         {
+  //           type: "company",
+  //           related_id: companyToDelete.id,
+  //           status: "pending",
+  //         },
+  //       ]);
+
+  //       if (error) throw error;
+
+  //       setSnackbarMessage("삭제 요청 완료");
+
+  //       setIsDeleteModalOpen(false);
+  //       setCurrentPage(1);
+  //     } catch (error) {
+  //       console.error("Error deleting company:", error);
+  //       setSnackbarMessage("삭제 요청 실패");
+  //     }
+  //   }
+  // };
+
+  // const closeDeleteModal = () => {
+  //   setIsDeleteModalOpen(false);
+  //   setCompanyToDelete(null);
+  // };
+
   const cancelDelete = () => {
     setIsDeleteModalOpen(false);
     setCompanyToDelete(null);
@@ -933,8 +970,13 @@ export default function Page() {
             className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50"
           >
             <div className="bg-white p-6 rounded-md w-1/3">
-              <h3 className="text-xl font-semibold mb-4">삭제 확인</h3>
-              <p>정말로 이 거래처를 삭제하시겠습니까?</p>
+              <h3 className="text-xl font-semibold mb-4">삭제 요청</h3>
+              <textarea
+                className="w-full border rounded-md p-4 h-48"
+                placeholder="삭제 사유를 입력해주세요."
+                onChange={(e) => setDeleteReason(e.target.value)}
+              />
+
               <div className="flex justify-end space-x-4">
                 <button
                   onClick={cancelDelete}

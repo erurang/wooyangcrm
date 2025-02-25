@@ -13,6 +13,8 @@ import { useAddContacts } from "@/hooks/manage/customers/useAddContacts";
 import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
 import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
 import { useDeleteContact } from "@/hooks/manage/contacts/useDeleteContact";
+import { supabase } from "@/lib/supabaseClient";
+import { useLoginUser } from "@/context/login";
 
 interface Contact {
   id: string;
@@ -28,13 +30,12 @@ interface Contact {
   note: string;
 }
 
-interface Company {
-  id: string;
-  name: string;
-}
-
 export default function ContactsPage() {
+  const user = useLoginUser();
   const [companyName, setCompanyName] = useState<string>(""); // 🔹 회사명 추가
+  const [deleteReason, setDeleteReason] = useState("");
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
 
   const [contactName, setContactName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -238,25 +239,62 @@ export default function ContactsPage() {
       setSaving(false);
     }
   };
-  const handleDeleteContact = async (contactId: string) => {
-    const isConfirmed = confirm(
-      "정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
-    );
-    if (!isConfirmed) return; // ✅ confirm이 true일 때만 실행
 
-    setSaving(true);
+  const handleDeleteContact = async (contact: Contact) => {
+    setContactToDelete(contact);
+    setOpenDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!contactToDelete) return;
+    if (deleteReason.length === 0) return;
 
     try {
-      await deleteContact(contactId);
-      setSnackbarMessage("담당자가 삭제되었습니다.");
-      await refreshContacts();
+      const { error } = await supabase.from("deletion_requests").insert([
+        {
+          related_id: contactToDelete.id,
+          status: "pending",
+          type: "contacts",
+          request_date: new Date(),
+          user_id: user?.id || "",
+          delete_reason: deleteReason,
+          content: {
+            contacts: `담당자삭제 : ${contactToDelete?.contact_name} ${contactToDelete?.level} `,
+          },
+        },
+      ]);
+
+      if (error) {
+        setSnackbarMessage("삭제 요청을 생성하는 데 실패했습니다.");
+      } else {
+        setSnackbarMessage("삭제 요청이 생성되었습니다.");
+
+        setOpenDeleteModal(false);
+      }
     } catch (error) {
-      console.error("Error deleting contact:", error);
-      setSnackbarMessage("❌ 삭제 실패: " + error);
-    } finally {
-      setSaving(false);
+      setSnackbarMessage("삭제 요청 생성 중 오류가 발생했습니다.");
     }
   };
+
+  // const handleDeleteContact = async (contactId: string) => {
+  //   const isConfirmed = confirm(
+  //     "정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+  //   );
+  //   if (!isConfirmed) return; // ✅ confirm이 true일 때만 실행
+
+  //   setSaving(true);
+
+  //   try {
+  //     await deleteContact(contactId);
+  //     setSnackbarMessage("담당자가 삭제되었습니다.");
+  //     await refreshContacts();
+  //   } catch (error) {
+  //     console.error("Error deleting contact:", error);
+  //     setSnackbarMessage("❌ 삭제 실패: " + error);
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
 
   return (
     <div className="text-sm text-[#37352F]">
@@ -511,7 +549,7 @@ export default function ContactsPage() {
                   </td>
                   <td
                     className="px-4 py-2 border-b text-red-500 cursor-pointer hidden md:table-cell"
-                    onClick={() => handleDeleteContact(contact.id)}
+                    onClick={() => handleDeleteContact(contact)}
                   >
                     삭제
                   </td>
@@ -838,6 +876,40 @@ export default function ContactsPage() {
             </div>
           </motion.div>
         </AnimatePresence>
+      )}
+
+      {openDeleteModal && contactToDelete && (
+        <motion.div
+          initial={{ opacity: 0, scale: 1 }} // 시작 애니메이션
+          animate={{ opacity: 1, scale: 1 }} // 나타나는 애니메이션
+          exit={{ opacity: 0, scale: 1 }} // 사라질 때 애니메이션
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50"
+        >
+          <div className="bg-white p-6 rounded-md w-1/3">
+            <h3 className="text-xl font-semibold mb-4">삭제 요청</h3>
+            <textarea
+              className="w-full border rounded-md p-4 h-48"
+              placeholder="삭제 사유를 입력해주세요."
+              onChange={(e) => setDeleteReason(e.target.value)}
+            />
+
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setOpenDeleteModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-md"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="bg-red-500 text-white px-4 py-2 rounded-md"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </motion.div>
       )}
 
       <SnackbarComponent

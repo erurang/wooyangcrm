@@ -124,10 +124,12 @@ export default function UserDetailPage() {
   const purchaseChart = getChartData(aggregatedPurchaseCompanies);
 
   const completedSales: any = (documentsDetails ?? [])
-    .flatMap((user: any) => user.consultations ?? [])
-    .flatMap((consultation: any) => consultation.documents ?? [])
-    .filter((doc: any) => doc.status === "completed" && doc.type === "estimate")
-    .reduce(
+    ?.flatMap((user: any) => user.consultations ?? [])
+    ?.flatMap((consultation: any) => consultation.documents ?? [])
+    ?.filter(
+      (doc: any) => doc.status === "completed" && doc.type === "estimate"
+    )
+    ?.reduce(
       (sum: any, doc: any) =>
         sum +
         (doc.items ?? []).reduce(
@@ -138,10 +140,10 @@ export default function UserDetailPage() {
     );
 
   const completedPurchases: any = (documentsDetails ?? [])
-    .flatMap((user: any) => user.consultations ?? [])
-    .flatMap((consultation: any) => consultation.documents ?? [])
-    .filter((doc: any) => doc.status === "completed" && doc.type === "order")
-    .reduce(
+    ?.flatMap((user: any) => user.consultations ?? [])
+    ?.flatMap((consultation: any) => consultation.documents ?? [])
+    ?.filter((doc: any) => doc.status === "completed" && doc.type === "order")
+    ?.reduce(
       (sum: any, doc: any) =>
         sum +
         (doc.items ?? []).reduce(
