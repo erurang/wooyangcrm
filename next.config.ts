@@ -1,18 +1,19 @@
+// next.config.js
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   env: {
-    JWT_SECRET: process.env.JWT_SECRET,
-    // SUPABASE_URL:
-    //   process.env.NODE_ENV === "production"
-    //     ? process.env.SUPABASE_PROD_URL
-    //     : process.env.SUPABASE_DEV_URL,
-    // SUPABASE_ANON_KEY:
-    //   process.env.NODE_ENV === "production"
-    //     ? process.env.SUPABASE_PROD_ANON_KEY
-    //     : process.env.SUPABASE_DEV_ANON_KEY,
+    NEXT_PUBLIC_SUPABASE_URL:
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXT_PUBLIC_SUPABASE_PROD_URL
+        : process.env.NEXT_PUBLIC_SUPABASE_DEV_URL,
+
+    NEXT_PUBLIC_SUPABASE_ANON_KEY:
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXT_PUBLIC_SUPABASE_PROD_ANON_KEY
+        : process.env.NEXT_PUBLIC_SUPABASE_DEV_ANON_KEY,
   },
+
   eslint: {
     ignoreDuringBuilds: true,
   },
