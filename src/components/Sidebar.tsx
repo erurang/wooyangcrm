@@ -114,6 +114,16 @@ export default function Sidebar() {
           path: `/reports/customers`,
         },
         {
+          id: "order-invoice",
+          title: "매입 세금계산서",
+          path: `/reports/customers`,
+        },
+        {
+          id: "estimate-invoice",
+          title: "매출 세금계산서",
+          path: `/reports/customers`,
+        },
+        {
           id: "sales-report",
           title: "매출/매입 리포트",
           path: "/reports",
@@ -142,6 +152,11 @@ export default function Sidebar() {
       title: "관리자",
       items: [
         {
+          id: "logs",
+          title: "로그",
+          path: "/admin/manage/logs",
+        },
+        {
           id: "deleteRequest",
           title: "삭제 요청",
           path: "/admin/delete_request",
@@ -151,11 +166,6 @@ export default function Sidebar() {
           title: "직원 관리",
           path: "/admin/manage/users",
         },
-        {
-          id: "logs",
-          title: "로그",
-          path: "/admin/manage/logs",
-        },
       ],
     });
   }
@@ -163,7 +173,7 @@ export default function Sidebar() {
   return (
     <>
       <motion.div
-        className="w-56 bg-[#F8F8F7] min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B] transition-all duration-300 relative"
+        className="w-56 bg-[#F8F8F7] min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B] transition-all duration-300 relative overflow-y-scroll scrollbar-hide"
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <div className="py-1 px-3 rounded-sm flex items-center">
