@@ -222,17 +222,14 @@ export default function UserDetailPage() {
 
   return (
     <div className="text-sm text-[#333]">
-      {/* 🔹 유저 기본 정보 + 견적/매출 실적 */}
       <div className="mb-4">
-        <Link
+        {/* <Link
           href="/reports/users"
           className="text-blue-500 hover:font-semibold"
         >
           영업 직원 목록{" "}
-        </Link>
-        <span className="text-[#333] font-semibold">
-          - {user?.position} {user?.name} {user?.level}
-        </span>
+        </Link> */}
+        <span className="text-[#333] font-semibold">영업 기록</span>
       </div>
 
       {/* 🔹 유저 정보 섹션 */}
@@ -440,7 +437,7 @@ export default function UserDetailPage() {
                     <div className="text-sm text-gray-600">
                       {consultation.date}
                       <span
-                        className="font-bold ml-2 text-blue-500 cursor-pointer"
+                        className="font-bold ml-2 text-blue-500 cursor-pointer "
                         onClick={() =>
                           router.push(
                             `/consultations/${consultation.company_id}`

@@ -8,6 +8,7 @@ import { useProductsList } from "@/hooks/products/useProductsList";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUsersList } from "@/hooks/useUserList";
 import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
+import { useLoginUser } from "@/context/login";
 
 interface User {
   id: string;
@@ -18,6 +19,7 @@ interface User {
 export default function ProductPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const user = useLoginUser();
   const type = searchParams.get("type") as "estimate" | "order";
 
   const [searchCompany, setSearchCompany] = useState("");
@@ -46,7 +48,8 @@ export default function ProductPage() {
   const { users } = useUsersList();
   const { products, total, isLoading, mutate } = useProductsList({
     type,
-    userId: selectedUser?.id || "", // ✅ 사용자 필터 추가
+    // userId: selectedUser?.id || "", // ✅ 사용자 필터 추가
+    userId: user?.id || "",
     companyIds: debounceCompanyIds, // ✅ 회사 필터 추가
     searchProduct: debounceSearchProduct,
     searchSpec: debounceSearchSpec,
@@ -179,19 +182,19 @@ export default function ProductPage() {
             </div>
           </div>
           {/* 상담자 */}
-          <div className="flex items-center justify-center">
+          {/* <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border rounded-l-md">
               상담자
             </label>
             <motion.select
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
-              value={selectedUser?.id || ""} // ✅ userId 저장
+              value={selectedUser?.id || ""}
               onChange={(e) => {
                 const user =
                   users.find((user: User) => user.id === e.target.value) ||
                   null;
                 setSelectedUser(user);
-                setCurrentPage(1); // ✅ 상담자 변경 시 현재 페이지 초기화
+                setCurrentPage(1);
               }}
             >
               <option value="">전체</option>
@@ -201,7 +204,7 @@ export default function ProductPage() {
                 </option>
               ))}
             </motion.select>
-          </div>
+          </div> */}
           {/* 상태 */}
           <div className="col-span-1 flex items-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
@@ -282,10 +285,10 @@ export default function ProductPage() {
                   {product.unit_price.toLocaleString()} 원
                 </td>
                 <td
-                  className="px-4 py-2 border-b text-blue-500 cursor-pointer border-r"
-                  onClick={() =>
-                    router.push(`/reports/users/${product.user_id}`)
-                  }
+                  className="px-4 py-2 border-b border-r"
+                  // onClick={() =>
+                  //   router.push(`/reports/users/${product.user_id}`)
+                  // }
                 >
                   {product.user_name} {product.user_level}
                 </td>

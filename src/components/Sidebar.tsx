@@ -39,6 +39,132 @@ export default function Sidebar() {
   if (isLoading) return <></>;
   if (isError) return <p>데이터를 불러오는 중 오류가 발생했습니다.</p>;
 
+  const menuSections: MenuSection[] = [
+    {
+      title: "📊 대시보드",
+      items: [
+        { id: "dashboard", title: "대시보드", path: "/" },
+        {
+          id: "mySales",
+          title: "영업 기록",
+          path: `/reports/users/${user?.id}`,
+        },
+        // { id: "todos", title: "할일", path: "" },
+        // { id: "calendar", title: "캘린더", path: "" },
+      ],
+    },
+    {
+      title: "🏢 거래처 관리",
+      items: [
+        { id: "customers", title: "거래처 검색", path: "/manage/customers" },
+        { id: "contacts", title: "담당자 검색", path: "/manage/contacts" },
+        { id: "recent", title: "최근 상담내역", path: "/consultations/recent" },
+      ],
+    },
+    {
+      title: "📄 문서 관리",
+      items: [
+        // { id: "documents", title: "문서 전체", path: "/documents" },
+        {
+          id: "estimate",
+          title: "견적서 관리",
+          path: "/documents/details?type=estimate&status=all",
+        },
+        {
+          id: "order",
+          title: "발주서 관리",
+          path: "/documents/details?type=order&status=all",
+        },
+        {
+          id: "requestQuote",
+          title: "의뢰서 관리",
+          path: "/documents/details?type=requestQuote&status=all",
+        },
+      ],
+    },
+    {
+      title: "💰 매입/매출 관리",
+      items: [
+        {
+          id: "order-unit",
+          title: "매입 단가 관리",
+          path: "/products/unit?type=order",
+        },
+        {
+          id: "estimate-unit",
+          title: "매출 단가 관리",
+          path: "/products/unit?type=estimate",
+        },
+      ],
+    },
+  ];
+
+  if (user?.role === "managementSupport" || user?.role === "admin") {
+    menuSections.push({
+      title: "경영지원",
+      items: [
+        {
+          id: "sales-users",
+          title: "직원",
+          path: `/reports/users`,
+        },
+        {
+          id: "sales-customers",
+          title: "거래처",
+          path: `/reports/customers`,
+        },
+        {
+          id: "sales-report",
+          title: "매출/매입 리포트",
+          path: "/reports",
+        },
+        // {
+        //   id: "performance",
+        //   title: "영업 성과 요약",
+        //   path: `/reports/performance?year=${new Date().getFullYear()}`,
+        // },
+        // {
+        //   id: "performance-order",
+        //   title: "영업 상세 (매입)",
+        //   path: `/reports/performance/details?type=order`,
+        // },
+        // {
+        //   id: "performance-estimate",
+        //   title: "영업 상세 (매출)",
+        //   path: `/reports/performance/details?type=estimate`,
+        // },
+      ],
+    });
+  }
+
+  if (user?.role === "admin") {
+    menuSections.push({
+      title: "관리자",
+      items: [
+        {
+          id: "admin",
+          title: "거래처 관리",
+          path: "",
+        },
+        {
+          id: "admin1",
+          title: "상담 관리",
+          path: "",
+        },
+        {
+          id: "admin2",
+          title: "문서 관리",
+          path: "",
+        },
+        {
+          id: "admin3",
+          title: "직원 관리",
+          path: "",
+        },
+      ],
+    });
+  }
+
   return (
     <>
       <motion.div
@@ -158,93 +284,3 @@ export default function Sidebar() {
     </>
   );
 }
-
-const menuSections: MenuSection[] = [
-  {
-    title: "📊 대시보드",
-    items: [
-      { id: "dashboard", title: "대시보드", path: "/" },
-      { id: "todos", title: "할일", path: "" },
-      { id: "calendar", title: "캘린더", path: "" },
-    ],
-  },
-  {
-    title: "🏢 거래처 관리",
-    items: [
-      { id: "customers", title: "거래처 검색", path: "/manage/customers" },
-      { id: "contacts", title: "담당자 검색", path: "/manage/contacts" },
-      { id: "recent", title: "최근 상담내역", path: "/consultations/recent" },
-    ],
-  },
-  {
-    title: "📄 문서 관리",
-    items: [
-      // { id: "documents", title: "문서 전체", path: "/documents" },
-      {
-        id: "estimate",
-        title: "견적서 관리",
-        path: "/documents/details?type=estimate&status=all",
-      },
-      {
-        id: "order",
-        title: "발주서 관리",
-        path: "/documents/details?type=order&status=all",
-      },
-      {
-        id: "requestQuote",
-        title: "의뢰서 관리",
-        path: "/documents/details?type=requestQuote&status=all",
-      },
-    ],
-  },
-  {
-    title: "💰 매입/매출 관리",
-    items: [
-      {
-        id: "order-unit",
-        title: "매입 단가 관리",
-        path: "/products/unit?type=order",
-      },
-      {
-        id: "estimate-unit",
-        title: "매출 단가 관리",
-        path: "/products/unit?type=estimate",
-      },
-    ],
-  },
-  {
-    title: "📈 영업 성과 분석",
-    items: [
-      {
-        id: "sales-users",
-        title: "직원",
-        path: `/reports/users`,
-      },
-      {
-        id: "sales-customers",
-        title: "거래처",
-        path: `/reports/customers`,
-      },
-      {
-        id: "sales-report",
-        title: "매출/매입 리포트",
-        path: "/reports",
-      },
-      // {
-      //   id: "performance",
-      //   title: "영업 성과 요약",
-      //   path: `/reports/performance?year=${new Date().getFullYear()}`,
-      // },
-      // {
-      //   id: "performance-order",
-      //   title: "영업 상세 (매입)",
-      //   path: `/reports/performance/details?type=order`,
-      // },
-      // {
-      //   id: "performance-estimate",
-      //   title: "영업 상세 (매출)",
-      //   path: `/reports/performance/details?type=estimate`,
-      // },
-    ],
-  },
-];
