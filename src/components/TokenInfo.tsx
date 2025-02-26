@@ -1,42 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function TokenInfo() {
-  const [userData, setUserData] = useState<any>(null);
+  const router = useRouter();
+  const [session, setSession] = useState<any>(null);
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchTokenInfo() {
-      try {
-        const res = await fetch("/api/auth-token");
-        const data = await res.json();
+    async function fetchSessionInfo() {
+      const { data, error } = await supabase.auth.getSession();
 
-        if (!res.ok) {
-          setUserData(null);
-          setRemainingTime(null);
-          return;
-        }
+      console.log("tokeninfo getsession", data);
 
-        setUserData(data);
-        updateRemainingTime(data.exp); // ✅ 초기 카운트다운 설정
-      } catch (error) {
-        console.error("❌ 토큰 정보 확인 중 오류 발생:", error);
+      if (error || !data.session) {
+        setSession(null);
+        setRemainingTime(null);
+        return;
       }
+
+      setSession(data.session);
+      updateRemainingTime(data.session.expires_at as any);
     }
 
-    fetchTokenInfo();
+    fetchSessionInfo();
   }, []);
 
   useEffect(() => {
-    if (!userData?.exp) return;
+    if (!session?.expires_at) return;
 
     const interval = setInterval(() => {
-      updateRemainingTime(userData.exp);
+      updateRemainingTime(session.expires_at);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [userData]);
+  }, [session]);
 
   function updateRemainingTime(exp: number) {
     const now = Math.floor(Date.now() / 1000);
@@ -57,14 +57,32 @@ export default function TokenInfo() {
     }
   }
 
-  if (!userData) {
+  // 🔹 로그아웃 함수
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("❌ 로그아웃 실패:", error);
+      return;
+    }
+
+    console.log("✅ 로그아웃 완료");
+    setSession(null); // 세션 초기화
+    router.push("/login"); // 로그인 페이지로 이동
+  };
+
+  if (!session) {
     return <div className="text-sm text-red-500">❌ 로그인 정보 없음</div>;
   }
 
   return (
     <div className="px-3 text-xs text-[#5F5E5B] opacity-60 text-center">
-      <p>세션만료: {remainingTime}</p>
-      <p>접속IP: {userData.clientIp}</p>
+      <p>세션 만료까지: {remainingTime}</p>
+      <button
+        onClick={handleLogout}
+        className="mt-2 px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+      >
+        로그아웃
+      </button>
     </div>
   );
 }

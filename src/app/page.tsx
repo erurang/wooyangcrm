@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Skeleton } from "@mui/material";
 
@@ -19,13 +19,25 @@ import { calculateNewSales } from "@/utils/calculateNewSales";
 import { useNewConsultations } from "@/hooks/dashboard/useNewConsultations";
 import { useRecentActivities } from "@/hooks/dashboard/useRecentActivities";
 import TodoList from "@/components/dashboard/Todos";
+import { supabase } from "@/lib/supabaseClient";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
 export default function SalesDashboard() {
+  const test = async () => {
+    const { data, error } = await supabase.auth.getSession();
+    console.log("dataaaaaaaadahsboard", data, error);
+  };
+
+  useEffect(() => {
+    test();
+  }, []);
+
   const user = useLoginUser();
+
+  console.log("user 너가문제니?", user);
 
   // 이번 달의 정확한 일 수 계산
   const today = new Date();

@@ -1,11 +1,9 @@
-"use client";
-
 import "./globals.css";
 import { LoginUserProvider } from "@/context/login";
 import Sidebar from "@/components/Sidebar";
 // import { useSearchParams } from "next/navigation";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
