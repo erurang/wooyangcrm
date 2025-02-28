@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     }
 
     if (docNumber) {
-      query = query.eq("document_number", docNumber);
+      query = query.ilike("document_number", `%${docNumber}%`);
     }
 
     // 🔹 사용자 필터 추가 (선택적 적용)

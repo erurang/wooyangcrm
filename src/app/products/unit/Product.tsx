@@ -48,8 +48,10 @@ export default function ProductPage() {
   const { users } = useUsersList();
   const { products, total, isLoading, mutate } = useProductsList({
     type,
-    // userId: selectedUser?.id || "", // ✅ 사용자 필터 추가
-    userId: user?.id || "",
+    userId:
+      user?.role === "admin" || user?.role === "managementSupport"
+        ? ""
+        : (selectedUser?.id as string), // ✅ 사용자 필터 추가
     companyIds: debounceCompanyIds, // ✅ 회사 필터 추가
     searchProduct: debounceSearchProduct,
     searchSpec: debounceSearchSpec,
@@ -182,29 +184,32 @@ export default function ProductPage() {
             </div>
           </div>
           {/* 상담자 */}
-          {/* <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border rounded-l-md">
-              상담자
-            </label>
-            <motion.select
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
-              value={selectedUser?.id || ""}
-              onChange={(e) => {
-                const user =
-                  users.find((user: User) => user.id === e.target.value) ||
-                  null;
-                setSelectedUser(user);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="">전체</option>
-              {users.map((u: any) => (
-                <option key={u.id} value={u.id}>
-                  {u.name} {u.level}
-                </option>
-              ))}
-            </motion.select>
-          </div> */}
+          {(user?.role === "admin" || user?.role === "managementSupport") && (
+            <div className="flex items-center justify-center">
+              <label className="w-1/4 block p-2 border rounded-l-md">
+                상담자
+              </label>
+              <motion.select
+                className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+                value={selectedUser?.id || ""}
+                onChange={(e) => {
+                  const user =
+                    users.find((user: User) => user.id === e.target.value) ||
+                    null;
+                  setSelectedUser(user);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="">전체</option>
+                {users.map((u: any) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} {u.level}
+                  </option>
+                ))}
+              </motion.select>
+            </div>
+          )}
+
           {/* 상태 */}
           <div className="col-span-1 flex items-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">

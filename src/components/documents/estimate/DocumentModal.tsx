@@ -1124,7 +1124,8 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                 <thead>
                   <tr className="text-left border-black border-2">
                     <th className="px-4 py-2 border-black border-r-[1px] text-center">
-                      합계(VAT별도) : 金원整 (₩
+                      합계(VAT별도) : 金
+                      {koreanAmount(document.content?.total_amount)}원整 (₩
                       {document.content.total_amount.toLocaleString()})
                     </th>
                   </tr>
@@ -1325,7 +1326,8 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                 <thead>
                   <tr className="text-left border-black border-2">
                     <th className="px-4 py-2 border-black border-r-[1px] text-center">
-                      합계(VAT별도) : 金원整 (₩
+                      합계(VAT별도) : 金
+                      {koreanAmount(document.content.total_amount)}원整 (₩
                       {document.content.total_amount.toLocaleString()})
                     </th>
                   </tr>

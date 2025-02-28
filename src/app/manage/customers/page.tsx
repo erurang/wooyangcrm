@@ -597,7 +597,9 @@ export default function Page() {
           <table className="min-w-full table-auto border-collapse">
             <thead>
               <tr className="bg-gray-100 text-center">
-                <th className="px-4 py-2 border-b border-r-[1px]">거래처명</th>
+                <th className="px-4 py-2 border-b border-r-[1px] w-1/6">
+                  거래처명
+                </th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                   주소
                 </th>

@@ -1,5 +1,5 @@
 import "./globals.css";
-import ClientWrapper from "@/components/ClientWrapper";
+import ClientWrapper from "../components/ClientWrapper";
 import { Suspense } from "react";
 
 export default function RootLayout({

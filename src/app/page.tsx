@@ -27,6 +27,8 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 export default function SalesDashboard() {
   const user = useLoginUser();
 
+  console.log("user", user);
+
   // 이번 달의 정확한 일 수 계산
   const today = new Date();
   const year = today.getFullYear();
