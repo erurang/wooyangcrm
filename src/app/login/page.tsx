@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useSetLoginUser } from "@/context/login";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -12,6 +14,8 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const setLoginUser = useSetLoginUser();
 
   const router = useRouter();
 
@@ -53,15 +57,49 @@ export default function LoginPage() {
         credentials: "include",
       });
 
-      if (response.ok) {
-        setMessage("로그인 성공!");
-        const redirectTo =
-          new URLSearchParams(window.location.search).get("redirectTo") || "/";
-        router.push(redirectTo);
-      } else {
+      if (!response.ok) {
         const data = await response.json();
         setError(`오류: ${data.error}`);
       }
+
+      setMessage("로그인 성공!");
+
+      const userResponse = await fetch("/api/user");
+      const userJson = await userResponse.json();
+
+      if (!userJson.email) {
+        console.error("API returned invalid user data:", userJson);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("users")
+        .select("name, id, position, level")
+        .eq("email", userJson.email);
+
+      if (error) {
+        console.error("Error fetching user data from Supabase:", error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        console.error("No user found in Supabase for email:", userJson.email);
+        return;
+      }
+
+      // 3) 전역 상태 업데이트
+      setLoginUser({
+        email: userJson.email,
+        role: userJson.role || "user",
+        name: data[0].name,
+        id: data[0].id,
+        position: data[0].position || "",
+        level: data[0].level || "",
+      });
+
+      const redirectTo =
+        new URLSearchParams(window.location.search).get("redirectTo") || "/";
+      router.push(redirectTo);
     } catch (error) {
       console.error("서버 오류:", error);
       setError("서버 오류가 발생했습니다.");
