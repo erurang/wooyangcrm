@@ -1,8 +1,13 @@
 "use client";
 
+import { sendKakaoMessage } from "@/lib/sendKakaoMessage";
+import { createSupabaseClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function TokenInfo() {
+  const router = useRouter();
+  const supabase = createSupabaseClient();
   const [userData, setUserData] = useState<any>(null);
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
 
@@ -12,6 +17,10 @@ export default function TokenInfo() {
         const res = await fetch("/api/auth-token");
         const data = await res.json();
 
+        // await sendKakaoMessage(data.provider_token);
+
+        // console.log("dataasdfsafasdfsdaf", data);
+
         if (!res.ok) {
           setUserData(null);
           setRemainingTime(null);
@@ -19,7 +28,7 @@ export default function TokenInfo() {
         }
 
         setUserData(data);
-        updateRemainingTime(data.exp); // ✅ 초기 카운트다운 설정
+        updateRemainingTime(data.expires_at);
       } catch (error) {
         console.error("❌ 토큰 정보 확인 중 오류 발생:", error);
       }
@@ -28,11 +37,53 @@ export default function TokenInfo() {
     fetchTokenInfo();
   }, []);
 
+  async function handleLogout() {
+    try {
+      // Supabase 로그아웃
+
+      // ✅ 사용자 `access_token` 가져오기
+      const { data, error } = await supabase.auth.getSession();
+      console.log("logount getsession data", data);
+      if (error || !data?.session?.provider_token) {
+        console.error("카카오 로그아웃 실패: 액세스 토큰 없음", error);
+        return;
+      }
+
+      const ACCESS_TOKEN = data.session.provider_token; // ✅ 카카오 OAuth 액세스 토큰
+
+      // ✅ 카카오 로그아웃 API 호출 (access_token 이용)
+      const res = await fetch("https://kapi.kakao.com/v1/user/logout", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${ACCESS_TOKEN}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      await supabase.auth.signOut();
+
+      if (!res.ok) {
+        console.error("카카오 로그아웃 실패:", await res.json());
+        return;
+      }
+
+      console.log("✅ 카카오 로그아웃 성공!");
+      setUserData(null);
+      setRemainingTime(null);
+      router.push("/login");
+      // ✅ 로그아웃 후 리디렉트
+      // window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=${process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID}&logout_redirect_uri=http://localhost:3000/login
+      // `;
+    } catch (error) {
+      console.error("로그아웃 처리 중 오류:", error);
+    }
+  }
+
   useEffect(() => {
-    if (!userData?.exp) return;
+    if (!userData?.expires_at) return;
 
     const interval = setInterval(() => {
-      updateRemainingTime(userData.exp);
+      updateRemainingTime(userData.expires_at);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -57,14 +108,21 @@ export default function TokenInfo() {
     }
   }
 
-  if (!userData) {
-    return <div className="text-sm text-red-500">❌ 로그인 정보 없음</div>;
-  }
-
   return (
     <div className="px-3 text-xs text-[#5F5E5B] opacity-60 text-center">
-      <p>세션만료: {remainingTime}</p>
-      <p>접속IP: {userData.clientIp}</p>
+      {userData ? (
+        <>
+          <p>세션만료: {remainingTime}</p>
+          <p
+            className="cursor-pointer text-red-500 font-semibold"
+            onClick={() => handleLogout()}
+          >
+            로그아웃
+          </p>
+        </>
+      ) : (
+        <div className="text-sm text-red-500 px-3">로그인 만료됨</div>
+      )}
     </div>
   );
 }

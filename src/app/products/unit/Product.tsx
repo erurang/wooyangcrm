@@ -51,7 +51,7 @@ export default function ProductPage() {
     userId:
       user?.role === "admin" || user?.role === "managementSupport"
         ? ""
-        : (selectedUser?.id as string), // ✅ 사용자 필터 추가
+        : (user?.id as string), // ✅ 사용자 필터 추가
     companyIds: debounceCompanyIds, // ✅ 회사 필터 추가
     searchProduct: debounceSearchProduct,
     searchSpec: debounceSearchSpec,

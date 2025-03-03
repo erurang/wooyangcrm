@@ -227,8 +227,6 @@ export default function DocumentsDetailsPage() {
     return numbers;
   };
 
-  console.log("sele", selectedDocument);
-
   return (
     <div className="text-sm text-[#37352F]">
       <div className="mb-4">

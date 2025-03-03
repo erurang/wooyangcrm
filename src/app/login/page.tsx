@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useSetLoginUser } from "@/context/login";
 import { supabase } from "@/lib/supabaseClient";
+import Image from "next/image";
+import KakaoButton from "@/components/login/KakaoLogin";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -107,6 +109,8 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  return <KakaoButton />;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
