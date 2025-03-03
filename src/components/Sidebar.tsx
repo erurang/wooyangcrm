@@ -53,6 +53,13 @@ export default function Sidebar() {
         // { id: "calendar", title: "캘린더", path: "" },
       ],
     },
+    // {
+    //   title: "📊 게시판",
+    //   items: [
+    //     { id: "board", title: "공지사항", path: "/notice" },
+
+    //   ],
+    // },
     {
       title: "🏢 거래처 관리",
       items: [
@@ -113,16 +120,16 @@ export default function Sidebar() {
           title: "거래처",
           path: `/reports/customers`,
         },
-        {
-          id: "order-invoice",
-          title: "매입 세금계산서",
-          path: `/reports/customers`,
-        },
-        {
-          id: "estimate-invoice",
-          title: "매출 세금계산서",
-          path: `/reports/customers`,
-        },
+        // {
+        //   id: "order-invoice",
+        //   title: "매입 세금계산서",
+        //   path: `/reports/customers`,
+        // },
+        // {
+        //   id: "estimate-invoice",
+        //   title: "매출 세금계산서",
+        //   path: `/reports/customers`,
+        // },
         {
           id: "sales-report",
           title: "매출/매입 리포트",
@@ -186,7 +193,7 @@ export default function Sidebar() {
           </div>
         </div>
         <TokenInfo />
-        <nav className="mt-2">
+        <nav className="mt-2 pb-16">
           <div>
             <div
               className="py-2 px-3 cursor-pointer hover:bg-slate-300 rounded-sm font-bold flex justify-between"

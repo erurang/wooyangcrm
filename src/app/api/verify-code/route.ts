@@ -26,6 +26,8 @@ export async function POST(req: NextRequest) {
     .maybeSingle(); // ✅ 조회 결과가 없으면 null 반환
 
   if (!verificationData) {
+    console.log("veriyfy-code api error", verificationError);
+
     return NextResponse.json(
       { error: "잘못된 인증번호입니다." },
       { status: 400 }
@@ -41,10 +43,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 사용자 역할 가져오기
   const { data: userData, error: userError } = await supabase
     .from("users")
-    .select("role_id, roles!inner(role_name)")
+    .select("id, roles(id,role_name)")
     .eq("email", email)
     .maybeSingle(); // ✅ 데이터가 없으면 null 반환
 
