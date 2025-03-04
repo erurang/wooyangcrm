@@ -22,7 +22,7 @@ export default function UserDetailPage() {
 
   // ✅ 필터 상태 추가
   const [dateFilter, setDateFilter] = useState<"year" | "quarter" | "month">(
-    "year"
+    "month"
   );
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear()
