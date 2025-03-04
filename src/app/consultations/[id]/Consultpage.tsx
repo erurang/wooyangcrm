@@ -539,25 +539,29 @@ export default function ConsultationPage() {
                   <li className="flex items-center">
                     <span className="font-medium w-14">주소</span>
                     <span className="flex-1 truncate">
-                      {companyDetail?.address || "정보 없음"}
+                      {companyDetail?.address ||
+                        "거래처검색 -> 수정 정보를 입력해주세요."}
                     </span>
                   </li>
                   <li className="flex items-center">
                     <span className="font-medium w-14">전화</span>
                     <span className="flex-1">
-                      {companyDetail?.phone || "정보 없음"}
+                      {companyDetail?.phone ||
+                        "거래처검색 -> 수정 정보를 입력해주세요."}
                     </span>
                   </li>
                   <li className="flex items-center">
                     <span className="font-medium w-14">팩스</span>
                     <span className="flex-1">
-                      {companyDetail?.fax || "정보 없음"}
+                      {companyDetail?.fax ||
+                        "거래처검색 -> 수정 정보를 입력해주세요."}
                     </span>
                   </li>
                   <li className="flex items-center">
-                    <span className="font-medium w-14">이메일</span>
+                    <span className="font-medium w-14">배송</span>
                     <span className="flex-1 truncate">
-                      {companyDetail?.email || "정보 없음"}
+                      {companyDetail?.parcel ||
+                        "거래처검색 -> 수정 정보를 입력해주세요."}
                     </span>
                   </li>
                 </ul>
@@ -693,7 +697,7 @@ export default function ConsultationPage() {
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
                 </div>
-                <div>
+                {/* <div>
                   <label className="block mb-2 text-sm font-medium">
                     후속 날짜
                   </label>
@@ -708,7 +712,7 @@ export default function ConsultationPage() {
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
-                </div>
+                </div> */}
                 <div>
                   <label className="block mb-2 text-sm font-medium">
                     담당자명
@@ -1254,7 +1258,7 @@ export default function ConsultationPage() {
               <h2 className="text-xl font-bold mb-4">비고 수정</h2>
               <textarea
                 placeholder=""
-                className="w-full min-h-32 p-2 border border-gray-300 rounded-md"
+                className="w-full min-h-80 p-2 border border-gray-300 rounded-md"
                 defaultValue={companyDetail.notes || "내용 없음"}
                 onChange={(e) => setNotes(e.target.value)}
               />
@@ -1279,24 +1283,22 @@ export default function ConsultationPage() {
       {openEditContactsModal && (
         <>
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-2/3 overflow-y-scroll h-2/3">
-              <h2 className="text-xl font-bold mb-4">담당자 추가/수정</h2>
-              <div className="mb-4">
-                <div className="flex justify-between mb-4 items-end">
-                  <button
-                    className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
-                    onClick={addContact}
-                  >
-                    + 추가
-                  </button>
-                </div>
-
+            <div className="bg-white p-6 rounded-md w-4/6 overflow-y-scroll max-h-">
+              <h2 className="text-xl font-bold ">담당자 추가/수정</h2>
+              <div>
+                <p>
+                  담당자 삭제시 연관된 문서(견적서,발주서,의뢰서)가 존재할시
+                  삭제되지 않습니다. 퇴사를 선택하면 담당자 선택 목록에 나타나지
+                  않습니다.
+                </p>
+              </div>
+              <div className="mt-4">
                 {/* 📌 담당자 한 줄 표현 & 추가 버튼 클릭 시 맨 위로 */}
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-96 overflow-y-scroll">
                   {contactsUi?.map((contact: any, index: any) => (
                     <div
                       key={index}
-                      className="flex flex-wrap md:flex-nowrap gap-2"
+                      className="flex flex-wrap md:flex-nowrap gap-4"
                     >
                       <motion.input
                         whileFocus={{
@@ -1400,22 +1402,33 @@ export default function ConsultationPage() {
                   ))}
                 </div>
               </div>
-              <div className="flex justify-end mt-4">
-                <button
-                  className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
-                  onClick={() => {
-                    setContactsUi(contacts);
-                    setOpenEditContactsModal(false);
-                  }}
-                >
-                  취소
-                </button>
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md"
-                  onClick={handleUpdateContacts}
-                >
-                  저장
-                </button>
+              <div className="flex justify-between mt-4">
+                <div className="flex items-start mr-2 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 ">
+                  <button
+                    className=" text-xs md:text-sm rounded-md items-end"
+                    onClick={addContact}
+                  >
+                    담당자 추가
+                  </button>
+                </div>
+
+                <div>
+                  <button
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
+                    onClick={() => {
+                      setContactsUi(contacts);
+                      setOpenEditContactsModal(false);
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                    onClick={handleUpdateContacts}
+                  >
+                    저장
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -22,6 +22,7 @@ export async function GET(request: Request) {
           id,
           date,
           content,
+          created_at,
           companies (id, name ,fax,phone),
           users(id, name, level),
           documents (type, id, document_number, content, user_id, created_at, payment_method),
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
         `,
         { count: "exact" } // ✅ 한 번의 요청으로 데이터 + 총 개수 조회
       )
-      .order("date", { ascending: false })
+      .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
     // 🔹 필터 적용 (중복 제거)

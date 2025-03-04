@@ -152,7 +152,6 @@ export default function RecentConsultations() {
       consultation.documents.some((doc: any) => doc.id === document.id)
     );
 
-    console.log("consultation", consultation);
     if (!consultation) {
       console.warn("해당 문서를 찾을 수 없습니다.", document);
       return;
@@ -195,6 +194,18 @@ export default function RecentConsultations() {
         contact_mobile:
           consultation.contacts_consultations?.[0]?.contacts?.mobile || "",
         payment_method: consultation.payment_method,
+      });
+    } else if (doc.type === "requestQuote") {
+      setSelectedDocument({
+        ...doc,
+        contact_level: consultation.contact_level || "",
+        contact_name: consultation.contact_name || "",
+        user_name: consultation.users?.name || "",
+        user_level: consultation.users?.level || "",
+        company_fax: consultation.companies?.fax || "",
+        company_phone: consultation.companies?.phone,
+        contact_mobile:
+          consultation.contacts_consultations?.[0]?.contacts?.mobile || "",
       });
     }
 

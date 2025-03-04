@@ -168,11 +168,11 @@ export default function Sidebar() {
           title: "삭제 요청",
           path: "/admin/delete_request",
         },
-        {
-          id: "manageUsers",
-          title: "직원 관리",
-          path: "/admin/manage/users",
-        },
+        // {
+        //   id: "manageUsers",
+        //   title: "직원 관리",
+        //   path: "/admin/manage/users",
+        // },
       ],
     });
   }
