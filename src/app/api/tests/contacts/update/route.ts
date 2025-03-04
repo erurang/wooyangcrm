@@ -16,7 +16,9 @@ export async function PUT(request: Request) {
     // 🔹 1️⃣ 기존 담당자 목록 가져오기
     const { data: existingContacts, error: contactsFetchError } = await supabase
       .from("contacts")
-      .select("id, company_id, contact_name, mobile, department, level, email")
+      .select(
+        "id, company_id, contact_name, mobile, department, level, email,resign"
+      )
       .eq("company_id", companyId);
 
     if (contactsFetchError) throw contactsFetchError;
@@ -39,6 +41,7 @@ export async function PUT(request: Request) {
         department: c.department,
         level: c.level,
         email: c.email,
+        resign: c.resign,
       }));
 
     // 🔹 6️⃣ 기존 담당자 업데이트 (id가 있는 경우)
@@ -54,6 +57,7 @@ export async function PUT(request: Request) {
           department: updatedContact.department,
           level: updatedContact.level,
           email: updatedContact.email,
+          resign: updatedContact.resign,
         })
         .eq("id", updatedContact.id);
     }
@@ -79,7 +83,7 @@ export async function PUT(request: Request) {
       await supabase
         .from("contacts")
         .select(
-          "id, company_id, contact_name, mobile, department, level, email"
+          "id, company_id, contact_name, mobile, department, level, email,resign"
         )
         .eq("company_id", companyId);
 

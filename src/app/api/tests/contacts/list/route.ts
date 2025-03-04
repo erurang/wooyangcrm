@@ -27,7 +27,9 @@ export async function GET(request: Request) {
     if (companyIds.length > 0) {
       const { data: contacts, error } = await supabase
         .from("contacts")
-        .select("id,company_id, contact_name, mobile, department, level, email")
+        .select(
+          "id,company_id, contact_name, mobile, department, level, email, resign"
+        )
         .in("company_id", companyIds)
         .order("company_id", { ascending: true });
 

@@ -66,6 +66,7 @@ interface newDocument {
 }
 
 interface Contacts {
+  resign: any;
   id: string;
   contact_name: string;
   department: string;
@@ -403,11 +404,14 @@ export default function Estimate({
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
                 >
                   <option value="">선택</option>
-                  {contacts.map((contact) => (
-                    <option key={contact.id} value={contact.contact_name}>
-                      {contact.contact_name} {contact.level}
-                    </option>
-                  ))}
+                  {contacts.map((contact) => {
+                    if (!contact.resign)
+                      return (
+                        <option key={contact.id} value={contact.contact_name}>
+                          {contact.contact_name} {contact.level}
+                        </option>
+                      );
+                  })}
                 </select>
 
                 {/* <input
@@ -928,11 +932,14 @@ export default function Estimate({
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
                 >
                   <option value="">선택</option>
-                  {contacts.map((contact) => (
-                    <option key={contact.id} value={contact.contact_name}>
-                      {contact.contact_name} {contact.level}
-                    </option>
-                  ))}
+                  {contacts.map((contact) => {
+                    if (!contact.resign)
+                      return (
+                        <option key={contact.id} value={contact.contact_name}>
+                          {contact.contact_name} {contact.level}
+                        </option>
+                      );
+                  })}
                 </select>
               </div>
             </div>

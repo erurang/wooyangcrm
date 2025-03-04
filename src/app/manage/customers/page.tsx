@@ -24,6 +24,7 @@ interface Contact {
   department: string;
   level: string;
   email: string;
+  resign: boolean;
 }
 
 interface Company {
@@ -131,20 +132,20 @@ export default function Page() {
     }
   }, [companies, total, isLoading, isError]);
 
-  useEffect(() => {
-    const fetchIndustries = async () => {
-      const { data, error } = await supabase
-        .from("industries")
-        .select("id, name");
-      if (error) {
-        console.error("Failed to fetch industries:", error);
-      } else {
-        console.log("data", data);
-        setIndustries(data || []);
-      }
-    };
-    fetchIndustries();
-  }, [currentPage]);
+  // useEffect(() => {
+  //   const fetchIndustries = async () => {
+  //     const { data, error } = await supabase
+  //       .from("industries")
+  //       .select("id, name");
+  //     if (error) {
+  //       console.error("Failed to fetch industries:", error);
+  //     } else {
+  //       console.log("data", data);
+  //       setIndustries(data || []);
+  //     }
+  //   };
+  //   fetchIndustries();
+  // }, [currentPage]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -171,7 +172,14 @@ export default function Page() {
     setCurrentCompany({
       ...currentCompany,
       contact: [
-        { contact_name: "", mobile: "", department: "", level: "", email: "" },
+        {
+          contact_name: "",
+          mobile: "",
+          department: "",
+          level: "",
+          email: "",
+          resign: false,
+        },
         ...(currentCompany?.contact || []),
       ],
     });
@@ -181,7 +189,7 @@ export default function Page() {
   const handleContactChange = (
     index: number,
     field: keyof Contact,
-    value: string
+    value: any
   ) => {
     setCurrentCompany((prev) => {
       const updatedContact = [...prev.contact];
@@ -233,6 +241,7 @@ export default function Page() {
 
     try {
       await updateCompany(currentCompany);
+
       await updateContacts(currentCompany.contact, currentCompany.id);
       setSnackbarMessage("거래처 수정 완료");
 
@@ -910,6 +919,23 @@ export default function Page() {
                         placeholder="이메일"
                         className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                       />
+                      <motion.label className="flex items-center space-x-2">
+                        <motion.input
+                          whileTap={{ scale: 0.9 }} // 클릭 시 약간 축소 효과
+                          type="checkbox"
+                          checked={contact?.resign || false}
+                          onChange={(e) =>
+                            handleContactChange(
+                              index,
+                              "resign",
+                              e.target.checked
+                            )
+                          }
+                          className="w-5 h-5 accent-blue-500 cursor-pointer"
+                        />
+                        <span className="text-gray-700">퇴사</span>
+                      </motion.label>
+
                       <button
                         onClick={() => removeContact(index)}
                         className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
@@ -1242,6 +1268,7 @@ export default function Page() {
                         placeholder="이메일"
                         className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                       />
+
                       <button
                         onClick={() => removeContact(index)}
                         className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"

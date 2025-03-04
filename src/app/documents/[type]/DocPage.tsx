@@ -64,6 +64,7 @@ interface Contacts {
   email: string;
   company_id: string;
   level: string;
+  resign: boolean;
 }
 
 const DocPage = () => {

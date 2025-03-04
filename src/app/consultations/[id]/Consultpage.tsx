@@ -515,29 +515,34 @@ export default function ConsultationPage() {
                   <table className="w-full text-xs border-collapse">
                     <thead className="border-b font-semibold bg-gray-100 sticky top-0"></thead>
                     <tbody className="text-sm">
-                      {contacts?.map((contact: any, index: any) => (
-                        <tr
-                          key={index}
-                          className={`${
-                            index !== contacts.length - 1 ? "border-b" : ""
-                          }`}
-                        >
-                          <td
-                            className="px-1 py-1 text-blue-500 cursor-pointer hover:font-semibold"
-                            onClick={() =>
-                              router.push(`/manage/contacts/${contact.id}`)
-                            }
-                          >
-                            {contact.contact_name}
-                          </td>
-                          <td className="px-1 py-1">{contact.level}</td>
-                          <td className="px-1 py-1">{contact.department}</td>
-                          <td className="px-1 py-1">{contact.mobile}</td>
-                          <td className="px-1 py-1 truncate">
-                            {contact.email}
-                          </td>
-                        </tr>
-                      ))}
+                      {contacts?.map((contact: any, index: any) => {
+                        if (!contact.resign)
+                          return (
+                            <tr
+                              key={index}
+                              className={`${
+                                index !== contacts.length - 1 ? "border-b" : ""
+                              }`}
+                            >
+                              <td
+                                className="px-1 py-1 text-blue-500 cursor-pointer hover:font-semibold"
+                                onClick={() =>
+                                  router.push(`/manage/contacts/${contact.id}`)
+                                }
+                              >
+                                {contact.contact_name}
+                              </td>
+                              <td className="px-1 py-1">{contact.level}</td>
+                              <td className="px-1 py-1">
+                                {contact.department}
+                              </td>
+                              <td className="px-1 py-1">{contact.mobile}</td>
+                              <td className="px-1 py-1 truncate">
+                                {contact.email}
+                              </td>
+                            </tr>
+                          );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -636,7 +641,7 @@ export default function ConsultationPage() {
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-medium">
-                    고객명
+                    담당자명
                   </label>
                   <select
                     defaultValue={newConsultation.contact_name}
@@ -649,11 +654,14 @@ export default function ConsultationPage() {
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   >
                     <option value="">담당자 선택</option>
-                    {contacts.map((contact: any) => (
-                      <option key={contact.id} value={contact.contact_name}>
-                        {contact.contact_name} ({contact.level})
-                      </option>
-                    ))}
+                    {contacts.map((contact: any) => {
+                      if (!contact.resign)
+                        return (
+                          <option key={contact.id} value={contact.contact_name}>
+                            {contact.contact_name} ({contact.level})
+                          </option>
+                        );
+                    })}
                   </select>
                 </div>
                 <div>
@@ -695,7 +703,7 @@ export default function ConsultationPage() {
                     })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  rows={4}
+                  rows={16}
                 />
               </div>
 
@@ -789,11 +797,14 @@ export default function ConsultationPage() {
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   >
                     <option value="">담당자 선택</option>
-                    {contacts.map((contact: any) => (
-                      <option key={contact.id} value={contact.contact_name}>
-                        {contact.contact_name} ({contact.level})
-                      </option>
-                    ))}
+                    {contacts.map((contact: any) => {
+                      if (!contact.resign)
+                        return (
+                          <option key={contact.id} value={contact.contact_name}>
+                            {contact.contact_name} ({contact.level})
+                          </option>
+                        );
+                    })}
                   </select>
                 </div>
                 <div>
