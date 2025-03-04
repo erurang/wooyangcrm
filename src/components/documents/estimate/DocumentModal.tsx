@@ -1371,7 +1371,11 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                         <div className="col-span-2 text-xs text-start px-2">
                           <div>
                             <p>특기사항</p>
-                            <p>{document.content.notes}</p>
+                            <p>
+                              {formatContentWithLineBreaks(
+                                document.content.notes
+                              )}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -1554,7 +1558,11 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                         <div className="col-span-2 text-xs text-start px-2">
                           <div>
                             <p>특기사항</p>
-                            <p>{document.content.notes}</p>
+                            <p>
+                              {formatContentWithLineBreaks(
+                                document.content.notes
+                              )}
+                            </p>
                           </div>
                         </div>
                       </div>
