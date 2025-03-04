@@ -1047,6 +1047,7 @@ export default function Page() {
                 <div className="mb-2">
                   <label className="block mb-1">거래처명</label>
                   <motion.input
+                    placeholder="우양신소재..."
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -1065,6 +1066,7 @@ export default function Page() {
                 <div className="mb-2">
                   <label className="block mb-1">사업자 번호</label>
                   <motion.input
+                    placeholder="504-20-83438"
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -1087,6 +1089,7 @@ export default function Page() {
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
+                    placeholder="...@....com"
                     type="email"
                     value={currentCompany?.email || ""}
                     onChange={(e) =>
@@ -1101,6 +1104,7 @@ export default function Page() {
                 <div className="mb-2">
                   <label className="block mb-1">택배/화물</label>
                   <motion.input
+                    placeholder="경동화물,대신화물,로젠택배, 직송 등.."
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -1123,6 +1127,7 @@ export default function Page() {
                 <div className="mb-2">
                   <label className="block mb-1">주소</label>
                   <motion.input
+                    placeholder="첨단기업 3로 81.."
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -1141,6 +1146,7 @@ export default function Page() {
                 <div className="mb-2">
                   <label className="block mb-1">전화번호</label>
                   <motion.input
+                    placeholder="000-0000-0000"
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -1159,6 +1165,7 @@ export default function Page() {
                 <div className="mb-2">
                   <label className="block mb-1">팩스</label>
                   <motion.input
+                    placeholder="000-0000-0000"
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -1285,6 +1292,7 @@ export default function Page() {
               <div className="mb-2">
                 <label className="block mb-1">비고</label>
                 <textarea
+                  placeholder="거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
                   value={currentCompany?.notes || ""}
                   onChange={(e) =>
                     setCurrentCompany({
@@ -1292,7 +1300,7 @@ export default function Page() {
                       notes: e.target.value,
                     })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 rounded-md min-h-52"
                 ></textarea>
               </div>
 

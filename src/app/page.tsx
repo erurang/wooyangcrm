@@ -27,8 +27,6 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 export default function SalesDashboard() {
   const user = useLoginUser();
 
-  console.log("user", user);
-
   // 이번 달의 정확한 일 수 계산
   const today = new Date();
   const year = today.getFullYear();
@@ -196,7 +194,7 @@ export default function SalesDashboard() {
               <h2 className="font-semibold text-md mb-2">
                 🔔 후속 상담 필요 고객
               </h2>
-              <p>✅ 후속 상담이 필요한 고객 없음</p>
+              <p>후속 상담이 필요한 고객 없음</p>
             </div>
           )}
 
@@ -219,7 +217,7 @@ export default function SalesDashboard() {
                   ))}
                 </ul>
               ) : (
-                <p>📅 만료 임박한 견적서 없음</p>
+                <p>유효기간 7일 내 만료 임박한 견적서 없음</p>
               )}
             </div>
           )}

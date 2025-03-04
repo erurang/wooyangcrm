@@ -1044,12 +1044,16 @@ export default function ConsultationPage() {
                             ? "text-blue-500 hover:font-bold"
                             : "text-gray-400 hover:text-black"
                         }`}
-                        onClick={() =>
-                          window.open(
-                            `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
-                            "_blank",
-                            "width=1200,height=800,top=100,left=100"
-                          )
+                        onClick={
+                          () =>
+                            router.push(
+                              `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}`
+                            )
+                          // window.open(
+                          //   `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                          //   "_blank",
+                          //   "width=1200,height=800,top=100,left=100"
+                          // )
                         }
                       >
                         견적서
@@ -1060,12 +1064,16 @@ export default function ConsultationPage() {
                             ? "text-blue-500 hover:font-bold"
                             : "text-gray-400 hover:text-black"
                         }`}
-                        onClick={() =>
-                          window.open(
-                            `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
-                            "_blank",
-                            "width=1200,height=800,top=100,left=100"
-                          )
+                        onClick={
+                          () =>
+                            router.push(
+                              `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}`
+                            )
+                          // window.open(
+                          //   `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                          //   "_blank",
+                          //   "width=1200,height=800,top=100,left=100"
+                          // )
                         }
                       >
                         발주서
@@ -1076,12 +1084,16 @@ export default function ConsultationPage() {
                             ? "text-blue-500 hover:font-bold"
                             : "text-gray-400 hover:text-black"
                         }`}
-                        onClick={() =>
-                          window.open(
-                            `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
-                            "_blank",
-                            "width=1200,height=800,top=100,left=100"
-                          )
+                        onClick={
+                          () =>
+                            router.push(
+                              `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}`
+                            )
+                          // window.open(
+                          //   `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                          //   "_blank",
+                          //   "width=1200,height=800,top=100,left=100"
+                          // )
                         }
                       >
                         의뢰서

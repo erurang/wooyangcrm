@@ -65,7 +65,11 @@ export default function Sidebar() {
       items: [
         { id: "customers", title: "거래처 검색", path: "/manage/customers" },
         { id: "contacts", title: "담당자 검색", path: "/manage/contacts" },
-        { id: "recent", title: "최근 상담내역", path: "/consultations/recent" },
+        {
+          id: "recent",
+          title: "상담내역 조회",
+          path: "/consultations/recent",
+        },
       ],
     },
     {
