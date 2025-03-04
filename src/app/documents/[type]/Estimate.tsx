@@ -274,7 +274,7 @@ export default function Estimate({
                 ))}
               </td>
               <td className="px-4 py-2 border-b border-r-[1px]">
-                {document.content.total_amount.toLocaleString()} 원
+                {document.content.total_amount?.toLocaleString()} 원
                 {/* 총액에 콤마 추가 */}
               </td>
               {/* <td className="px-4 py-2 border-b border-r-[1px]">
@@ -711,7 +711,7 @@ export default function Estimate({
                     <label className="block mb-2 text-sm font-medium">원</label>
                     <input
                       type="text"
-                      value={`₩ ${totalAmount.toLocaleString()}`}
+                      value={`₩ ${totalAmount?.toLocaleString()}`}
                       readOnly
                       className="block w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100"
                     />
@@ -769,7 +769,7 @@ export default function Estimate({
                   <input
                     type="text" // 'number'에서 'text'로 변경
                     placeholder={"수량"}
-                    value={item.quantity.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
+                    value={item.quantity?.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
                     onChange={(e) =>
                       handleQuantityChange(index, e.target.value)
                     }
@@ -779,7 +779,7 @@ export default function Estimate({
                   <input
                     type="text" // 'number'에서 'text'로 변경
                     placeholder={`${type !== "requestQuote" ? "단가" : "단위"}`}
-                    value={item.unit_price.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
+                    value={item.unit_price?.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
                     onChange={(e) =>
                       handleUnitPriceChange(index, e.target.value)
                     } // 단가 변경 핸들러
@@ -789,7 +789,7 @@ export default function Estimate({
                   <input
                     type="text" // 'number'에서 'text'로 변경
                     placeholder="금액"
-                    value={item.amount.toLocaleString()} // 화면에 콤마가 추가된 금액을 표시
+                    value={item.amount?.toLocaleString()} // 화면에 콤마가 추가된 금액을 표시
                     readOnly
                     className="col-span-2 px-1 border border-gray-300 rounded-md text-sm bg-gray-100"
                   />
@@ -1244,7 +1244,7 @@ export default function Estimate({
                 <label className="block mb-2 text-sm font-medium">원</label>
                 <input
                   type="text"
-                  value={`₩ ${totalAmount.toLocaleString()}`}
+                  value={`₩ ${totalAmount?.toLocaleString()}`}
                   readOnly
                   className="block w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100"
                 />
@@ -1299,7 +1299,7 @@ export default function Estimate({
                   <input
                     type="text" // 'number'에서 'text'로 변경
                     placeholder="수량"
-                    value={item.quantity.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
+                    value={item.quantity?.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
                     onChange={(e) =>
                       handleQuantityChange(index, e.target.value)
                     }
@@ -1309,7 +1309,7 @@ export default function Estimate({
                   <input
                     type="text" // 'number'에서 'text'로 변경
                     placeholder="단가"
-                    value={item.unit_price.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
+                    value={item.unit_price?.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
                     onChange={(e) =>
                       handleUnitPriceChange(index, e.target.value)
                     }
@@ -1319,7 +1319,7 @@ export default function Estimate({
                   <input
                     type="text" // 'number'에서 'text'로 변경
                     placeholder="금액"
-                    value={item.amount.toLocaleString()} // 화면에 콤마가 추가된 금액을 표시
+                    value={item.amount?.toLocaleString()} // 화면에 콤마가 추가된 금액을 표시
                     readOnly
                     className="col-span-2 px-1 border border-gray-300 rounded-md text-sm bg-gray-100"
                   />

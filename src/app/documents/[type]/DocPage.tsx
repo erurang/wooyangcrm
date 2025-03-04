@@ -273,10 +273,11 @@ const DocPage = () => {
       setSnackbarMessage("결제방식을 선택해주세요.");
       return;
     }
-    if (!items.length) {
-      setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
-      return;
-    }
+
+    // if (!items.length) {
+    //   setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
+    //   return;
+    // }
 
     // 🔹 문서 타입별 필수 필드 검증
     if (type === "estimate" && !valid_until) {
@@ -363,16 +364,17 @@ const DocPage = () => {
       setSnackbarMessage("결제방식을 선택해주세요.");
       return;
     }
-    if (!items.length) {
-      setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
-      return;
-    }
+    // if (!items.length) {
+    //   setSnackbarMessage("품목을 최소 1개 이상 추가해주세요.");
+    //   return;
+    // }
 
     // 🔹 문서 타입별 필수 필드 검증
     if (type === "estimate" && !valid_until) {
       setSnackbarMessage("견적 만료일을 입력해주세요.");
       return;
     }
+
     if ((type === "order" || type === "requestQuote") && !delivery_date) {
       setSnackbarMessage("납품일을 입력해주세요.");
       return;
