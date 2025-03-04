@@ -8,6 +8,7 @@ interface DocumentModalProps {
   company_fax: string;
   type: string;
   koreanAmount: any;
+  company_phone?: any;
 }
 
 const DocumentModal: React.FC<DocumentModalProps> = ({
@@ -16,9 +17,23 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   company_fax,
   type,
   koreanAmount,
+  company_phone,
 }) => {
   const [datePart] = document.created_at.split("T"); // "2025-02-12"
   const [year, month, day] = datePart.split("-").map(Number);
+
+  const formatContentWithLineBreaks = (content: string) => {
+    return content.split("\n").map((line, index) => (
+      <span key={index}>
+        {line}
+        <br />
+      </span>
+    ));
+  };
+
+  const formatContentForPrint = (content: string) => {
+    return content.replace(/\n/g, "<br>");
+  };
 
   const handlePrint = () => {
     const printWindow = window.open("", "_blank");
@@ -105,9 +120,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                     <td><img src="/images/order/split_line1.gif" style="width: 100%; font-size: 14px;"></td>
                   </tr>
                   <tr>
-                    <td style=" font-weight: bold; font-size: 14px;">TEL : ${
-                      document.contact_mobile
-                    }</td>
+                    <td style=" font-weight: bold; font-size: 14px;">TEL : ${company_phone}</td>
                   </tr>
                   <tr>
                     <td><img src="/images/order/split_line1.gif" style="width: 100%; font-size: 14px;"></td>
@@ -309,7 +322,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     <td style="text-align: center; font-weight: bold; padding: 10px; border-bottom: 1px solid black; font-size: 14px;">
       합계(VAT별도) : 金${koreanAmount(
         document.content.total_amount
-      )}원整$(₩${document.content.total_amount.toLocaleString()})
+      )}원整$(₩${document.content.total_amount?.toLocaleString()})
     </td>
   </tr>
   <tr>
@@ -325,7 +338,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </td>
           <td style="border-right: 1px solid black;"></td>
           <td style="padding: 12px; font-size: 10px; vertical-align: top;">
-            <b>특기사항 : </br>${document.content.notes}</b> 
+            <b>특기사항 : </br>${formatContentForPrint(
+              document.content.notes
+            )}</b> 
           </td>          
         </tr>
       </table>
@@ -431,9 +446,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                     <td><img src="/images/order/split_line1.gif" style="width: 100%; font-size: 14px;"></td>
                   </tr>
                   <tr>
-                    <td style=" font-weight: bold; font-size: 14px;">TEL : ${
-                      document.contact_mobile
-                    }</td>
+                    <td style=" font-weight: bold; font-size: 14px;">TEL : ${company_phone}</td>
                   </tr>
                   <tr>
                     <td><img src="/images/order/split_line1.gif" style="width: 100%; font-size: 14px;"></td>
@@ -635,7 +648,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </td>
           <td style="border-right: 1px solid black;"></td>
           <td style="padding: 10px; font-size: 12px; vertical-align: top;">
-            <b>특기사항 : </br>${document.content.notes}</b> 
+            <b>특기사항 : </br>${formatContentForPrint(
+              document.content.notes
+            )}</b> 
           </td>          
         </tr>
       </table>
@@ -733,9 +748,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                     <td><img src="/images/order/split_line1.gif" style="width: 100%; font-size: 14px;"></td>
                   </tr>
                   <tr>
-                    <td style=" font-weight: bold; font-size: 14px;">TEL : ${
-                      document.contact_mobile
-                    }</td>
+                    <td style=" font-weight: bold; font-size: 14px;">TEL : ${company_phone}</td>
                   </tr>
                   <tr>
                     <td><img src="/images/order/split_line1.gif" style="width: 100%; font-size: 14px;"></td>
@@ -922,7 +935,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </td>
           <td style="border-right: 1px solid black;"></td>
           <td style="padding: 10px; font-size: 12px; vertical-align: top;">
-            <b>특기사항 : </br>${document.content.notes}</b> 
+            <b>특기사항 : </br>${formatContentForPrint(
+              document.content.notes
+            )}</b> 
           </td>          
         </tr>
       </table>
@@ -947,6 +962,12 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
       printWindow.document.close();
     }
   };
+
+  console.log(
+    "document.content.notes",
+    document.content.notes
+    // formatContentWithLineBreaks(document.content.notes)
+  );
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
@@ -995,7 +1016,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
-                  <p> TEL : {document.contact_mobile || ""} </p>
+                  <p> TEL : {company_phone || ""} </p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
@@ -1144,7 +1165,11 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                         <div className="col-span-2 text-xs text-start px-2">
                           <div>
                             <p>특기사항</p>
-                            <p>{document.content.notes}</p>
+                            <p>
+                              {formatContentWithLineBreaks(
+                                document.content.notes
+                              )}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -1205,7 +1230,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
-                  <p> TEL : {document.contact_mobile} </p>
+                  <p> TEL : {company_phone} </p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
@@ -1405,7 +1430,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
-                  <p> TEL : {document.contact_mobile} </p>
+                  <p> TEL : {company_phone} </p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">

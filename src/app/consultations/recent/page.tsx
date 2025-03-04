@@ -472,6 +472,7 @@ export default function RecentConsultations() {
           type={selectedDocument.type}
           koreanAmount={numberToKorean}
           company_fax={""}
+          company_phone={""}
           document={selectedDocument}
           onClose={handleModalClose}
         />

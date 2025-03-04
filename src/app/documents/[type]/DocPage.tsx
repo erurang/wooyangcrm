@@ -737,6 +737,7 @@ const DocPage = () => {
           document={selectedDocument}
           onClose={handleCloseModal}
           company_fax={newDocument.fax}
+          company_phone={newDocument.phone}
         />
       )}
       {openModal && type === "order" && (
@@ -746,6 +747,7 @@ const DocPage = () => {
           document={selectedDocument}
           onClose={handleCloseModal}
           company_fax={newDocument.fax}
+          company_phone={newDocument.phone}
         />
       )}
       {openModal && type === "requestQuote" && (
@@ -755,6 +757,7 @@ const DocPage = () => {
           document={selectedDocument}
           onClose={handleCloseModal}
           company_fax={newDocument.fax}
+          company_phone={newDocument.phone}
         />
       )}
 
