@@ -19,6 +19,7 @@ import { calculateNewSales } from "@/utils/calculateNewSales";
 import { useNewConsultations } from "@/hooks/dashboard/useNewConsultations";
 import { useRecentActivities } from "@/hooks/dashboard/useRecentActivities";
 import TodoList from "@/components/dashboard/Todos";
+import { useLoginLogs } from "@/hooks/dashboard/useLoginLogs";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -50,6 +51,10 @@ export default function SalesDashboard() {
 
   //// swr test ///////
   const { documents } = useDocumentsList(user?.id ? user.id : "");
+
+  const { loginLogs } = useLoginLogs(user?.email || "");
+
+  // console.log("loginLogs", loginLogs);
 
   const { companies } = useCompaniesByDocument(documents ?? []);
 
@@ -123,6 +128,14 @@ export default function SalesDashboard() {
     return null;
   }
 
+  function convertToKST(utcDate: any) {
+    const date = new Date(utcDate);
+    const kstOffset = 9 * 60; // 한국은 UTC+9 (분 단위)
+    const kstDate = new Date(date?.getTime() + kstOffset * 60 * 1000);
+
+    return kstDate?.toISOString().replace("T", " ").split(".")[0]; // 'YYYY-MM-DD HH:mm:ss' 형식
+  }
+
   return (
     <div className="text-sm text-[#37352F]">
       <p className="mb-4 font-semibold">대시보드</p>
@@ -136,6 +149,13 @@ export default function SalesDashboard() {
             position={user.position}
           />
           <GreetingComponent />
+          <div className="text-end">
+            <p>최근 접속IP : {loginLogs?.ip_address}</p>
+            <p>
+              최근 로그인 :{" "}
+              {loginLogs?.login_time && convertToKST(loginLogs.login_time)}
+            </p>
+          </div>
         </div>
 
         {isLoading ? (
