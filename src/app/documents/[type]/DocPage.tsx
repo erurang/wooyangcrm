@@ -264,7 +264,8 @@ const DocPage = () => {
     if (isAdding) return;
 
     const { contact, payment_method, notes } = newDocument;
-    let { delivery_place, valid_until, delivery_date } = newDocument;
+    let { delivery_place, valid_until, delivery_date, delivery_term } =
+      newDocument;
 
     if (!contact) {
       setSnackbarMessage("담당자를 선택해주세요.");
@@ -316,7 +317,7 @@ const DocPage = () => {
     };
 
     if (type === "estimate") {
-      content = { ...content, valid_until, delivery_place };
+      content = { ...content, valid_until, delivery_place, delivery_term };
     } else if (type === "order") {
       content = { ...content, delivery_date };
     } else if (type === "requestQuote") {
@@ -355,7 +356,9 @@ const DocPage = () => {
     if (isUpdating) return;
 
     const { contact, payment_method, notes } = newDocument;
-    let { delivery_place, valid_until, delivery_date } = newDocument;
+
+    let { delivery_place, valid_until, delivery_date, delivery_term } =
+      newDocument;
 
     if (!contact) {
       setSnackbarMessage("담당자를 선택해주세요.");
@@ -403,7 +406,7 @@ const DocPage = () => {
     };
 
     if (type === "estimate") {
-      content = { ...content, valid_until, delivery_place };
+      content = { ...content, valid_until, delivery_place, delivery_term };
     } else {
       content = { ...content, delivery_date };
     }
