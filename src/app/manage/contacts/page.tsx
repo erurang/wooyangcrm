@@ -611,13 +611,14 @@ export default function ContactsPage() {
               </h3>
 
               {/* 📌 거래처 입력 필드 (드롭다운 자동 검색) */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <div className="relative mb-2">
                     <label className="block mb-1">거래처명</label>
                     <motion.input
                       ref={inputRef}
                       type="text"
+                      placeholder="거래처를 입력후 자동완성된 회사명을 클릭해주세요."
                       value={inputCompanyName}
                       onChange={(e) => setInputCompanyName(e.target.value)}
                       className="w-full p-2 border border-gray-300 rounded-md"
@@ -659,19 +660,6 @@ export default function ContactsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block mb-1">부서</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalDepartment}
-                    onChange={(e) => setModalDepartment(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
                   <label className="block mb-1">직급</label>
                   <motion.input
                     whileFocus={{
@@ -685,8 +673,23 @@ export default function ContactsPage() {
                   />
                 </div>
                 <div>
+                  <label className="block mb-1">부서</label>
+                  <motion.input
+                    placeholder="팀"
+                    whileFocus={{
+                      scale: 1.05,
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+                    }}
+                    type="text"
+                    value={modalDepartment}
+                    onChange={(e) => setModalDepartment(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div>
                   <label className="block mb-1">이메일</label>
                   <motion.input
+                    placeholder=".....@.....com"
                     whileFocus={{
                       scale: 1.05,
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -700,6 +703,7 @@ export default function ContactsPage() {
                 <div>
                   <label className="block mb-1">연락처</label>
                   <motion.input
+                    placeholder="000-0000-0000"
                     whileFocus={{
                       scale: 1.05,
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -710,17 +714,17 @@ export default function ContactsPage() {
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>
-                <div className="col-span-2">
+                {/* <div className="col-span-2">
                   <label className="block mb-1">비고</label>
                   <textarea
                     value={modalNotes}
                     onChange={(e) => setModalNotes(e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md h-24"
                   />
-                </div>
+                </div> */}
               </div>
               {/* 버튼 영역 */}
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-2 mt-4">
                 <button
                   onClick={() => setIsAddModalOpen(false)}
                   className={`bg-gray-500 text-white px-4 py-2 rounded-md ${
@@ -759,7 +763,7 @@ export default function ContactsPage() {
                 담당자 수정
               </h3>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block mb-1">거래처명</label>
                   <motion.input
@@ -788,19 +792,6 @@ export default function ContactsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block mb-1">부서</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalDepartment}
-                    onChange={(e) => setModalDepartment(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
                   <label className="block mb-1">직급</label>
                   <motion.input
                     whileFocus={{
@@ -814,8 +805,24 @@ export default function ContactsPage() {
                   />
                 </div>
                 <div>
+                  <label className="block mb-1">부서</label>
+                  <motion.input
+                    placeholder="팀"
+                    whileFocus={{
+                      scale: 1.05,
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+                    }}
+                    type="text"
+                    value={modalDepartment}
+                    onChange={(e) => setModalDepartment(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+
+                <div>
                   <label className="block mb-1">이메일</label>
                   <motion.input
+                    placeholder=".....@.....com"
                     whileFocus={{
                       scale: 1.05,
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -829,6 +836,7 @@ export default function ContactsPage() {
                 <div>
                   <label className="block mb-1">연락처</label>
                   <motion.input
+                    placeholder="000-0000-0000"
                     whileFocus={{
                       scale: 1.05,
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -839,14 +847,14 @@ export default function ContactsPage() {
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>
-                <div className="col-span-2">
+                {/* <div className="col-span-2">
                   <label className="block mb-1">비고</label>
                   <textarea
                     value={modalNotes}
                     onChange={(e) => setModalNotes(e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md h-24"
                   />
-                </div>
+                </div> */}
               </div>
 
               <div className="flex justify-end space-x-2 mt-4">

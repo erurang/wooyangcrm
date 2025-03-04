@@ -623,8 +623,11 @@ export default function ConsultationPage() {
             ) : (
               <>
                 <h2 className="font-semibold text-md mb-1">비고</h2>
-                <div className="text-sm min-h-[80px] max-h-28 overflow-y-auto pl-1">
-                  <span>{companyDetail?.notes || "내용 없음"}</span>
+                <div className="text-sm min-h-[80px] max-h-28 overflow-y-auto px-1">
+                  <span>
+                    {companyDetail?.notes ||
+                      "비고 추가/수정을 사용하여 해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."}
+                  </span>
                 </div>
               </>
             )}
@@ -769,6 +772,7 @@ export default function ConsultationPage() {
                   상담 내용
                 </label>
                 <textarea
+                  placeholder="담당자를 선택후 상담을 작성해주세요. 담당자가 없으면 상담이 추가되지 않습니다. 담당자가 없다면 담당자를 추가후 상담을 추가해주세요."
                   value={newConsultation.content}
                   onChange={(e) =>
                     setNewConsultation({
@@ -1255,11 +1259,11 @@ export default function ConsultationPage() {
         <>
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
             <div className="bg-white p-6 rounded-md w-1/3">
-              <h2 className="text-xl font-bold mb-4">비고 수정</h2>
+              <h2 className="text-xl font-bold mb-4">비고 추가/수정</h2>
               <textarea
-                placeholder=""
+                placeholder="해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
                 className="w-full min-h-80 p-2 border border-gray-300 rounded-md"
-                defaultValue={companyDetail.notes || "내용 없음"}
+                defaultValue={companyDetail.notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
               <div className="flex justify-end mt-4">

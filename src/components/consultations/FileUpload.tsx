@@ -174,7 +174,7 @@ export default function FileUpload({
             onChange={(e) => handleUpload(e.target.files)}
           />
           <p className="text-gray-500">
-            여기에 파일을 드래그하거나 클릭하여 파일을 업로드하세요.
+            상담과 연관된 파일을 여기로 드래그하거나 클릭하여 업로드하세요.
           </p>
         </div>
       )}
