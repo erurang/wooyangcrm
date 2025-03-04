@@ -19,6 +19,7 @@ import { useAddConsultation } from "@/hooks/consultations/useAddConsultation";
 import { useAssignConsultationContact } from "@/hooks/consultations/useAssignConsultationContact";
 import { useUpdateConsultation } from "@/hooks/consultations/useUpdateConsultation";
 import FileUpload from "@/components/consultations/FileUpload";
+import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
 
 interface Consultation {
   id: string;
@@ -41,6 +42,7 @@ interface Contact {
   department: string;
   level: string;
   email: string;
+  resign: boolean;
 }
 
 interface Company {
@@ -85,6 +87,7 @@ export default function ConsultationPage() {
     useState<Consultation | null>(null);
 
   const [openEditNotesModal, setOpenEditNotesModal] = useState(false);
+  const [openEditContactsModal, setOpenEditContactsModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [consultationToDelete, setConsultationToDelete] =
     useState<Consultation | null>(null);
@@ -103,7 +106,7 @@ export default function ConsultationPage() {
     refreshCompany,
   } = useCompanyDetails(id as any);
 
-  const { contacts } = useContactsByCompany([id] as any);
+  const { contacts, refreshContacts } = useContactsByCompany([id] as any);
 
   const consultationIds = consultations?.map((con: any) => con.id) || [];
   const { contactsConsultations, refreshContactsConsultations } =
@@ -431,6 +434,7 @@ export default function ConsultationPage() {
         setOpenEditModal(false);
         setOpenDeleteModal(false);
         setOpenEditNotesModal(false);
+        setOpenEditContactsModal(false);
       }
     };
 
@@ -440,6 +444,65 @@ export default function ConsultationPage() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  const [contactsUi, setContactsUi] = useState<any>(contacts ?? []);
+  const { updateContacts } = useUpdateContacts();
+
+  useEffect(() => {
+    if (contacts && JSON.stringify(contactsUi) !== JSON.stringify(contacts)) {
+      setContactsUi(contacts);
+    }
+  }, [contacts]);
+
+  const addContact = () => {
+    setContactsUi((prev: any) => [
+      {
+        contact_name: "",
+        mobile: "",
+        department: "",
+        level: "",
+        email: "",
+        resign: false,
+      },
+      ...prev,
+    ]);
+  };
+
+  const handleUpdateContacts = async () => {
+    setSaving(true);
+
+    try {
+      await updateContacts(contactsUi, contacts[0].company_id);
+      await refreshContacts();
+      await refreshContactsConsultations();
+      setSnackbarMessage("거래처 수정 완료");
+      setOpenEditContactsModal(false);
+    } catch (error) {
+      console.error("Error updating company:", error);
+      setSnackbarMessage("거래처 수정 실패");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleContactChange = (
+    index: number,
+    field: keyof Contact,
+    value: any
+  ) => {
+    setContactsUi((prev: any) => {
+      const updatedContact = [...prev];
+      updatedContact[index] = { ...updatedContact[index], [field]: value };
+      return updatedContact;
+    });
+  };
+
+  const removeContact = (index: number) => {
+    const updatedContact = [...contactsUi];
+
+    updatedContact.splice(index, 1);
+    setContactsUi(updatedContact);
+  };
 
   return (
     <div className="text-sm text-[#37352F]">
@@ -567,20 +630,6 @@ export default function ConsultationPage() {
         {/* 🚀 추가 버튼 */}
 
         <div className="flex my-4 gap-4">
-          <div
-            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-            onClick={() => setOpenAddModal(true)}
-          >
-            <span className="mr-2">+</span>
-            <span>상담 추가</span>
-          </div>
-          <div
-            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-            onClick={() => setOpenEditNotesModal(true)}
-          >
-            <span className="mr-2">+</span>
-            <span>비고 수정</span>
-          </div>
           {favorites.find((fav: any) => fav.name === companyDetail?.name) ? (
             <div
               className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
@@ -602,6 +651,27 @@ export default function ConsultationPage() {
               <span>즐겨찾기 추가</span>
             </div>
           )}
+          <div
+            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+            onClick={() => setOpenAddModal(true)}
+          >
+            <span className="mr-2">+</span>
+            <span>상담 추가</span>
+          </div>
+          <div
+            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+            onClick={() => setOpenEditContactsModal(true)}
+          >
+            <span className="mr-2">+</span>
+            <span>담당자 추가/수정</span>
+          </div>
+          <div
+            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
+            onClick={() => setOpenEditNotesModal(true)}
+          >
+            <span className="mr-2">+</span>
+            <span>비고 추가/수정</span>
+          </div>
         </div>
 
         {/* 상담 내역 추가 모달 */}
@@ -1198,6 +1268,151 @@ export default function ConsultationPage() {
                 <button
                   className="px-4 py-2 bg-blue-500 text-white rounded-md"
                   onClick={handleUpdateNotes}
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      {openEditContactsModal && (
+        <>
+          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-md w-2/3 overflow-y-scroll h-2/3">
+              <h2 className="text-xl font-bold mb-4">담당자 추가/수정</h2>
+              <div className="mb-4">
+                <div className="flex justify-between mb-4 items-end">
+                  <button
+                    className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
+                    onClick={addContact}
+                  >
+                    + 추가
+                  </button>
+                </div>
+
+                {/* 📌 담당자 한 줄 표현 & 추가 버튼 클릭 시 맨 위로 */}
+                <div className="space-y-2">
+                  {contactsUi?.map((contact: any, index: any) => (
+                    <div
+                      key={index}
+                      className="flex flex-wrap md:flex-nowrap gap-2"
+                    >
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.contact_name || ""}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "contact_name",
+                            e.target.value
+                          )
+                        }
+                        placeholder="이름"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.level || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "level", e.target.value)
+                        }
+                        placeholder="직급"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.department || ""}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "department",
+                            e.target.value
+                          )
+                        }
+                        placeholder="부서"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="text"
+                        value={contact?.mobile || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "mobile", e.target.value)
+                        }
+                        placeholder="휴대폰"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        whileFocus={{
+                          scale: 1.05, // 입력 시 약간 확대
+                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                        }}
+                        type="email"
+                        value={contact?.email || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "email", e.target.value)
+                        }
+                        placeholder="이메일"
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.label className="flex items-center space-x-2">
+                        <motion.input
+                          whileTap={{ scale: 0.9 }} // 클릭 시 약간 축소 효과
+                          type="checkbox"
+                          checked={contact?.resign || false}
+                          onChange={(e) =>
+                            handleContactChange(
+                              index,
+                              "resign",
+                              e.target.checked
+                            )
+                          }
+                          className="w-5 h-5 accent-blue-500 cursor-pointer"
+                        />
+                        <span className="text-gray-700">퇴사</span>
+                      </motion.label>
+
+                      <button
+                        onClick={() => removeContact(index)}
+                        className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-end mt-4">
+                <button
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
+                  onClick={() => {
+                    setContactsUi(contacts);
+                    setOpenEditContactsModal(false);
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                  onClick={handleUpdateContacts}
                 >
                   저장
                 </button>

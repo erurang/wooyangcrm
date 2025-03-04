@@ -1218,11 +1218,11 @@ export default function Page() {
                           boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                         }}
                         type="text"
-                        value={contact?.mobile || ""}
+                        value={contact?.level || ""}
                         onChange={(e) =>
-                          handleContactChange(index, "mobile", e.target.value)
+                          handleContactChange(index, "level", e.target.value)
                         }
-                        placeholder="휴대폰"
+                        placeholder="직급"
                         className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                       />
                       <motion.input
@@ -1248,13 +1248,14 @@ export default function Page() {
                           boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                         }}
                         type="text"
-                        value={contact?.level || ""}
+                        value={contact?.mobile || ""}
                         onChange={(e) =>
-                          handleContactChange(index, "level", e.target.value)
+                          handleContactChange(index, "mobile", e.target.value)
                         }
-                        placeholder="직급"
+                        placeholder="휴대폰"
                         className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                       />
+
                       <motion.input
                         whileFocus={{
                           scale: 1.05, // 입력 시 약간 확대
