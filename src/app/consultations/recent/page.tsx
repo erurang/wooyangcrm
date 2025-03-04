@@ -29,6 +29,7 @@ interface Document {
   contact_mobile?: string;
   company_fax?: string;
   company_tel?: string;
+  company_phone?: string;
   delivery_date?: string;
   user_name?: string;
   user_level?: string;
@@ -151,6 +152,7 @@ export default function RecentConsultations() {
       consultation.documents.some((doc: any) => doc.id === document.id)
     );
 
+    console.log("consultation", consultation);
     if (!consultation) {
       console.warn("해당 문서를 찾을 수 없습니다.", document);
       return;
@@ -177,6 +179,7 @@ export default function RecentConsultations() {
         user_name: consultation.users?.name || "",
         user_level: consultation.users?.level || "",
         company_fax: consultation.companies?.fax || "",
+        company_phone: consultation.companies?.phone,
         contact_mobile:
           consultation.contacts_consultations?.[0]?.contacts?.mobile || "",
       });
@@ -188,6 +191,7 @@ export default function RecentConsultations() {
         user_name: consultation.users?.name || "",
         user_level: consultation.users?.level || "",
         company_fax: consultation.companies?.fax || "",
+        company_phone: consultation.companies?.phone,
         contact_mobile:
           consultation.contacts_consultations?.[0]?.contacts?.mobile || "",
         payment_method: consultation.payment_method,
@@ -471,8 +475,8 @@ export default function RecentConsultations() {
         <DocumentModal
           type={selectedDocument.type}
           koreanAmount={numberToKorean}
-          company_fax={""}
-          company_phone={""}
+          company_fax={selectedDocument.company_phone || ""}
+          company_phone={selectedDocument.company_fax || ""}
           document={selectedDocument}
           onClose={handleModalClose}
         />

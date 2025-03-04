@@ -963,12 +963,6 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     }
   };
 
-  console.log(
-    "document.content.notes",
-    document.content.notes
-    // formatContentWithLineBreaks(document.content.notes)
-  );
-
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-md w-2/3 max-w-6xl max-h-screen overflow-y-scroll">

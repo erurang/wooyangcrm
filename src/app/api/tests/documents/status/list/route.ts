@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("documents")
       .select(
-        `*, contacts_documents(contacts(contact_name, level, mobile)), users(name, level)`,
+        `*, contacts_documents(contacts(contact_name, level, mobile)), users(name, level), companies(phone,fax)`,
         { count: "exact" }
       )
       .eq("type", type)

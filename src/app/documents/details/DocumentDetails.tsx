@@ -16,6 +16,10 @@ import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
 import { useLoginUser } from "@/context/login";
 
 interface Document {
+  companies: {
+    phone: any;
+    fax: any;
+  };
   id: string;
   type: string;
   status: string;
@@ -536,7 +540,8 @@ export default function DocumentsDetailsPage() {
           koreanAmount={numberToKorean}
           document={selectedDocument}
           onClose={() => setSelectedDocument(null)}
-          company_fax={"02-1234-5678"}
+          company_phone={selectedDocument.companies.phone}
+          company_fax={selectedDocument.companies.fax}
           type={selectedDocument.type}
         />
       )}

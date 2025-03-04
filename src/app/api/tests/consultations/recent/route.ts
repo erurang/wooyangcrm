@@ -22,7 +22,7 @@ export async function GET(request: Request) {
           id,
           date,
           content,
-          companies (id, name ,fax),
+          companies (id, name ,fax,phone),
           users(id, name, level),
           documents (type, id, document_number, content, user_id, created_at, payment_method),
           contacts_consultations (contacts (contact_name, level, mobile))
