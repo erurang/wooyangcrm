@@ -716,6 +716,7 @@ export default function Page() {
                 <div className="mb-2">
                   <label className="block mb-1">사업자 번호</label>
                   <motion.input
+                    placeholder="000-00-00000"
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -734,6 +735,7 @@ export default function Page() {
                 <div className="mb-2">
                   <label className="block mb-1">이메일</label>
                   <motion.input
+                    placeholder="...@....com"
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -756,6 +758,7 @@ export default function Page() {
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
+                    placeholder="경동화물,대신화물,로젠택배, 직송 등.."
                     type="text"
                     value={currentCompany?.parcel || ""}
                     onChange={(e) =>
@@ -951,6 +954,7 @@ export default function Page() {
               <div className="mb-2">
                 <label className="block mb-1">비고</label>
                 <textarea
+                  placeholder="거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요. 거래처 등록을 위해 최소 1명의 담당자를 설정해주세요."
                   value={currentCompany.notes || ""}
                   onChange={(e) =>
                     setCurrentCompany({
@@ -958,7 +962,7 @@ export default function Page() {
                       notes: e.target.value,
                     })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 rounded-md min-h-52"
                 ></textarea>
               </div>
 
@@ -1066,7 +1070,7 @@ export default function Page() {
                 <div className="mb-2">
                   <label className="block mb-1">사업자 번호</label>
                   <motion.input
-                    placeholder="504-20-83438"
+                    placeholder="000-00-00000"
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -1292,7 +1296,7 @@ export default function Page() {
               <div className="mb-2">
                 <label className="block mb-1">비고</label>
                 <textarea
-                  placeholder="거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
+                  placeholder="거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요. 거래처 등록을 위해 최소 1명의 담당자를 설정해주세요."
                   value={currentCompany?.notes || ""}
                   onChange={(e) =>
                     setCurrentCompany({
