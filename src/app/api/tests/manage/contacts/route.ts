@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
     const email = searchParams.get("email") || "";
     const mobile = searchParams.get("mobile") || "";
     const companyName = searchParams.get("company") || "";
+    const resign = searchParams.get("resign") || "";
 
     // 🔹 Offset 계산
     const offset = (page - 1) * limit;
@@ -20,7 +21,8 @@ export async function GET(req: NextRequest) {
       .select(
         `id, contact_name, mobile, department, level, email, company_id, companies!inner(id, name), note`,
         { count: "exact" }
-      );
+      )
+      .eq("resign", resign);
 
     // 🔹 필터 적용
     if (contactName) query = query.ilike("contact_name", `%${contactName}%`);

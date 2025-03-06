@@ -1311,111 +1311,126 @@ export default function ConsultationPage() {
               <div className="mt-4">
                 {/* 📌 담당자 한 줄 표현 & 추가 버튼 클릭 시 맨 위로 */}
                 <div className="space-y-2 max-h-96 overflow-y-scroll">
-                  {contactsUi?.map((contact: any, index: any) => (
-                    <div
-                      key={index}
-                      className="flex flex-wrap md:flex-nowrap gap-4"
+                  {contactsUi?.map((contact: any, index: any) => {
+                    if (!contact.resign)
+                      return (
+                        <div
+                          key={index}
+                          className="flex flex-wrap md:flex-nowrap gap-4"
+                        >
+                          <motion.input
+                            whileFocus={{
+                              scale: 1.05, // 입력 시 약간 확대
+                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                            }}
+                            type="text"
+                            value={contact?.contact_name || ""}
+                            onChange={(e) =>
+                              handleContactChange(
+                                index,
+                                "contact_name",
+                                e.target.value
+                              )
+                            }
+                            placeholder="이름"
+                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                          />
+                          <motion.input
+                            whileFocus={{
+                              scale: 1.05, // 입력 시 약간 확대
+                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                            }}
+                            type="text"
+                            value={contact?.level || ""}
+                            onChange={(e) =>
+                              handleContactChange(
+                                index,
+                                "level",
+                                e.target.value
+                              )
+                            }
+                            placeholder="직급"
+                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                          />
+
+                          <motion.input
+                            whileFocus={{
+                              scale: 1.05, // 입력 시 약간 확대
+                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                            }}
+                            type="text"
+                            value={contact?.department || ""}
+                            onChange={(e) =>
+                              handleContactChange(
+                                index,
+                                "department",
+                                e.target.value
+                              )
+                            }
+                            placeholder="부서"
+                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                          />
+
+                          <motion.input
+                            whileFocus={{
+                              scale: 1.05, // 입력 시 약간 확대
+                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                            }}
+                            type="text"
+                            value={contact?.mobile || ""}
+                            onChange={(e) =>
+                              handleContactChange(
+                                index,
+                                "mobile",
+                                e.target.value
+                              )
+                            }
+                            placeholder="휴대폰"
+                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                          />
+                          <motion.input
+                            whileFocus={{
+                              scale: 1.05, // 입력 시 약간 확대
+                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                            }}
+                            type="email"
+                            value={contact?.email || ""}
+                            onChange={(e) =>
+                              handleContactChange(
+                                index,
+                                "email",
+                                e.target.value
+                              )
+                            }
+                            placeholder="이메일"
+                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                          />
+                          <motion.label className="flex items-center space-x-2">
+                            <motion.input
+                              whileTap={{ scale: 0.9 }} // 클릭 시 약간 축소 효과
+                              type="checkbox"
+                              checked={contact?.resign || false}
+                              onChange={(e) =>
+                                handleContactChange(
+                                  index,
+                                  "resign",
+                                  e.target.checked
+                                )
+                              }
+                              className="w-5 h-5 accent-blue-500 cursor-pointer"
+                            />
+                            <span className="text-gray-700">퇴사</span>
+                          </motion.label>
+
+                          {/* <button
+                      onClick={() => removeContact(index)}
+                      className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
                     >
-                      <motion.input
-                        whileFocus={{
-                          scale: 1.05, // 입력 시 약간 확대
-                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                        }}
-                        type="text"
-                        value={contact?.contact_name || ""}
-                        onChange={(e) =>
-                          handleContactChange(
-                            index,
-                            "contact_name",
-                            e.target.value
-                          )
-                        }
-                        placeholder="이름"
-                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                      />
-                      <motion.input
-                        whileFocus={{
-                          scale: 1.05, // 입력 시 약간 확대
-                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                        }}
-                        type="text"
-                        value={contact?.level || ""}
-                        onChange={(e) =>
-                          handleContactChange(index, "level", e.target.value)
-                        }
-                        placeholder="직급"
-                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                      />
-
-                      <motion.input
-                        whileFocus={{
-                          scale: 1.05, // 입력 시 약간 확대
-                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                        }}
-                        type="text"
-                        value={contact?.department || ""}
-                        onChange={(e) =>
-                          handleContactChange(
-                            index,
-                            "department",
-                            e.target.value
-                          )
-                        }
-                        placeholder="부서"
-                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                      />
-
-                      <motion.input
-                        whileFocus={{
-                          scale: 1.05, // 입력 시 약간 확대
-                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                        }}
-                        type="text"
-                        value={contact?.mobile || ""}
-                        onChange={(e) =>
-                          handleContactChange(index, "mobile", e.target.value)
-                        }
-                        placeholder="휴대폰"
-                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                      />
-                      <motion.input
-                        whileFocus={{
-                          scale: 1.05, // 입력 시 약간 확대
-                          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                        }}
-                        type="email"
-                        value={contact?.email || ""}
-                        onChange={(e) =>
-                          handleContactChange(index, "email", e.target.value)
-                        }
-                        placeholder="이메일"
-                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                      />
-                      <motion.label className="flex items-center space-x-2">
-                        <motion.input
-                          whileTap={{ scale: 0.9 }} // 클릭 시 약간 축소 효과
-                          type="checkbox"
-                          checked={contact?.resign || false}
-                          onChange={(e) =>
-                            handleContactChange(
-                              index,
-                              "resign",
-                              e.target.checked
-                            )
-                          }
-                          className="w-5 h-5 accent-blue-500 cursor-pointer"
-                        />
-                        <span className="text-gray-700">퇴사</span>
-                      </motion.label>
-
-                      <button
-                        onClick={() => removeContact(index)}
-                        className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  ))}
+                      삭제
+                    </button> */}
+                        </div>
+                      );
+                  })}
                 </div>
               </div>
               <div className="flex justify-between mt-4">

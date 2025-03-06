@@ -7,10 +7,11 @@ export function useContactsList(
   contactName: string,
   email: string,
   mobile: string,
-  companyName: string
+  companyName: string,
+  resign: string
 ) {
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/tests/manage/contacts?page=${page}&limit=${limit}&contact=${contactName}&email=${email}&mobile=${mobile}&company=${companyName}`,
+    `/api/tests/manage/contacts?page=${page}&limit=${limit}&contact=${contactName}&email=${email}&mobile=${mobile}&company=${companyName}&resign=${resign}`,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     { revalidateOnFocus: false }
   );

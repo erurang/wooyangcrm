@@ -80,7 +80,7 @@ export default function ContactsPage() {
     debouncedEmailTerm,
     debouncedMobileTerm,
     debouncedCompanyNameTerm,
-    "false"
+    "true"
   );
 
   const { addContacts } = useAddContacts();
@@ -128,60 +128,6 @@ export default function ContactsPage() {
     setIsDropdownOpen(filteredCompanies.length > 0);
   }, [filteredCompanies]);
 
-  async function handleAddContact() {
-    if (!inputCompanyName.trim()) {
-      setSnackbarMessage("거래처명을 입력해주세요.");
-      return;
-    }
-
-    const matchedCompany = companies.find(
-      (c: any) => c.name === inputCompanyName
-    );
-    if (!matchedCompany) {
-      setSnackbarMessage("존재하지 않는 거래처명입니다.");
-      return;
-    }
-
-    if (!modalContactName.trim()) {
-      setSnackbarMessage("담당자 이름을 입력해주세요.");
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      await addContacts(
-        [
-          {
-            contact_name: modalContactName,
-            email: modalEmail,
-            mobile: modalMobile,
-            level: modalLevel,
-            department: modalDepartment,
-            note: modalNotes,
-          },
-        ],
-        matchedCompany.id
-      );
-
-      setSnackbarMessage("담당자가 추가되었습니다");
-      setIsAddModalOpen(false);
-      setModalContactName("");
-      setModalEmail("");
-      setModalMobile("");
-      setModalLevel("");
-      setModalDepartment("");
-      setModalNotes("");
-      setInputCompanyName("");
-
-      await refreshContacts();
-    } catch (error) {
-      console.error("Error adding contact:", error);
-    } finally {
-      setSaving(false);
-    }
-  }
-
   const paginationNumbers = () => {
     let pageNumbers = [];
     for (let i = 1; i <= total; i++) {
@@ -226,6 +172,7 @@ export default function ContactsPage() {
             level: modalLevel,
             department: modalDepartment,
             note: modalNotes,
+            resign: false,
           },
         ],
         selectedContact.company_id
@@ -299,7 +246,7 @@ export default function ContactsPage() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold">담당자 관리</p>
+      <p className="mb-4 font-semibold">퇴사자 관리</p>
 
       {/* 🔹 검색 필드 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-5 gap-4">
@@ -457,7 +404,7 @@ export default function ContactsPage() {
       </div> */}
       <div>
         <div className="flex justify-between items-center my-4">
-          <div className="flex">
+          {/* <div className="flex">
             <button
               className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
               onClick={() => setIsAddModalOpen(true)}
@@ -465,7 +412,8 @@ export default function ContactsPage() {
               <span className="mr-2">+</span>
               <span>추가</span>
             </button>
-          </div>
+          </div> */}
+          <div></div>
 
           <div className="flex items-center">
             <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
@@ -496,7 +444,7 @@ export default function ContactsPage() {
                 <th className="px-4 py-2 border-b border-r w-2/12">이메일</th>
                 <th className="px-4 py-2 border-b border-r w-2/12">연락처</th>
                 {/* <th className="px-4 py-2 border-b border-r w-1/4">비고</th> */}
-                <th className="px-4 py-2 border-b border-r w-1/12">수정</th>
+                <th className="px-4 py-2 border-b border-r w-1/12">퇴사</th>
                 <th className="px-4 py-2 border-b w-1/12">삭제</th>
               </tr>
             </thead>
@@ -546,7 +494,7 @@ export default function ContactsPage() {
                     className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
                     onClick={() => handleEditContact(contact)}
                   >
-                    수정
+                    변경
                   </td>
                   <td
                     className="px-4 py-2 border-b text-red-500 cursor-pointer hidden md:table-cell"
@@ -593,163 +541,7 @@ export default function ContactsPage() {
           다음
         </button>
       </div>
-      {isAddModalOpen && (
-        <AnimatePresence>
-          <motion.div
-            initial={{ opacity: 0, scale: 1 }} // 시작 애니메이션
-            animate={{ opacity: 1, scale: 1 }} // 나타나는 애니메이션
-            exit={{ opacity: 0, scale: 1 }} // 사라질 때 애니메이션
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2"
-          >
-            <div
-              className="bg-white p-6 rounded-md 
-                  w-11/12 md:w-2/3
-                  overflow-y-auto"
-            >
-              <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
-                담당자 추가
-              </h3>
 
-              {/* 📌 거래처 입력 필드 (드롭다운 자동 검색) */}
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <div className="relative mb-2">
-                    <label className="block mb-1">거래처명</label>
-                    <motion.input
-                      ref={inputRef}
-                      type="text"
-                      placeholder="거래처를 입력후 자동완성된 회사명을 클릭해주세요."
-                      value={inputCompanyName}
-                      onChange={(e) => setInputCompanyName(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                    />
-
-                    {isDropdownOpen && (
-                      <ul
-                        ref={dropdownRef}
-                        className="absolute left-0 right-0 bg-white border border-gray-300 rounded-md mt-1 z-10 shadow-lg max-h-36 overflow-y-auto"
-                      >
-                        {filteredCompanies.map((company: any) => (
-                          <li
-                            key={company.id}
-                            className="p-2 cursor-pointer hover:bg-gray-100"
-                            onMouseDown={(e) => {
-                              e.preventDefault(); // 🔥 포커스 해제 방지
-                              setInputCompanyName(company.name);
-                              setIsDropdownOpen(false); // 🔥 클릭 시 드롭다운 닫기
-                            }}
-                          >
-                            {company.name}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <label className="block mb-1">담당자명</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalContactName}
-                    onChange={(e) => setModalContactName(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">직급</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalLevel}
-                    onChange={(e) => setModalLevel(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">부서</label>
-                  <motion.input
-                    placeholder="팀"
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalDepartment}
-                    onChange={(e) => setModalDepartment(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">이메일</label>
-                  <motion.input
-                    placeholder=".....@.....com"
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="email"
-                    value={modalEmail}
-                    onChange={(e) => setModalEmail(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">연락처</label>
-                  <motion.input
-                    placeholder="000-0000-0000"
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalMobile}
-                    onChange={(e) => setModalMobile(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                {/* <div className="col-span-2">
-                  <label className="block mb-1">비고</label>
-                  <textarea
-                    value={modalNotes}
-                    onChange={(e) => setModalNotes(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md h-24"
-                  />
-                </div> */}
-              </div>
-              {/* 버튼 영역 */}
-              <div className="flex justify-end space-x-2 mt-4">
-                <button
-                  onClick={() => setIsAddModalOpen(false)}
-                  className={`bg-gray-500 text-white px-4 py-2 rounded-md ${
-                    saving ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={saving}
-                >
-                  취소
-                </button>
-                <button
-                  onClick={handleAddContact}
-                  className={`bg-blue-500 text-white px-4 py-2 rounded-md flex items-center ${
-                    saving ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={saving}
-                >
-                  저장
-                  {saving && <CircularProgress size={18} className="ml-2" />}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      )}
       {isModalOpen && (
         <AnimatePresence>
           <motion.div
@@ -759,105 +551,11 @@ export default function ContactsPage() {
             transition={{ duration: 0.3 }}
             className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2"
           >
-            <div className="bg-white p-6 rounded-md w-11/12 md:w-2/3 overflow-y-auto">
+            <div className="bg-white p-6 rounded-md w-1/6 overflow-y-auto">
               <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
-                담당자 수정
+                퇴사 상태 변경
               </h3>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block mb-1">거래처명</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={inputCompanyName}
-                    onChange={(e) => setInputCompanyName(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    disabled={!!selectedContact} // 수정 모드일 경우 거래처명 변경 불가
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">담당자명</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalContactName}
-                    onChange={(e) => setModalContactName(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">직급</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalLevel}
-                    onChange={(e) => setModalLevel(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">부서</label>
-                  <motion.input
-                    placeholder="팀"
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalDepartment}
-                    onChange={(e) => setModalDepartment(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-1">이메일</label>
-                  <motion.input
-                    placeholder=".....@.....com"
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="email"
-                    value={modalEmail}
-                    onChange={(e) => setModalEmail(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1">연락처</label>
-                  <motion.input
-                    placeholder="000-0000-0000"
-                    whileFocus={{
-                      scale: 1.05,
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-                    }}
-                    type="text"
-                    value={modalMobile}
-                    onChange={(e) => setModalMobile(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                {/* <div className="col-span-2">
-                  <label className="block mb-1">비고</label>
-                  <textarea
-                    value={modalNotes}
-                    onChange={(e) => setModalNotes(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md h-24"
-                  />
-                </div> */}
-              </div>
-
+              <p className="text-center">재직으로 상태를 변경할까요?</p>
               <div className="flex justify-end space-x-2 mt-4">
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -867,9 +565,7 @@ export default function ContactsPage() {
                   취소
                 </button>
                 <button
-                  onClick={
-                    selectedContact ? handleUpdateContact : handleAddContact
-                  }
+                  onClick={() => handleUpdateContact()}
                   className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center"
                   disabled={saving}
                 >
@@ -878,7 +574,7 @@ export default function ContactsPage() {
                   ) : selectedContact ? (
                     "수정"
                   ) : (
-                    "추가"
+                    "변경"
                   )}
                 </button>
               </div>
