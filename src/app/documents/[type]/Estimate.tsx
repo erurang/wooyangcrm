@@ -706,7 +706,7 @@ export default function Estimate({
                     </label>
                     <input
                       type="text"
-                      value={`${koreanAmount} 원`}
+                      value={`${koreanAmount}`}
                       readOnly
                       className="block w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100"
                     />
@@ -769,31 +769,32 @@ export default function Estimate({
                     }
                     className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
                   />
-
                   <input
-                    type="text" // 'number'에서 'text'로 변경
-                    placeholder={"수량"}
-                    value={item.quantity?.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
+                    type="text"
+                    placeholder="수량"
+                    value={items[index].quantity} // 그대로 문자 유지
                     onChange={(e) =>
                       handleQuantityChange(index, e.target.value)
                     }
                     className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
                   />
 
+                  {/* ✅ 단가 - 소수점 허용 & 8자리까지 입력 가능 */}
                   <input
-                    type="text" // 'number'에서 'text'로 변경
-                    placeholder={`${type !== "requestQuote" ? "단가" : "단위"}`}
-                    value={item.unit_price?.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
+                    type="text"
+                    placeholder="단가"
+                    value={items[index].unit_price?.toLocaleString()} // 소수점 유지
                     onChange={(e) =>
                       handleUnitPriceChange(index, e.target.value)
-                    } // 단가 변경 핸들러
+                    }
                     className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
                   />
 
+                  {/* ✅ 금액 (자동 계산) */}
                   <input
-                    type="text" // 'number'에서 'text'로 변경
+                    type="text"
                     placeholder="금액"
-                    value={item.amount?.toLocaleString()} // 화면에 콤마가 추가된 금액을 표시
+                    value={items[index].amount?.toLocaleString()} // 가독성 좋게 변환
                     readOnly
                     className="col-span-2 px-1 border border-gray-300 rounded-md text-sm bg-gray-100"
                   />

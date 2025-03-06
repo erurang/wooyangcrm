@@ -450,22 +450,23 @@ const DocPage = () => {
     setTotalAmount(total);
     setKoreanAmount(numberToKorean(total)); // 🔹 음수 값도 변환 가능하도록 적용
   };
-
   const numberToKorean = (num: number): string => {
-    if (num === 0) return "영"; // 0일 경우 예외 처리
+    if (num === 0) return "영"; // ✅ "영 원"이 아니라 "영"만 반환
 
-    const isNegative = num < 0; // 🚀 음수 여부 확인
-    num = Math.abs(num); // 🚀 절대값으로 변환 후 처리
+    const isNegative = num < 0;
+    num = Math.abs(num);
 
     const units = ["", "십", "백", "천"];
     const bigUnits = ["", "만", "억", "조", "경"];
     const digits = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
     let result = "";
 
+    const [integerPart, decimalPart] = num.toString().split(".");
+    let intNum = parseInt(integerPart, 10);
     let bigUnitIndex = 0;
 
-    while (num > 0) {
-      const chunk = num % 10000;
+    while (intNum > 0) {
+      const chunk = intNum % 10000;
       if (chunk > 0) {
         let chunkResult = "";
         let unitIndex = 0;
@@ -483,13 +484,27 @@ const DocPage = () => {
         result = `${chunkResult}${bigUnits[bigUnitIndex]} ${result}`;
       }
 
-      num = Math.floor(num / 10000);
+      intNum = Math.floor(intNum / 10000);
       bigUnitIndex++;
     }
 
-    result = result.trim().replace(/일십/g, "십"); // '일십'을 '십'으로 간략화
+    result = result.trim().replace(/일십/g, "십");
 
-    return isNegative ? `마이너스 ${result}` : result; // 🚀 음수일 경우 '마이너스' 추가
+    let decimalResult = "";
+    if (decimalPart && parseInt(decimalPart) > 0) {
+      decimalResult = " 점 ";
+      for (const digit of decimalPart) {
+        decimalResult += digits[parseInt(digit, 10)] + " ";
+      }
+    }
+
+    let finalResult = result.trim();
+
+    if (decimalResult) {
+      finalResult += decimalResult.trim();
+    }
+
+    return isNegative ? `마이너스 ${finalResult}` : finalResult.trim();
   };
   const addItem = () => {
     setItems([
@@ -564,46 +579,45 @@ const DocPage = () => {
       },
     ]);
   };
+  const handleQuantityChange = (index: number, value: string) => {
+    // 🔹 숫자와 소수점만 추출 (앞 0 제거는 하지 않음)
+    const numericValue = value.match(/^-?\d*\.?\d*/)?.[0] || "";
+    const unit = value.replace(/[-\d.,]/g, "").trim(); // 숫자 제외하고 단위만 추출
+
+    setItems((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              quantity: numericValue !== "" ? `${numericValue}${unit}` : "", // ✅ 빈 값 허용
+              amount: parseFloat(numericValue || "0") * item.unit_price, // ✅ 올바른 소수점 반영
+            }
+          : item
+      )
+    );
+  };
 
   const handleUnitPriceChange = (index: number, value: string) => {
-    // 단가에서 음수 포함된 숫자만 추출
-    const numericValue =
-      value.replace(/,/g, "").match(/-?\d*\.?\d*/)?.[0] || "0";
+    // 🔹 숫자와 소수점만 추출
+    let numericValue = value.replace(/[^0-9.]/g, ""); // 숫자와 . 만 남김
+
+    // 🔹 입력값이 너무 크지 않도록 처리 (숫자가 커지면 `parseFloat`이 오류 발생 가능)
+    if (numericValue.length > 8) return; // 🔥 8자리 이상 입력 방지 (필요 시 조정 가능)
 
     setItems((prev) =>
       prev.map((item, i) =>
         i === index
           ? {
               ...item,
-              unit_price: parseFloat(numericValue), // 🚀 음수 적용된 단가 저장
+              unit_price: numericValue !== "" ? parseFloat(numericValue) : 0, // ✅ 숫자 유지
               amount:
-                parseFloat(numericValue) *
-                parseFloat(item.quantity.replace(/[^\d.-]/g, "")), // 🚀 음수 적용된 계산 반영
+                (parseFloat(numericValue) || 0) *
+                parseFloat(item.quantity.match(/-?\d*\.?\d*/)?.[0] || "0"), // ✅ 계산값 정확하게 유지
             }
           : item
       )
     );
   };
-
-  const handleQuantityChange = (index: number, value: string) => {
-    // 수량에서 숫자와 단위 분리 (음수 허용)
-    const numericValue =
-      value.replace(/,/g, "").match(/-?\d*\.?\d*/)?.[0] || "0"; // 🚀 음수 포함된 숫자 추출
-    const unit = value.replace(/[-\d,]/g, "").trim(); // 🚀 숫자(- 포함) 제외하고 단위만 추출
-
-    setItems((prev) =>
-      prev.map((item, i) =>
-        i === index
-          ? {
-              ...item,
-              quantity: `${numericValue}${unit}`, // 🚀 음수 포함된 수량 저장
-              amount: parseFloat(numericValue) * item.unit_price, // 🚀 음수 적용된 계산 반영
-            }
-          : item
-      )
-    );
-  };
-
   return (
     <div className="text-sm">
       <div className="mb-2">
