@@ -629,6 +629,7 @@ const DocPage = () => {
   });
 
   // 상태 변경 핸들러
+  // 상태 변경 핸들러
   const handleStatusChange = async () => {
     if (!statusChangeDoc || !selectedStatus) return;
 
@@ -639,11 +640,11 @@ const DocPage = () => {
 
     try {
       // 선택된 상태에 맞는 이유 설정
+      const reasonText =
+        statusReason[selectedStatus as "completed" | "canceled"]?.reason || ""; // 🔥 빈 문자열 방지
       const reason = {
         [selectedStatus]: {
-          amount: statusChangeDoc?.content?.total_amount ?? 0,
-          reason:
-            statusReason[selectedStatus as "completed" | "canceled"].reason,
+          reason: reasonText,
         },
       };
 
@@ -659,6 +660,7 @@ const DocPage = () => {
         completed: { reason: "", amount: 0 },
         canceled: { reason: "", amount: 0 },
       });
+
       setSnackbarMessage("문서 상태가 변경되었습니다.");
       await refreshDocuments();
     } catch (error) {

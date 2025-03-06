@@ -174,6 +174,7 @@ export default function DocumentsDetailsPage() {
     };
   }, []);
 
+  // 상태 변경 핸들러
   const handleStatusChange = async () => {
     if (!statusChangeDoc || !changedStatus) return;
     if (isMutating) return;
@@ -185,8 +186,10 @@ export default function DocumentsDetailsPage() {
 
     try {
       const reason = {
-        [changedStatus]:
-          statusReason[changedStatus as "canceled" | "completed"],
+        [changedStatus]: {
+          reason:
+            statusReason[changedStatus as "canceled" | "completed"].reason, // ✅ 여기에 값이 없었음
+        },
       };
 
       await updateStatus({
@@ -195,7 +198,7 @@ export default function DocumentsDetailsPage() {
         status_reason: reason, // ✅ 수정된 형식으로 전달
       });
 
-      setCurrentPage(1); // ✅ 변경 시 현재 페이지 초기화
+      setCurrentPage(1);
       setStatusChangeDoc(null);
       setStatusReason({
         canceled: { reason: "", amount: 0 },
@@ -552,19 +555,20 @@ export default function DocumentsDetailsPage() {
           <div className="bg-white p-6 rounded-md w-1/3">
             <h2 className="text-xl font-bold mb-4">진행 상태 변경</h2>
             <textarea
-              placeholder="발주처리, 단가로 인한 취소, 프로젝트 취소.. 등등"
+              placeholder={
+                changedStatus === "completed"
+                  ? "발주처리, 단가로 인한 취소, 프로젝트 취소.. 등등"
+                  : "취소 사유를 입력하세요"
+              }
               className="w-full min-h-32 p-2 border border-gray-300 rounded-md"
               value={
-                selectedStatus
-                  ? statusReason[selectedStatus as "canceled" | "completed"]
-                      ?.reason
-                  : ""
+                statusReason[changedStatus as "canceled" | "completed"].reason
               }
               onChange={(e) =>
                 setStatusReason((prev) => ({
                   ...prev,
-                  [selectedStatus as "canceled" | "completed"]: {
-                    amount: statusChangeDoc.content.total_amount,
+                  [changedStatus]: {
+                    ...prev[changedStatus as "canceled" | "completed"],
                     reason: e.target.value,
                   },
                 }))

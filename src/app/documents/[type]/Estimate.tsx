@@ -1420,7 +1420,18 @@ export default function Estimate({
             {/* 상태 선택 드롭다운 */}
             <select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
+              onChange={(e) => {
+                const newStatus = e.target.value as "completed" | "canceled";
+                setSelectedStatus(newStatus);
+
+                // 🔥 선택한 상태가 바뀔 때 기존 상태를 유지 (초기화 방지)
+                setStatusReason((prev: any) => ({
+                  ...prev,
+                  [newStatus]: {
+                    reason: prev[newStatus]?.reason || "", // 🔥 기존 값 유지
+                  },
+                }));
+              }}
               className="w-full p-2 border border-gray-300 rounded-md text-sm"
             >
               <option value="completed">완료</option>
@@ -1436,14 +1447,13 @@ export default function Estimate({
               }
               className="w-full min-h-32 p-2 border border-gray-300 rounded-md mt-2"
               value={
-                statusReason[selectedStatus as "completed" | "canceled"]?.reason
+                statusReason[selectedStatus as "completed" | "canceled"]
+                  ?.reason || ""
               }
               onChange={(e) =>
                 setStatusReason((prev: any) => ({
                   ...prev,
                   [selectedStatus]: {
-                    ...prev[selectedStatus as "completed" | "canceled"], // 기존 값 유지
-                    amount: statusChangeDoc?.content?.total_amount ?? 0,
                     reason: e.target.value,
                   },
                 }))
