@@ -250,9 +250,9 @@ export default function ExcelEstimatePage() {
       const addedConsultation = await addConsultation({
         method: "POST",
         body: {
-          date: new Date().toISOString().split("T")[0],
+          date: `20${currentDoc?.date.replaceAll(".", "-")}`,
           company_id: company.id || "",
-          content: "경영박사 엑셀파일 업로드",
+          content: `경영박사 엑셀파일 업로드`,
           follow_up_date: null,
           user_id: selectedUserId,
         },

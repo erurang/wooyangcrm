@@ -12,6 +12,7 @@ export async function POST(request: Request) {
       company_id,
       type,
       contact_id,
+      date,
     } = body;
 
     if (!content || !user_id || !consultation_id || !company_id || !type) {
@@ -24,7 +25,15 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from("documents")
       .insert([
-        { content, user_id, payment_method, consultation_id, company_id, type },
+        {
+          content,
+          user_id,
+          payment_method,
+          consultation_id,
+          company_id,
+          type,
+          date,
+        },
       ])
       .select()
       .single();

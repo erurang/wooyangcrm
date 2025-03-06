@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { document_id, content, payment_method, contact_id } = body;
+    const { document_id, content, payment_method, contact_id, date } = body;
 
     if (!document_id) {
       return NextResponse.json(
@@ -15,7 +15,7 @@ export async function PATCH(request: Request) {
 
     const { data, error } = await supabase
       .from("documents")
-      .update({ content, payment_method })
+      .update({ content, payment_method, date })
       .eq("id", document_id)
       .select()
       .single();

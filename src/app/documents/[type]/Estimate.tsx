@@ -14,6 +14,7 @@ interface Items {
 }
 interface Document {
   id: string;
+  date: string;
   consultation_id: string;
   type: string;
   contact: string;
@@ -51,6 +52,7 @@ interface Document {
 
 interface newDocument {
   id: string;
+  date: string;
   company_name: string;
   contact: string;
   phone: string;
@@ -270,7 +272,7 @@ export default function Estimate({
           {documents?.map((document) => (
             <tr key={document.id} className="hover:bg-gray-100">
               <td className="px-4 py-2 border-b border-r-[1px]">
-                {new Date(document.created_at).toLocaleDateString()}
+                {document.date}
               </td>
               <td className="px-4 py-2 border-b border-r-[1px]">
                 {type === "estimate" &&
@@ -520,12 +522,11 @@ export default function Estimate({
                     </label>
                     <input
                       type="date"
-                      disabled
-                      value={newDocument.created_at}
+                      value={newDocument.date}
                       onChange={(e) =>
                         setNewDocument({
                           ...newDocument,
-                          created_at: e.target.value,
+                          date: e.target.value,
                         })
                       }
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
@@ -540,11 +541,11 @@ export default function Estimate({
                     <input
                       disabled
                       type="date"
-                      value={newDocument.created_at}
+                      value={newDocument.date}
                       onChange={(e) =>
                         setNewDocument({
                           ...newDocument,
-                          created_at: e.target.value,
+                          date: e.target.value,
                         })
                       }
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
@@ -559,11 +560,11 @@ export default function Estimate({
                     <input
                       disabled
                       type="date"
-                      value={newDocument.created_at}
+                      value={newDocument.date}
                       onChange={(e) =>
                         setNewDocument({
                           ...newDocument,
-                          created_at: e.target.value,
+                          date: e.target.value,
                         })
                       }
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
@@ -1073,13 +1074,12 @@ export default function Estimate({
                       견적일
                     </label>
                     <input
-                      disabled
                       type="date"
-                      value={newDocument.created_at}
+                      value={newDocument.date}
                       onChange={(e) =>
                         setNewDocument({
                           ...newDocument,
-                          created_at: e.target.value,
+                          date: e.target.value,
                         })
                       }
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
@@ -1092,13 +1092,12 @@ export default function Estimate({
                       발주일
                     </label>
                     <input
-                      disabled
                       type="date"
-                      value={newDocument.created_at}
+                      value={newDocument.date}
                       onChange={(e) =>
                         setNewDocument({
                           ...newDocument,
-                          created_at: e.target.value,
+                          date: e.target.value,
                         })
                       }
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"

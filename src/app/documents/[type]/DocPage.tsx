@@ -22,6 +22,7 @@ import { useUpdateDocumentStatus } from "@/hooks/documents/details/useUpdateDocu
 
 interface Document {
   id: string;
+  date: string;
   contact_name: string;
   contact_level: string;
   contact_mobile: string;
@@ -106,6 +107,7 @@ const DocPage = () => {
 
   const [newDocument, setNewDocument] = useState({
     id,
+    date: new Date().toISOString().split("T")[0],
     company_name: "",
     contact: "",
     phone: "",
@@ -265,7 +267,7 @@ const DocPage = () => {
   const handleAddDocument = async () => {
     if (isAdding) return;
 
-    const { contact, payment_method, notes } = newDocument;
+    const { contact, payment_method, notes, date } = newDocument;
     let { delivery_place, valid_until, delivery_date, delivery_term } =
       newDocument;
 
@@ -330,6 +332,7 @@ const DocPage = () => {
       const addedDocument = await addDocument({
         method: "POST",
         body: {
+          date,
           content,
           user_id: user?.id,
           payment_method,
@@ -357,7 +360,7 @@ const DocPage = () => {
   const handleEditDocument = async () => {
     if (isUpdating) return;
 
-    const { contact, payment_method, notes } = newDocument;
+    const { contact, payment_method, notes, date } = newDocument;
 
     let { delivery_place, valid_until, delivery_date, delivery_term } =
       newDocument;
@@ -417,6 +420,7 @@ const DocPage = () => {
       const updatedDocument = await updateDocument({
         method: "PATCH",
         body: {
+          date,
           document_id: newDocument.id,
           content,
           payment_method,
@@ -530,6 +534,7 @@ const DocPage = () => {
     setNewDocument({
       ...newDocument,
       id: document.id,
+      date: document.date,
       company_name: document.content.company_name,
       contact: document.contact_name,
       created_at: document.created_at.split("T")[0], // 날짜 형식 변환
