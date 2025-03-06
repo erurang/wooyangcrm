@@ -31,7 +31,8 @@ export async function GET(request: Request) {
           "id,company_id, contact_name, mobile, department, level, email, resign"
         )
         .in("company_id", companyIds)
-        .order("company_id", { ascending: true });
+        .order("company_id", { ascending: true })
+        .order("contact_name", { ascending: true });
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

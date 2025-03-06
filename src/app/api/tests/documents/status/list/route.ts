@@ -22,7 +22,7 @@ export async function GET(request: Request) {
         { count: "exact" }
       )
       .eq("type", type)
-      .order("created_at", { ascending: false })
+      .order("date", { ascending: false })
       .range(start, end);
 
     // 🔹 상태 필터 추가 (✅ "all"이 아닐 때만 적용)

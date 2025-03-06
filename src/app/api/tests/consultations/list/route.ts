@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       })
       .eq("company_id", companyId)
       .range(from, to)
-      .order("created_at", { ascending: false });
+      .order("date", { ascending: false });
 
     if (error) {
       throw error;

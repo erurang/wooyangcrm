@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function POST(request: Request) {
   try {
-    const { company_id, content, follow_up_date, user_id } =
+    const { company_id, content, follow_up_date, user_id, date } =
       await request.json();
 
     if (!company_id || !content || !user_id) {
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       .from("consultations")
       .insert([
         {
-          date: new Date().toISOString().split("T")[0],
+          date,
           company_id,
           content,
           follow_up_date: follow_up_date || null,

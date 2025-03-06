@@ -272,6 +272,7 @@ export default function ExcelEstimatePage() {
         method: "POST",
         body: {
           content,
+          date: `20${currentDoc?.date.replaceAll(".", "-")}`,
           user_id: selectedUserId,
           payment_method: currentDoc.payment_method,
           consultation_id: addedConsultation.consultation_id, // 필요하면 설정

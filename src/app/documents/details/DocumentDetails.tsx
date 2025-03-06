@@ -396,7 +396,7 @@ export default function DocumentsDetailsPage() {
             {documents.map((doc: any) => (
               <tr key={doc.id} className="hover:bg-gray-100 text-center">
                 <td className="px-4 py-2 border-b border-r-[1px]">
-                  {doc.created_at.slice(0, 10)}
+                  {doc.date.slice(0, 10)}
                 </td>
                 <td className="px-4 py-2 border-b border-r-[1px]">
                   {type === "estimate" &&
