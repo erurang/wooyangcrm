@@ -520,6 +520,7 @@ export default function Estimate({
                     </label>
                     <input
                       type="date"
+                      disabled
                       value={newDocument.created_at}
                       onChange={(e) =>
                         setNewDocument({
