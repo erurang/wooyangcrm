@@ -519,7 +519,6 @@ export default function Estimate({
                       견적일
                     </label>
                     <input
-                      disabled
                       type="date"
                       value={newDocument.created_at}
                       onChange={(e) =>
