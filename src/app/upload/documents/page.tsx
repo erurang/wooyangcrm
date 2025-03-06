@@ -56,7 +56,7 @@ export default function ExcelEstimatePage() {
 
   // 🔹 담당자 / 유저 목록
   const { users } = useUsersList();
-  const { contacts } = useContactsByCompany([company.id] || [""]);
+  const { contacts } = useContactsByCompany([company.id]);
   const { addConsultation } = useAddConsultation();
   const { assignConsultationContact } = useAssignConsultationContact();
 
