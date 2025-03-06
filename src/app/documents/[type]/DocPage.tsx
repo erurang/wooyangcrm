@@ -18,6 +18,7 @@ import { useUpdateDocument } from "@/hooks/documents/useUpdateDocument";
 import { useDeleteDocument } from "@/hooks/documents/useDeleteDocument";
 import SnackbarComponent from "@/components/Snackbar";
 import { useCompanyInfo } from "@/hooks/documents/useCompanyInfo";
+import { useUpdateDocumentStatus } from "@/hooks/documents/details/useUpdateDocumentStatus";
 
 interface Document {
   id: string;
@@ -149,6 +150,7 @@ const DocPage = () => {
   const { company, isLoading, refreshCompany } = useCompanyInfo(companyId);
   const { addDocument, isAdding } = useAddDocument();
   const { updateDocument, isUpdating } = useUpdateDocument();
+  const { trigger: updateStatus, isMutating } = useUpdateDocumentStatus();
   // const { deleteDocument, isDeleting } = useDeleteDocument();
   // swr
 
@@ -636,6 +638,7 @@ const DocPage = () => {
     const confirmChange = window.confirm(
       "상태 변경은 되돌릴 수 없습니다. 변경할까요?"
     );
+
     if (!confirmChange) return;
 
     try {
@@ -648,11 +651,11 @@ const DocPage = () => {
         },
       };
 
-      // documents 테이블의 해당 문서 상태 업데이트
-      await supabase
-        .from("documents")
-        .update({ status: selectedStatus, status_reason: reason })
-        .eq("id", statusChangeDoc.id);
+      await updateStatus({
+        id: statusChangeDoc.id,
+        status: selectedStatus,
+        status_reason: reason, // ✅ 수정된 형식으로 전달
+      });
 
       // 상태 초기화
       setStatusChangeDoc(null);

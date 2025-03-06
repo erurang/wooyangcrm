@@ -182,9 +182,11 @@ export default function ContactsPage() {
     }
   }
 
+  const totalPages = Math.ceil(total / contactsPerPage);
+
   const paginationNumbers = () => {
     let pageNumbers = [];
-    for (let i = 1; i <= total; i++) {
+    for (let i = 1; i <= totalPages; i++) {
       if (
         i === 1 ||
         i === total ||
@@ -586,8 +588,10 @@ export default function ContactsPage() {
         ))}
 
         <button
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, total))}
-          disabled={currentPage === total}
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          disabled={currentPage === totalPages}
           className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
         >
           다음
