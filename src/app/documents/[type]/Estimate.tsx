@@ -103,6 +103,16 @@ interface EsitmateProps {
   saving: boolean;
   contacts: Contacts[];
   handleEditCloseModal: any;
+  statusChangeDoc: Document | null;
+  setStatusChangeDoc: (doc: Document | null) => void;
+  handleStatusChange: () => Promise<void>;
+  selectedStatus: string;
+  setSelectedStatus: (status: string) => void;
+  statusReason: {
+    completed: { reason: string; amount: number };
+    canceled: { reason: string; amount: number };
+  };
+  setStatusReason: any;
 }
 
 export default function Estimate({
@@ -131,6 +141,14 @@ export default function Estimate({
   paymentMethods,
   saving,
   contacts,
+
+  statusChangeDoc,
+  setStatusChangeDoc,
+  handleStatusChange,
+  selectedStatus,
+  setSelectedStatus,
+  statusReason,
+  setStatusReason,
 }: EsitmateProps) {
   return (
     <div className="bg-[#FBFBFB] rounded-md border">
@@ -161,6 +179,9 @@ export default function Estimate({
               </th> */}
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
                 문서번호
+              </th>
+              <th className="px-4 py-2 border-b border-r-[1px] text-center">
+                상태
               </th>
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
                 수정
@@ -197,6 +218,9 @@ export default function Estimate({
                 문서번호
               </th>
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
+                상태
+              </th>
+              <th className="px-4 py-2 border-b border-r-[1px] text-center">
                 수정
               </th>
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
@@ -229,6 +253,9 @@ export default function Estimate({
               </th> */}
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
                 문서번호
+              </th>
+              <th className="px-4 py-2 border-b border-r-[1px] text-center">
+                상태
               </th>
               <th className="px-4 py-2 border-b border-r-[1px] text-center">
                 수정
@@ -288,6 +315,26 @@ export default function Estimate({
                 onClick={() => handleDocumentNumberClick(document)}
               >
                 {document.document_number}
+              </td>
+              <td
+                className={`px-4 py-2 border-b border-r-[1px]  
+    ${
+      user?.id === document.user_id &&
+      document.status === "pending" &&
+      "text-blue-500 cursor-pointer"
+    }`}
+                onClick={() => {
+                  if (
+                    user?.id === document.user_id &&
+                    document.status === "pending"
+                  ) {
+                    setStatusChangeDoc(document);
+                  }
+                }}
+              >
+                {document.status === "pending" && "변경"}
+                {document.status === "completed" && "완료됨"}
+                {document.status === "canceled" && "취소됨"}
               </td>
               <td
                 className={`px-4 py-2 border-b border-r-[1px]  
@@ -1360,6 +1407,62 @@ export default function Estimate({
                 disabled={saving}
               >
                 저장 {saving && <CircularProgress size={18} className="ml-2" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {statusChangeDoc && (
+        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-md w-1/3">
+            <h2 className="text-xl font-bold mb-4">진행 상태 변경</h2>
+
+            {/* 상태 선택 드롭다운 */}
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+            >
+              <option value="completed">완료</option>
+              <option value="canceled">취소</option>
+            </select>
+
+            {/* 사유 입력 */}
+            <textarea
+              placeholder={
+                selectedStatus === "completed"
+                  ? "완료 사유를 입력하세요."
+                  : "취소 사유를 입력하세요."
+              }
+              className="w-full min-h-32 p-2 border border-gray-300 rounded-md mt-2"
+              value={
+                statusReason[selectedStatus as "completed" | "canceled"]?.reason
+              }
+              onChange={(e) =>
+                setStatusReason((prev: any) => ({
+                  ...prev,
+                  [selectedStatus]: {
+                    ...prev[selectedStatus as "completed" | "canceled"], // 기존 값 유지
+                    amount: statusChangeDoc?.content?.total_amount ?? 0,
+                    reason: e.target.value,
+                  },
+                }))
+              }
+            />
+
+            {/* 버튼 */}
+            <div className="flex justify-end mt-4">
+              <button
+                className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
+                onClick={() => setStatusChangeDoc(null)}
+              >
+                취소
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                onClick={handleStatusChange}
+              >
+                저장
               </button>
             </div>
           </div>

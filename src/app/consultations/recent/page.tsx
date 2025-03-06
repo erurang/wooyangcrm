@@ -242,7 +242,7 @@ export default function RecentConsultations() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <h2 className="text-sm font-semibold mb-4">최근 상담 내역</h2>
+      <h2 className="text-sm font-semibold mb-4">상담내역 조회</h2>
       {/* 검색 및 필터 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
         <div className="grid grid-cols-5 gap-4">

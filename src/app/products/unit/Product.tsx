@@ -83,7 +83,7 @@ export default function ProductPage() {
   return (
     <div className="text-sm text-[#37352F]">
       <h1 className="font-semibold mb-4">
-        {type === "estimate" ? "견적" : "매입"} 단가 관리
+        {type === "estimate" ? "매출" : "매입"} 단가 관리
       </h1>
 
       {/* 검색 필터 */}

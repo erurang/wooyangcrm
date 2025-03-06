@@ -521,7 +521,7 @@ export default function ConsultationPage() {
         {/* 🚀 거래처 기본 정보 */}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-40 flex flex-col justify-between">
+          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-48 flex flex-col justify-between">
             {isCompanyDetailLoading ? (
               <>
                 <Skeleton variant="text" width="100%" height="100%" />
@@ -544,6 +544,13 @@ export default function ConsultationPage() {
                     </span>
                   </li>
                   <li className="flex items-center">
+                    <span className="font-medium w-14">배송</span>
+                    <span className="flex-1 truncate">
+                      {companyDetail?.parcel ||
+                        "거래처검색 -> 수정 정보를 입력해주세요."}
+                    </span>
+                  </li>
+                  <li className="flex items-center">
                     <span className="font-medium w-14">전화</span>
                     <span className="flex-1">
                       {companyDetail?.phone ||
@@ -558,9 +565,9 @@ export default function ConsultationPage() {
                     </span>
                   </li>
                   <li className="flex items-center">
-                    <span className="font-medium w-14">배송</span>
+                    <span className="font-medium w-14">이메일</span>
                     <span className="flex-1 truncate">
-                      {companyDetail?.parcel ||
+                      {companyDetail?.email ||
                         "거래처검색 -> 수정 정보를 입력해주세요."}
                     </span>
                   </li>
@@ -569,7 +576,7 @@ export default function ConsultationPage() {
             )}
           </div>
 
-          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-40 flex flex-col">
+          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-48 flex flex-col">
             {isCompanyDetailLoading ? (
               <>
                 <Skeleton variant="text" width="100%" height="100%" />
