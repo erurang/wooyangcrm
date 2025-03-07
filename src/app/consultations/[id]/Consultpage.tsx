@@ -520,7 +520,7 @@ export default function ConsultationPage() {
 
         {/* 🚀 거래처 기본 정보 */}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr] gap-4">
           <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-48 flex flex-col justify-between">
             {isCompanyDetailLoading ? (
               <>
@@ -576,7 +576,23 @@ export default function ConsultationPage() {
             )}
           </div>
 
-          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-48 flex flex-col">
+          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 ">
+            {isCompanyDetailLoading ? (
+              <Skeleton variant="rectangular" width="100%" height="100%" />
+            ) : (
+              <>
+                <h2 className="font-semibold text-md mb-1">비고</h2>
+                <div className="text-sm min-h-[80px] max-h-36 overflow-y-auto px-1">
+                  <span>
+                    {companyDetail?.notes ||
+                      "비고 추가/수정을 사용하여 해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."}
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 h-48 flex flex-col ">
             {isCompanyDetailLoading ? (
               <>
                 <Skeleton variant="text" width="100%" height="100%" />
@@ -585,7 +601,7 @@ export default function ConsultationPage() {
               <>
                 <h2 className="font-semibold text-md mb-1">담당자</h2>
 
-                <div className=" h-28 overflow-y-auto">
+                <div className=" h-48 overflow-y-auto">
                   <table className="w-full text-xs border-collapse">
                     <thead className="border-b font-semibold bg-gray-100 sticky top-0"></thead>
                     <tbody className="text-sm">
@@ -599,19 +615,23 @@ export default function ConsultationPage() {
                               }`}
                             >
                               <td
-                                className="px-1 py-1 text-blue-500 cursor-pointer hover:font-semibold"
+                                className="px-1 py-1 text-blue-500 cursor-pointer hover:font-semibold w-1/6"
                                 onClick={() =>
                                   router.push(`/manage/contacts/${contact.id}`)
                                 }
                               >
                                 {contact.contact_name}
                               </td>
-                              <td className="px-1 py-1">{contact.level}</td>
-                              <td className="px-1 py-1">
+                              <td className="px-1 py-1 w-1/6">
+                                {contact.level}
+                              </td>
+                              <td className="px-1 py-1 w-1/6">
                                 {contact.department}
                               </td>
-                              <td className="px-1 py-1">{contact.mobile}</td>
-                              <td className="px-1 py-1 truncate">
+                              <td className="px-1 py-1 w-1/6">
+                                {contact.mobile}
+                              </td>
+                              <td className="px-1 py-1 truncate w-2/6">
                                 {contact.email}
                               </td>
                             </tr>
@@ -619,22 +639,6 @@ export default function ConsultationPage() {
                       })}
                     </tbody>
                   </table>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3">
-            {isCompanyDetailLoading ? (
-              <Skeleton variant="rectangular" width="100%" height="100%" />
-            ) : (
-              <>
-                <h2 className="font-semibold text-md mb-1">비고</h2>
-                <div className="text-sm min-h-[80px] max-h-28 overflow-y-auto px-1">
-                  <span>
-                    {companyDetail?.notes ||
-                      "비고 추가/수정을 사용하여 해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."}
-                  </span>
                 </div>
               </>
             )}

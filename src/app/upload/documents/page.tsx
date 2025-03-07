@@ -252,7 +252,7 @@ export default function ExcelEstimatePage() {
         body: {
           date: `20${currentDoc?.date.replaceAll(".", "-")}`,
           company_id: company.id || "",
-          content: `경영박사 엑셀파일 업로드`,
+          content: `경영박사 엑셀파일 업로드 / ${currentDoc?.notes}`,
           follow_up_date: null,
           user_id: selectedUserId,
         },

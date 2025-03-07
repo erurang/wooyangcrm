@@ -7,6 +7,7 @@ import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "./Snackbar";
 import { useFavorites } from "@/hooks/favorites/useFavorites";
 import TokenInfo from "./TokenInfo";
+import { useRouter } from "next/navigation";
 
 interface MenuItem {
   id: string; // ✅ 유니크한 ID 추가
@@ -24,6 +25,7 @@ export default function Sidebar() {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [openFavorites, setOpenFavorites] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const router = useRouter();
 
   const { favorites, isLoading, isError, removeFavorite } = useFavorites(
     user?.id
@@ -192,16 +194,20 @@ export default function Sidebar() {
         className="w-56 bg-[#F8F8F7] min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B] transition-all duration-300 relative overflow-y-scroll scrollbar-hide"
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <div className="py-1 px-3 rounded-sm flex items-center">
-          <div>
-            <div className="text-sm font-semibold">
-              <span>
-                반갑습니다. {user?.name} {user?.level}님
-              </span>
-            </div>
+        <div className="py-1 px-3 rounded-sm flex flex-col text-center space-y-2">
+          <div
+            onClick={() => router.push("/")}
+            className="cursor-pointer hover:font-bold"
+          >
+            <p>WOOYANG CRM</p>
+          </div>
+          <div className="text-sm font-semibold">
+            <span>
+              {user?.name} {user?.level}님 <TokenInfo />
+            </span>
           </div>
         </div>
-        <TokenInfo />
+
         <nav className="mt-2 pb-16">
           <div>
             <div
