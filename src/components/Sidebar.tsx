@@ -8,6 +8,7 @@ import SnackbarComponent from "./Snackbar";
 import { useFavorites } from "@/hooks/favorites/useFavorites";
 import TokenInfo from "./TokenInfo";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface MenuItem {
   id: string; // ✅ 유니크한 ID 추가
@@ -51,7 +52,7 @@ export default function Sidebar() {
           title: "영업 기록",
           path: `/reports/users/${user?.id}`,
         },
-        // { id: "todos", title: "할일", path: "" },
+        { id: "todos", title: "체크리스트", path: "/my/todos" },
         // { id: "calendar", title: "캘린더", path: "" },
       ],
     },
@@ -197,7 +198,7 @@ export default function Sidebar() {
         <div className="py-1 px-3 rounded-sm flex flex-col text-center space-y-2">
           <div
             onClick={() => router.push("/")}
-            className="cursor-pointer hover:font-bold"
+            className="cursor-pointer font-semibold"
           >
             <p>WOOYANG CRM</p>
           </div>
@@ -205,6 +206,25 @@ export default function Sidebar() {
             <span>
               {user?.name} {user?.level}님 <TokenInfo />
             </span>
+          </div>
+          <div
+            className="items-center justify-center flex cursor-pointer transform transition-transform duration-300 hover:scale-105"
+            onClick={() =>
+              //   router.push(`https://auth.worksmobile.com/login/login?accessUrl=https%3A%2F%2Fmail.worksmobile.com%2F&loginParam=${user?.worksEmail}&language=ko_KR&countryCode=82&serviceCode=login_web
+              // `)
+              window.open(
+                `https://auth.worksmobile.com/login/login?accessUrl=https%3A%2F%2Fmail.worksmobile.com%2F&loginParam=${user?.worksEmail}&language=ko_KR&countryCode=82&serviceCode=login_web`,
+                "_blank",
+                "width=1800,height=800,top=100,left=100"
+              )
+            }
+          >
+            <Image
+              src={"/images/works.png"}
+              width="120"
+              height="25"
+              alt="logo"
+            />
           </div>
         </div>
 

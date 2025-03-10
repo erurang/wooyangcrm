@@ -13,7 +13,8 @@ export async function GET(request: Request) {
     let query = supabase
       .from("companies")
       .select("*", { count: "exact" })
-      .range((page - 1) * limit, page * limit - 1);
+      .range((page - 1) * limit, page * limit - 1)
+      .order("created_at", { ascending: false });
 
     if (name) query = query.ilike("name", `%${name}%`);
     if (address) query = query.ilike("address", `%${address}%`);

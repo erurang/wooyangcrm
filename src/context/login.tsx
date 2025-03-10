@@ -10,6 +10,7 @@ interface LoginUser {
   id: string;
   level: string;
   position: string;
+  worksEmail: string;
 }
 
 // Context에 저장할 값 (loginUser + setLoginUser)
@@ -43,7 +44,7 @@ export function LoginUserProvider({ children }: { children: React.ReactNode }) {
         // ✅ Supabase users 테이블에서 추가 정보 가져오기
         const { data: userData, error: userError } = await supabase
           .from("users")
-          .select("name, id, position, level, roles(role_name)")
+          .select("name, id, position, level, roles(role_name), works_email")
           .eq("email", data.session.user.email)
           .single();
 
@@ -59,6 +60,7 @@ export function LoginUserProvider({ children }: { children: React.ReactNode }) {
           id: userData.id,
           position: userData.position || "",
           level: userData.level || "",
+          worksEmail: userData.works_email || "",
         });
       } catch (error) {
         console.error("🚨 fetchUser 에러:", error);

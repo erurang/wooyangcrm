@@ -22,7 +22,8 @@ export async function GET(req: NextRequest) {
         `id, contact_name, mobile, department, level, email, company_id, companies!inner(id, name), note`,
         { count: "exact" }
       )
-      .eq("resign", resign);
+      .eq("resign", resign)
+      .order("companies(name)", { ascending: true });
 
     // 🔹 필터 적용
     if (contactName) query = query.ilike("contact_name", `%${contactName}%`);

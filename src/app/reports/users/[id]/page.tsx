@@ -226,33 +226,6 @@ export default function UserDetailPage() {
     }
   };
 
-  // 🔹 매출 거래처 Bar 차트 (aggregatedSalesCompanies)
-  const barCategories = aggregatedSalesCompanies.map((c: any) => c.name);
-  const barSeriesData = aggregatedSalesCompanies.map((c: any) => c.total);
-
-  const barOptions = {
-    chart: { type: "bar" as const },
-    xaxis: { categories: barCategories },
-    yaxis: {
-      labels: {
-        formatter: (val: number) => val.toLocaleString(),
-      },
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: (val: number) => val.toLocaleString(),
-    },
-    plotOptions: {
-      bar: { borderRadius: 4 },
-    },
-    fill: { colors: ["#3498db"] },
-    title: {
-      text: "매출 거래처 (Bar 차트)",
-      align: "left" as const,
-    },
-  };
-  const barSeries = [{ name: "매출", data: barSeriesData }];
-
   return (
     <div className="text-sm text-[#333]">
       <div className="mb-4">
@@ -597,6 +570,7 @@ export default function UserDetailPage() {
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
             <p className="text-lg font-semibold mb-4">🏢 거래처별 매출 비중</p>
             {/* 🔹 매출 차트 */}
+
             <ReactApexChart
               options={{
                 labels: salesChart.labels,
@@ -665,12 +639,6 @@ export default function UserDetailPage() {
 
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
             <p className="text-lg font-semibold mb-2">🏢 매출 거래처</p>
-            {/* <ReactApexChart
-              options={barOptions}
-              series={barSeries}
-              type="bar"
-              height={300}
-            /> */}
             {aggregatedSalesCompanies.length > 0 ? (
               aggregatedSalesCompanies.map((c: any) => (
                 <p key={c.name} className="border-b py-2">

@@ -620,11 +620,11 @@ export default function ConsultationPage() {
                                   router.push(`/manage/contacts/${contact.id}`)
                                 }
                               >
-                                {contact.contact_name}
+                                {contact.contact_name} {contact.level}
                               </td>
-                              <td className="px-1 py-1 w-1/6">
-                                {contact.level}
-                              </td>
+                              {/* <td className="px-1 py-1 w-1/6">
+                                
+                              </td> */}
                               <td className="px-1 py-1 w-1/6">
                                 {contact.department}
                               </td>
