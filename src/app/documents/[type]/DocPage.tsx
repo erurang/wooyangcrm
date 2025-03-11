@@ -456,6 +456,7 @@ const DocPage = () => {
     setTotalAmount(total);
     setKoreanAmount(numberToKorean(total)); // 🔹 음수 값도 변환 가능하도록 적용
   };
+
   const numberToKorean = (num: number): string => {
     if (num === 0) return "영"; // ✅ "영 원"이 아니라 "영"만 반환
 
@@ -494,7 +495,7 @@ const DocPage = () => {
       bigUnitIndex++;
     }
 
-    result = result.trim().replace(/일십/g, "십");
+    // result = result.trim().replace(/일십/g, "십");
 
     let decimalResult = "";
     if (decimalPart && parseInt(decimalPart) > 0) {

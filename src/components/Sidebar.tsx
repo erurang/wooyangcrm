@@ -52,7 +52,7 @@ export default function Sidebar() {
           title: "영업 기록",
           path: `/reports/users/${user?.id}`,
         },
-        { id: "todos", title: "체크리스트", path: "/my/todos" },
+        // { id: "todos", title: "체크리스트", path: "/my/todos" },
         // { id: "calendar", title: "캘린더", path: "" },
       ],
     },
@@ -192,135 +192,125 @@ export default function Sidebar() {
   return (
     <>
       <motion.div
-        className="w-56 bg-[#F8F8F7] min-h-screen border-r-2 px-2 pt-2 text-sm text-[#5F5E5B] transition-all duration-300 relative overflow-y-scroll scrollbar-hide"
+        className="w-56 h-screen bg-[#F8F8F7] border-r-2 px-2 pt-2 text-sm text-[#5F5E5B] flex flex-col"
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <div className="py-1 px-3 rounded-sm flex flex-col text-center space-y-2">
-          <div
-            onClick={() => router.push("/")}
-            className="cursor-pointer font-semibold"
-          >
-            <p>WOOYANG CRM</p>
-          </div>
-          <div className="text-sm font-semibold">
-            <span>
-              {user?.name} {user?.level}님 <TokenInfo />
-            </span>
-          </div>
-          <div
-            className="items-center justify-center flex cursor-pointer transform transition-transform duration-300 hover:scale-105"
-            onClick={() =>
-              //   router.push(`https://auth.worksmobile.com/login/login?accessUrl=https%3A%2F%2Fmail.worksmobile.com%2F&loginParam=${user?.worksEmail}&language=ko_KR&countryCode=82&serviceCode=login_web
-              // `)
-              window.open(
-                `https://auth.worksmobile.com/login/login?accessUrl=https%3A%2F%2Fmail.worksmobile.com%2F&loginParam=${user?.worksEmail}&language=ko_KR&countryCode=82&serviceCode=login_web`,
-                "_blank",
-                "width=1800,height=800,top=100,left=100"
-              )
-            }
-          >
-            <Image
-              src={"/images/works.png"}
-              width="120"
-              height="25"
-              alt="logo"
-            />
-          </div>
-        </div>
-
-        <nav className="mt-2 pb-16">
-          <div>
+        {/* 상단 + 사이드 메뉴(스크롤 영역) */}
+        <div className="flex-1 overflow-y-scroll scrollbar-hide">
+          <div className="py-1 px-3 rounded-sm flex flex-col text-center space-y-2">
             <div
-              className="py-2 px-3 cursor-pointer hover:bg-slate-300 rounded-sm font-bold flex justify-between"
-              onClick={() => setOpenFavorites((prev) => !prev)}
+              onClick={() => router.push("/")}
+              className="cursor-pointer font-semibold"
             >
-              ⭐ 즐겨찾기
-              <motion.span
-                animate={{ rotate: openFavorites ? 90 : 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                ▶
-              </motion.span>
+              <p>WOOYANG CRM</p>
             </div>
-
-            <AnimatePresence>
-              {openFavorites && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                >
-                  {favorites.length > 0 ? (
-                    favorites.map((menu: any) => (
-                      <motion.div
-                        key={menu.id}
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3 }}
-                        className="flex items-center justify-between py-2 px-4 hover:bg-slate-200 transition-all rounded-sm"
-                      >
-                        <Link href={`/consultations/${menu.item_id}`}>
-                          <span>{menu.name}</span>
-                        </Link>
-                        {/* <span
-                          className="text-red-500 cursor-pointer"
-                          onClick={async () => {
-                            await removeFavorite(menu.id);
-                            setSnackbarMessage("즐겨찾기에서 삭제되었습니다.");
-                          }}
-                        >
-                          삭제
-                        </span> */}
-                      </motion.div>
-                    ))
-                  ) : (
-                    <p className="text-gray-400 text-center my-1">
-                      즐겨찾기 없음
-                    </p>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className="text-sm font-semibold">
+              <span>
+                {user?.name} {user?.level}님 <TokenInfo />
+              </span>
+            </div>
           </div>
-          {menuSections.map((section) => (
-            <div key={section.title}>
+
+          <nav className="mt-2 pb-4">
+            {" "}
+            {/* pb-4 정도로 여유 padding */}
+            <div>
               <div
-                className="py-2 px-3 cursor-pointer hover:bg-slate-300 rounded-sm font-bold flex justify-between "
-                onClick={() => toggleSection(section.title)}
+                className="py-2 px-3 cursor-pointer hover:bg-slate-300 rounded-sm font-bold flex justify-between"
+                onClick={() => setOpenFavorites((prev) => !prev)}
               >
-                {section.title}
+                ⭐ 즐겨찾기
                 <motion.span
-                  animate={{ rotate: openSections[section.title] ? 90 : 0 }}
+                  animate={{ rotate: openFavorites ? 90 : 0 }}
                   transition={{ duration: 0.2 }}
                 >
                   ▶
                 </motion.span>
               </div>
 
-              {/* 메뉴 리스트 애니메이션 적용 */}
               <AnimatePresence>
-                {openSections[section.title] && (
+                {openFavorites && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                   >
-                    {section.items.map((menu) => (
-                      <Link href={menu.path} key={menu.id}>
-                        <div className="py-2 px-4 cursor-pointer hover:bg-slate-200 transition-all rounded-sm">
-                          <span>{menu.title}</span>
-                        </div>
-                      </Link>
-                    ))}
+                    {favorites.length > 0 ? (
+                      favorites.map((menu: any) => (
+                        <motion.div
+                          key={menu.id}
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                          className="flex items-center justify-between py-2 px-4 hover:bg-slate-200 transition-all rounded-sm"
+                        >
+                          <Link href={`/consultations/${menu.item_id}`}>
+                            <span>{menu.name}</span>
+                          </Link>
+                        </motion.div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 text-center my-1">
+                        즐겨찾기 없음
+                      </p>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-          ))}
-        </nav>
+            {menuSections.map((section) => (
+              <div key={section.title}>
+                <div
+                  className="py-2 px-3 cursor-pointer hover:bg-slate-300 rounded-sm font-bold flex justify-between"
+                  onClick={() => toggleSection(section.title)}
+                >
+                  {section.title}
+                  <motion.span
+                    animate={{ rotate: openSections[section.title] ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    ▶
+                  </motion.span>
+                </div>
+
+                <AnimatePresence>
+                  {openSections[section.title] && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      {section.items.map((menu) => (
+                        <Link href={menu.path} key={menu.id}>
+                          <div className="py-2 px-4 cursor-pointer hover:bg-slate-200 transition-all rounded-sm">
+                            <span>{menu.title}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </nav>
+        </div>
+
+        {/* 하단 고정 영역 (works 버튼) */}
+        <div
+          className="p-2 items-center justify-center flex cursor-pointer transform transition-transform duration-300 hover:scale-105 mb-2"
+          onClick={() =>
+            window.open(
+              `https://auth.worksmobile.com/login/login?accessUrl=https%3A%2F%2Fmail.worksmobile.com%2F&loginParam=${user?.worksEmail}&language=ko_KR&countryCode=82&serviceCode=login_web`,
+              "_blank",
+              "width=1800,height=800,top=100,left=100"
+            )
+          }
+        >
+          <Image src={"/images/works.png"} width="120" height="25" alt="logo" />
+        </div>
       </motion.div>
 
       {/* 스낵바 알림 */}

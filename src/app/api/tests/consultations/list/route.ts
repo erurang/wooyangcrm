@@ -22,12 +22,15 @@ export async function GET(request: Request) {
   try {
     const { data, error, count } = await supabase
       .from("consultations")
-      .select("id, date, content, follow_up_date, user_id, documents(type)", {
-        count: "exact",
-      })
+      .select(
+        "id, date, content, follow_up_date, user_id, documents(type),created_at",
+        {
+          count: "exact",
+        }
+      )
       .eq("company_id", companyId)
       .range(from, to)
-      .order("date", { ascending: false });
+      .order("created_at", { ascending: false });
 
     if (error) {
       throw error;

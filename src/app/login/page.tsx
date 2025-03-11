@@ -76,7 +76,7 @@ export default function LoginPage() {
 
       const { data, error } = await supabase
         .from("users")
-        .select("name, id, position, level")
+        .select("name, id, position, level, works_email")
         .eq("email", userJson.email);
 
       if (error) {
@@ -97,6 +97,7 @@ export default function LoginPage() {
         id: data[0].id,
         position: data[0].position || "",
         level: data[0].level || "",
+        worksEmail: data[0].works_email || "",
       });
 
       const redirectTo =
