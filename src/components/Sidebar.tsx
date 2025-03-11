@@ -118,6 +118,24 @@ export default function Sidebar() {
     },
   ];
 
+  if (user?.role === "research" || user?.role === "admin") {
+    menuSections.push({
+      title: "연구개발",
+      items: [
+        {
+          id: "rnds",
+          title: "R&D 검색",
+          path: `/manage/rnds`,
+        },
+        {
+          id: "brnds",
+          title: "비 R&D 검색",
+          path: `/manage/brnds`,
+        },
+      ],
+    });
+  }
+
   if (user?.role === "managementSupport" || user?.role === "admin") {
     menuSections.push({
       title: "경영지원",

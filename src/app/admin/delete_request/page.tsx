@@ -97,6 +97,10 @@ export default function DeletionRequestsPage() {
 
       await supabase.from("consultations").delete().eq("id", req.related_id);
       await supabase.from("deletion_requests").delete().eq("id", req.id);
+    } else if (req.type === "RnDs") {
+      await supabase.from("RnDs").delete().eq("id", req.related_id);
+    } else if (req.type === "bRnDs") {
+      await supabase.from("bRnDs").delete().eq("id", req.related_id);
     }
 
     setRequests((prev) => prev.filter((reqs) => reqs.id !== req.id));
