@@ -521,7 +521,7 @@ export default function ConsultationPage() {
         {/* 🚀 거래처 기본 정보 */}
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr] gap-4">
-          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-48 flex flex-col justify-between">
+          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-40 flex flex-col justify-between">
             {isCompanyDetailLoading ? (
               <>
                 <Skeleton variant="text" width="100%" height="100%" />
@@ -564,13 +564,6 @@ export default function ConsultationPage() {
                         "거래처검색 -> 수정 정보를 입력해주세요."}
                     </span>
                   </li>
-                  <li className="flex items-center">
-                    <span className="font-medium w-14">이메일</span>
-                    <span className="flex-1 truncate">
-                      {companyDetail?.email ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
-                    </span>
-                  </li>
                 </ul>
               </div>
             )}
@@ -592,7 +585,7 @@ export default function ConsultationPage() {
             )}
           </div>
 
-          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 h-48 flex flex-col ">
+          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 h-40 flex flex-col ">
             {isCompanyDetailLoading ? (
               <>
                 <Skeleton variant="text" width="100%" height="100%" />
@@ -601,7 +594,7 @@ export default function ConsultationPage() {
               <>
                 <h2 className="font-semibold text-md mb-1">담당자</h2>
 
-                <div className=" h-48 overflow-y-auto">
+                <div className=" h-40 overflow-y-auto">
                   <table className="w-full text-xs border-collapse">
                     <thead className="border-b font-semibold bg-gray-100 sticky top-0"></thead>
                     <tbody className="text-sm">

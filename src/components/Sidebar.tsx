@@ -120,7 +120,7 @@ export default function Sidebar() {
 
   if (user?.role === "research" || user?.role === "admin") {
     menuSections.push({
-      title: "🔬 연구개발",
+      title: "🔬 연구실",
       items: [
         {
           id: "rndsorg",
@@ -137,10 +137,23 @@ export default function Sidebar() {
           title: "비 R&D 검색",
           path: `/manage/brnds`,
         },
+      ],
+    });
+  }
+
+  if (user?.role === "research" || user?.role === "admin") {
+    menuSections.push({
+      title: "🔬 개발",
+      items: [
         {
           id: "develop",
           title: "개발건 검색",
           path: `/manage/develop`,
+        },
+        {
+          id: "develop_contacts",
+          title: "담당자 검색",
+          path: `/manage/develop_contacts`,
         },
       ],
     });
