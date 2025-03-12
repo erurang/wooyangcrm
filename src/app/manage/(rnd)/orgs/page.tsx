@@ -9,21 +9,29 @@ import { useRouter } from "next/navigation";
 import SnackbarComponent from "@/components/Snackbar";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useLoginUser } from "@/context/login";
-import { useAddbRnDs } from "@/hooks/manage/(rnds)/brnds/useAddbRnDs";
-import { useUpdatebRnDs } from "@/hooks/manage/(rnds)/brnds/useUpdatebRnDs";
-import { usebRnDsList } from "@/hooks/manage/(rnds)/brnds/usebRnDsList";
-import { useOrgsList } from "@/hooks/manage/(rnds)/useOrgsList";
+import { useOrgsList } from "@/hooks/manage/(rnds)/orgs/useOrgsList";
+import { useAddOrgs } from "@/hooks/manage/(rnds)/orgs/useAddOrgs";
+import { useUpdateOrgs } from "@/hooks/manage/(rnds)/orgs/useUpdateOrgs";
+import { useAddOrgsContacts } from "@/hooks/manage/(rnds)/orgs/useAddOrgsContacts";
 
-interface RnDs {
+interface RnDsOrgs {
   id: string;
   name: string;
-  start_date: string;
-  end_date: string;
-  gov_contribution: string;
-  pri_contribution: string;
-  total_cost: string;
+  address: string;
   notes: string;
-  support_org: string;
+  phone: string;
+  fax: string;
+  email: string;
+  RnDs_contacts: Contact[];
+}
+
+interface Contact {
+  id?: string;
+  name: string;
+  email: string;
+  phone: string;
+  department: string;
+  level: string;
 }
 
 export default function Page() {
@@ -44,35 +52,33 @@ export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false); // 추가 모달 상태
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 삭제 모달 상태
-  const [currentRnds, setCurrentRnds] = useState<RnDs>({
+  const [currentRndsOrgs, setCurrentRndsOrgs] = useState<RnDsOrgs>({
     id: "", // id 필드 반드시 문자열로 초기화
     name: "",
-    end_date: "",
-    start_date: "",
-    gov_contribution: "",
-    pri_contribution: "",
-    total_cost: "",
+    address: "",
+    email: "",
+    fax: "",
     notes: "",
-    support_org: "",
+    phone: "",
+    RnDs_contacts: [], // 🔥담당자 배열 초기화 추가
   }); // 현재 거래처 정보
 
-  const [rndsToDelete, setRndsToDelete] = useState<RnDs | null>(null); // 삭제할 거래처 정보
+  const [rndsToDelete, setRndsToDelete] = useState<RnDsOrgs | null>(null); // 삭제할 거래처 정보
 
   // debounce
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   //// Swr test ////
 
-  const { orgs } = useOrgsList();
-
-  const { brnds, isLoading, refreshRnds, total, isError } = usebRnDsList(
+  const { orgs, isLoading, refreshOrgs, total, isError } = useOrgsList(
     currentPage,
     rndsPerPage,
     debouncedSearchTerm
   );
 
-  const { addbRnds } = useAddbRnDs();
-  const { updatebRnds } = useUpdatebRnDs();
+  const { addOrgs } = useAddOrgs();
+  const { addContacts } = useAddOrgsContacts();
+  const { updateOrgs } = useUpdateOrgs();
 
   //// swr test ////
 
@@ -94,10 +100,10 @@ export default function Page() {
 
   // 페이징 정보 업데이트
   useEffect(() => {
-    if (!isLoading && !isError && brnds) {
+    if (!isLoading && !isError && orgs) {
       setTotalPages(Math.ceil(total / rndsPerPage));
     }
-  }, [brnds, total, isLoading, isError]);
+  }, [orgs, total, isLoading, isError]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -120,67 +126,58 @@ export default function Page() {
   };
 
   // api추가
-  const handleaddbRnds = async () => {
-    if (
-      !currentRnds.name ||
-      !currentRnds.end_date ||
-      !currentRnds.gov_contribution ||
-      !currentRnds.start_date ||
-      !currentRnds.total_cost
-    ) {
-      setSnackbarMessage("필수 입력값을 모두 채워주세요.");
+  const handleAddOrgs = async () => {
+    if (!currentRndsOrgs.name) {
+      setSnackbarMessage("기관명을 입력해주세요.");
+      return;
+    }
+
+    if (currentRndsOrgs.RnDs_contacts.length === 0) {
+      setSnackbarMessage("담당자를 최소 1명 입력해주세요.");
       return;
     }
 
     setSaving(true);
 
     try {
-      await addbRnds({
-        ...currentRnds,
-        total_cost: removeComma(currentRnds.total_cost),
-        gov_contribution: removeComma(currentRnds.gov_contribution),
-      });
-      await refreshRnds();
+      const orgData = await addOrgs(currentRndsOrgs);
+      await addContacts(currentRndsOrgs.RnDs_contacts, orgData.id);
+      await refreshOrgs();
 
-      setSnackbarMessage("R&D 사업 추가 완료");
+      setSnackbarMessage("지원기관 추가 완료");
       closeAddModal();
     } catch (error) {
-      console.error("Error adding company:", error);
-      setSnackbarMessage("R&D 사업  추가 실패");
+      console.error("Error adding orgs:", error);
+      setSnackbarMessage("지원기관 추가 실패");
     } finally {
       setSaving(false);
     }
   };
-
-  // api 수정/저장
   const handleSave = async () => {
-    if (
-      !currentRnds.name ||
-      !currentRnds.end_date ||
-      !currentRnds.gov_contribution ||
-      !currentRnds.start_date ||
-      !currentRnds.total_cost
-    ) {
-      setSnackbarMessage("필수 입력값을 모두 채워주세요.");
+    if (!currentRndsOrgs.name) {
+      setSnackbarMessage("기관명을 입력해주세요.");
+      return;
+    }
+
+    if (currentRndsOrgs.RnDs_contacts.length === 0) {
+      setSnackbarMessage("담당자를 최소 1명 입력해주세요.");
       return;
     }
 
     setSaving(true);
 
     try {
-      await updatebRnds({
-        ...currentRnds,
-        total_cost: removeComma(currentRnds.total_cost),
-        gov_contribution: removeComma(currentRnds.gov_contribution),
+      await updateOrgs({
+        ...currentRndsOrgs,
+        RnDs_contacts: currentRndsOrgs.RnDs_contacts, // 🔥 담당자 데이터 포함
       });
-      setSnackbarMessage("R&D 사업 수정 완료");
 
-      await refreshRnds();
-
+      setSnackbarMessage("지원기관 수정 완료");
+      await refreshOrgs();
       closeModal();
     } catch (error) {
-      console.error("Error updating company:", error);
-      setSnackbarMessage("R&D 사업 수정 실패");
+      console.error("Error updating orgs:", error);
+      setSnackbarMessage("지원기관 수정 실패");
     } finally {
       setSaving(false);
     }
@@ -189,7 +186,7 @@ export default function Page() {
 
   // 회사 ui삭제관련
   // 삭제 버튼 클릭 시 삭제 요청 처리
-  const handleDelete = (rnds: RnDs) => {
+  const handleDelete = (rnds: RnDsOrgs) => {
     setRndsToDelete(rnds);
     setIsDeleteModalOpen(true);
   };
@@ -201,14 +198,14 @@ export default function Page() {
         // 2️⃣ 회사 삭제 요청 추가
         const { error } = await supabase.from("deletion_requests").insert([
           {
-            type: "bRnDs",
+            type: "rnd_orgs",
             related_id: rndsToDelete.id,
             status: "pending",
             request_date: new Date(),
             user_id: user?.id || "",
             delete_reason: deleteReason,
             content: {
-              companies: `비R&D삭제 : ${rndsToDelete.name}`,
+              companies: `지원기관삭제 : ${rndsToDelete.name}`,
             },
           },
         ]);
@@ -234,39 +231,52 @@ export default function Page() {
   // 모달 관련
   const closeAddModal = () => {
     setIsAddModalOpen(false);
-    setCurrentRnds({
+    setCurrentRndsOrgs({
       id: "", // id 필드 반드시 문자열로 초기화
       name: "",
-      end_date: "",
-      start_date: "",
-      gov_contribution: "",
-      pri_contribution: "",
-      total_cost: "",
+      address: "",
+      email: "",
+      fax: "",
       notes: "",
-      support_org: "",
+      phone: "",
+      RnDs_contacts: [], // 🔥담당자 배열 초기화 추가
     });
   };
   // 추가 버튼 클릭 시 모달 열기
   const handleAdd = () => {
-    setCurrentRnds({
+    setCurrentRndsOrgs({
       id: "", // id 필드 반드시 문자열로 초기화
       name: "",
-      end_date: "",
-      start_date: "",
-      gov_contribution: "",
-      pri_contribution: "",
-      total_cost: "",
+      address: "",
+      email: "",
+      fax: "",
       notes: "",
-      support_org: "",
+      phone: "",
+      RnDs_contacts: [], // 🔥담당자 배열 초기화 추가
     });
     setIsAddModalOpen(true); // 추가 모달 열기
   };
 
   // 수정 버튼 클릭 시 모달 열기
-  const handleEdit = (company: RnDs) => {
+  const handleEdit = (orgs: RnDsOrgs) => {
     try {
-      setCurrentRnds({
-        ...company,
+      setCurrentRndsOrgs({
+        id: orgs.id,
+        name: orgs.name || "",
+        address: orgs.address || "",
+        email: orgs.email || "",
+        fax: orgs.fax || "",
+        notes: orgs.notes || "",
+        phone: orgs.phone || "",
+        RnDs_contacts:
+          orgs.RnDs_contacts?.map((contact: any) => ({
+            id: contact.id || "",
+            name: contact.name || "",
+            phone: contact.phone || "",
+            email: contact.email || "",
+            department: contact.department || "",
+            level: contact.level || "",
+          })) || [], // 담당자 초기화
       });
 
       setIsModalOpen(true);
@@ -278,97 +288,91 @@ export default function Page() {
   // 모달 닫기
   const closeModal = () => {
     setIsModalOpen(false);
-    setCurrentRnds({
+    setCurrentRndsOrgs({
       id: "", // id 필드 반드시 문자열로 초기화
       name: "",
-      end_date: "",
-      start_date: "",
-      gov_contribution: "",
-      pri_contribution: "",
-      total_cost: "",
+      address: "",
+      email: "",
+      fax: "",
       notes: "",
-      support_org: "",
+      phone: "",
+      RnDs_contacts: [], // 🔥담당자 배열 초기화 추가
+    });
+  };
+  /// contact
+
+  const addContact = () => {
+    setCurrentRndsOrgs((prev) => ({
+      ...prev,
+      RnDs_contacts: [
+        {
+          name: "",
+          phone: "",
+          department: "",
+          level: "",
+          email: "",
+        },
+        ...prev.RnDs_contacts,
+      ],
+    }));
+  };
+
+  const handleContactChange = (
+    index: number,
+    field: keyof Contact,
+    value: any
+  ) => {
+    setCurrentRndsOrgs((prev) => {
+      const updatedContact = [...prev.RnDs_contacts];
+      updatedContact[index] = { ...updatedContact[index], [field]: value };
+      return { ...prev, RnDs_contacts: updatedContact };
+    });
+  };
+  const removeContact = (index: number) => {
+    setCurrentRndsOrgs((prev) => {
+      const updatedContact = [...prev.RnDs_contacts];
+      updatedContact.splice(index, 1);
+      return { ...prev, RnDs_contacts: updatedContact };
     });
   };
 
-  const formatNumber = (value: string) => {
-    const cleanedValue = value.replace(/[^0-9]/g, "");
-    return cleanedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
-
-  const removeComma = (value: string) => value.replace(/,/g, "");
+  ///
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold">비 R&D 사업 검색</p>
-      <div>
-        <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              사업명
-            </label>
-            <motion.input
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
-              placeholder="사업명"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
-              whileFocus={{
-                scale: 1.05, // 입력 시 약간 확대
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-              }}
-            />
-          </div>
+      <p className="mb-4 font-semibold">지원기관 검색</p>
 
-          <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              수행날짜
-            </label>
-            <motion.input
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
-              type="date"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md mr-2"
-              whileFocus={{
-                scale: 1.05, // 입력 시 약간 확대
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-              }}
-            />
-            ~
-            <motion.input
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
-              type="date"
-              className="w-3/4 p-2 border-[1px]  border-gray-300 rounded-md ml-2"
-              whileFocus={{
-                scale: 1.05, // 입력 시 약간 확대
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-              }}
-            />
-          </div>
-
-          <div className="flex justify-end space-x-2">
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setCurrentPage(1); // 페이지 초기화
-              }}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md"
-            >
-              필터리셋
-            </button>
-          </div>
+      <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="flex items-center justify-center">
+          <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+            기관명
+          </label>
+          <motion.input
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
+            placeholder="기관명"
+            className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+            whileFocus={{
+              scale: 1.05, // 입력 시 약간 확대
+              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+            }}
+          />
+        </div>
+        <div></div>
+        <div className="flex justify-end space-x-2">
+          <button
+            onClick={() => {
+              setSearchTerm("");
+              setCurrentPage(1); // 페이지 초기화
+            }}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md"
+          >
+            필터리셋
+          </button>
         </div>
       </div>
 
@@ -406,19 +410,19 @@ export default function Page() {
             <thead>
               <tr className="bg-gray-100 text-center">
                 <th className="px-4 py-2 border-b border-r-[1px] w-3/12">
-                  사업명
+                  기관명
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell w-2/12">
-                  총 사업기간
+                  주소
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell w-2/12">
-                  총 사업비
+                  번호
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell w-2/12">
-                  정부 출연금
+                  팩스
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell w-2/12">
-                  지원기관
+                  이메일
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
@@ -427,35 +431,35 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
-              {brnds?.map((rnds: any) => (
-                <tr key={rnds.id} className="hover:bg-gray-100 text-center">
+              {orgs?.map((orgs: any) => (
+                <tr key={orgs.id} className="hover:bg-gray-100 text-center">
                   <td
                     className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer "
-                    onClick={() => router.push(`/manage/brnds/${rnds.id}`)}
+                    // onClick={() => router.push(`/manage/orgs/${orgs.id}`)}
                   >
-                    {rnds.name}
+                    {orgs.name}
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                    {rnds.start_date} ~ {rnds.end_date}
+                    {orgs.address}
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                    {rnds.total_cost}
+                    {orgs.phone}
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                    {rnds.gov_contribution}
+                    {orgs.fax}
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                    {rnds.rnd_orgs?.name}
+                    {orgs.email}
                   </td>
                   <td
                     className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
-                    onClick={() => handleEdit(rnds)}
+                    onClick={() => handleEdit(orgs)}
                   >
                     수정
                   </td>
                   <td
                     className="px-4 py-2 border-b border-r-[1px] text-red-500 cursor-pointer hidden md:table-cell"
-                    onClick={() => handleDelete(rnds)}
+                    onClick={() => handleDelete(orgs)}
                   >
                     삭제
                   </td>
@@ -468,7 +472,7 @@ export default function Page() {
 
       {/* 모달 */}
       <AnimatePresence>
-        {isModalOpen && currentRnds && (
+        {isModalOpen && currentRndsOrgs && (
           <motion.div
             className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2"
             initial={{ opacity: 0, scale: 1 }} // 시작 애니메이션
@@ -483,23 +487,23 @@ export default function Page() {
                     overflow-y-auto"
             >
               <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
-                R&D 사업 수정
+                지원기관 수정
               </h3>
 
               {/* 📌 반응형: 모바일 1열, 데스크톱 4열 */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="mb-2">
-                  <label className="block mb-1">사업명</label>
+                  <label className="block mb-1">기관명</label>
                   <motion.input
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
                     type="text"
-                    value={currentRnds.name || ""}
+                    value={currentRndsOrgs.name || ""}
                     onChange={(e) =>
-                      setCurrentRnds({
-                        ...currentRnds,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
                         name: e.target.value,
                       })
                     }
@@ -507,65 +511,44 @@ export default function Page() {
                   />
                 </div>
                 <div className="mb-2">
-                  <label className="block mb-1">총 사업비</label>
+                  <label className="block mb-1">주소</label>
                   <motion.input
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
                     type="text"
-                    value={formatNumber(currentRnds?.total_cost || "")}
+                    value={currentRndsOrgs?.address || ""}
                     onChange={(e) => {
-                      const numericValue = e.target.value.replace(
-                        /[^0-9]/g,
-                        ""
-                      );
-                      setCurrentRnds({
-                        ...currentRnds,
-                        total_cost: numericValue,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
+                        address: e.target.value,
                       });
                     }}
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>
+
                 <div className="mb-2">
-                  <label className="block mb-1">시작 기간</label>
+                  <label className="block mb-1">번호</label>
                   <motion.input
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
-                    type="date"
-                    defaultValue={currentRnds?.start_date}
+                    value={currentRndsOrgs?.phone}
+                    type="text"
                     onChange={(e) =>
-                      setCurrentRnds({
-                        ...currentRnds,
-                        start_date: e.target.value,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
+                        phone: e.target.value,
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>
                 <div className="mb-2">
-                  <label className="block mb-1">종료 기간</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05, // 입력 시 약간 확대
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                    }}
-                    defaultValue={currentRnds?.end_date}
-                    type="date"
-                    onChange={(e) =>
-                      setCurrentRnds({
-                        ...currentRnds,
-                        end_date: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label className="block mb-1">정부 출연금</label>
+                  <label className="block mb-1">팩스</label>
                   <motion.input
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
@@ -573,39 +556,110 @@ export default function Page() {
                     }}
                     placeholder=""
                     type="text"
-                    value={formatNumber(currentRnds?.gov_contribution || "")}
+                    value={currentRndsOrgs?.fax || ""}
                     onChange={(e) => {
-                      const numericValue = e.target.value.replace(
-                        /[^0-9]/g,
-                        ""
-                      );
-                      setCurrentRnds({
-                        ...currentRnds,
-                        gov_contribution: numericValue,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
+                        fax: e.target.value,
                       });
                     }}
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>
                 <div className="mb-2">
-                  <label className="block mb-1">지원 기관</label>
-                  <select
-                    value={currentRnds?.support_org || ""}
+                  <label className="block mb-1">이메일</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="email"
+                    value={currentRndsOrgs?.email}
                     onChange={(e) =>
-                      setCurrentRnds({
-                        ...currentRnds,
-                        support_org: e.target.value,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
+                        email: e.target.value,
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="flex justify-between items-center">
+                  <label className="block mb-1">담당자</label>
+                  <button
+                    className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
+                    onClick={addContact}
                   >
-                    <option value="">선택하세요.</option>
-                    {orgs?.map((org: any) => (
-                      <option key={org.id} value={org.name}>
-                        {org.name}
-                      </option>
-                    ))}
-                  </select>
+                    + 추가
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {currentRndsOrgs.RnDs_contacts?.map((contact, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-wrap md:flex-nowrap gap-2"
+                    >
+                      <motion.input
+                        type="text"
+                        placeholder="이름"
+                        value={contact.name || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "name", e.target.value)
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        type="text"
+                        placeholder="휴대폰"
+                        value={contact.phone || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "phone", e.target.value)
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        type="text"
+                        placeholder="부서"
+                        value={contact.department || ""}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "department",
+                            e.target.value
+                          )
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        type="text"
+                        placeholder="직급"
+                        value={contact.level || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "level", e.target.value)
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        type="email"
+                        placeholder="이메일"
+                        value={contact.email || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "email", e.target.value)
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <button
+                        onClick={() => removeContact(index)}
+                        className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -614,10 +668,10 @@ export default function Page() {
                 <label className="block mb-1">비고</label>
                 <textarea
                   placeholder=""
-                  value={currentRnds.notes || ""}
+                  value={currentRndsOrgs.notes || ""}
                   onChange={(e) =>
-                    setCurrentRnds({
-                      ...currentRnds,
+                    setCurrentRndsOrgs({
+                      ...currentRndsOrgs,
                       notes: e.target.value,
                     })
                   }
@@ -702,23 +756,23 @@ export default function Page() {
                   overflow-y-auto"
             >
               <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
-                R&D 사업 추가
+                지원기관 추가
               </h3>
 
               {/* 📌 반응형: 모바일 2열, 데스크톱 4열 */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="mb-2">
-                  <label className="block mb-1">사업명</label>
+                  <label className="block mb-1">기관명</label>
                   <motion.input
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
                     type="text"
-                    value={currentRnds?.name || ""}
+                    value={currentRndsOrgs.name || ""}
                     onChange={(e) =>
-                      setCurrentRnds({
-                        ...currentRnds,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
                         name: e.target.value,
                       })
                     }
@@ -726,63 +780,44 @@ export default function Page() {
                   />
                 </div>
                 <div className="mb-2">
-                  <label className="block mb-1">총 사업비</label>
+                  <label className="block mb-1">주소</label>
                   <motion.input
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
                     type="text"
-                    value={formatNumber(currentRnds?.total_cost || "")}
+                    value={currentRndsOrgs?.address || ""}
                     onChange={(e) => {
-                      const numericValue = e.target.value.replace(
-                        /[^0-9]/g,
-                        ""
-                      );
-                      setCurrentRnds({
-                        ...currentRnds,
-                        total_cost: numericValue,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
+                        address: e.target.value,
                       });
                     }}
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>
+
                 <div className="mb-2">
-                  <label className="block mb-1">시작 기간</label>
+                  <label className="block mb-1">번호</label>
                   <motion.input
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
-                    type="date"
+                    value={currentRndsOrgs?.phone}
+                    type="text"
                     onChange={(e) =>
-                      setCurrentRnds({
-                        ...currentRnds,
-                        start_date: e.target.value,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
+                        phone: e.target.value,
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>
                 <div className="mb-2">
-                  <label className="block mb-1">종료 기간</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05, // 입력 시 약간 확대
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                    }}
-                    type="date"
-                    onChange={(e) =>
-                      setCurrentRnds({
-                        ...currentRnds,
-                        end_date: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label className="block mb-1">정부 출연금</label>
+                  <label className="block mb-1">팩스</label>
                   <motion.input
                     whileFocus={{
                       scale: 1.05, // 입력 시 약간 확대
@@ -790,39 +825,111 @@ export default function Page() {
                     }}
                     placeholder=""
                     type="text"
-                    value={formatNumber(currentRnds?.gov_contribution || "")}
+                    value={currentRndsOrgs?.fax || ""}
                     onChange={(e) => {
-                      const numericValue = e.target.value.replace(
-                        /[^0-9]/g,
-                        ""
-                      );
-                      setCurrentRnds({
-                        ...currentRnds,
-                        gov_contribution: numericValue,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
+                        fax: e.target.value,
                       });
                     }}
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 </div>
+
                 <div className="mb-2">
-                  <label className="block mb-1">지원 기관</label>
-                  <select
-                    value={currentRnds?.support_org || ""}
+                  <label className="block mb-1">이메일</label>
+                  <motion.input
+                    whileFocus={{
+                      scale: 1.05, // 입력 시 약간 확대
+                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                    }}
+                    type="email"
+                    value={currentRndsOrgs?.email}
                     onChange={(e) =>
-                      setCurrentRnds({
-                        ...currentRnds,
-                        support_org: e.target.value,
+                      setCurrentRndsOrgs({
+                        ...currentRndsOrgs,
+                        email: e.target.value,
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="flex justify-between items-center">
+                  <label className="block mb-1">담당자</label>
+                  <button
+                    className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
+                    onClick={addContact}
                   >
-                    <option value="">선택하세요.</option>
-                    {orgs?.map((org: any) => (
-                      <option key={org.id} value={org.name}>
-                        {org.name}
-                      </option>
-                    ))}
-                  </select>
+                    + 추가
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {currentRndsOrgs.RnDs_contacts?.map((contact, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-wrap md:flex-nowrap gap-2"
+                    >
+                      <motion.input
+                        type="text"
+                        placeholder="이름"
+                        value={contact.name || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "name", e.target.value)
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        type="text"
+                        placeholder="휴대폰"
+                        value={contact.phone || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "phone", e.target.value)
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        type="text"
+                        placeholder="부서"
+                        value={contact.department || ""}
+                        onChange={(e) =>
+                          handleContactChange(
+                            index,
+                            "department",
+                            e.target.value
+                          )
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        type="text"
+                        placeholder="직급"
+                        value={contact.level || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "level", e.target.value)
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <motion.input
+                        type="email"
+                        placeholder="이메일"
+                        value={contact.email || ""}
+                        onChange={(e) =>
+                          handleContactChange(index, "email", e.target.value)
+                        }
+                        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                      />
+                      <button
+                        onClick={() => removeContact(index)}
+                        className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -831,10 +938,10 @@ export default function Page() {
                 <label className="block mb-1">비고</label>
                 <textarea
                   placeholder=""
-                  value={currentRnds?.notes || ""}
+                  value={currentRndsOrgs?.notes || ""}
                   onChange={(e) =>
-                    setCurrentRnds({
-                      ...currentRnds,
+                    setCurrentRndsOrgs({
+                      ...currentRndsOrgs,
                       notes: e.target.value,
                     })
                   }
@@ -854,7 +961,7 @@ export default function Page() {
                   취소
                 </button>
                 <button
-                  onClick={handleaddbRnds}
+                  onClick={handleAddOrgs}
                   className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
                     saving ? "opacity-50 cursor-not-allowed" : ""
                   }`}

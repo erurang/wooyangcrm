@@ -44,7 +44,7 @@ export default function Sidebar() {
 
   const menuSections: MenuSection[] = [
     {
-      title: "📊 대시보드",
+      title: "🏠 대시보드",
       items: [
         { id: "dashboard", title: "대시보드", path: "/" },
         {
@@ -120,8 +120,13 @@ export default function Sidebar() {
 
   if (user?.role === "research" || user?.role === "admin") {
     menuSections.push({
-      title: "연구개발",
+      title: "🔬 연구개발",
       items: [
+        {
+          id: "rndsorg",
+          title: "지원기관 검색",
+          path: `/manage/orgs`,
+        },
         {
           id: "rnds",
           title: "R&D 검색",
@@ -132,13 +137,18 @@ export default function Sidebar() {
           title: "비 R&D 검색",
           path: `/manage/brnds`,
         },
+        {
+          id: "develop",
+          title: "개발건 검색",
+          path: `/manage/develop`,
+        },
       ],
     });
   }
 
   if (user?.role === "managementSupport" || user?.role === "admin") {
     menuSections.push({
-      title: "경영지원",
+      title: "⚙️ 경영지원",
       items: [
         {
           id: "sales-users",

@@ -1,26 +1,22 @@
 import useSWRMutation from "swr/mutation";
 import { fetcher } from "@/lib/fetcher";
 
-export function useAddContacts() {
+export function useAddOrgsContacts() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/contacts/add`,
+    `/api/tests/manage/orgs/contacts/add`,
     fetcher
   );
 
-  const addContacts = async (contacts: any, companyId: any) => {
+  const addContacts = async (contacts: any, orgId: any) => {
     try {
       const response = await trigger({
         method: "POST",
-        body: { contacts, companyId },
+        body: { contacts, orgId },
       });
-
-      if (!response?.contacts) {
-        throw new Error("담당자 추가 실패");
-      }
 
       return response.contacts;
     } catch (error) {
-      console.error("Error adding contacts:", error);
+      console.error("Error adding orgs contacts:", error);
       throw error;
     }
   };

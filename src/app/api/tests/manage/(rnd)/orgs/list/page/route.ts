@@ -9,19 +9,12 @@ export async function GET(request: Request) {
     const name = searchParams.get("name") || "";
 
     let query = supabase
-      .from("RnDs")
-      .select("*, rnd_orgs(name)", { count: "exact" })
+      .from("rnd_orgs")
+      .select("*, RnDs_contacts(*)", { count: "exact" })
       .range((page - 1) * limit, page * limit - 1)
       .order("created_at", { ascending: false });
 
     if (name) query = query.ilike("name", `%${name}%`);
-
-    // if (rndsIdsParam) {
-    //   const companyIds = rndsIdsParam.split(",").filter((id) => id);
-    //   if (companyIds.length > 0) {
-    //     query = query.in("id", companyIds);
-    //   }
-    // }
 
     const { data, count, error } = await query;
 
@@ -34,9 +27,9 @@ export async function GET(request: Request) {
       total: count || 0,
     });
   } catch (error) {
-    console.error("Error fetching companies list:", error);
+    console.error("Error fetching rng_orgs list:", error);
     return NextResponse.json(
-      { error: "Failed to fetch companies list" },
+      { error: "Failed to fetch rng_orgs list" },
       { status: 500 }
     );
   }

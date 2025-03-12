@@ -20,6 +20,7 @@ import { useAssignConsultationContact } from "@/hooks/consultations/useAssignCon
 import { useUpdateConsultation } from "@/hooks/consultations/useUpdateConsultation";
 import FileUpload from "@/components/consultations/FileUpload";
 import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
+import { useRnDsDetails } from "@/hooks/manage/(rnds)/rnds/useRnDsDetail";
 
 interface Consultation {
   id: string;
@@ -62,8 +63,9 @@ interface User {
   level: string;
 }
 
-export default function ConsultationPage() {
+export default function RnDsPage() {
   const { id } = useParams();
+
   const router = useRouter();
   const loginUser = useLoginUser();
   const searchParams = useSearchParams();
@@ -118,19 +120,23 @@ export default function ConsultationPage() {
   const { updateConsultation, isUpdating } = useUpdateConsultation();
 
   //// swr ////////
+  const { rndsDetail, rnDsDetailLoading, refreshRnds } = useRnDsDetails(
+    id as string
+  );
 
-  const [notes, setNotes] = useState(companyDetail?.notes || "");
-
+  console.log("rndsdetail", rndsDetail);
+  /////////////////
+  const [notes, setNotes] = useState(rndsDetail?.notes || "");
   const handleUpdateNotes = async () => {
-    if (!companyDetail?.id) return;
+    if (!rndsDetail?.id) return;
 
     try {
       const { error } = await supabase
-        .from("companies")
+        .from("RnDs")
         .update({ notes })
-        .eq("id", companyDetail.id);
+        .eq("id", rndsDetail.id);
 
-      await refreshCompany();
+      await refreshRnds();
 
       if (error) {
         setSnackbarMessage("비고 수정 실패");
@@ -143,6 +149,7 @@ export default function ConsultationPage() {
     }
   };
 
+  /////////////////////
   const processedConsultations = useMemo(() => {
     return consultations?.map((consultation: any) => {
       // 🔹 상담 ID에 해당하는 연락처 정보 찾기
@@ -504,71 +511,73 @@ export default function ConsultationPage() {
     setContactsUi(updatedContact);
   };
 
+  const formatNumber = (value: string) => {
+    const cleanedValue = value.replace(/[^0-9]/g, "");
+    return cleanedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   return (
     <div className="text-sm text-[#37352F]">
       <>
         <div className="mb-4">
           <Link
-            href="/customers"
+            href="/manage/rnds"
             className="text-blue-500 hover:underline hover:font-bold"
           >
-            거래처 관리
+            R&D 검색
           </Link>{" "}
-          &gt; <span className="font-semibold">{companyDetail?.name}</span> &gt;
-          상담내역
+          &gt; <span className="font-semibold">사업내역</span>
+          {/* &gt; 사업내역 */}
         </div>
 
         {/* 🚀 거래처 기본 정보 */}
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr] gap-4">
           <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-48 flex flex-col justify-between">
-            {isCompanyDetailLoading ? (
+            {rnDsDetailLoading ? (
               <>
                 <Skeleton variant="text" width="100%" height="100%" />
               </>
             ) : (
               <div>
-                <h2 className="font-semibold text-md mb-1">거래처</h2>
+                <h2 className="font-semibold text-md mb-1">
+                  {rndsDetail?.name}
+                </h2>
                 <ul className="space-y-1 text-gray-700 text-sm pl-1">
                   <li className="flex items-center">
-                    <span className="font-medium w-14">회사명</span>
+                    <span className="font-medium w-20">지원기관</span>
                     <span className="flex-1 truncate">
-                      {companyDetail?.name}
+                      {rndsDetail.support_org}
                     </span>
                   </li>
                   <li className="flex items-center">
-                    <span className="font-medium w-14">주소</span>
+                    <span className="font-medium w-20">기간</span>
                     <span className="flex-1 truncate">
-                      {companyDetail?.address ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
+                      {rndsDetail.start_date} ~ {rndsDetail.end_date}
+                    </span>
+                  </li>
+                  {/* <li className="flex items-center">
+                    <span className="font-medium w-20">지원기관</span>
+                    <span className="flex-1 truncate">
+                      {rndsDetail.support_org}
+                    </span>
+                  </li> */}
+                  <li className="flex items-center">
+                    <span className="font-medium w-20">총사업비</span>
+                    <span className="flex-1 truncate">
+                      {formatNumber(rndsDetail.total_cost)}
                     </span>
                   </li>
                   <li className="flex items-center">
-                    <span className="font-medium w-14">배송</span>
-                    <span className="flex-1 truncate">
-                      {companyDetail?.parcel ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
-                    </span>
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-medium w-14">전화</span>
+                    <span className="font-medium w-20">정부 출연금</span>
                     <span className="flex-1">
-                      {companyDetail?.phone ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
+                      {formatNumber(rndsDetail.gov_contribution)}
                     </span>
                   </li>
                   <li className="flex items-center">
-                    <span className="font-medium w-14">팩스</span>
+                    <span className="font-medium w-20">민간 부담금</span>
                     <span className="flex-1">
-                      {companyDetail?.fax ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
-                    </span>
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-medium w-14">이메일</span>
-                    <span className="flex-1 truncate">
-                      {companyDetail?.email ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
+                      {formatNumber(rndsDetail.pri_contribution)}
                     </span>
                   </li>
                 </ul>
@@ -577,14 +586,14 @@ export default function ConsultationPage() {
           </div>
 
           <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 ">
-            {isCompanyDetailLoading ? (
+            {rnDsDetailLoading ? (
               <Skeleton variant="rectangular" width="100%" height="100%" />
             ) : (
               <>
                 <h2 className="font-semibold text-md mb-1">비고</h2>
                 <div className="text-sm min-h-[80px] max-h-36 overflow-y-auto px-1">
                   <span>
-                    {companyDetail?.notes ||
+                    {rndsDetail?.notes ||
                       "비고 추가/수정을 사용하여 해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."}
                   </span>
                 </div>
@@ -593,7 +602,7 @@ export default function ConsultationPage() {
           </div>
 
           <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 h-48 flex flex-col ">
-            {isCompanyDetailLoading ? (
+            {rnDsDetailLoading ? (
               <>
                 <Skeleton variant="text" width="100%" height="100%" />
               </>
@@ -711,22 +720,6 @@ export default function ConsultationPage() {
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
                 </div>
-                {/* <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    후속 날짜
-                  </label>
-                  <input
-                    type="date"
-                    value={newConsultation.follow_up_date}
-                    onChange={(e) =>
-                      setNewConsultation({
-                        ...newConsultation,
-                        follow_up_date: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  />
-                </div> */}
                 <div>
                   <label className="block mb-2 text-sm font-medium">
                     담당자명
@@ -935,7 +928,7 @@ export default function ConsultationPage() {
                     })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  rows={16}
+                  rows={4}
                 />
               </div>
 
@@ -1114,50 +1107,6 @@ export default function ConsultationPage() {
                       />
                     </td>
 
-                    {/* <td className="px-4 py-2 border-r-[1px]">
-                      <span
-                        className={`mr-2 cursor-pointer ${
-                          consultation.documents.estimate
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          router.push(
-                            `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          )
-                        }
-                      >
-                        견적서
-                      </span>
-                      <span
-                        className={`mr-2 cursor-pointer ${
-                          consultation.documents.order
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          router.push(
-                            `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          )
-                        }
-                      >
-                        발주서
-                      </span>
-                      <span
-                        className={`mr-2 cursor-pointer ${
-                          consultation.documents.requestQuote
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          router.push(
-                            `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          )
-                        }
-                      >
-                        의뢰서
-                      </span>
-                    </td> */}
                     <td>
                       <span
                         className={`px-4 py-2 border-r-[1px] ${
@@ -1187,18 +1136,6 @@ export default function ConsultationPage() {
                         삭제
                       </span>
                     </td>
-                    {/* <td
-                      className={`px-4 py-2 border-r-[1px] ${
-                        loginUser?.id === consultation.user_id &&
-                        "text-red-500 cursor-pointer"
-                      }`}
-                      onClick={() => {
-                        if (loginUser?.id === consultation.user_id)
-                          handleDeleteConsultation(consultation);
-                      }}
-                    >
-                      삭제
-                    </td> */}
                   </tr>
                 ))}
               </tbody>
@@ -1281,9 +1218,9 @@ export default function ConsultationPage() {
             <div className="bg-white p-6 rounded-md w-1/3">
               <h2 className="text-xl font-bold mb-4">비고 추가/수정</h2>
               <textarea
-                placeholder="해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
+                // placeholder="해당 과제의 유의사항 또는 담당자별 유의사항을 작성해주세요."
                 className="w-full min-h-80 p-2 border border-gray-300 rounded-md"
-                defaultValue={companyDetail.notes}
+                defaultValue={rndsDetail.notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
               <div className="flex justify-end mt-4">

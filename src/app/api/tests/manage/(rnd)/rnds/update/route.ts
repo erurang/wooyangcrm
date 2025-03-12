@@ -21,7 +21,16 @@ export async function PUT(request: Request) {
         { status: 400 }
       );
     }
-    // return;
+
+    const { data: org, error: orgError } = await supabase
+      .from("rnd_orgs")
+      .select("id")
+      .eq("name", support_org)
+      .single();
+
+    if (orgError || !org) {
+      throw new Error(`지원기관(${support_org})을 찾을 수 없습니다.`);
+    }
 
     const { data: updateRnDs, error: rndsError } = await supabase
       .from("RnDs")
@@ -32,7 +41,7 @@ export async function PUT(request: Request) {
         gov_contribution,
         pri_contribution,
         total_cost,
-        support_org,
+        org_id: org.id, // ✅ org.id로 저장
       })
       .eq("id", id)
       .select()

@@ -12,6 +12,7 @@ import { useLoginUser } from "@/context/login";
 import { useRnDsList } from "@/hooks/manage/(rnds)/rnds/useRnDsList";
 import { useAddRnDs } from "@/hooks/manage/(rnds)/rnds/useAddRnDs";
 import { useUpdateRnDs } from "@/hooks/manage/(rnds)/rnds/useUpdateRnDs";
+import { useOrgsList } from "@/hooks/manage/(rnds)/useOrgsList";
 
 interface RnDs {
   id: string;
@@ -23,6 +24,9 @@ interface RnDs {
   total_cost: string;
   notes: string;
   support_org: string;
+  rnd_orgs: {
+    name: string;
+  };
 }
 
 export default function Page() {
@@ -53,6 +57,9 @@ export default function Page() {
     total_cost: "",
     notes: "",
     support_org: "",
+    rnd_orgs: {
+      name: "",
+    },
   }); // 현재 거래처 정보
 
   const [rndsToDelete, setRndsToDelete] = useState<RnDs | null>(null); // 삭제할 거래처 정보
@@ -68,6 +75,7 @@ export default function Page() {
     debouncedSearchTerm
   );
 
+  const { orgs } = useOrgsList();
   const { addRnds } = useAddRnDs();
   const { updateRnds } = useUpdateRnDs();
 
@@ -132,13 +140,17 @@ export default function Page() {
     setSaving(true);
 
     try {
-      await addRnds(currentRnds);
+      await addRnds({
+        ...currentRnds,
+        total_cost: removeComma(currentRnds.total_cost),
+        gov_contribution: removeComma(currentRnds.gov_contribution),
+      });
       await refreshRnds();
 
       setSnackbarMessage("R&D 사업 추가 완료");
       closeAddModal();
     } catch (error) {
-      console.error("Error adding company:", error);
+      console.error("Error adding rnds:", error);
       setSnackbarMessage("R&D 사업  추가 실패");
     } finally {
       setSaving(false);
@@ -161,7 +173,11 @@ export default function Page() {
     setSaving(true);
 
     try {
-      await updateRnds(currentRnds);
+      await updateRnds({
+        ...currentRnds,
+        total_cost: removeComma(currentRnds.total_cost),
+        gov_contribution: removeComma(currentRnds.gov_contribution),
+      });
       setSnackbarMessage("R&D 사업 수정 완료");
 
       await refreshRnds();
@@ -233,6 +249,9 @@ export default function Page() {
       total_cost: "",
       notes: "",
       support_org: "",
+      rnd_orgs: {
+        name: "",
+      },
     });
   };
   // 추가 버튼 클릭 시 모달 열기
@@ -247,6 +266,9 @@ export default function Page() {
       total_cost: "",
       notes: "",
       support_org: "",
+      rnd_orgs: {
+        name: "",
+      },
     });
     setIsAddModalOpen(true); // 추가 모달 열기
   };
@@ -277,6 +299,9 @@ export default function Page() {
       total_cost: "",
       notes: "",
       support_org: "",
+      rnd_orgs: {
+        name: "",
+      },
     });
   };
   ///
@@ -421,7 +446,7 @@ export default function Page() {
                 <tr key={rnds.id} className="hover:bg-gray-100 text-center">
                   <td
                     className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer "
-                    onClick={() => router.push(`/consultations/${rnds.id}`)}
+                    onClick={() => router.push(`/manage/rnds/${rnds.id}`)}
                   >
                     {rnds.name}
                   </td>
@@ -435,7 +460,7 @@ export default function Page() {
                     {formatNumber(rnds.gov_contribution)} 원
                   </td>
                   <td className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell">
-                    {rnds.support_org}
+                    {rnds.rnd_orgs.name}
                   </td>
                   <td
                     className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
@@ -562,7 +587,7 @@ export default function Page() {
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
                     placeholder=""
-                    type="email"
+                    type="text"
                     value={formatNumber(currentRnds?.gov_contribution || "")}
                     onChange={(e) => {
                       const numericValue = e.target.value.replace(
@@ -578,13 +603,8 @@ export default function Page() {
                   />
                 </div>
                 <div className="mb-2">
-                  <label className="block mb-1">지원기관</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05, // 입력 시 약간 확대
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                    }}
-                    type="text"
+                  <label className="block mb-1">지원 기관</label>
+                  <select
                     value={currentRnds?.support_org || ""}
                     onChange={(e) =>
                       setCurrentRnds({
@@ -593,7 +613,14 @@ export default function Page() {
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md"
-                  />
+                  >
+                    <option value="">선택하세요.</option>
+                    {orgs?.map((org: any) => (
+                      <option key={org.id} value={org.name}>
+                        {org.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -777,7 +804,7 @@ export default function Page() {
                       boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                     }}
                     placeholder=""
-                    type="email"
+                    type="text"
                     value={formatNumber(currentRnds?.gov_contribution || "")}
                     onChange={(e) => {
                       const numericValue = e.target.value.replace(
@@ -794,12 +821,7 @@ export default function Page() {
                 </div>
                 <div className="mb-2">
                   <label className="block mb-1">지원 기관</label>
-                  <motion.input
-                    whileFocus={{
-                      scale: 1.05, // 입력 시 약간 확대
-                      boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                    }}
-                    type="text"
+                  <select
                     value={currentRnds?.support_org || ""}
                     onChange={(e) =>
                       setCurrentRnds({
@@ -808,7 +830,14 @@ export default function Page() {
                       })
                     }
                     className="w-full p-2 border border-gray-300 rounded-md"
-                  />
+                  >
+                    <option value="">선택하세요.</option>
+                    {orgs?.map((org: any) => (
+                      <option key={org.id} value={org.name}>
+                        {org.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
