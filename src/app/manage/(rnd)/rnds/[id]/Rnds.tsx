@@ -10,50 +10,38 @@ import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "@/components/Snackbar";
 
 import { useFavorites } from "@/hooks/favorites/useFavorites";
-import { useConsultationsList } from "@/hooks/consultations/useConsultationsList";
-import { useCompanyDetails } from "@/hooks/consultations/useCompanyDetails";
-import { useContactsByCompany } from "@/hooks/manage/customers/useContactsByCompany";
-import { useConsultationContacts } from "@/hooks/consultations/useConsultationContacts";
 import { useUsersList } from "@/hooks/useUserList";
-import { useAddConsultation } from "@/hooks/consultations/useAddConsultation";
-import { useAssignConsultationContact } from "@/hooks/consultations/useAssignConsultationContact";
 import { useUpdateConsultation } from "@/hooks/consultations/useUpdateConsultation";
 import FileUpload from "@/components/consultations/FileUpload";
-import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
 import { useRnDsDetails } from "@/hooks/manage/(rnds)/rnds/useRnDsDetail";
-import { useContactsByRnDs } from "@/hooks/manage/(rnds)/rnds/useContactsByRnDs";
+import { useRndConsultationsList } from "@/hooks/manage/(rnds)/consultations/useRndConsultationsList";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useAddRndConsultation } from "@/hooks/manage/(rnds)/consultations/useAddRndConsultation";
+import { useUpdateRnDsConsultations } from "@/hooks/manage/(rnds)/consultations/useUpdateRnDsConsultations";
 
 interface Consultation {
   id: string;
   date: string;
   content: string;
-  follow_up_date: any;
-  user_id: string;
-  contact_name: string;
-  contact_level: string;
-  documents: {
-    estimate: boolean;
-    order: boolean;
-    requestQuote: boolean;
-  };
-}
-interface Contact {
-  id: string;
-  contact_name: string;
-  mobile: string;
-  department: string;
-  level: string;
-  email: string;
-  resign: boolean;
-}
 
-interface User {
-  id: string;
-  name: string;
-  level: string;
+  start_date: string;
+  end_date: string;
+  participation: "참여" | "주관기관" | "공동연구기관";
+  user_id: string;
+
+  total_cost: string;
+  gov_contribution: string;
+  pri_contribution: string;
+  org_id: string;
+  rnd_id: string;
 }
 
 export default function RnDsPage() {
+  const rnd_participation = ["주관기관", "공동연구기관", "참여"];
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300); // 🔹 디바운스 적용
+
   const { id } = useParams();
 
   const router = useRouter();
@@ -68,10 +56,16 @@ export default function RnDsPage() {
   const [deleteReason, setDeleteReason] = useState("");
   const [newConsultation, setNewConsultation] = useState({
     date: new Date().toISOString().split("T")[0],
-    follow_up_date: "",
-    contact_name: "",
-    user_id: "",
     content: "",
+    start_date: "",
+    end_date: "",
+    participation: "",
+    user_id: loginUser?.id || "",
+    total_cost: "",
+    gov_contribution: "",
+    pri_contribution: "",
+    org_id: "",
+    rnd_id: id,
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,7 +73,6 @@ export default function RnDsPage() {
     useState<Consultation | null>(null);
 
   const [openEditNotesModal, setOpenEditNotesModal] = useState(false);
-  const [openEditContactsModal, setOpenEditContactsModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [consultationToDelete, setConsultationToDelete] =
     useState<Consultation | null>(null);
@@ -89,32 +82,19 @@ export default function RnDsPage() {
 
   const { favorites, removeFavorite, refetchFavorites, addFavorite } =
     useFavorites(loginUser?.id);
+
+  //
   const { consultations, totalPages, refreshConsultations } =
-    useConsultationsList(id as string, currentPage, "");
+    useRndConsultationsList(id as string, currentPage, debouncedSearchTerm);
+  const { addConsultation, isAdding } = useAddRndConsultation();
+  //
 
-  const {
-    companyDetail,
-    isLoading: isCompanyDetailLoading,
-    refreshCompany,
-  } = useCompanyDetails(id as any);
-
-  const consultationIds = consultations?.map((con: any) => con.id) || [];
-  const { contactsConsultations, refreshContactsConsultations } =
-    useConsultationContacts(consultationIds);
-
-  const { addConsultation, isAdding } = useAddConsultation();
-  const { assignConsultationContact } = useAssignConsultationContact();
-
-  const { updateConsultation, isUpdating } = useUpdateConsultation();
+  const { updateRndsConsultations, isUpdating } = useUpdateRnDsConsultations();
 
   //// swr ////////
   const { rndsDetail, rnDsDetailLoading, refreshRnds } = useRnDsDetails(
     id as string
   );
-
-  const { contacts, refreshContacts } = useContactsByRnDs([id] as any);
-
-  console.log("contacts", contacts);
 
   /////////////////
   const [notes, setNotes] = useState(rndsDetail?.notes || "");
@@ -141,100 +121,71 @@ export default function RnDsPage() {
   };
 
   /////////////////////
-  const processedConsultations = useMemo(() => {
-    return consultations?.map((consultation: any) => {
-      // 🔹 상담 ID에 해당하는 연락처 정보 찾기
-      const contactRelation = contactsConsultations.find(
-        (cc: any) => cc.consultation_id === consultation.id
-      );
-
-      // 🔹 `Partial<Contact>`로 빈 객체의 타입 지정
-      const firstContact: any = contactRelation?.contacts || {};
-
-      // 🔹 문서 변환 로직
-      const documentTypes = {
-        estimate: false,
-        order: false,
-        requestQuote: false,
-      };
-
-      consultation.documents?.forEach((doc: { type: string }) => {
-        if (doc.type === "estimate") documentTypes.estimate = true;
-        if (doc.type === "order") documentTypes.order = true;
-        if (doc.type === "requestQuote") documentTypes.requestQuote = true;
-      });
-
-      return {
-        ...consultation,
-        contact_name: firstContact.contact_name || "",
-        contact_level: firstContact.level || "",
-        contact_email: firstContact.email || "",
-        contact_mobile: firstContact.mobile || "",
-        documents: documentTypes, // 🔹 변환된 documents 적용
-      };
-    });
-  }, [consultations, contactsConsultations]);
 
   const handleAddConsultation = async () => {
     if (isAdding) return;
 
-    const { content, follow_up_date, user_id, contact_name } = newConsultation;
+    const {
+      content,
+      user_id,
+      end_date,
+      gov_contribution,
+      participation,
+      pri_contribution,
+      start_date,
+      total_cost,
+    } = newConsultation;
 
-    if (!content) {
-      setSnackbarMessage("상담 내용을 입력하세요.");
+    if (!participation) {
+      setSnackbarMessage("참여유형을 선택해주세요.");
       return;
     }
 
-    if (!contact_name) {
-      setSnackbarMessage("담당자를 선택해주세요.");
+    if (!total_cost) {
+      setSnackbarMessage("총사업비를 입력해주세요.");
       return;
     }
 
-    const formattedFollowUpDate = follow_up_date ? follow_up_date : null;
+    if (!gov_contribution) {
+      setSnackbarMessage("정부출연금을 입력해주세요.");
+      return;
+    }
+
+    if (!pri_contribution) {
+      setSnackbarMessage("민간부담금을 입력해주세요.");
+      return;
+    }
+
+    if (!start_date || !end_date) {
+      setSnackbarMessage("날짜를 지정해주세요.");
+      return;
+    }
 
     try {
       setSaving(true);
 
-      const addedConsultation = await addConsultation({
+      await addConsultation({
         method: "POST",
         body: {
           date: new Date().toISOString().split("T")[0],
-          company_id: id as string,
+          rnd_id: id as string,
+          org_id: rndsDetail.rnd_orgs.id,
           content,
-          follow_up_date: formattedFollowUpDate,
           user_id,
+          start_date,
+          end_date,
+          total_cost,
+          gov_contribution,
+          pri_contribution,
+          participation,
         },
       });
 
-      if (!addedConsultation?.consultation_id) {
-        throw new Error("상담 추가 실패");
-      }
-
-      // 🔹 담당자 찾기
-      const selectedContact = contacts.find(
-        (c: Contact) => c.contact_name === contact_name
-      );
-
-      if (!selectedContact) {
-        throw new Error("담당자 정보를 찾을 수 없습니다.");
-      }
-
-      // 🔹 상담-담당자 연결
-      await assignConsultationContact({
-        method: "POST",
-        body: {
-          consultation_id: addedConsultation.consultation_id,
-          contact_id: selectedContact.id,
-          user_id,
-        },
-      });
-
-      setSnackbarMessage("상담 내역 추가 완료");
+      setSnackbarMessage("내역 추가 완료");
       setOpenAddModal(false);
       await refreshConsultations();
-      await refreshContactsConsultations();
     } catch (error) {
-      setSnackbarMessage("상담 내역 추가 중 오류 발생");
+      setSnackbarMessage("내역 추가 중 오류 발생");
     } finally {
       setSaving(false);
     }
@@ -242,32 +193,57 @@ export default function RnDsPage() {
 
   const handleEditConsultation = (consultation: Consultation) => {
     setSelectedConsultation(consultation);
-    setNewConsultation({
+    setNewConsultation((prev): any => ({
+      ...prev,
       date: consultation.date,
-      follow_up_date: consultation.follow_up_date,
       user_id: consultation.user_id,
       content: consultation.content,
-      contact_name: consultation.contact_name,
-    });
+      end_date: consultation.end_date,
+      start_date: consultation.start_date,
+      gov_contribution: consultation.gov_contribution,
+      participation: consultation.participation,
+      pri_contribution: consultation.pri_contribution,
+      total_cost: consultation.total_cost,
+    }));
     setOpenEditModal(true);
   };
 
   const handleUpdateConsultation = async () => {
     if (isUpdating) return;
 
-    const { content, follow_up_date, user_id, contact_name } = newConsultation;
+    const {
+      content,
+      user_id,
+      end_date,
+      gov_contribution,
+      participation,
+      pri_contribution,
+      start_date,
+      total_cost,
+    } = newConsultation;
 
-    if (!content || !user_id || !contact_name) {
-      setSnackbarMessage("필수 항목을 모두 입력하세요.");
+    if (!participation) {
+      setSnackbarMessage("참여유형을 선택해주세요.");
       return;
     }
 
-    const selectedContact = contacts.find(
-      (c: Contact) => c.contact_name === contact_name
-    );
+    if (!total_cost) {
+      setSnackbarMessage("총사업비를 입력해주세요.");
+      return;
+    }
 
-    if (!selectedContact) {
-      setSnackbarMessage("담당자를 찾을 수 없습니다.");
+    if (!gov_contribution) {
+      setSnackbarMessage("정부출연금을 입력해주세요.");
+      return;
+    }
+
+    if (!pri_contribution) {
+      setSnackbarMessage("민간부담금을 입력해주세요.");
+      return;
+    }
+
+    if (!start_date || !end_date) {
+      setSnackbarMessage("날짜를 지정해주세요.");
       return;
     }
 
@@ -275,21 +251,25 @@ export default function RnDsPage() {
       setSaving(true);
 
       // ✅ SWR Mutation 호출
-      await updateConsultation({
+      await updateRndsConsultations({
         method: "PATCH",
         body: {
           consultation_id: selectedConsultation?.id,
+          rnd_id: selectedConsultation?.rnd_id,
           content,
-          follow_up_date,
           user_id,
-          contact_id: selectedContact.id,
+          end_date,
+          gov_contribution,
+          participation,
+          pri_contribution,
+          start_date,
+          total_cost,
         },
       });
 
       setSnackbarMessage("상담 내역 수정 완료");
       setOpenEditModal(false);
       await refreshConsultations();
-      await refreshContactsConsultations();
     } catch (error) {
       setSnackbarMessage("상담 내역 수정 중 오류 발생");
     } finally {
@@ -311,12 +291,12 @@ export default function RnDsPage() {
         {
           related_id: consultationToDelete.id,
           status: "pending",
-          type: "consultations",
+          type: "rnds_consultations",
           request_date: new Date(),
           user_id: loginUser?.id || "",
           delete_reason: deleteReason,
           content: {
-            consultations: `상담삭제 : ${consultationToDelete?.contact_name} ${consultationToDelete?.contact_level} ${consultationToDelete?.content}`,
+            consultations: `RnD삭제 : ${consultationToDelete?.content}`,
           },
         },
       ]);
@@ -377,7 +357,7 @@ export default function RnDsPage() {
 
   const handleAddFavorite = async () => {
     try {
-      await addFavorite(loginUser?.id, id, companyDetail?.name);
+      // await addFavorite(loginUser?.id, id, companyDetail?.name);
       await refetchFavorites();
 
       setSnackbarMessage("즐겨찾기에 추가되었습니다.");
@@ -397,27 +377,6 @@ export default function RnDsPage() {
   };
 
   useEffect(() => {
-    // 🔹 첫 번째 담당자를 찾고, 없으면 유지
-    const defaultContactName =
-      contacts.length > 0
-        ? contacts[0].contact_name
-        : newConsultation.contact_name;
-    const defaultUserId = loginUser?.id ?? newConsultation.user_id;
-
-    // 🔹 상태 변경이 필요할 때만 실행
-    if (
-      newConsultation.contact_name !== defaultContactName ||
-      newConsultation.user_id !== defaultUserId
-    ) {
-      setNewConsultation((prev) => ({
-        ...prev,
-        contact_name: defaultContactName,
-        user_id: defaultUserId,
-      }));
-    }
-  }, [contacts, loginUser]);
-
-  useEffect(() => {
     // 🔹 URL에서 page 값을 읽어서 상태 업데이트
     const pageParam = searchParams.get("page");
     if (pageParam) {
@@ -432,7 +391,6 @@ export default function RnDsPage() {
         setOpenEditModal(false);
         setOpenDeleteModal(false);
         setOpenEditNotesModal(false);
-        setOpenEditContactsModal(false);
       }
     };
 
@@ -442,65 +400,6 @@ export default function RnDsPage() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-
-  const [contactsUi, setContactsUi] = useState<any>(contacts ?? []);
-  const { updateContacts } = useUpdateContacts();
-
-  useEffect(() => {
-    if (contacts && JSON.stringify(contactsUi) !== JSON.stringify(contacts)) {
-      setContactsUi(contacts);
-    }
-  }, [contacts]);
-
-  const addContact = () => {
-    setContactsUi((prev: any) => [
-      {
-        contact_name: "",
-        mobile: "",
-        department: "",
-        level: "",
-        email: "",
-        resign: false,
-      },
-      ...prev,
-    ]);
-  };
-
-  const handleUpdateContacts = async () => {
-    setSaving(true);
-
-    try {
-      await updateContacts(contactsUi, contacts[0].company_id);
-      await refreshContacts();
-      await refreshContactsConsultations();
-      setSnackbarMessage("거래처 수정 완료");
-      setOpenEditContactsModal(false);
-    } catch (error) {
-      console.error("Error updating company:", error);
-      setSnackbarMessage("거래처 수정 실패");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleContactChange = (
-    index: number,
-    field: keyof Contact,
-    value: any
-  ) => {
-    setContactsUi((prev: any) => {
-      const updatedContact = [...prev];
-      updatedContact[index] = { ...updatedContact[index], [field]: value };
-      return updatedContact;
-    });
-  };
-
-  const removeContact = (index: number) => {
-    const updatedContact = [...contactsUi];
-
-    updatedContact.splice(index, 1);
-    setContactsUi(updatedContact);
-  };
 
   const formatNumber = (value: string) => {
     const cleanedValue = value.replace(/[^0-9]/g, "");
@@ -591,7 +490,7 @@ export default function RnDsPage() {
         {/* 🚀 추가 버튼 */}
 
         <div className="flex my-4 gap-4">
-          {favorites.find((fav: any) => fav.name === companyDetail?.name) ? (
+          {/* {favorites.find((fav: any) => fav.name === companyDetail?.name) ? (
             <div
               className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
               onClick={() => {
@@ -611,7 +510,7 @@ export default function RnDsPage() {
               <span className="mr-2">+</span>
               <span>즐겨찾기 추가</span>
             </div>
-          )}
+          )} */}
           <div
             className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
             onClick={() => setOpenAddModal(true)}
@@ -625,6 +524,24 @@ export default function RnDsPage() {
           >
             <span className="mr-2">+</span>
             <span>비고 추가/수정</span>
+          </div>
+          <div className="flex items-center border-b-2 border-gray-400 w-1/3 max-w-sm py-1 focus-within:border-black">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 50 50"
+              width="18px"
+              height="18px"
+              className="text-gray-500"
+            >
+              <path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 7 21 7 Z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="내역 검색"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-2 py-1 w-full focus:outline-none focus:border-none font-semibold text-gray-700"
+            />
           </div>
         </div>
 
@@ -643,7 +560,7 @@ export default function RnDsPage() {
                   <input
                     type="date"
                     value={newConsultation.date}
-                    disabled
+                    readOnly
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
                 </div>
@@ -653,8 +570,14 @@ export default function RnDsPage() {
                   </label>
                   <input
                     type="date"
-                    value={newConsultation.date}
+                    value={newConsultation.start_date}
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    onChange={(e) =>
+                      setNewConsultation({
+                        ...newConsultation,
+                        start_date: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="">
@@ -663,8 +586,14 @@ export default function RnDsPage() {
                   </label>
                   <input
                     type="date"
-                    value={newConsultation.date}
+                    value={newConsultation.end_date}
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    onChange={(e) =>
+                      setNewConsultation({
+                        ...newConsultation,
+                        end_date: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -701,17 +630,17 @@ export default function RnDsPage() {
                         boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                       }}
                       type="text"
-                      // value={formatNumber(currentRnds?.total_cost || "")}
-                      // onChange={(e) => {
-                      //   const numericValue = e.target.value.replace(
-                      //     /[^0-9]/g,
-                      //     ""
-                      //   );
-                      //   setCurrentRnds({
-                      //     ...currentRnds,
-                      //     total_cost: numericValue,
-                      //   });
-                      // }}
+                      value={formatNumber(newConsultation?.total_cost || "")}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(
+                          /[^0-9]/g,
+                          ""
+                        );
+                        setNewConsultation({
+                          ...newConsultation,
+                          total_cost: numericValue,
+                        });
+                      }}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
@@ -724,17 +653,19 @@ export default function RnDsPage() {
                       }}
                       placeholder=""
                       type="text"
-                      // value={formatNumber(currentRnds?.gov_contribution || "")}
-                      // onChange={(e) => {
-                      //   const numericValue = e.target.value.replace(
-                      //     /[^0-9]/g,
-                      //     ""
-                      //   );
-                      //   setCurrentRnds({
-                      //     ...currentRnds,
-                      //     gov_contribution: numericValue,
-                      //   });
-                      // }}
+                      value={formatNumber(
+                        newConsultation?.gov_contribution || ""
+                      )}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(
+                          /[^0-9]/g,
+                          ""
+                        );
+                        setNewConsultation({
+                          ...newConsultation,
+                          gov_contribution: numericValue,
+                        });
+                      }}
                       className="w-full p-2 border border-gray-300 rounded-md"
                     />
                   </div>
@@ -747,38 +678,40 @@ export default function RnDsPage() {
                       }}
                       placeholder=""
                       type="text"
-                      // value={formatNumber(currentRnds?.gov_contribution || "")}
-                      // onChange={(e) => {
-                      //   const numericValue = e.target.value.replace(
-                      //     /[^0-9]/g,
-                      //     ""
-                      //   );
-                      //   setCurrentRnds({
-                      //     ...currentRnds,
-                      //     gov_contribution: numericValue,
-                      //   });
-                      // }}
+                      value={formatNumber(
+                        newConsultation?.pri_contribution || ""
+                      )}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(
+                          /[^0-9]/g,
+                          ""
+                        );
+                        setNewConsultation({
+                          ...newConsultation,
+                          pri_contribution: numericValue,
+                        });
+                      }}
                       className="w-full p-2 border border-gray-300 rounded-md"
                     />
                   </div>
                   <div className="mb-2">
                     <label className="block mb-1">참여 유형</label>
                     <select
-                      // value={currentRnds?.support_org || ""}
-                      // onChange={(e) =>
-                      //   setCurrentRnds({
-                      //     ...currentRnds,
-                      //     support_org: e.target.value,
-                      //   })
-                      // }
+                      value={newConsultation?.participation || ""}
+                      onChange={(e) =>
+                        setNewConsultation({
+                          ...newConsultation,
+                          participation: e.target.value,
+                        })
+                      }
                       className="w-full p-2 border border-gray-300 rounded-md"
                     >
                       <option value="">선택하세요.</option>
-                      {/* {orgs?.map((org: any) => (
-                      <option key={org.id} value={org.name}>
-                        {org.name}
-                      </option>
-                    ))} */}
+                      {rnd_participation?.map((rnd: any, index: any) => (
+                        <option key={index} value={rnd}>
+                          {rnd}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -806,13 +739,17 @@ export default function RnDsPage() {
                 <button
                   onClick={() => {
                     setOpenAddModal(false);
-                    setNewConsultation({
-                      date: new Date().toISOString().split("T")[0],
-                      follow_up_date: "",
-                      user_id: loginUser ? loginUser.id : "",
+                    setNewConsultation((prev): any => ({
+                      ...prev,
                       content: "",
-                      contact_name: "",
-                    });
+                      start_date: "",
+                      end_date: "",
+                      participation: "",
+                      user_id: loginUser ? loginUser.id : "",
+                      total_cost: "",
+                      gov_contribution: "",
+                      pri_contribution: "",
+                    }));
                   }}
                   className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
                     saving ? "opacity-50 cursor-not-allowed" : ""
@@ -841,9 +778,8 @@ export default function RnDsPage() {
         {openEditModal && (
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
             <div className="bg-white p-6 rounded-md w-1/2">
-              <h3 className="text-xl font-semibold mb-4">R&D 내역 추가</h3>
+              <h3 className="text-xl font-semibold mb-4">R&D 내역 수정</h3>
 
-              {/* 상담일 및 후속 날짜 (flex로 배치) */}
               <div className="mb-4 grid space-x-4 grid-cols-4">
                 <div className="">
                   <label className="block mb-2 text-sm font-medium">
@@ -862,8 +798,14 @@ export default function RnDsPage() {
                   </label>
                   <input
                     type="date"
-                    value={newConsultation.date}
+                    value={newConsultation.start_date}
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    onChange={(e) =>
+                      setNewConsultation({
+                        ...newConsultation,
+                        start_date: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="">
@@ -872,8 +814,14 @@ export default function RnDsPage() {
                   </label>
                   <input
                     type="date"
-                    value={newConsultation.date}
+                    value={newConsultation.end_date}
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    onChange={(e) =>
+                      setNewConsultation({
+                        ...newConsultation,
+                        end_date: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -891,7 +839,6 @@ export default function RnDsPage() {
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   >
-                    {/* 다른 유저들 */}
                     {users.map((user: any) => (
                       <option key={user.id} value={user.id}>
                         {user.name} {user.level}
@@ -910,17 +857,17 @@ export default function RnDsPage() {
                         boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
                       }}
                       type="text"
-                      // value={formatNumber(currentRnds?.total_cost || "")}
-                      // onChange={(e) => {
-                      //   const numericValue = e.target.value.replace(
-                      //     /[^0-9]/g,
-                      //     ""
-                      //   );
-                      //   setCurrentRnds({
-                      //     ...currentRnds,
-                      //     total_cost: numericValue,
-                      //   });
-                      // }}
+                      value={formatNumber(newConsultation?.total_cost || "")}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(
+                          /[^0-9]/g,
+                          ""
+                        );
+                        setNewConsultation({
+                          ...newConsultation,
+                          total_cost: numericValue,
+                        });
+                      }}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
                     />
                   </div>
@@ -933,17 +880,19 @@ export default function RnDsPage() {
                       }}
                       placeholder=""
                       type="text"
-                      // value={formatNumber(currentRnds?.gov_contribution || "")}
-                      // onChange={(e) => {
-                      //   const numericValue = e.target.value.replace(
-                      //     /[^0-9]/g,
-                      //     ""
-                      //   );
-                      //   setCurrentRnds({
-                      //     ...currentRnds,
-                      //     gov_contribution: numericValue,
-                      //   });
-                      // }}
+                      value={formatNumber(
+                        newConsultation?.gov_contribution || ""
+                      )}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(
+                          /[^0-9]/g,
+                          ""
+                        );
+                        setNewConsultation({
+                          ...newConsultation,
+                          gov_contribution: numericValue,
+                        });
+                      }}
                       className="w-full p-2 border border-gray-300 rounded-md"
                     />
                   </div>
@@ -956,44 +905,45 @@ export default function RnDsPage() {
                       }}
                       placeholder=""
                       type="text"
-                      // value={formatNumber(currentRnds?.gov_contribution || "")}
-                      // onChange={(e) => {
-                      //   const numericValue = e.target.value.replace(
-                      //     /[^0-9]/g,
-                      //     ""
-                      //   );
-                      //   setCurrentRnds({
-                      //     ...currentRnds,
-                      //     gov_contribution: numericValue,
-                      //   });
-                      // }}
+                      value={formatNumber(
+                        newConsultation?.pri_contribution || ""
+                      )}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(
+                          /[^0-9]/g,
+                          ""
+                        );
+                        setNewConsultation({
+                          ...newConsultation,
+                          pri_contribution: numericValue,
+                        });
+                      }}
                       className="w-full p-2 border border-gray-300 rounded-md"
                     />
                   </div>
                   <div className="mb-2">
                     <label className="block mb-1">참여 유형</label>
                     <select
-                      // value={currentRnds?.support_org || ""}
-                      // onChange={(e) =>
-                      //   setCurrentRnds({
-                      //     ...currentRnds,
-                      //     support_org: e.target.value,
-                      //   })
-                      // }
+                      value={newConsultation?.participation || ""}
+                      onChange={(e) =>
+                        setNewConsultation({
+                          ...newConsultation,
+                          participation: e.target.value,
+                        })
+                      }
                       className="w-full p-2 border border-gray-300 rounded-md"
                     >
                       <option value="">선택하세요.</option>
-                      {/* {orgs?.map((org: any) => (
-                      <option key={org.id} value={org.name}>
-                        {org.name}
-                      </option>
-                    ))} */}
+                      {rnd_participation?.map((rnd: any, index: any) => (
+                        <option key={index} value={rnd}>
+                          {rnd}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
               </div>
 
-              {/* 상담 내용 */}
               <div className="mb-4">
                 <label className="block mb-2 text-sm font-medium">내용</label>
                 <textarea
@@ -1010,18 +960,21 @@ export default function RnDsPage() {
                 />
               </div>
 
-              {/* 버튼 */}
               <div className="flex justify-end space-x-2">
                 <button
                   onClick={() => {
-                    setOpenEditModal(false);
-                    setNewConsultation({
-                      date: new Date().toISOString().split("T")[0],
-                      follow_up_date: "",
-                      user_id: "",
+                    setOpenAddModal(false);
+                    setNewConsultation((prev): any => ({
+                      ...prev,
                       content: "",
-                      contact_name: "",
-                    });
+                      start_date: "",
+                      end_date: "",
+                      participation: "",
+                      user_id: loginUser ? loginUser.id : "",
+                      total_cost: "",
+                      gov_contribution: "",
+                      pri_contribution: "",
+                    }));
                   }}
                   className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
                     saving ? "opacity-50 cursor-not-allowed" : ""
@@ -1056,45 +1009,72 @@ export default function RnDsPage() {
                     No.
                   </th> */}
                   <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    날짜
+                    작성일자
                   </th>
                   <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    피상담자
+                    수행기간
                   </th>
                   <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    상담자
+                    총 사업비
                   </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-5/12">
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
+                    정부 출연금
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
+                    민간 부담금
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-2/12">
                     내용
                   </th>
                   <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    문서
+                    참여유형
+                  </th>
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
+                    담당자
                   </th>
                   <th className="px-4 py-2 border-b border-r-[1px] text-center w-2/12">
-                    파일
+                    문서
                   </th>
                   <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                     변경
                   </th>
-                  {/* <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    삭제
-                  </th> */}
                 </tr>
               </thead>
               <tbody>
-                {processedConsultations.map((consultation: any, index: any) => (
+                {consultations.map((consultation: any, index: any) => (
                   <tr
                     key={consultation.id}
                     className="hover:bg-gray-100 border-b"
                   >
-                    {/* <td className="px-4 py-2 border-r-[1px]">
-                      {consultation.id.slice(0, 4)}
-                    </td> */}
                     <td className="px-4 py-2 border-r-[1px]">
                       {consultation.date}
                     </td>
                     <td className="px-4 py-2 border-r-[1px]">
-                      {consultation.contact_name} {consultation.contact_level}
+                      {consultation.start_date} ~ {consultation.end_date}
+                    </td>
+                    <td className="px-4 py-2 border-x-[1px]">
+                      {formatNumber(consultation.total_cost)} 원
+                    </td>
+                    <td className="px-2 py-2 border-r-[1px]">
+                      {formatNumber(consultation.gov_contribution)} 원
+                    </td>
+                    <td className="px-2 py-2 border-r-[1px]">
+                      {formatNumber(consultation.pri_contribution)} 원
+                    </td>
+                    <td
+                      className="px-4 py-2 w-full text-start"
+                      style={{
+                        minHeight: "140px",
+                        maxHeight: "140px",
+                        overflowY: "auto",
+                        display: "block",
+                      }}
+                    >
+                      {formatContentWithLineBreaks(consultation.content)}
+                    </td>
+
+                    <td className="px-4 py-2 border-x-[1px]">
+                      {consultation.participation}
                     </td>
                     <td className="px-4 py-2 border-r-[1px]">
                       {
@@ -1108,84 +1088,13 @@ export default function RnDsPage() {
                         )?.level
                       }
                     </td>
-                    <td
-                      className="px-4 py-2 w-full text-start"
-                      style={{
-                        minHeight: "140px",
-                        maxHeight: "140px",
-                        overflowY: "auto",
-                        display: "block",
-                      }}
-                    >
-                      {formatContentWithLineBreaks(consultation.content)}
-                    </td>
                     <td className="px-4 py-2 border-x-[1px]">
-                      <p
-                        className={`mb-4 cursor-pointer ${
-                          consultation.documents.estimate
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          // router.push(
-                          //   `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          // )
-                          window.open(
-                            `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
-                            "_blank",
-                            "width=1200,height=800,top=100,left=100"
-                          )
-                        }
-                      >
-                        견적서
-                      </p>
-                      <p
-                        className={`my-4 cursor-pointer ${
-                          consultation.documents.order
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          // router.push(
-                          //   `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          // )
-                          window.open(
-                            `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
-                            "_blank",
-                            "width=1200,height=800,top=100,left=100"
-                          )
-                        }
-                      >
-                        발주서
-                      </p>
-                      <p
-                        className={`mt-4 cursor-pointer ${
-                          consultation.documents.requestQuote
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          // router.push(
-                          //   `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          // )
-                          window.open(
-                            `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
-                            "_blank",
-                            "width=1200,height=800,top=100,left=100"
-                          )
-                        }
-                      >
-                        의뢰서
-                      </p>
-                    </td>
-                    <td className="px-2 py-2 border-r-[1px]">
                       <FileUpload
                         consultationId={consultation.id}
                         userId={loginUser?.id}
                       />
                     </td>
-
-                    <td>
+                    <td className="py-2 border-x-[1px]">
                       <span
                         className={`px-4 py-2 border-r-[1px] ${
                           loginUser?.id === consultation.user_id &&
@@ -1319,175 +1228,7 @@ export default function RnDsPage() {
           </div>
         </>
       )}
-      {openEditContactsModal && (
-        <>
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-4/6 overflow-y-scroll max-h-">
-              <h2 className="text-xl font-bold ">담당자 추가/수정</h2>
-              <div>
-                <p>
-                  담당자 삭제시 연관된 문서(견적서,발주서,의뢰서)가 존재할시
-                  삭제되지 않습니다. 퇴사를 선택하면 담당자 선택 목록에 나타나지
-                  않습니다.
-                </p>
-              </div>
-              <div className="mt-4">
-                {/* 📌 담당자 한 줄 표현 & 추가 버튼 클릭 시 맨 위로 */}
-                <div className="space-y-2 max-h-96 overflow-y-scroll">
-                  {contactsUi?.map((contact: any, index: any) => {
-                    if (!contact.resign)
-                      return (
-                        <div
-                          key={index}
-                          className="flex flex-wrap md:flex-nowrap gap-4"
-                        >
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="text"
-                            value={contact?.contact_name || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "contact_name",
-                                e.target.value
-                              )
-                            }
-                            placeholder="이름"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="text"
-                            value={contact?.level || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "level",
-                                e.target.value
-                              )
-                            }
-                            placeholder="직급"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
 
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="text"
-                            value={contact?.department || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "department",
-                                e.target.value
-                              )
-                            }
-                            placeholder="부서"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
-
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="text"
-                            value={contact?.mobile || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "mobile",
-                                e.target.value
-                              )
-                            }
-                            placeholder="휴대폰"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="email"
-                            value={contact?.email || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "email",
-                                e.target.value
-                              )
-                            }
-                            placeholder="이메일"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
-                          <motion.label className="flex items-center space-x-2">
-                            <motion.input
-                              whileTap={{ scale: 0.9 }} // 클릭 시 약간 축소 효과
-                              type="checkbox"
-                              checked={contact?.resign || false}
-                              onChange={(e) =>
-                                handleContactChange(
-                                  index,
-                                  "resign",
-                                  e.target.checked
-                                )
-                              }
-                              className="w-5 h-5 accent-blue-500 cursor-pointer"
-                            />
-                            <span className="text-gray-700">퇴사</span>
-                          </motion.label>
-
-                          {/* <button
-                      onClick={() => removeContact(index)}
-                      className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
-                    >
-                      삭제
-                    </button> */}
-                        </div>
-                      );
-                  })}
-                </div>
-              </div>
-              <div className="flex justify-between mt-4">
-                <div className="flex items-start mr-2 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 ">
-                  <button
-                    className=" text-xs md:text-sm rounded-md items-end"
-                    onClick={addContact}
-                  >
-                    담당자 추가
-                  </button>
-                </div>
-
-                <div>
-                  <button
-                    className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
-                    onClick={() => {
-                      setContactsUi(contacts);
-                      setOpenEditContactsModal(false);
-                    }}
-                  >
-                    취소
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
-                    onClick={handleUpdateContacts}
-                  >
-                    저장
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
       <SnackbarComponent
         message={snackbarMessage}
         onClose={() => setSnackbarMessage("")}

@@ -501,13 +501,6 @@ export default function ConsultationPage() {
     });
   };
 
-  const removeContact = (index: number) => {
-    const updatedContact = [...contactsUi];
-
-    updatedContact.splice(index, 1);
-    setContactsUi(updatedContact);
-  };
-
   return (
     <div className="text-sm text-[#37352F]">
       <>
@@ -702,7 +695,7 @@ export default function ConsultationPage() {
               placeholder="상담 내용 검색"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-2 py-1 w-full focus:outline-none focus:border-none font-bold text-gray-700"
+              className="px-2 py-1 w-full focus:outline-none focus:border-none font-semibold text-gray-700"
             />
           </div>
         </div>
@@ -1173,7 +1166,7 @@ export default function ConsultationPage() {
                         의뢰서
                       </span>
                     </td> */}
-                    <td>
+                    <td className="py-2 border-x-[1px]">
                       <span
                         className={`px-4 py-2 border-r-[1px] ${
                           loginUser?.id === consultation.user_id &&
