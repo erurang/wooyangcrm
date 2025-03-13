@@ -10,8 +10,8 @@ export async function GET(request: Request) {
 
   try {
     const { data, error } = await supabase
-      .from("RnDs")
-      .select("*")
+      .from("rnds")
+      .select("*, rnd_orgs(name)")
       .eq("id", rndsId)
       .single();
 

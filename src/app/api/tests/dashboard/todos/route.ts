@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     .from("todos")
     .select("*")
     .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .order("order_index", { ascending: true });
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     }
 
     const { data: rnds, error: rndsError } = await supabase
-      .from("bRnDs")
+      .from("rnds")
       .insert([
         {
           name,
@@ -36,6 +36,7 @@ export async function POST(request: Request) {
           gov_contribution,
           pri_contribution,
           total_cost,
+          type: "brnd",
           org_id: org.id, // ✅ org.id로 저장
         },
       ])

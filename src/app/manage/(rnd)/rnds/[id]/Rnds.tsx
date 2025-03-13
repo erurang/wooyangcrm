@@ -21,6 +21,7 @@ import { useUpdateConsultation } from "@/hooks/consultations/useUpdateConsultati
 import FileUpload from "@/components/consultations/FileUpload";
 import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
 import { useRnDsDetails } from "@/hooks/manage/(rnds)/rnds/useRnDsDetail";
+import { useContactsByRnDs } from "@/hooks/manage/(rnds)/rnds/useContactsByRnDs";
 
 interface Consultation {
   id: string;
@@ -44,17 +45,6 @@ interface Contact {
   level: string;
   email: string;
   resign: boolean;
-}
-
-interface Company {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
-  fax: string;
-  notes: string;
-  business_number: string;
 }
 
 interface User {
@@ -100,15 +90,13 @@ export default function RnDsPage() {
   const { favorites, removeFavorite, refetchFavorites, addFavorite } =
     useFavorites(loginUser?.id);
   const { consultations, totalPages, refreshConsultations } =
-    useConsultationsList(id as string, currentPage);
+    useConsultationsList(id as string, currentPage, "");
 
   const {
     companyDetail,
     isLoading: isCompanyDetailLoading,
     refreshCompany,
   } = useCompanyDetails(id as any);
-
-  const { contacts, refreshContacts } = useContactsByCompany([id] as any);
 
   const consultationIds = consultations?.map((con: any) => con.id) || [];
   const { contactsConsultations, refreshContactsConsultations } =
@@ -124,7 +112,10 @@ export default function RnDsPage() {
     id as string
   );
 
-  console.log("rndsdetail", rndsDetail);
+  const { contacts, refreshContacts } = useContactsByRnDs([id] as any);
+
+  console.log("contacts", contacts);
+
   /////////////////
   const [notes, setNotes] = useState(rndsDetail?.notes || "");
   const handleUpdateNotes = async () => {
@@ -132,7 +123,7 @@ export default function RnDsPage() {
 
     try {
       const { error } = await supabase
-        .from("RnDs")
+        .from("rnds")
         .update({ notes })
         .eq("id", rndsDetail.id);
 
@@ -532,7 +523,7 @@ export default function RnDsPage() {
 
         {/* 🚀 거래처 기본 정보 */}
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr] gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4">
           <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-48 flex flex-col justify-between">
             {rnDsDetailLoading ? (
               <>
@@ -540,30 +531,19 @@ export default function RnDsPage() {
               </>
             ) : (
               <div>
-                <h2 className="font-semibold text-md mb-1">
+                <h2 className="font-semibold text-md mb-2">
                   {rndsDetail?.name}
                 </h2>
                 <ul className="space-y-1 text-gray-700 text-sm pl-1">
                   <li className="flex items-center">
                     <span className="font-medium w-20">지원기관</span>
                     <span className="flex-1 truncate">
-                      {rndsDetail.support_org}
+                      {rndsDetail.rnd_orgs?.name}
                     </span>
                   </li>
+
                   <li className="flex items-center">
-                    <span className="font-medium w-20">기간</span>
-                    <span className="flex-1 truncate">
-                      {rndsDetail.start_date} ~ {rndsDetail.end_date}
-                    </span>
-                  </li>
-                  {/* <li className="flex items-center">
-                    <span className="font-medium w-20">지원기관</span>
-                    <span className="flex-1 truncate">
-                      {rndsDetail.support_org}
-                    </span>
-                  </li> */}
-                  <li className="flex items-center">
-                    <span className="font-medium w-20">총사업비</span>
+                    <span className="font-medium w-20">총 사업비</span>
                     <span className="flex-1 truncate">
                       {formatNumber(rndsDetail.total_cost)}
                     </span>
@@ -580,6 +560,12 @@ export default function RnDsPage() {
                       {formatNumber(rndsDetail.pri_contribution)}
                     </span>
                   </li>
+                  <li className="flex items-center">
+                    <span className="font-medium w-20">총 사업기간</span>
+                    <span className="flex-1 truncate">
+                      {rndsDetail.start_date} ~ {rndsDetail.end_date}
+                    </span>
+                  </li>
                 </ul>
               </div>
             )}
@@ -594,60 +580,8 @@ export default function RnDsPage() {
                 <div className="text-sm min-h-[80px] max-h-36 overflow-y-auto px-1">
                   <span>
                     {rndsDetail?.notes ||
-                      "비고 추가/수정을 사용하여 해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."}
+                      "비고 추가/수정을 사용하여 유의사항을 작성해주세요."}
                   </span>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 h-48 flex flex-col ">
-            {rnDsDetailLoading ? (
-              <>
-                <Skeleton variant="text" width="100%" height="100%" />
-              </>
-            ) : (
-              <>
-                <h2 className="font-semibold text-md mb-1">담당자</h2>
-
-                <div className=" h-48 overflow-y-auto">
-                  <table className="w-full text-xs border-collapse">
-                    <thead className="border-b font-semibold bg-gray-100 sticky top-0"></thead>
-                    <tbody className="text-sm">
-                      {contacts?.map((contact: any, index: any) => {
-                        if (!contact.resign)
-                          return (
-                            <tr
-                              key={index}
-                              className={`${
-                                index !== contacts.length - 1 ? "border-b" : ""
-                              }`}
-                            >
-                              <td
-                                className="px-1 py-1 text-blue-500 cursor-pointer hover:font-semibold w-1/6"
-                                onClick={() =>
-                                  router.push(`/manage/contacts/${contact.id}`)
-                                }
-                              >
-                                {contact.contact_name} {contact.level}
-                              </td>
-                              {/* <td className="px-1 py-1 w-1/6">
-                                
-                              </td> */}
-                              <td className="px-1 py-1 w-1/6">
-                                {contact.department}
-                              </td>
-                              <td className="px-1 py-1 w-1/6">
-                                {contact.mobile}
-                              </td>
-                              <td className="px-1 py-1 truncate w-2/6">
-                                {contact.email}
-                              </td>
-                            </tr>
-                          );
-                      })}
-                    </tbody>
-                  </table>
                 </div>
               </>
             )}
@@ -683,14 +617,7 @@ export default function RnDsPage() {
             onClick={() => setOpenAddModal(true)}
           >
             <span className="mr-2">+</span>
-            <span>상담 추가</span>
-          </div>
-          <div
-            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-            onClick={() => setOpenEditContactsModal(true)}
-          >
-            <span className="mr-2">+</span>
-            <span>담당자 추가/수정</span>
+            <span>내역 추가</span>
           </div>
           <div
             className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
@@ -705,49 +632,44 @@ export default function RnDsPage() {
         {openAddModal && (
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
             <div className="bg-white p-6 rounded-md w-1/2 ">
-              <h3 className="text-xl font-semibold mb-4">상담 내역 추가</h3>
+              <h3 className="text-xl font-semibold mb-4">R&D 내역 추가</h3>
 
               {/* 상담일 및 후속 날짜 (flex로 배치) */}
               <div className="mb-4 grid space-x-4 grid-cols-4">
                 <div className="">
                   <label className="block mb-2 text-sm font-medium">
-                    상담일
+                    작성일자
                   </label>
                   <input
                     type="date"
                     value={newConsultation.date}
-                    readOnly
+                    disabled
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  />
+                </div>
+                <div className="">
+                  <label className="block mb-2 text-sm font-medium">
+                    수행 시작일자
+                  </label>
+                  <input
+                    type="date"
+                    value={newConsultation.date}
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  />
+                </div>
+                <div className="">
+                  <label className="block mb-2 text-sm font-medium">
+                    수행 종료일자
+                  </label>
+                  <input
+                    type="date"
+                    value={newConsultation.date}
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-medium">
-                    담당자명
-                  </label>
-                  <select
-                    defaultValue={newConsultation.contact_name}
-                    onChange={(e) =>
-                      setNewConsultation({
-                        ...newConsultation,
-                        contact_name: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  >
-                    <option value="">담당자 선택</option>
-                    {contacts.map((contact: any) => {
-                      if (!contact.resign)
-                        return (
-                          <option key={contact.id} value={contact.contact_name}>
-                            {contact.contact_name} ({contact.level})
-                          </option>
-                        );
-                    })}
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    상담자
+                    작성자
                   </label>
                   <select
                     value={newConsultation.user_id}
@@ -769,14 +691,104 @@ export default function RnDsPage() {
                   </select>
                 </div>
               </div>
+              <div>
+                <div className="mb-4 grid space-x-4 grid-cols-4">
+                  <div>
+                    <label className="block mb-1">총 사업비</label>
+                    <motion.input
+                      whileFocus={{
+                        scale: 1.05, // 입력 시 약간 확대
+                        boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                      }}
+                      type="text"
+                      // value={formatNumber(currentRnds?.total_cost || "")}
+                      // onChange={(e) => {
+                      //   const numericValue = e.target.value.replace(
+                      //     /[^0-9]/g,
+                      //     ""
+                      //   );
+                      //   setCurrentRnds({
+                      //     ...currentRnds,
+                      //     total_cost: numericValue,
+                      //   });
+                      // }}
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block mb-1">정부 출연금</label>
+                    <motion.input
+                      whileFocus={{
+                        scale: 1.05, // 입력 시 약간 확대
+                        boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                      }}
+                      placeholder=""
+                      type="text"
+                      // value={formatNumber(currentRnds?.gov_contribution || "")}
+                      // onChange={(e) => {
+                      //   const numericValue = e.target.value.replace(
+                      //     /[^0-9]/g,
+                      //     ""
+                      //   );
+                      //   setCurrentRnds({
+                      //     ...currentRnds,
+                      //     gov_contribution: numericValue,
+                      //   });
+                      // }}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block mb-1">민간 부담금</label>
+                    <motion.input
+                      whileFocus={{
+                        scale: 1.05, // 입력 시 약간 확대
+                        boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                      }}
+                      placeholder=""
+                      type="text"
+                      // value={formatNumber(currentRnds?.gov_contribution || "")}
+                      // onChange={(e) => {
+                      //   const numericValue = e.target.value.replace(
+                      //     /[^0-9]/g,
+                      //     ""
+                      //   );
+                      //   setCurrentRnds({
+                      //     ...currentRnds,
+                      //     gov_contribution: numericValue,
+                      //   });
+                      // }}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block mb-1">참여 유형</label>
+                    <select
+                      // value={currentRnds?.support_org || ""}
+                      // onChange={(e) =>
+                      //   setCurrentRnds({
+                      //     ...currentRnds,
+                      //     support_org: e.target.value,
+                      //   })
+                      // }
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="">선택하세요.</option>
+                      {/* {orgs?.map((org: any) => (
+                      <option key={org.id} value={org.name}>
+                        {org.name}
+                      </option>
+                    ))} */}
+                    </select>
+                  </div>
+                </div>
+              </div>
 
               {/* 상담 내용 */}
               <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium">
-                  상담 내용
-                </label>
+                <label className="block mb-2 text-sm font-medium">내용</label>
                 <textarea
-                  placeholder="담당자를 선택후 상담을 작성해주세요. 담당자가 없으면 상담이 추가되지 않습니다. 담당자가 없다면 담당자를 추가후 상담을 추가해주세요."
+                  placeholder=""
                   value={newConsultation.content}
                   onChange={(e) =>
                     setNewConsultation({
@@ -829,71 +841,45 @@ export default function RnDsPage() {
         {openEditModal && (
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
             <div className="bg-white p-6 rounded-md w-1/2">
-              <h3 className="text-xl font-semibold mb-4">상담 내역 수정</h3>
+              <h3 className="text-xl font-semibold mb-4">R&D 내역 추가</h3>
 
               {/* 상담일 및 후속 날짜 (flex로 배치) */}
-              <div className="mb-4 grid grid-cols-4 space-x-4">
-                <div>
+              <div className="mb-4 grid space-x-4 grid-cols-4">
+                <div className="">
                   <label className="block mb-2 text-sm font-medium">
-                    상담일
+                    작성일자
                   </label>
                   <input
                     type="date"
                     value={newConsultation.date}
-                    readOnly
+                    disabled
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
                 </div>
-                <div>
+                <div className="">
                   <label className="block mb-2 text-sm font-medium">
-                    후속 날짜
+                    수행 시작일자
                   </label>
                   <input
                     type="date"
-                    value={
-                      newConsultation.follow_up_date
-                        ? newConsultation.follow_up_date
-                        : ""
-                    }
-                    onChange={(e) =>
-                      setNewConsultation({
-                        ...newConsultation,
-                        follow_up_date: e.target.value,
-                      })
-                    }
+                    value={newConsultation.date}
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  />
+                </div>
+                <div className="">
+                  <label className="block mb-2 text-sm font-medium">
+                    수행 종료일자
+                  </label>
+                  <input
+                    type="date"
+                    value={newConsultation.date}
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-medium">
-                    고객명
+                    작성자
                   </label>
-                  <select
-                    defaultValue={newConsultation.contact_name}
-                    onChange={(e) =>
-                      setNewConsultation({
-                        ...newConsultation,
-                        contact_name: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  >
-                    <option value="">담당자 선택</option>
-                    {contacts.map((contact: any) => {
-                      if (!contact.resign)
-                        return (
-                          <option key={contact.id} value={contact.contact_name}>
-                            {contact.contact_name} ({contact.level})
-                          </option>
-                        );
-                    })}
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    상담자
-                  </label>
-
                   <select
                     value={newConsultation.user_id}
                     disabled
@@ -905,6 +891,7 @@ export default function RnDsPage() {
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   >
+                    {/* 다른 유저들 */}
                     {users.map((user: any) => (
                       <option key={user.id} value={user.id}>
                         {user.name} {user.level}
@@ -913,13 +900,104 @@ export default function RnDsPage() {
                   </select>
                 </div>
               </div>
+              <div>
+                <div className="mb-4 grid space-x-4 grid-cols-4">
+                  <div>
+                    <label className="block mb-1">총 사업비</label>
+                    <motion.input
+                      whileFocus={{
+                        scale: 1.05, // 입력 시 약간 확대
+                        boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                      }}
+                      type="text"
+                      // value={formatNumber(currentRnds?.total_cost || "")}
+                      // onChange={(e) => {
+                      //   const numericValue = e.target.value.replace(
+                      //     /[^0-9]/g,
+                      //     ""
+                      //   );
+                      //   setCurrentRnds({
+                      //     ...currentRnds,
+                      //     total_cost: numericValue,
+                      //   });
+                      // }}
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block mb-1">정부 출연금</label>
+                    <motion.input
+                      whileFocus={{
+                        scale: 1.05, // 입력 시 약간 확대
+                        boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                      }}
+                      placeholder=""
+                      type="text"
+                      // value={formatNumber(currentRnds?.gov_contribution || "")}
+                      // onChange={(e) => {
+                      //   const numericValue = e.target.value.replace(
+                      //     /[^0-9]/g,
+                      //     ""
+                      //   );
+                      //   setCurrentRnds({
+                      //     ...currentRnds,
+                      //     gov_contribution: numericValue,
+                      //   });
+                      // }}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block mb-1">민간 부담금</label>
+                    <motion.input
+                      whileFocus={{
+                        scale: 1.05, // 입력 시 약간 확대
+                        boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
+                      }}
+                      placeholder=""
+                      type="text"
+                      // value={formatNumber(currentRnds?.gov_contribution || "")}
+                      // onChange={(e) => {
+                      //   const numericValue = e.target.value.replace(
+                      //     /[^0-9]/g,
+                      //     ""
+                      //   );
+                      //   setCurrentRnds({
+                      //     ...currentRnds,
+                      //     gov_contribution: numericValue,
+                      //   });
+                      // }}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block mb-1">참여 유형</label>
+                    <select
+                      // value={currentRnds?.support_org || ""}
+                      // onChange={(e) =>
+                      //   setCurrentRnds({
+                      //     ...currentRnds,
+                      //     support_org: e.target.value,
+                      //   })
+                      // }
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="">선택하세요.</option>
+                      {/* {orgs?.map((org: any) => (
+                      <option key={org.id} value={org.name}>
+                        {org.name}
+                      </option>
+                    ))} */}
+                    </select>
+                  </div>
+                </div>
+              </div>
 
               {/* 상담 내용 */}
               <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium">
-                  상담 내용
-                </label>
+                <label className="block mb-2 text-sm font-medium">내용</label>
                 <textarea
+                  placeholder=""
                   value={newConsultation.content}
                   onChange={(e) =>
                     setNewConsultation({
@@ -928,7 +1006,7 @@ export default function RnDsPage() {
                     })
                   }
                   className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  rows={4}
+                  rows={16}
                 />
               </div>
 

@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       }));
 
       const { error: contactsError } = await supabase
-        .from("RnDs_contacts")
+        .from("rnds_contacts")
         .insert(contactsToAdd);
 
       if (contactsError) {

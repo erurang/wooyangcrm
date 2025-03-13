@@ -33,7 +33,7 @@ export async function PUT(request: Request) {
     }
 
     const { data: updateRnDs, error: rndsError } = await supabase
-      .from("RnDs")
+      .from("rnds")
       .update({
         name,
         start_date,
@@ -41,6 +41,7 @@ export async function PUT(request: Request) {
         gov_contribution,
         pri_contribution,
         total_cost,
+        type: "rnd",
         org_id: org.id, // ✅ org.id로 저장
       })
       .eq("id", id)

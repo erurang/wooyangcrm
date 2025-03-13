@@ -22,7 +22,7 @@ interface RnDsOrgs {
   phone: string;
   fax: string;
   email: string;
-  RnDs_contacts: Contact[];
+  rnds_contacts: Contact[];
 }
 
 interface Contact {
@@ -60,7 +60,7 @@ export default function Page() {
     fax: "",
     notes: "",
     phone: "",
-    RnDs_contacts: [], // 🔥담당자 배열 초기화 추가
+    rnds_contacts: [], // 🔥담당자 배열 초기화 추가
   }); // 현재 거래처 정보
 
   const [rndsToDelete, setRndsToDelete] = useState<RnDsOrgs | null>(null); // 삭제할 거래처 정보
@@ -132,7 +132,7 @@ export default function Page() {
       return;
     }
 
-    if (currentRndsOrgs.RnDs_contacts.length === 0) {
+    if (currentRndsOrgs.rnds_contacts.length === 0) {
       setSnackbarMessage("담당자를 최소 1명 입력해주세요.");
       return;
     }
@@ -141,7 +141,7 @@ export default function Page() {
 
     try {
       const orgData = await addOrgs(currentRndsOrgs);
-      await addContacts(currentRndsOrgs.RnDs_contacts, orgData.id);
+      await addContacts(currentRndsOrgs.rnds_contacts, orgData.id);
       await refreshOrgs();
 
       setSnackbarMessage("지원기관 추가 완료");
@@ -159,7 +159,7 @@ export default function Page() {
       return;
     }
 
-    if (currentRndsOrgs.RnDs_contacts.length === 0) {
+    if (currentRndsOrgs.rnds_contacts.length === 0) {
       setSnackbarMessage("담당자를 최소 1명 입력해주세요.");
       return;
     }
@@ -169,7 +169,7 @@ export default function Page() {
     try {
       await updateOrgs({
         ...currentRndsOrgs,
-        RnDs_contacts: currentRndsOrgs.RnDs_contacts, // 🔥 담당자 데이터 포함
+        rnds_contacts: currentRndsOrgs.rnds_contacts, // 🔥 담당자 데이터 포함
       });
 
       setSnackbarMessage("지원기관 수정 완료");
@@ -239,7 +239,7 @@ export default function Page() {
       fax: "",
       notes: "",
       phone: "",
-      RnDs_contacts: [], // 🔥담당자 배열 초기화 추가
+      rnds_contacts: [], // 🔥담당자 배열 초기화 추가
     });
   };
   // 추가 버튼 클릭 시 모달 열기
@@ -252,7 +252,7 @@ export default function Page() {
       fax: "",
       notes: "",
       phone: "",
-      RnDs_contacts: [], // 🔥담당자 배열 초기화 추가
+      rnds_contacts: [], // 🔥담당자 배열 초기화 추가
     });
     setIsAddModalOpen(true); // 추가 모달 열기
   };
@@ -268,8 +268,8 @@ export default function Page() {
         fax: orgs.fax || "",
         notes: orgs.notes || "",
         phone: orgs.phone || "",
-        RnDs_contacts:
-          orgs.RnDs_contacts?.map((contact: any) => ({
+        rnds_contacts:
+          orgs.rnds_contacts?.map((contact: any) => ({
             id: contact.id || "",
             name: contact.name || "",
             phone: contact.phone || "",
@@ -296,7 +296,7 @@ export default function Page() {
       fax: "",
       notes: "",
       phone: "",
-      RnDs_contacts: [], // 🔥담당자 배열 초기화 추가
+      rnds_contacts: [], // 🔥담당자 배열 초기화 추가
     });
   };
   /// contact
@@ -304,7 +304,7 @@ export default function Page() {
   const addContact = () => {
     setCurrentRndsOrgs((prev) => ({
       ...prev,
-      RnDs_contacts: [
+      rnds_contacts: [
         {
           name: "",
           phone: "",
@@ -312,7 +312,7 @@ export default function Page() {
           level: "",
           email: "",
         },
-        ...prev.RnDs_contacts,
+        ...prev.rnds_contacts,
       ],
     }));
   };
@@ -323,16 +323,16 @@ export default function Page() {
     value: any
   ) => {
     setCurrentRndsOrgs((prev) => {
-      const updatedContact = [...prev.RnDs_contacts];
+      const updatedContact = [...prev.rnds_contacts];
       updatedContact[index] = { ...updatedContact[index], [field]: value };
-      return { ...prev, RnDs_contacts: updatedContact };
+      return { ...prev, rnds_contacts: updatedContact };
     });
   };
   const removeContact = (index: number) => {
     setCurrentRndsOrgs((prev) => {
-      const updatedContact = [...prev.RnDs_contacts];
+      const updatedContact = [...prev.rnds_contacts];
       updatedContact.splice(index, 1);
-      return { ...prev, RnDs_contacts: updatedContact };
+      return { ...prev, rnds_contacts: updatedContact };
     });
   };
 
@@ -598,7 +598,7 @@ export default function Page() {
                 </div>
 
                 <div className="space-y-2">
-                  {currentRndsOrgs.RnDs_contacts?.map((contact, index) => (
+                  {currentRndsOrgs.rnds_contacts?.map((contact, index) => (
                     <div
                       key={index}
                       className="flex flex-wrap md:flex-nowrap gap-2"
@@ -868,7 +868,7 @@ export default function Page() {
                 </div>
 
                 <div className="space-y-2">
-                  {currentRndsOrgs.RnDs_contacts?.map((contact, index) => (
+                  {currentRndsOrgs.rnds_contacts?.map((contact, index) => (
                     <div
                       key={index}
                       className="flex flex-wrap md:flex-nowrap gap-2"

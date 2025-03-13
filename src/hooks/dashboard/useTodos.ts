@@ -64,6 +64,21 @@ export function useTodos(userId: string) {
     mutate(`/api/tests/dashboard/todos?userId=${userId}`);
   };
 
+  const updateTodoOrder = async (newTodos: any[]) => {
+    const orderedTodos = newTodos.map((todo, index) => ({
+      id: todo.id,
+      order_index: index + 1,
+    }));
+
+    await fetch(`/api/tests/dashboard/todos/order`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ todos: orderedTodos }),
+    });
+
+    mutate(`/api/tests/dashboard/todos?userId=${userId}`);
+  };
+
   return {
     todos,
     isLoading,
@@ -74,5 +89,6 @@ export function useTodos(userId: string) {
     updateTodo,
     toggleComplete,
     deleteTodo,
+    updateTodoOrder,
   };
 }

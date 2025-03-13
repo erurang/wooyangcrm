@@ -3,11 +3,12 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useConsultationsList(
   companyId: string | undefined,
-  currentPage: number
+  currentPage: number,
+  searchTerm: string
 ) {
   const { data, error, mutate } = useSWR(
     companyId
-      ? `/api/tests/consultations/list?companyId=${companyId}&page=${currentPage}`
+      ? `/api/tests/consultations/list?companyId=${companyId}&page=${currentPage}&search=${searchTerm}`
       : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {

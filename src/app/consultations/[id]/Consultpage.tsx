@@ -20,6 +20,7 @@ import { useAssignConsultationContact } from "@/hooks/consultations/useAssignCon
 import { useUpdateConsultation } from "@/hooks/consultations/useUpdateConsultation";
 import FileUpload from "@/components/consultations/FileUpload";
 import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface Consultation {
   id: string;
@@ -82,6 +83,9 @@ export default function ConsultationPage() {
     content: "",
   });
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300); // 🔹 디바운스 적용
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedConsultation, setSelectedConsultation] =
     useState<Consultation | null>(null);
@@ -98,7 +102,7 @@ export default function ConsultationPage() {
   const { favorites, removeFavorite, refetchFavorites, addFavorite } =
     useFavorites(loginUser?.id);
   const { consultations, totalPages, refreshConsultations } =
-    useConsultationsList(id as string, currentPage);
+    useConsultationsList(id as string, currentPage, debouncedSearchTerm);
 
   const {
     companyDetail,
@@ -683,6 +687,24 @@ export default function ConsultationPage() {
             <span className="mr-2">+</span>
             <span>비고 추가/수정</span>
           </div>
+          <div className="flex items-center border-b-2 border-gray-400 w-1/3 max-w-sm py-1 focus-within:border-black">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 50 50"
+              width="18px"
+              height="18px"
+              className="text-gray-500"
+            >
+              <path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 7 21 7 Z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="상담 내용 검색"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-2 py-1 w-full focus:outline-none focus:border-none font-bold text-gray-700"
+            />
+          </div>
         </div>
 
         {/* 상담 내역 추가 모달 */}
@@ -1200,7 +1222,7 @@ export default function ConsultationPage() {
         </div>
 
         {/* 페이지네이션 */}
-        <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
+        <div className="flex justify-center overflow-x-auto space-x-1 md:space-x-2">
           <div className="flex justify-center mt-4 space-x-2">
             <button
               onClick={prevPage}

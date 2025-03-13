@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
     let query = supabase
       .from("rnd_orgs")
-      .select("*, RnDs_contacts(*)", { count: "exact" })
+      .select("*, rnds_contacts(*)", { count: "exact" })
       .range((page - 1) * limit, page * limit - 1)
       .order("created_at", { ascending: false });
 

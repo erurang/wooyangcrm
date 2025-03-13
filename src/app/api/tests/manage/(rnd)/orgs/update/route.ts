@@ -30,7 +30,7 @@ export async function PUT(request: Request) {
 
     // 🔹 2. 기존 담당자 목록 가져오기
     const { data: existingContacts, error: fetchError } = await supabase
-      .from("RnDs_contacts")
+      .from("rnds_contacts")
       .select("id")
       .eq("org_id", id);
 
@@ -50,14 +50,14 @@ export async function PUT(request: Request) {
 
     // 🔹 4. 삭제할 담당자 처리 (DELETE)
     if (contactsToDelete.length > 0) {
-      await supabase.from("RnDs_contacts").delete().in("id", contactsToDelete);
+      await supabase.from("rnds_contacts").delete().in("id", contactsToDelete);
     }
 
     // 🔹 5. 기존 담당자 업데이트 (UPDATE)
     const contactsToUpdate = RnDs_contacts.filter((c: any) => c.id);
     for (const contact of contactsToUpdate) {
       const { error: updateError } = await supabase
-        .from("RnDs_contacts")
+        .from("rnds_contacts")
         .update({
           name: contact.name,
           phone: contact.phone,
@@ -83,13 +83,13 @@ export async function PUT(request: Request) {
     );
 
     if (contactsToAdd.length > 0) {
-      await supabase.from("RnDs_contacts").insert(contactsToAdd);
+      await supabase.from("rnds_contacts").insert(contactsToAdd);
     }
 
     // 🔹 7. 업데이트된 담당자 목록 가져오기
     const { data: updatedContacts, error: updatedContactsError } =
       await supabase
-        .from("RnDs_contacts")
+        .from("rnds_contacts")
         .select("id, org_id, name, phone, department, level, email")
         .eq("org_id", id);
 

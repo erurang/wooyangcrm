@@ -9,8 +9,9 @@ export async function GET(request: Request) {
     const name = searchParams.get("name") || "";
 
     let query = supabase
-      .from("bRnDs")
+      .from("rnds")
       .select("*, rnd_orgs(name)", { count: "exact" })
+      .eq("type", "brnd")
       .range((page - 1) * limit, page * limit - 1)
       .order("created_at", { ascending: false });
 

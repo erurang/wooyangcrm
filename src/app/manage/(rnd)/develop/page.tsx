@@ -31,7 +31,6 @@ interface RnDs {
 
 export default function Page() {
   const user = useLoginUser();
-
   const [searchTerm, setSearchTerm] = useState<string>(""); // 거래처 검색어
   const [saving, setSaving] = useState(false); // 🔹 저장 로딩 상태 추가
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
@@ -316,12 +315,12 @@ export default function Page() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold">R&D 사업 검색</p>
+      <p className="mb-4 font-semibold">개발건 검색</p>
       <div>
         <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              사업명
+              개발명
             </label>
             <motion.input
               value={searchTerm}
@@ -330,7 +329,7 @@ export default function Page() {
                 setCurrentPage(1);
               }}
               onKeyDown={handleKeyPress} // 🔹 Enter 누르면 검색 실행
-              placeholder="사업명"
+              placeholder="개발명"
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
                 scale: 1.05, // 입력 시 약간 확대
@@ -341,7 +340,7 @@ export default function Page() {
 
           <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              수행날짜
+              개발기간
             </label>
             <motion.input
               value={searchTerm}
@@ -422,19 +421,19 @@ export default function Page() {
             <thead>
               <tr className="bg-gray-100 text-center">
                 <th className="px-4 py-2 border-b border-r-[1px] w-3/12">
-                  사업명
+                  개발명
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell w-2/12">
-                  총 사업기간
+                  시작
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell w-2/12">
-                  총 사업비
+                  종료
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell w-2/12">
-                  정부 출연금
+                  외부 담당자
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden lg:table-cell w-2/12">
-                  지원기관
+                  사내 담당자
                 </th>
                 <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
                 <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
