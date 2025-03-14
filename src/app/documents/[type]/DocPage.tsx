@@ -587,18 +587,26 @@ const DocPage = () => {
       },
     ]);
   };
+
   const handleQuantityChange = (index: number, value: string) => {
-    // 🔹 숫자와 소수점만 추출 (앞 0 제거는 하지 않음)
-    const numericValue = value.match(/^-?\d*\.?\d*/)?.[0] || "";
-    const unit = value.replace(/[-\d.,]/g, "").trim(); // 숫자 제외하고 단위만 추출
+    // 1) 숫자, 소수점(.), 마이너스(-), 쉼표(,)만 남긴다
+    const numericPart = value.replace(/[^0-9.,-]/g, "");
+
+    // 2) 쉼표 제거한 값으로 숫자 파싱
+    const parsedNumber = parseFloat(numericPart.replace(/,/g, "")) || 0;
+
+    // 3) 단위 추출 (숫자, 마이너스, 쉼표 등 제외)
+    const unit = value.replace(/[0-9.,-]/g, "").trim();
 
     setItems((prev) =>
       prev.map((item, i) =>
         i === index
           ? {
               ...item,
-              quantity: numericValue !== "" ? `${numericValue}${unit}` : "", // ✅ 빈 값 허용
-              amount: parseFloat(numericValue || "0") * item.unit_price, // ✅ 올바른 소수점 반영
+              // ✅ 사용자가 입력한 값(numericPart) + 단위(unit)을 그대로 표시
+              quantity: numericPart !== "" ? `${numericPart}${unit}` : "",
+              // ✅ 계산에는 쉼표 제거한 숫자(parsedNumber)만 사용
+              amount: parsedNumber * item.unit_price,
             }
           : item
       )
@@ -606,26 +614,30 @@ const DocPage = () => {
   };
 
   const handleUnitPriceChange = (index: number, value: string) => {
-    // 🔹 숫자와 소수점만 추출
-    let numericValue = value.replace(/[^0-9.]/g, ""); // 숫자와 . 만 남김
-
-    // 🔹 입력값이 너무 크지 않도록 처리 (숫자가 커지면 `parseFloat`이 오류 발생 가능)
-    if (numericValue.length > 8) return; // 🔥 8자리 이상 입력 방지 (필요 시 조정 가능)
+    // 1) 숫자, 소수점(.), 쉼표(,), 마이너스(-)만 남김
+    const numericValue = value.replace(/[^0-9.,-]/g, "");
+    // 2) 쉼표 제거 후 숫자 변환
+    const parsedUnitPrice = parseFloat(numericValue.replace(/,/g, "")) || 0;
 
     setItems((prev) =>
-      prev.map((item, i) =>
-        i === index
-          ? {
-              ...item,
-              unit_price: numericValue !== "" ? parseFloat(numericValue) : 0, // ✅ 숫자 유지
-              amount:
-                (parseFloat(numericValue) || 0) *
-                parseFloat(item.quantity.match(/-?\d*\.?\d*/)?.[0] || "0"), // ✅ 계산값 정확하게 유지
-            }
-          : item
-      )
+      prev.map((item, i) => {
+        if (i !== index) return item;
+
+        // 🔹 수량 부분에서도 쉼표 제거 후 숫자로 변환
+        const quantityPart = item.quantity.replace(/[^0-9.,-]/g, "");
+        const parsedQty = parseFloat(quantityPart.replace(/,/g, "")) || 0;
+
+        return {
+          ...item,
+          // 사용자 입력 필드엔 쉼표를 유지 (가독성)
+          unit_price: parsedUnitPrice,
+          // 금액은 쉼표 제거한 숫자끼리 곱해서 계산
+          amount: parsedQty * parsedUnitPrice,
+        };
+      })
     );
   };
+
   const [statusChangeDoc, setStatusChangeDoc] = useState<Document | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string>("completed"); // 기본값: "completed"
   const [statusReason, setStatusReason] = useState<{
