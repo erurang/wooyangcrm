@@ -506,7 +506,7 @@ export default function ConsultationPage() {
       <>
         <div className="mb-4">
           <Link
-            href="/customers"
+            href="/manage/customers"
             className="text-blue-500 hover:underline hover:font-bold"
           >
             거래처 관리
@@ -566,16 +566,17 @@ export default function ConsultationPage() {
             )}
           </div>
 
-          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 ">
+          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3">
             {isCompanyDetailLoading ? (
               <Skeleton variant="rectangular" width="100%" height="100%" />
             ) : (
               <>
                 <h2 className="font-semibold text-md mb-1">비고</h2>
-                <div className="text-sm min-h-[80px] max-h-36 overflow-y-auto px-1">
+                <div className="text-sm min-h-[80px] max-h-28 overflow-y-auto px-1">
                   <span>
-                    {companyDetail?.notes ||
-                      "비고 추가/수정을 사용하여 해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."}
+                    {companyDetail?.notes
+                      ? formatContentWithLineBreaks(companyDetail?.notes)
+                      : "비고 추가/수정을 사용하여 해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."}
                   </span>
                 </div>
               </>
@@ -719,7 +720,7 @@ export default function ConsultationPage() {
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
                 </div>
-                {/* <div>
+                <div>
                   <label className="block mb-2 text-sm font-medium">
                     후속 날짜
                   </label>
@@ -734,10 +735,10 @@ export default function ConsultationPage() {
                     }
                     className="w-full p-2 border border-gray-300 rounded-md text-sm"
                   />
-                </div> */}
+                </div>
                 <div>
                   <label className="block mb-2 text-sm font-medium">
-                    담당자명
+                    담당자
                   </label>
                   <select
                     defaultValue={newConsultation.contact_name}
@@ -791,7 +792,7 @@ export default function ConsultationPage() {
                   상담 내용
                 </label>
                 <textarea
-                  placeholder="담당자를 선택후 상담을 작성해주세요. 담당자가 없으면 상담이 추가되지 않습니다. 담당자가 없다면 담당자를 추가후 상담을 추가해주세요."
+                  placeholder="담당자를 선택후 상담을 작성해주세요. 담당자가 없으면 상담이 추가되지 않습니다. 담당자가 없다면 담당자를 추가후 상담을 추가해주세요. 후속 날짜를 설정하게 되면 지정날짜 7일전에 대시보드의 후속 상담 필요 고객 리스트에 나타나게 됩니다."
                   value={newConsultation.content}
                   onChange={(e) =>
                     setNewConsultation({
@@ -881,7 +882,7 @@ export default function ConsultationPage() {
                 </div>
                 <div>
                   <label className="block mb-2 text-sm font-medium">
-                    고객명
+                    담당자
                   </label>
                   <select
                     defaultValue={newConsultation.contact_name}
@@ -996,7 +997,7 @@ export default function ConsultationPage() {
                     날짜
                   </th>
                   <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    피상담자
+                    담당자
                   </th>
                   <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                     상담자
@@ -1029,6 +1030,12 @@ export default function ConsultationPage() {
                     </td> */}
                     <td className="px-4 py-2 border-r-[1px]">
                       {consultation.date}
+                      <div>
+                        <p>
+                          {consultation?.follow_up_date &&
+                            `~ ${consultation?.follow_up_date}`}
+                        </p>
+                      </div>
                     </td>
                     <td className="px-4 py-2 border-r-[1px]">
                       {consultation.contact_name} {consultation.contact_level}

@@ -288,43 +288,47 @@ export default function UserDetailPage() {
               </button>
             </div>
           </div>
-          <div className="text-sm text-gray-600 mt-2 grid grid-cols-3">
-            <p>
-              🟢 확정된 매출 -{" "}
-              <span className="font-semibold text-gray-800">
-                {completedSales.toLocaleString()} 원
-              </span>
-            </p>
-            <p>
-              🟢 확정된 매입 -{" "}
-              <span className="font-semibold text-gray-800">
-                {completedPurchases.toLocaleString()} 원
-              </span>
-            </p>
-            <p>
-              🟡 진행 중 매출 -{" "}
-              <span className="font-semibold text-gray-800">
-                {pendingSales.toLocaleString()} 원
-              </span>
-            </p>
-            <p>
-              🟡 진행 중 매입 -{" "}
-              <span className="font-semibold text-gray-800">
-                {pendingPurchases.toLocaleString()} 원
-              </span>
-            </p>
-            <p>
-              🔴 취소된 매출 -{" "}
-              <span className="font-semibold text-gray-800">
-                {canceledSales.toLocaleString()} 원
-              </span>
-            </p>
-            <p>
-              🔴 취소된 매입 -{" "}
-              <span className="font-semibold text-gray-800">
-                {canceledPurchases.toLocaleString()} 원
-              </span>
-            </p>
+          <div className="text-sm text-gray-600 mt-2 grid grid-cols-2 ">
+            <div className="space-y-2">
+              <p>
+                확정 매출 -{" "}
+                <span className="font-semibold text-gray-800">
+                  {completedSales.toLocaleString()} 원
+                </span>
+              </p>
+              <p>
+                진행 매출 -{" "}
+                <span className="font-semibold text-gray-800">
+                  {pendingSales.toLocaleString()} 원
+                </span>
+              </p>
+              <p>
+                취소 매출 -{" "}
+                <span className="font-semibold text-gray-800">
+                  {canceledSales.toLocaleString()} 원
+                </span>
+              </p>
+            </div>
+            <div className="space-y-2">
+              <p>
+                확정 매입 -{" "}
+                <span className="font-semibold text-gray-800">
+                  {completedPurchases.toLocaleString()} 원
+                </span>
+              </p>
+              <p>
+                진행 매입 -{" "}
+                <span className="font-semibold text-gray-800">
+                  {pendingPurchases.toLocaleString()} 원
+                </span>
+              </p>
+              <p>
+                취소 매입 -{" "}
+                <span className="font-semibold text-gray-800">
+                  {canceledPurchases.toLocaleString()} 원
+                </span>
+              </p>
+            </div>
           </div>
         </div>
 
@@ -472,17 +476,15 @@ export default function UserDetailPage() {
                     className="grid grid-cols-[2fr_1fr_2fr] gap-6 items-center border-b pb-4"
                   >
                     {/* 🔹 상담 기록 */}
-                    <div className="p-3 border rounded-md bg-white">
+                    <div
+                      className="p-3 border rounded-md bg-white hover:bg-gray-100 cursor-pointer"
+                      onClick={() =>
+                        router.push(`/consultations/${consultation.company_id}`)
+                      }
+                    >
                       <div className="text-sm text-gray-600">
                         {consultation.date}
-                        <span
-                          className="font-bold ml-2 text-blue-500 cursor-pointer "
-                          onClick={() =>
-                            router.push(
-                              `/consultations/${consultation.company_id}`
-                            )
-                          }
-                        >
+                        <span className="font-bold ml-2 text-blue-500 cursor-pointer">
                           {consultation.company_name}
                         </span>
                       </div>
@@ -492,12 +494,19 @@ export default function UserDetailPage() {
                     </div>
 
                     {/* 🔹 관련 문서 */}
-                    <div className="p-3 border rounded-md bg-white">
+                    <div className="p-3 border rounded-md bg-white hover:bg-gray-100">
                       {consultation.documents.length > 0 ? (
                         consultation.documents.map((doc: any) => (
                           <div
                             key={doc.document_id}
-                            className="p-2 border rounded-md bg-gray-50 shadow-sm"
+                            className=" cursor-pointer"
+                            onClick={() =>
+                              window.open(
+                                `/documents/estimate?consultId=${consultation.consultation_id}&compId=${consultation?.company_id}&fullscreen=true`,
+                                "_blank",
+                                "width=1200,height=800,top=100,left=100"
+                              )
+                            }
                           >
                             <p className="text-sm font-semibold text-blue-600">
                               {doc.type === "estimate"

@@ -20,6 +20,7 @@ import { useNewConsultations } from "@/hooks/dashboard/useNewConsultations";
 import { useRecentActivities } from "@/hooks/dashboard/useRecentActivities";
 import TodoList from "@/components/dashboard/Todos";
 import { useLoginLogs } from "@/hooks/dashboard/useLoginLogs";
+import { useRouter } from "next/navigation";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -27,7 +28,7 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 
 export default function SalesDashboard() {
   const user = useLoginUser();
-
+  const router = useRouter();
   // 이번 달의 정확한 일 수 계산
   const today = new Date();
   const year = today.getFullYear();
@@ -198,12 +199,20 @@ export default function SalesDashboard() {
           ) : followUpClients.length ? (
             <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
               <h2 className="font-semibold text-md mb-2">
-                🔔 후속 상담 필요 고객
+                🔔 후속 상담 필요 거래처
               </h2>
-              <ul className="list-disc pl-4">
+              <ul className="list-disc pl-4 ">
                 {followUpClients.map((client: any) => (
                   <li key={client.company_id}>
-                    <strong>{client.company_name}</strong>: 마지막 상담일{" "}
+                    <span
+                      className="text-blue-500 cursor-pointer hover:font-bold"
+                      onClick={() =>
+                        router.push(`/consultations/${client.company_id}`)
+                      }
+                    >
+                      {client.company_name}
+                    </span>
+                    : 마지막 상담일{" "}
                     {new Date(client.last_consultation).toLocaleDateString()}
                   </li>
                 ))}
