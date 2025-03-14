@@ -786,74 +786,80 @@ export default function Estimate({
                   </div>
                 </div>
               </div>
-              {items.map((item, index) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-12 gap-4 mb-2 w-full"
-                >
-                  <input
-                    type="text"
-                    placeholder="제품명"
-                    value={item.name}
-                    onChange={(e) =>
-                      setItems((prev: Items[]): Items[] =>
-                        prev.map((item, i) =>
-                          i === index ? { ...item, name: e.target.value } : item
-                        )
-                      )
-                    }
-                    className="col-span-4 px-1 border border-gray-300 rounded-md text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="규격"
-                    value={item.spec}
-                    onChange={(e) =>
-                      setItems((prev: Items[]): Items[] =>
-                        prev.map((item, i) =>
-                          i === index ? { ...item, spec: e.target.value } : item
-                        )
-                      )
-                    }
-                    className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="수량"
-                    value={items[index].quantity} // 그대로 문자 유지
-                    onChange={(e) =>
-                      handleQuantityChange(index, e.target.value)
-                    }
-                    className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
-                  />
-
-                  {/* ✅ 단가 - 소수점 허용 & 8자리까지 입력 가능 */}
-                  <input
-                    type="text"
-                    placeholder="단가"
-                    value={items[index].unit_price?.toLocaleString()} // 소수점 유지
-                    onChange={(e) =>
-                      handleUnitPriceChange(index, e.target.value)
-                    }
-                    className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
-                  />
-
-                  {/* ✅ 금액 (자동 계산) */}
-                  <input
-                    type="text"
-                    placeholder="금액"
-                    value={items[index].amount?.toLocaleString()} // 가독성 좋게 변환
-                    readOnly
-                    className="col-span-2 px-1 border border-gray-300 rounded-md text-sm bg-gray-100"
-                  />
-                  <button
-                    onClick={() => removeItem(index)}
-                    className="col-span-1 px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer"
+              <div className="h-80 overflow-y-auto rounded-md">
+                {items.map((item, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-4 mb-2 w-full"
                   >
-                    삭제
-                  </button>
-                </div>
-              ))}
+                    <input
+                      type="text"
+                      placeholder="제품명"
+                      value={item.name}
+                      onChange={(e) =>
+                        setItems((prev: Items[]): Items[] =>
+                          prev.map((item, i) =>
+                            i === index
+                              ? { ...item, name: e.target.value }
+                              : item
+                          )
+                        )
+                      }
+                      className="col-span-4 px-1 border border-gray-300 rounded-md text-sm"
+                    />
+                    <input
+                      type="text"
+                      placeholder="규격"
+                      value={item.spec}
+                      onChange={(e) =>
+                        setItems((prev: Items[]): Items[] =>
+                          prev.map((item, i) =>
+                            i === index
+                              ? { ...item, spec: e.target.value }
+                              : item
+                          )
+                        )
+                      }
+                      className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
+                    />
+                    <input
+                      type="text"
+                      placeholder="수량"
+                      value={items[index].quantity} // 그대로 문자 유지
+                      onChange={(e) =>
+                        handleQuantityChange(index, e.target.value)
+                      }
+                      className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
+                    />
+
+                    {/* ✅ 단가 - 소수점 허용 & 8자리까지 입력 가능 */}
+                    <input
+                      type="text"
+                      placeholder="단가"
+                      value={items[index].unit_price?.toLocaleString()} // 소수점 유지
+                      onChange={(e) =>
+                        handleUnitPriceChange(index, e.target.value)
+                      }
+                      className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
+                    />
+
+                    {/* ✅ 금액 (자동 계산) */}
+                    <input
+                      type="text"
+                      placeholder="금액"
+                      value={items[index].amount?.toLocaleString()} // 가독성 좋게 변환
+                      readOnly
+                      className="col-span-2 px-1 border border-gray-300 rounded-md text-sm bg-gray-100"
+                    />
+                    <button
+                      onClick={() => removeItem(index)}
+                      className="col-span-1 px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* 아이템 */}
@@ -1319,72 +1325,78 @@ export default function Estimate({
                   </div>
                 </div>
               </div>
-              {items.map((item, index) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-12 gap-4 mb-2 w-full"
-                >
-                  <input
-                    type="text"
-                    placeholder="제품명"
-                    value={item.name}
-                    onChange={(e) =>
-                      setItems((prev: Items[]): Items[] =>
-                        prev.map((item, i) =>
-                          i === index ? { ...item, name: e.target.value } : item
-                        )
-                      )
-                    }
-                    className="col-span-4 px-1 border border-gray-300 rounded-md text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="규격"
-                    value={item.spec}
-                    onChange={(e) =>
-                      setItems((prev: Items[]): Items[] =>
-                        prev.map((item, i) =>
-                          i === index ? { ...item, spec: e.target.value } : item
-                        )
-                      )
-                    }
-                    className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
-                  />
-                  <input
-                    type="text" // 'number'에서 'text'로 변경
-                    placeholder="수량"
-                    value={item.quantity?.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
-                    onChange={(e) =>
-                      handleQuantityChange(index, e.target.value)
-                    }
-                    className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
-                  />
-
-                  <input
-                    type="text" // 'number'에서 'text'로 변경
-                    placeholder="단가"
-                    value={item.unit_price?.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
-                    onChange={(e) =>
-                      handleUnitPriceChange(index, e.target.value)
-                    }
-                    className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
-                  />
-
-                  <input
-                    type="text" // 'number'에서 'text'로 변경
-                    placeholder="금액"
-                    value={item.amount?.toLocaleString()} // 화면에 콤마가 추가된 금액을 표시
-                    readOnly
-                    className="col-span-2 px-1 border border-gray-300 rounded-md text-sm bg-gray-100"
-                  />
-                  <button
-                    onClick={() => removeItem(index)}
-                    className="col-span-1 px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer"
+              <div className="h-80 overflow-y-auto rounded-md">
+                {items.map((item, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-4 mb-2 w-full"
                   >
-                    삭제
-                  </button>
-                </div>
-              ))}
+                    <input
+                      type="text"
+                      placeholder="제품명"
+                      value={item.name}
+                      onChange={(e) =>
+                        setItems((prev: Items[]): Items[] =>
+                          prev.map((item, i) =>
+                            i === index
+                              ? { ...item, name: e.target.value }
+                              : item
+                          )
+                        )
+                      }
+                      className="col-span-4 px-1 border border-gray-300 rounded-md text-sm"
+                    />
+                    <input
+                      type="text"
+                      placeholder="규격"
+                      value={item.spec}
+                      onChange={(e) =>
+                        setItems((prev: Items[]): Items[] =>
+                          prev.map((item, i) =>
+                            i === index
+                              ? { ...item, spec: e.target.value }
+                              : item
+                          )
+                        )
+                      }
+                      className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
+                    />
+                    <input
+                      type="text" // 'number'에서 'text'로 변경
+                      placeholder="수량"
+                      value={item.quantity?.toLocaleString()} // 화면에 콤마가 추가된 수량을 표시
+                      onChange={(e) =>
+                        handleQuantityChange(index, e.target.value)
+                      }
+                      className="col-span-1 px-1 border border-gray-300 rounded-md text-sm"
+                    />
+
+                    <input
+                      type="text" // 'number'에서 'text'로 변경
+                      placeholder="단가"
+                      value={item.unit_price?.toLocaleString()} // 화면에 콤마가 추가된 단가를 표시
+                      onChange={(e) =>
+                        handleUnitPriceChange(index, e.target.value)
+                      }
+                      className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
+                    />
+
+                    <input
+                      type="text" // 'number'에서 'text'로 변경
+                      placeholder="금액"
+                      value={item.amount?.toLocaleString()} // 화면에 콤마가 추가된 금액을 표시
+                      readOnly
+                      className="col-span-2 px-1 border border-gray-300 rounded-md text-sm bg-gray-100"
+                    />
+                    <button
+                      onClick={() => removeItem(index)}
+                      className="col-span-1 px-4 py-2 bg-red-500 text-white rounded-md cursor-pointer"
+                    >
+                      삭제
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* 아이템 */}

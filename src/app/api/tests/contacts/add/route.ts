@@ -18,6 +18,7 @@ export async function POST(request: Request) {
         .insert(contactsToAdd);
 
       if (contactsError) {
+        console.error(contactsError);
         throw contactsError;
       }
     }
