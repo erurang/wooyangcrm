@@ -90,6 +90,7 @@ export default function DocumentsDetailsPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchDocNumber, setSearchDocNumber] = useState("");
+  const [searchNotes, setSearchNotes] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   // 🔹 로그인한 유저를 기본 선택값으로 설정
 
@@ -98,6 +99,7 @@ export default function DocumentsDetailsPage() {
   const companyIds = companies.map((company: any) => company.id);
   const debounceCompanyIds = useDebounce(companyIds, 300);
   const debounceDocNumber = useDebounce(searchDocNumber, 300);
+  const debounceNotes = useDebounce(searchNotes, 300);
 
   // swr
   const { users } = useUsersList();
@@ -110,6 +112,7 @@ export default function DocumentsDetailsPage() {
     page: currentPage,
     limit: documentsPerPage,
     companyIds: debounceCompanyIds,
+    notes: debounceNotes,
   });
 
   const { trigger: updateStatus, isMutating } = useUpdateDocumentStatus();
@@ -264,7 +267,7 @@ export default function DocumentsDetailsPage() {
       </div>
       {/* 검색 필터 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_0.5fr] gap-4">
           <div className="flex items-center justify-center">
             <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
               거래처명
@@ -295,6 +298,25 @@ export default function DocumentsDetailsPage() {
                 setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
               }}
               placeholder="WY-YYYYMMDD-NNNN"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              whileFocus={{
+                scale: 1.05,
+                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+              }}
+            />
+          </div>
+
+          <div className="flex items-center justify-center">
+            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+              특기사항
+            </label>
+            <motion.input
+              value={searchNotes}
+              onChange={(e) => {
+                setSearchNotes(e.target.value);
+                setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
+              }}
+              placeholder="...."
               className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
               whileFocus={{
                 scale: 1.05,

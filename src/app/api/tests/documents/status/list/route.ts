@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     const companyIds = searchParams.getAll("companyIds");
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(searchParams.get("limit") || 10);
+    const notes = searchParams.get("notes") || "";
     const start = (page - 1) * limit;
     const end = start + limit - 1;
 
@@ -32,6 +33,10 @@ export async function GET(request: Request) {
 
     if (docNumber) {
       query = query.ilike("document_number", `%${docNumber}%`);
+    }
+
+    if (notes) {
+      query = query.ilike("content->>notes", `%${notes}%`);
     }
 
     // 🔹 사용자 필터 추가 (선택적 적용)

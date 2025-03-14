@@ -14,6 +14,7 @@ export const useDocumentsStatusList = ({
   docNumber,
   limit,
   companyIds = [], // ✅ 기본값 설정 (빈 배열 허용)
+  notes,
 }: {
   userId?: string | null;
   type: string;
@@ -22,6 +23,7 @@ export const useDocumentsStatusList = ({
   limit: number;
   docNumber: string;
   companyIds?: string[];
+  notes?: string;
 }) => {
   // ✅ URL 동적 생성
   const queryParams = new URLSearchParams({
@@ -37,6 +39,7 @@ export const useDocumentsStatusList = ({
   if (status !== "all") {
     queryParams.append("status", status);
   }
+  if (notes) queryParams.append("notes", notes);
 
   // ✅ companyIds가 있을 때만 추가
   companyIds.forEach((id) => queryParams.append("companyIds", id));
