@@ -109,20 +109,22 @@ export default function TokenInfo() {
   }
 
   return (
-    <div className="px-3 text-xs text-[#5F5E5B] opacity-60 text-center">
+    <span className="px-3 text-xs text-[#5F5E5B] opacity-60 text-center">
       {userData ? (
         <>
-          <p>세션만료: {remainingTime}</p>
-          <p
+          <span>세션만료: </span>
+          <span className="w-28 font-mono">{remainingTime}</span>
+          <span
             className="cursor-pointer text-red-500 font-semibold"
-            onClick={() => handleLogout()}
+            onClick={handleLogout}
           >
+            {" "}
             로그아웃
-          </p>
+          </span>
         </>
       ) : (
-        <div className="text-sm text-red-500 px-3">로그인 만료됨</div>
+        <span className="text-sm text-red-500 px-3">로그인 만료됨</span>
       )}
-    </div>
+    </span>
   );
 }

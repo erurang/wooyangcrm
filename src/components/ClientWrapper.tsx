@@ -14,11 +14,11 @@ export default function ClientWrapper({
 
   return (
     <LoginUserProvider>
-      <div className="h-screen flex">
+      <div className="min-h-screen flex flex-col">
         <Sidebar />
         {/* {!isFullscreen && 
       } */}
-        <main className="overflow-auto w-full p-4">{children}</main>
+        <main className="flex-1 overflow-auto p-4">{children}</main>
       </div>
     </LoginUserProvider>
   );
