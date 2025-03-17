@@ -139,8 +139,6 @@ export default function SalesDashboard() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold">대시보드</p>
-
       {/* ✅ 사용자 인사 & 후속 상담 필요 고객 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">

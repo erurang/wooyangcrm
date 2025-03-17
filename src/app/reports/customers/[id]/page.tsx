@@ -102,16 +102,6 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="text-sm text-[#333]">
-      <div className="mb-4">
-        <Link
-          href="/reports/customers"
-          className="text-blue-500 hover:font-semibold"
-        >
-          거래처 목록{" "}
-        </Link>
-        <span className="text-[#333] font-semibold">- {company?.name}</span>
-      </div>
-
       {/* 🔹 거래처 정보 섹션 */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-6 shadow-sm">

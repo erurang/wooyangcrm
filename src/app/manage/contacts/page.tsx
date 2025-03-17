@@ -301,8 +301,6 @@ export default function ContactsPage() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold">담당자 검색</p>
-
       {/* 🔹 검색 필드 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="flex items-center justify-center">

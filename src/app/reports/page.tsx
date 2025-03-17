@@ -88,8 +88,6 @@ const ReportsOverview = () => {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold">매출/매입 리포트</p>
-
       <div className="grid grid-cols-2 gap-4">
         {/* 🔹 매출/매입 일보 테이블 */}
         <div>

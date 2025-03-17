@@ -409,17 +409,6 @@ export default function RnDsPage() {
   return (
     <div className="text-sm text-[#37352F]">
       <>
-        <div className="mb-4">
-          <Link
-            href="/manage/rnds"
-            className="text-blue-500 hover:underline hover:font-bold"
-          >
-            R&D 검색
-          </Link>{" "}
-          &gt; <span className="font-semibold">사업내역</span>
-          {/* &gt; 사업내역 */}
-        </div>
-
         {/* 🚀 거래처 기본 정보 */}
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4">

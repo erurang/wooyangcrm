@@ -504,17 +504,6 @@ export default function ConsultationPage() {
   return (
     <div className="text-sm text-[#37352F]">
       <>
-        <div className="mb-4">
-          <Link
-            href="/manage/customers"
-            className="text-blue-500 hover:underline hover:font-bold"
-          >
-            거래처 관리
-          </Link>{" "}
-          &gt; <span className="font-semibold">{companyDetail?.name}</span> &gt;
-          상담내역
-        </div>
-
         {/* 🚀 거래처 기본 정보 */}
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr] gap-4">

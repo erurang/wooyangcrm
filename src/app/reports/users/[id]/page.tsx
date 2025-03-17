@@ -228,16 +228,6 @@ export default function UserDetailPage() {
 
   return (
     <div className="text-sm text-[#333]">
-      <div className="mb-4">
-        {/* <Link
-          href="/reports/users"
-          className="text-blue-500 hover:font-semibold"
-        >
-          영업 직원 목록{" "}
-        </Link> */}
-        <span className="text-[#333] font-semibold">영업 기록</span>
-      </div>
-
       {/* 🔹 유저 정보 섹션 */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-6 shadow-sm">

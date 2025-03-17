@@ -468,7 +468,6 @@ export default function Page() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold">거래처 검색</p>
       <div>
         {/* 검색란 */}
         <div className="bg-[#FBFBFB] rounded-md border border-gray-300 p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_0.5fr] gap-4">

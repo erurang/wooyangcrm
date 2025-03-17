@@ -173,16 +173,6 @@ export default function ContactDetailPage() {
 
   return (
     <div className="text-sm text-[#333]">
-      <div className="mb-4">
-        <Link
-          href="/manage/contacts"
-          className="text-blue-500 hover:font-semibold"
-        >
-          담당자 관리{" "}
-        </Link>
-        <span className="text-[#333] font-semibold">- 상세정보</span>
-      </div>
-
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-6 shadow-sm">
           {/* 🔹 유저 정보 섹션 */}

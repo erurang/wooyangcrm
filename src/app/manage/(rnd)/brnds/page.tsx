@@ -300,7 +300,6 @@ export default function Page() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold">비 R&D 사업 검색</p>
       <div>
         <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="flex items-center justify-center">

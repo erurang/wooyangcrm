@@ -70,8 +70,6 @@ export default function UsersListPage() {
 
   return (
     <div className="text-sm text-[#333]">
-      <p className="mb-4 font-semibold">영업 직원 목록</p>
-
       {/* 🔍 검색 & 필터 */}
       <div className="flex space-x-4 mb-4">
         <input

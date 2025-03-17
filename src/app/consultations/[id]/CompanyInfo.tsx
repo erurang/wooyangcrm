@@ -90,7 +90,6 @@ export default function CompanyInfo(id: any) {
             </>
           ) : (
             <div>
-              <h2 className="font-semibold text-md mb-1">거래처</h2>
               <ul className="space-y-1 text-gray-700 text-sm pl-1">
                 <li className="flex items-center">
                   <span className="font-medium w-14">회사명</span>

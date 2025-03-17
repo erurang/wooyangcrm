@@ -97,8 +97,6 @@ export default function CompanySalesReport() {
 
   return (
     <div className="text-sm text-[#333]">
-      <p className="mb-4 font-semibold">거래처별 분석</p>
-
       {/* 🔹 검색 & 필터 UI */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="flex items-center justify-center">

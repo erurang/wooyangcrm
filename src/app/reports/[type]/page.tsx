@@ -39,11 +39,6 @@ const ReportsPage = () => {
 
   return (
     <div className="text-sm">
-      <h1 className="text-2xl font-bold mb-4">
-        {selectedDate}{" "}
-        {type === "estimate" ? `매출${reportTitle}` : `매입${reportTitle}`}
-      </h1>
-
       {/* 🔹 총 매출액 / 매입액 표시 */}
       <div className="mb-4 text-lg font-semibold">
         총 {type === "estimate" ? "매출액" : "매입액"}:{" "}

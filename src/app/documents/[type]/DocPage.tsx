@@ -691,28 +691,6 @@ const DocPage = () => {
 
   return (
     <div className="text-sm">
-      <div className="mb-2">
-        <Link
-          href="/manage/customers"
-          className="text-blue-500 hover:font-bold"
-        >
-          거래처 관리
-        </Link>{" "}
-        &gt; <span className="font-semibold">{newDocument.company_name}</span>{" "}
-        &gt;{" "}
-        <span
-          // onClick={() => router.push(`/consultations/${companyId}`)}
-          onClick={() => router.back()}
-          className="text-blue-500 hover:font-bold cursor-pointer"
-        >
-          상담내역
-        </span>{" "}
-        &gt; {type === "estimate" && "견적서"}
-        {type === "order" && "발주서"}
-        {type === "requestQuote" && "의뢰서"} &gt; {id?.slice(0, 4)}
-      </div>
-      <p>위의 파랑버튼을 눌러 뒤로 돌아갈수있어요.</p>
-
       <div className="flex my-3">
         <div
           className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"

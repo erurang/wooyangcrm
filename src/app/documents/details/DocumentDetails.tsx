@@ -255,16 +255,6 @@ export default function DocumentsDetailsPage() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <div className="mb-4">
-        <Link
-          href="/documents"
-          className="text-blue-500 hover:underline hover:font-bold"
-        >
-          문서 관리
-        </Link>{" "}
-        &gt;{" "}
-        <span className="font-semibold">{`${typeToKorean[type]} 관리`}</span>
-      </div>
       {/* 검색 필터 */}
       <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
         <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_0.5fr] gap-4">

@@ -71,7 +71,6 @@ export default function DocumentsDashboard() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <p className="mb-4 font-semibold">문서 관리</p>
       {loading ? (
         <p>로딩 중...</p>
       ) : (
