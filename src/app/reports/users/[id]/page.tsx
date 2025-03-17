@@ -213,6 +213,8 @@ export default function UserDetailPage() {
       0
     );
 
+  const docTypes = ["estimate", "order", "requestQuote"];
+
   const getStatusText = (status: string) => {
     switch (status) {
       case "pending":
@@ -226,12 +228,24 @@ export default function UserDetailPage() {
     }
   };
 
+  function getDocTypeLabel(type: string) {
+    switch (type) {
+      case "estimate":
+        return "견적서";
+      case "order":
+        return "발주서";
+      case "requestQuote":
+        return "의뢰서";
+      default:
+        return "기타 문서";
+    }
+  }
+
   return (
     <div className="text-sm text-[#333]">
-      {/* 🔹 유저 정보 섹션 */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      {/* 🔹 상단: 유저 정보 및 탭 버튼 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-6 shadow-sm">
-          {/* 🔹 유저 정보 섹션 */}
           <div className="flex justify-between items-center border-b pb-4 mb-4">
             <div>
               <p className="text-xl font-bold text-gray-800">
@@ -278,56 +292,59 @@ export default function UserDetailPage() {
               </button>
             </div>
           </div>
-          <div className="text-sm text-gray-600 mt-2 grid grid-cols-2 ">
+
+          {/* 🔹 매출/매입 현황 요약 */}
+          <div className="text-sm text-gray-600 mt-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <p>
-                확정 매출 -{" "}
+                확정 매출:{" "}
                 <span className="font-semibold text-gray-800">
-                  {completedSales.toLocaleString()} 원
+                  {completedSales?.toLocaleString()} 원
                 </span>
               </p>
               <p>
-                진행 매출 -{" "}
+                진행 매출:{" "}
                 <span className="font-semibold text-gray-800">
-                  {pendingSales.toLocaleString()} 원
+                  {pendingSales?.toLocaleString()} 원
                 </span>
               </p>
               <p>
-                취소 매출 -{" "}
+                취소 매출:{" "}
                 <span className="font-semibold text-gray-800">
-                  {canceledSales.toLocaleString()} 원
+                  {canceledSales?.toLocaleString()} 원
                 </span>
               </p>
             </div>
             <div className="space-y-2">
               <p>
-                확정 매입 -{" "}
+                확정 매입:{" "}
                 <span className="font-semibold text-gray-800">
-                  {completedPurchases.toLocaleString()} 원
+                  {completedPurchases?.toLocaleString()} 원
                 </span>
               </p>
               <p>
-                진행 매입 -{" "}
+                진행 매입:{" "}
                 <span className="font-semibold text-gray-800">
-                  {pendingPurchases.toLocaleString()} 원
+                  {pendingPurchases?.toLocaleString()} 원
                 </span>
               </p>
               <p>
-                취소 매입 -{" "}
+                취소 매입:{" "}
                 <span className="font-semibold text-gray-800">
-                  {canceledPurchases.toLocaleString()} 원
+                  {canceledPurchases?.toLocaleString()} 원
                 </span>
               </p>
             </div>
           </div>
         </div>
 
+        {/* 🔹 필터 + 문서 현황 */}
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-          <p className="text-lg font-semibold text-gray-700 ">
+          <p className="text-lg font-semibold text-gray-700 mb-2">
             📅 데이터 기간 선택
           </p>
-          <div className="grid grid-cols-3 gap-4 mt-2">
-            {/* 🔹 연도 선택 */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-2">
+            {/* 연도 */}
             <select
               className="border-2 border-blue-400 p-2 rounded-md text-gray-700 w-full"
               value={selectedYear}
@@ -345,8 +362,7 @@ export default function UserDetailPage() {
                 }
               )}
             </select>
-
-            {/* 🔹 필터 선택 */}
+            {/* 필터 */}
             <select
               className="border p-2 rounded-md w-full"
               value={dateFilter}
@@ -358,8 +374,7 @@ export default function UserDetailPage() {
               <option value="quarter">분기별</option>
               <option value="month">월별</option>
             </select>
-
-            {/* 🔹 분기 선택 */}
+            {/* 분기 */}
             {dateFilter === "quarter" && (
               <select
                 className="border p-2 rounded-md w-full"
@@ -372,8 +387,7 @@ export default function UserDetailPage() {
                 <option value="4">4분기 (10~12월)</option>
               </select>
             )}
-
-            {/* 🔹 월 선택 */}
+            {/* 월 */}
             {dateFilter === "month" && (
               <select
                 className="border p-2 rounded-md w-full"
@@ -388,84 +402,81 @@ export default function UserDetailPage() {
               </select>
             )}
           </div>
-          <div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              {/* ✅ 견적서 */}
-              <div className="bg-white p-4 rounded-lg shadow">
-                <p className="text-md font-semibold">📄 견적서</p>
-                <ul className="mt-2 space-y-2">
-                  <li className="flex justify-between text-sm text-yellow-700 font-medium">
-                    진행 중{" "}
-                    <span className="font-bold text-yellow-600">
-                      {estimates.pending}건
-                    </span>
-                  </li>
-                  <li className="flex justify-between text-sm text-green-700 font-medium">
-                    완료됨{" "}
-                    <span className="font-bold text-green-600">
-                      {estimates.completed}건
-                    </span>
-                  </li>
-                  <li className="flex justify-between text-sm text-red-700 font-medium">
-                    취소됨{" "}
-                    <span className="font-bold text-red-600">
-                      {estimates.canceled}건
-                    </span>
-                  </li>
-                </ul>
-              </div>
 
-              {/* ✅ 발주서 */}
-              <div className="bg-white p-4 rounded-lg shadow">
-                <p className="text-md font-semibold ">📑 발주서</p>
-                <ul className="mt-2 space-y-2">
-                  <li className="flex justify-between text-sm text-yellow-700 font-medium">
-                    진행 중{" "}
-                    <span className="font-bold text-yellow-600">
-                      {orders.pending}건
-                    </span>
-                  </li>
-                  <li className="flex justify-between text-sm text-green-700 font-medium">
-                    완료됨{" "}
-                    <span className="font-bold text-green-600">
-                      {orders.completed}건
-                    </span>
-                  </li>
-                  <li className="flex justify-between text-sm text-red-700 font-medium">
-                    취소됨{" "}
-                    <span className="font-bold text-red-600">
-                      {orders.canceled}건
-                    </span>
-                  </li>
-                </ul>
-              </div>
+          {/* 견적서 / 발주서 현황 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div className="bg-white p-4 rounded-lg shadow">
+              <p className="text-md font-semibold">📄 견적서</p>
+              <ul className="mt-2 space-y-2">
+                <li className="flex justify-between text-sm text-yellow-700 font-medium">
+                  진행 중{" "}
+                  <span className="font-bold text-yellow-600">
+                    {estimates?.pending || 0}건
+                  </span>
+                </li>
+                <li className="flex justify-between text-sm text-green-700 font-medium">
+                  완료됨{" "}
+                  <span className="font-bold text-green-600">
+                    {estimates?.completed || 0}건
+                  </span>
+                </li>
+                <li className="flex justify-between text-sm text-red-700 font-medium">
+                  취소됨{" "}
+                  <span className="font-bold text-red-600">
+                    {estimates?.canceled || 0}건
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-white p-4 rounded-lg shadow">
+              <p className="text-md font-semibold">📑 발주서</p>
+              <ul className="mt-2 space-y-2">
+                <li className="flex justify-between text-sm text-yellow-700 font-medium">
+                  진행 중{" "}
+                  <span className="font-bold text-yellow-600">
+                    {orders?.pending || 0}건
+                  </span>
+                </li>
+                <li className="flex justify-between text-sm text-green-700 font-medium">
+                  완료됨{" "}
+                  <span className="font-bold text-green-600">
+                    {orders?.completed || 0}건
+                  </span>
+                </li>
+                <li className="flex justify-between text-sm text-red-700 font-medium">
+                  취소됨{" "}
+                  <span className="font-bold text-red-600">
+                    {orders?.canceled || 0}건
+                  </span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
 
-      {/*  */}
+      {/* 🔹 탭별 섹션 */}
       {activeTab === "consultation" && (
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 mb-4">
-          {/* <h2 className="text-lg font-bold mb-4">상담 내역 & 문서 & 품목</h2> */}
-
-          {/* 🔹 스크롤 가능 영역 */}
+          {/* 상담 내역 */}
           <div className="overflow-x-auto">
-            <div className="grid grid-cols-[2fr_1fr_2fr] gap-6 min-w-[900px] text-gray-700 text-lg font-bold">
+            {/* 헤더 */}
+            <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] gap-6 min-w-[900px] text-gray-700 text-lg font-bold">
               <div>상담 기록</div>
               <div>관련 문서</div>
               <div>품목 리스트</div>
             </div>
 
-            {/* 🔹 상담 기록 + 문서 + 품목 */}
+            {/* 본문 */}
             <div className="space-y-4 mt-2 overflow-y-auto max-h-[700px]">
               {documentsDetails?.map((user: any) =>
                 user.consultations.map((consultation: any) => (
                   <div
                     key={consultation.consultation_id}
-                    className="grid grid-cols-[2fr_1fr_2fr] gap-6 items-center border-b pb-4"
+                    className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] gap-6 items-center border-b pb-4"
                   >
-                    {/* 🔹 상담 기록 */}
+                    {/* 상담 기록 */}
                     <div
                       className="p-3 border rounded-md bg-white hover:bg-gray-100 cursor-pointer"
                       onClick={() =>
@@ -483,62 +494,63 @@ export default function UserDetailPage() {
                       </p>
                     </div>
 
-                    {/* 🔹 관련 문서 */}
-                    <div className="p-3 border rounded-md bg-white hover:bg-gray-100">
-                      {consultation.documents.length > 0 ? (
-                        consultation.documents.map((doc: any) => (
-                          <div
-                            key={doc.document_id}
-                            className=" cursor-pointer"
-                            onClick={() =>
-                              window.open(
-                                `/documents/estimate?consultId=${consultation.consultation_id}&compId=${consultation?.company_id}&fullscreen=true`,
-                                "_blank",
-                                "width=1200,height=800,top=100,left=100"
-                              )
-                            }
-                          >
-                            <p className="text-sm font-semibold text-blue-600">
-                              {doc.type === "estimate"
-                                ? "📄 견적서"
-                                : "📑 발주서"}
-                              <span className="pl-2">
-                                ({getStatusText(doc.status)})
-                              </span>
-                            </p>
-                            <p className="text-xs text-gray-700">
-                              문서번호:{" "}
-                              <span className="font-semibold">
-                                {doc.document_number}
-                              </span>
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              생성일: {doc.created_at.split("T")[0]}
-                            </p>
-                            <p className="text-xs">
-                              담당자:{" "}
-                              <span className="font-semibold">
-                                {doc.user.name}
-                              </span>{" "}
-                              ({doc.user.level})
-                            </p>
+                    {/* 관련 문서 */}
+                    <div className="p-3 border rounded-md bg-white">
+                      {docTypes.map((docType) => {
+                        const docsOfThisType = consultation.documents.filter(
+                          (doc: any) => doc.type === docType
+                        );
+                        if (docsOfThisType.length === 0) return null;
+
+                        return (
+                          <div key={docType} className="mb-4">
+                            <h2 className="font-semibold text-gray-600 mb-2">
+                              {getDocTypeLabel(docType)}
+                            </h2>
+                            {docsOfThisType.map((doc: any) => (
+                              <div
+                                key={doc.document_id}
+                                className="mb-2 p-2 border rounded bg-white shadow-sm cursor-pointer hover:bg-gray-50"
+                                onClick={() =>
+                                  window.open(
+                                    `/documents/${doc.type}?consultId=${consultation.consultation_id}&compId=${consultation.company_id}&fullscreen=true`,
+                                    "_blank",
+                                    "width=1200,height=800,top=100,left=100"
+                                  )
+                                }
+                              >
+                                <p className="text-sm font-semibold text-blue-600">
+                                  {getDocTypeLabel(doc.type)} (
+                                  {getStatusText(doc.status)})
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  문서번호: {doc.document_number}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  생성일: {doc.created_at.split("T")[0]}
+                                </p>
+                                <p className="text-xs">
+                                  담당자:{" "}
+                                  <span className="font-semibold">
+                                    {doc.user.name}
+                                  </span>{" "}
+                                  ({doc.user.level})
+                                </p>
+                              </div>
+                            ))}
                           </div>
-                        ))
-                      ) : (
-                        <p className="text-gray-400 text-sm">
-                          📂 관련 문서 없음
-                        </p>
-                      )}
+                        );
+                      })}
                     </div>
 
-                    {/* 🔹 품목 리스트 */}
+                    {/* 품목 리스트 */}
                     <div className="p-3 border rounded-md bg-white">
                       {consultation.documents.length > 0 ? (
                         consultation.documents.map((doc: any) =>
                           doc.items.map((item: any, itemIndex: any) => (
                             <div
                               key={itemIndex}
-                              className="grid grid-cols-4 gap-4 p-2 border rounded-md bg-gray-50 text-sm"
+                              className="grid grid-cols-4 gap-4 p-2 border rounded-md bg-gray-50 text-sm mb-2"
                             >
                               <span className="text-gray-700">{item.name}</span>
                               <span className="text-gray-500">{item.spec}</span>
@@ -562,21 +574,19 @@ export default function UserDetailPage() {
           </div>
         </div>
       )}
-      {/*  */}
-      {/* 🔹 차트 (견적 & 발주 실적) */}
+
       {activeTab === "sales" && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* 거래처별 매출 비중 */}
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
             <p className="text-lg font-semibold mb-4">🏢 거래처별 매출 비중</p>
-            {/* 🔹 매출 차트 */}
-
             <ReactApexChart
               options={{
                 labels: salesChart.labels,
                 legend: { position: "bottom" },
                 yaxis: {
                   labels: {
-                    formatter: (value: number) => value.toLocaleString(), // ✅ 콤마 추가
+                    formatter: (value: number) => value.toLocaleString(),
                   },
                 },
               }}
@@ -585,35 +595,35 @@ export default function UserDetailPage() {
               height={300}
             />
           </div>
+
+          {/* 견적 금액 (Area Chart) */}
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
             <p className="text-lg font-semibold mb-4">📈 견적 금액</p>
             <ReactApexChart
               options={{
                 chart: { type: "area" },
                 xaxis: {
-                  categories: ["진행 중", "완료", "취소"], // X축: 진행 중, 완료, 취소
+                  categories: ["진행 중", "완료", "취소"],
                 },
                 yaxis: {
                   labels: {
-                    formatter: (value) => value.toLocaleString(), // 숫자 천 단위 콤마 적용
+                    formatter: (value) => value.toLocaleString(),
                   },
                 },
-                stroke: {
-                  curve: "smooth", // 부드러운 곡선
-                },
+                stroke: { curve: "smooth" },
                 dataLabels: {
                   enabled: true,
                   formatter: (value) => value.toLocaleString(),
                 },
-                colors: ["#3498db", "#2ecc71", "#e74c3c"], // 진행 중(파랑), 완료(초록), 취소(빨강)
+                colors: ["#3498db", "#2ecc71", "#e74c3c"],
               }}
               series={[
                 {
                   name: "견적 실적",
                   data: [
-                    salesSummary?.[userId]?.estimates?.pending || 0, // 진행 중
-                    salesSummary?.[userId]?.estimates?.completed || 0, // 완료
-                    salesSummary?.[userId]?.estimates?.canceled || 0, // 취소
+                    salesSummary?.[userId]?.estimates?.pending || 0,
+                    salesSummary?.[userId]?.estimates?.completed || 0,
+                    salesSummary?.[userId]?.estimates?.canceled || 0,
                   ],
                 },
               ]}
@@ -622,6 +632,7 @@ export default function UserDetailPage() {
             />
           </div>
 
+          {/* 매출 품목 */}
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
             <p className="text-lg font-semibold mb-2">📦 매출 품목</p>
             {aggregatedSalesProducts.length > 0 ? (
@@ -636,6 +647,7 @@ export default function UserDetailPage() {
             )}
           </div>
 
+          {/* 매출 거래처 */}
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
             <p className="text-lg font-semibold mb-2">🏢 매출 거래처</p>
             {aggregatedSalesCompanies.length > 0 ? (
@@ -652,11 +664,9 @@ export default function UserDetailPage() {
       )}
 
       {activeTab === "purchase" && (
-        <div className="grid grid-cols-2 gap-4 my-4">
-          {/* 🔹 매출 거래처 목록 */}
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 my-4">
+          {/* 거래처별 매입 비중 */}
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
-            {" "}
             <p className="text-lg font-semibold mb-4">🏢 거래처별 매입 비중</p>
             <ReactApexChart
               options={{
@@ -664,7 +674,7 @@ export default function UserDetailPage() {
                 legend: { position: "bottom" },
                 yaxis: {
                   labels: {
-                    formatter: (value: number) => value.toLocaleString(), // ✅ 콤마 추가
+                    formatter: (value: number) => value.toLocaleString(),
                   },
                 },
               }}
@@ -674,36 +684,34 @@ export default function UserDetailPage() {
             />
           </div>
 
-          {/* 🟩 발주 실적 (Area Chart) */}
+          {/* 발주 금액 (Area Chart) */}
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
             <p className="text-lg font-semibold mb-4">📈 발주 금액</p>
             <ReactApexChart
               options={{
                 chart: { type: "area" },
                 xaxis: {
-                  categories: ["진행 중", "완료", "취소"], // X축: 진행 중, 완료, 취소
+                  categories: ["진행 중", "완료", "취소"],
                 },
                 yaxis: {
                   labels: {
-                    formatter: (value) => value.toLocaleString(), // 숫자 천 단위 콤마 적용
+                    formatter: (value) => value.toLocaleString(),
                   },
                 },
-                stroke: {
-                  curve: "smooth", // 부드러운 곡선
-                },
+                stroke: { curve: "smooth" },
                 dataLabels: {
                   enabled: true,
                   formatter: (value) => value.toLocaleString(),
                 },
-                colors: ["#1abc9c", "#f39c12", "#e74c3c"], // 진행 중(초록), 완료(노랑), 취소(빨강)
+                colors: ["#1abc9c", "#f39c12", "#e74c3c"],
               }}
               series={[
                 {
                   name: "발주 실적",
                   data: [
-                    salesSummary?.[userId]?.orders?.pending || 0, // 진행 중
-                    salesSummary?.[userId]?.orders?.completed || 0, // 완료
-                    salesSummary?.[userId]?.orders?.canceled || 0, // 취소
+                    salesSummary?.[userId]?.orders?.pending || 0,
+                    salesSummary?.[userId]?.orders?.completed || 0,
+                    salesSummary?.[userId]?.orders?.canceled || 0,
                   ],
                 },
               ]}
@@ -712,7 +720,7 @@ export default function UserDetailPage() {
             />
           </div>
 
-          {/* 🔹 매입 거래처 목록 */}
+          {/* 매입 거래처 */}
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
             <p className="text-lg font-semibold mb-2">🏢 매입 거래처</p>
             {aggregatedPurchaseCompanies.length > 0 ? (
@@ -726,7 +734,7 @@ export default function UserDetailPage() {
             )}
           </div>
 
-          {/* 🔹 매입 품목 목록 */}
+          {/* 매입 품목 */}
           <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
             <p className="text-lg font-semibold mb-2">📦 매입 품목</p>
             {aggregatedPurchaseProducts.length > 0 ? (

@@ -83,18 +83,18 @@ export default function ProductPage() {
   return (
     <div className="text-sm text-[#37352F]">
       {/* 검색 필터 */}
-      <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
-        <div className="grid grid-cols-3 gap-4 items-center">
+      <div className="bg-[#FBFBFB] rounded-md border px-4 py-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-center">
           {/* 회사명 */}
-          <div className="col-span-1 flex items-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              거래처명
+          <div className="flex items-center justify-center">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[60px]">
+              거래처
             </label>
             <motion.input
               value={searchCompany}
               onChange={(e) => setSearchCompany(e.target.value)}
               placeholder="거래처명"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="p-2 border-r border-t border-b border-gray-300 rounded-r w-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -103,8 +103,8 @@ export default function ProductPage() {
           </div>
 
           {/* 물품명 */}
-          <div className="col-span-1 flex items-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+          <div className="flex items-center justify-center">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[60px]">
               물품명
             </label>
             <motion.input
@@ -114,7 +114,7 @@ export default function ProductPage() {
                 setCurrentPage(1);
               }}
               placeholder="물품명"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="p-2 border-r border-t border-b border-gray-300 rounded-r w-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -123,8 +123,8 @@ export default function ProductPage() {
           </div>
 
           {/* 규격 */}
-          <div className="col-span-1 flex items-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+          <div className="flex items-center justify-center">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[60px]">
               규격
             </label>
             <motion.input
@@ -134,7 +134,7 @@ export default function ProductPage() {
                 setCurrentPage(1);
               }}
               placeholder="규격"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="p-2 border-r border-t border-b border-gray-300 rounded-r w-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -143,11 +143,11 @@ export default function ProductPage() {
           </div>
 
           {/* 단가 */}
-          <div className="col-span-1 flex items-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+          <div className="flex items-center justify-center">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[60px]">
               단가
             </label>
-            <div className="w-3/4 flex space-x-2">
+            <div className="flex space-x-2">
               <motion.input
                 type="number"
                 value={minPrice}
@@ -156,7 +156,7 @@ export default function ProductPage() {
                   setCurrentPage(1);
                 }}
                 placeholder="최소 단가"
-                className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+                className="p-2 border-r border-t border-b border-gray-300 rounded-r w-full"
                 whileFocus={{
                   scale: 1.05,
                   boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -171,7 +171,7 @@ export default function ProductPage() {
                   setCurrentPage(1);
                 }}
                 placeholder="최대 단가"
-                className="w-3/4 p-2 border border-gray-300 rounded-md"
+                className="p-2 border border-gray-300 rounded-md w-full"
                 whileFocus={{
                   scale: 1.05,
                   boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -182,11 +182,11 @@ export default function ProductPage() {
           {/* 상담자 */}
           {(user?.role === "admin" || user?.role === "managementSupport") && (
             <div className="flex items-center justify-center">
-              <label className="w-1/4 block p-2 border rounded-l-md">
+              <label className="p-2 border border-gray-300 rounded-l min-w-[60px]">
                 상담자
               </label>
               <motion.select
-                className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+                className="p-2 border-r border-t border-b border-gray-300 rounded-r w-full h-full"
                 value={selectedUser?.id || ""}
                 onChange={(e) => {
                   const user =
@@ -207,8 +207,8 @@ export default function ProductPage() {
           )}
 
           {/* 상태 */}
-          <div className="col-span-1 flex items-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+          <div className="flex items-center justify-center">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[60px]">
               상태
             </label>
             <select
@@ -217,7 +217,7 @@ export default function ProductPage() {
                 setStatus(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-3/4 p-2 border-r border-b border-t border-gray-300 rounded-r-md"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
             >
               <option value="all">전체</option>
               <option value="pending">진행 중</option>
@@ -251,26 +251,32 @@ export default function ProductPage() {
         <table className="min-w-full table-auto border-collapse">
           <thead>
             <tr className="bg-gray-100 text-center">
-              <th className="px-4 py-2 border-b border-r">
+              <th className="px-4 py-2 border-b border-r hidden md:table-cell">
                 {type === "estimate" ? "견적" : "발주"} 날짜
               </th>
-              <th className="px-4 py-2 border-b border-r">거래처명</th>
+              <th className="px-4 py-2 border-b border-r hidden md:table-cell">
+                거래처명
+              </th>
               <th className="px-4 py-2 border-b border-r">물품명</th>
               <th className="px-4 py-2 border-b border-r">규격</th>
-              <th className="px-4 py-2 border-b border-r">수량</th>
+              <th className="px-4 py-2 border-b border-r ">수량</th>
               <th className="px-4 py-2 border-b border-r">단가</th>
-              <th className="px-4 py-2 border-b border-r">담당</th>
-              <th className="px-4 py-2 border-b border-r">상태</th>
+              <th className="px-4 py-2 border-b border-r hidden md:table-cell">
+                담당
+              </th>
+              <th className="px-4 py-2 border-b border-r hidden md:table-cell">
+                상태
+              </th>
             </tr>
           </thead>
           <tbody>
             {products?.map((product: any, index: any) => (
               <tr className="hover:bg-gray-50 text-center" key={index}>
-                <td className="px-4 py-2 border-b border-r">
+                <td className="px-4 py-2 border-b border-r hidden md:table-cell">
                   {dayjs(product.estimate_date).format("YYYY-MM-DD")}
                 </td>
                 <td
-                  className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
+                  className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer hidden md:table-cell"
                   onClick={() =>
                     router.push(`/consultations/${product.company_id}`)
                   }
@@ -286,14 +292,14 @@ export default function ProductPage() {
                   {product.unit_price.toLocaleString()} 원
                 </td>
                 <td
-                  className="px-4 py-2 border-b border-r"
+                  className="px-4 py-2 border-b border-r hidden md:table-cell"
                   // onClick={() =>
                   //   router.push(`/reports/users/${product.user_id}`)
                   // }
                 >
                   {product.user_name} {product.user_level}
                 </td>
-                <td className="px-4 py-2 border-b cursor-pointer">
+                <td className="px-4 py-2 border-b cursor-pointer hidden md:table-cell">
                   {product.status === "pending" && "진행중"}
                   {product.status === "canceled" && "취소"}
                   {product.status === "completed" && "완료"}

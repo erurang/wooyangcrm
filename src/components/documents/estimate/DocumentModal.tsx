@@ -965,7 +965,12 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-md w-2/3 max-w-6xl max-h-screen overflow-y-scroll">
+      <div
+        className={`
+        bg-white p-6 rounded-md max-h-screen overflow-y-scroll
+        w-full md:w-2/3 md:max-w-6xl
+      `}
+      >
         {type === "estimate" && (
           <>
             <div className="flex justify-center relative">
@@ -988,25 +993,18 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               <div className="absolute -bottom-6 border-b-2 border-black w-full"></div>
             </div>
             <div className="mt-10"></div>
-            {/* <div className="flex justify-end">
-          <div className="relative">
-            <h1>견적일자 : 2025년 1월 9일</h1>
-            <div className="absolute -bottom-2 border-b-[1px] border-black w-full"></div>
-          </div>
-        </div> */}
 
-            <div className="grid grid-cols-5 mt-12 ">
-              <div className="col-span-2 space-y-2 pr-16 font-semibold">
-                {/* <div className="relative">
-              <p>견적번호 : {document.document_number}</p>
-              <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
-            </div> */}
+            <div className="grid grid-cols-1 md:grid-cols-5 mt-12">
+              <div className="col-span-3 space-y-2 font-semibold pr-0 md:pr-16">
                 <div className="relative">
                   <p>회사명 : {document.content.company_name}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
-                  <p>담당자명 : {document.contact_name}</p>
+                  <p>
+                    담당자명 : {document.contact_name} {document.contact_level}
+                    님
+                  </p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
@@ -1041,7 +1039,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                 </div>
                 <p>아래와 같이 견적합니다.</p>
               </div>
-              <div className="col-span-2 space-y-2 ml-12">
+              <div className="col-span-2 space-y-2 ml-12 hidden md:block">
                 <div className="flex items-center space-x-6">
                   <Image
                     src={"/images/logo.gif"}
@@ -1087,7 +1085,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               <table className="min-w-full table-auto border-collapse text-center mt-6">
                 <thead>
                   <tr className="bg-gray-100 text-left border-black border-2">
-                    <th className="px-4 py-2 border-black border-r-[1px] text-center">
+                    <th className="px-4 py-2 border-black border-r-[1px] text-center hidden md:table-cell">
                       No
                     </th>
                     <th className="px-4 py-2 border-black border-r-[1px] text-center  w-5/12">
@@ -1102,7 +1100,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                     <th className="px-4 py-2 border-black border-r-[1px] text-center">
                       단가
                     </th>
-                    <th className="px-4 py-2 border-black border-r-[1px] text-center">
+                    <th className="px-4 py-2 border-black border-r-[1px] text-center hidden md:table-cell">
                       금액
                     </th>
                   </tr>
@@ -1113,7 +1111,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                       className="hover:bg-gray-50 border-b-[1px] border-black"
                       key={index}
                     >
-                      <td className="px-4 py-2 border-black border-r-[1px]">
+                      <td className="px-4 py-2 border-black border-r-[1px] hidden md:table-cell">
                         {index + 1}
                       </td>
                       <td className="px-4 py-2 border-black border-r-[1px]">
@@ -1128,7 +1126,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                       <td className="px-4 py-2 border-black border-r-[1px]">
                         {item.unit_price.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 border-black border-r-[1px]">
+                      <td className="px-4 py-2 border-black border-r-[1px] hidden md:table-cell">
                         {item.amount?.toLocaleString()}
                       </td>
                     </tr>
@@ -1210,8 +1208,8 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               <div className="absolute -bottom-6 border-b-2 border-black w-full"></div>
             </div>
             <div className="mt-10"></div>
-            <div className="grid grid-cols-5 mt-12 ">
-              <div className="col-span-2 space-y-2 pr-16 font-semibold">
+            <div className="grid grid-cols-1 md:grid-cols-5 mt-12">
+              <div className="col-span-3 space-y-2 font-semibold pr-0 md:pr-16">
                 <div className="relative">
                   <p>회사명 : {document.content.company_name}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
@@ -1247,7 +1245,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                 </div>
                 <p>아래와 같이 발주합니다.</p>
               </div>
-              <div className="col-span-2 space-y-2 ml-12">
+              <div className="col-span-2 space-y-2 ml-12 hidden md:block">
                 <div className="flex items-center space-x-6">
                   <Image
                     src={"/images/logo.gif"}
@@ -1293,7 +1291,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               <table className="min-w-full table-auto border-collapse text-center mt-6">
                 <thead>
                   <tr className="bg-gray-100 text-left border-black border-2">
-                    <th className="px-4 py-2 border-black border-r-[1px] text-center">
+                    <th className="px-4 py-2 border-black border-r-[1px] text-center hidden md:table-cell">
                       No
                     </th>
                     <th className="px-4 py-2 border-black border-r-[1px] text-center  w-5/12">
@@ -1308,7 +1306,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                     <th className="px-4 py-2 border-black border-r-[1px] text-center">
                       단가
                     </th>
-                    <th className="px-4 py-2 border-black border-r-[1px] text-center">
+                    <th className="px-4 py-2 border-black border-r-[1px] text-center hidden md:table-cell">
                       금액
                     </th>
                   </tr>
@@ -1319,7 +1317,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                       className="hover:bg-gray-50 border-b-[1px] border-black"
                       key={index}
                     >
-                      <td className="px-4 py-2 border-black border-r-[1px]">
+                      <td className="px-4 py-2 border-black border-r-[1px] hidden md:table-cell">
                         {index + 1}
                       </td>
                       <td className="px-4 py-2 border-black border-r-[1px]">
@@ -1334,7 +1332,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                       <td className="px-4 py-2 border-black border-r-[1px]">
                         {item.unit_price.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 border-black border-r-[1px]">
+                      <td className="px-4 py-2 border-black border-r-[1px] hidden md:table-cell">
                         {item.amount?.toLocaleString()}
                       </td>
                     </tr>
@@ -1414,8 +1412,8 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               <div className="absolute -bottom-6 border-b-2 border-black w-full"></div>
             </div>
             <div className="mt-10"></div>
-            <div className="grid grid-cols-5 mt-12 ">
-              <div className="col-span-2 space-y-2 pr-16 font-semibold">
+            <div className="grid grid-cols-1 md:grid-cols-5 mt-12">
+              <div className="col-span-3 space-y-2 font-semibold pr-0 md:pr-16">
                 <div className="relative">
                   <p>회사명 : {document.content.company_name}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
@@ -1443,7 +1441,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                 </div>
                 <p>아래와 같이 견적을 의뢰합니다.</p>
               </div>
-              <div className="col-span-2 space-y-2 ml-12">
+              <div className="col-span-2 space-y-2 ml-12 hidden md:block">
                 <div className="flex items-center space-x-6">
                   <Image
                     src={"/images/logo.gif"}
@@ -1489,7 +1487,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               <table className="min-w-full table-auto border-collapse text-center mt-6">
                 <thead>
                   <tr className="bg-gray-100 text-left border-black border-2">
-                    <th className="px-4 py-2 border-black border-r-[1px] text-center">
+                    <th className="px-4 py-2 border-black border-r-[1px] text-center hidden md:table-cell">
                       No
                     </th>
                     <th className="px-4 py-2 border-black border-r-[1px] text-center  w-5/12">
@@ -1515,7 +1513,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                       className="hover:bg-gray-50 border-b-[1px] border-black"
                       key={index}
                     >
-                      <td className="px-4 py-2 border-black border-r-[1px]">
+                      <td className="px-4 py-2 border-black border-r-[1px] hidden md:table-cell">
                         {index + 1}
                       </td>
                       <td className="px-4 py-2 border-black border-r-[1px]">

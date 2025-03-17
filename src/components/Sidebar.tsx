@@ -3,21 +3,19 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useLoginUser } from "@/context/login";
 import TokenInfo from "./TokenInfo";
 import SnackbarComponent from "./Snackbar";
 import { useFavorites } from "@/hooks/favorites/useFavorites";
 import Image from "next/image";
 
-// 1차 메뉴 아이템 (상단)
 interface MainMenuItem {
   id: string;
   title: string;
   subItems: SubMenuItem[];
 }
 
-// 2차 메뉴 아이템 (하단)
 interface SubMenuItem {
   id: string;
   title: string;
@@ -27,12 +25,13 @@ interface SubMenuItem {
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const user = useLoginUser();
-  const [activeMainId, setActiveMainId] = useState<string | null>(null);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false); // 햄버거 메뉴 열림 여부
   const { favorites, isLoading, isError } = useFavorites(user?.id);
 
-  // 1) 기본 menuSections
+  // 1) 기존 menuSections 로직
   const baseMenuSections = [
     {
       title: "대시보드",
@@ -143,7 +142,7 @@ export default function Header() {
     });
   }
 
-  // 2) 즐겨찾기 섹션 + Works 버튼(즐겨찾기에 표시)
+  // 2) 즐겨찾기 섹션 + Works
   let favoritesSection = null;
   if (!isLoading && !isError) {
     const favItems: SubMenuItem[] = (favorites || []).map((fav: any) => ({
@@ -151,14 +150,11 @@ export default function Header() {
       title: fav.name,
       path: `/consultations/${fav.item_id}`,
     }));
-
-    // Works를 즐겨찾기에 추가 (원하는 위치에 넣을 수 있음. 여기서는 맨 뒤)
     favItems.push({
       id: "works",
       title: "Naver Works",
-      path: "#works", // 특수 키
+      path: "#works",
     });
-
     if (favItems.length > 0) {
       favoritesSection = {
         title: "즐겨찾기",
@@ -167,7 +163,6 @@ export default function Header() {
     }
   }
 
-  // 최종 섹션
   const finalMenuSections = favoritesSection
     ? [favoritesSection, ...baseMenuSections]
     : baseMenuSections;
@@ -184,7 +179,7 @@ export default function Header() {
   }));
 
   // 상단 메뉴 토글
-
+  const [activeMainId, setActiveMainId] = useState<string | null>(null);
   const handleMainMenuClick = (id: string) => {
     setActiveMainId((prev) => (prev === id ? null : id));
   };
@@ -199,109 +194,270 @@ export default function Header() {
     );
   };
 
+  // 현재 라우트+쿼리 비교
+  function isCurrentRouteWithQuery(fullPath: string): boolean {
+    const [basePath, queryString] = fullPath.split("?");
+    if (pathname !== basePath) return false;
+
+    if (!queryString) {
+      return !searchParams.toString();
+    }
+    const subParams = new URLSearchParams(queryString);
+    return subParams.toString() === searchParams.toString();
+  }
+
   if (isLoading) return null;
   if (isError) return <p>메뉴 데이터를 불러오는 중 오류가 발생했습니다.</p>;
 
+  // ----------- UI -----------
   return (
-    <header className="border-b bg-white text-sm text-gray-800">
-      {/* 상단 바: WOOYANG CRM(왼쪽), 메인 메뉴(중앙), 사용자 정보(오른쪽) */}
-      <div className="flex items-center justify-between px-4 py-2">
-        {/* 왼쪽: 로고/브랜드 */}
-        <div
-          className="font-bold text-lg cursor-pointer"
-          onClick={() => router.push("/")}
-        >
-          WOOYANG CRM
-        </div>
-
-        {/* 중앙: 1차 메뉴 */}
-        <div className="flex space-x-6">
-          {mainMenu.map((menu) => {
-            const isActive = menu.id === activeMainId;
-            return (
-              <button
-                key={menu.id}
-                onClick={() => handleMainMenuClick(menu.id)}
-                className="relative px-2 py-1 hover:text-blue-500"
-              >
-                <span>{menu.title}</span>
-                {/* 활성화된 메뉴에 밑줄 표시 */}
-                {isActive && (
-                  <motion.div
-                    className="absolute left-0 bottom-0 w-full h-[2px] bg-blue-500"
-                    layoutId="underline"
-                    transition={{ duration: 0.2 }}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* 오른쪽: 사용자 정보 + TokenInfo */}
-        <div className="flex items-center space-x-2">
-          <span>
-            {user?.name} {user?.level}님
-          </span>
-          <TokenInfo />
-        </div>
-      </div>
-
-      {/* 하단: 2차 메뉴 */}
-      <AnimatePresence>
-        {activeMainId && (
-          <motion.nav
-            key="subMenu"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="border-t border-gray-200 bg-[#fafafa]"
+    <>
+      {/* 상단 헤더 */}
+      <header className="border-b bg-white text-sm text-gray-800">
+        <div className="flex items-center justify-between px-4 py-2">
+          {/* 왼쪽: 로고 */}
+          <div
+            className="font-bold text-lg cursor-pointer hover:text-blue-500"
+            onClick={() => router.push("/")}
           >
-            {/* 활성화된 상단 메뉴의 subItems 렌더링 */}
-            <div className="flex items-center justify-center space-x-4 px-4 py-2">
-              {mainMenu
-                .find((m) => m.id === activeMainId)
-                ?.subItems.map((sub) => {
-                  // Works인지 체크
-                  if (sub.id === "works") {
-                    return (
-                      <span
-                        key={sub.id}
-                        onClick={openWorksWindow}
-                        className="cursor-pointer text-gray-600 hover:text-blue-500"
-                      >
-                        {sub.title}
-                      </span>
-                    );
-                  }
+            WOOYANG CRM
+          </div>
 
-                  // 일반 항목 (pathname 체크)
-                  const isCurrentRoute = pathname === sub.path;
-                  return (
-                    <Link href={sub.path} key={sub.id}>
-                      <span
-                        className={
-                          isCurrentRoute
-                            ? "cursor-pointer text-blue-500 font-semibold"
-                            : "cursor-pointer text-gray-600 hover:text-blue-500"
-                        }
-                      >
-                        {sub.title}
-                      </span>
-                    </Link>
-                  );
-                })}
-            </div>
-          </motion.nav>
-        )}
-      </AnimatePresence>
+          {/* 데스크톱(일반) 1차 메뉴 */}
+          <div className="hidden lg:flex space-x-6">
+            {mainMenu.map((menu) => {
+              const isActive = menu.id === activeMainId;
+              return (
+                <button
+                  key={menu.id}
+                  onClick={() => handleMainMenuClick(menu.id)}
+                  className="relative px-2 py-1 hover:text-blue-500"
+                >
+                  <span>{menu.title}</span>
+                  {isActive && (
+                    <motion.div
+                      className="absolute left-0 bottom-0 w-full h-[2px] bg-blue-500"
+                      layoutId="underline"
+                      transition={{ duration: 0.2 }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 모바일/태블릿 햄버거 (lg:hidden) */}
+          <div className="lg:hidden">
+            <button onClick={() => setMobileMenuOpen(true)}>
+              <svg
+                className="w-6 h-6 text-gray-700"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
+
+          {/* 데스크톱(일반) 사용자 정보 */}
+          <div className="hidden lg:flex items-center space-x-2">
+            <span>
+              {user?.name} {user?.level}님
+            </span>
+            <TokenInfo />
+          </div>
+        </div>
+
+        {/* 데스크톱(일반) 2차 메뉴 */}
+        <AnimatePresence>
+          {activeMainId && (
+            <motion.nav
+              key="subMenu"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="hidden lg:block border-t border-gray-200 bg-[#fafafa]"
+            >
+              <div className="flex items-center justify-center space-x-4 px-4 py-2">
+                {mainMenu
+                  .find((m) => m.id === activeMainId)
+                  ?.subItems.map((sub) => {
+                    if (sub.id === "works") {
+                      return (
+                        <span
+                          key={sub.id}
+                          onClick={openWorksWindow}
+                          className="cursor-pointer text-gray-600 hover:text-blue-500"
+                        >
+                          {sub.title}
+                        </span>
+                      );
+                    }
+                    const isCurrent = isCurrentRouteWithQuery(sub.path);
+                    return (
+                      <Link href={sub.path} key={sub.id}>
+                        <span
+                          className={
+                            isCurrent
+                              ? "cursor-pointer text-blue-500 font-semibold"
+                              : "cursor-pointer text-gray-600 hover:text-blue-500"
+                          }
+                        >
+                          {sub.title}
+                        </span>
+                      </Link>
+                    );
+                  })}
+              </div>
+            </motion.nav>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* 모바일/태블릿 사이드 메뉴 */}
+      <MobileSidebar
+        isOpen={isMobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        mainMenu={mainMenu}
+        activeMainId={activeMainId}
+        setActiveMainId={setActiveMainId}
+        isCurrentRouteWithQuery={isCurrentRouteWithQuery}
+        openWorksWindow={openWorksWindow}
+        user={user}
+      />
 
       {/* 스낵바 알림 */}
       <SnackbarComponent
         onClose={() => setSnackbarMessage("")}
         message={snackbarMessage}
       />
-    </header>
+    </>
+  );
+}
+
+/** 모바일/태블릿용 사이드 패널 */
+function MobileSidebar({
+  isOpen,
+  onClose,
+  mainMenu,
+  activeMainId,
+  setActiveMainId,
+  isCurrentRouteWithQuery,
+  openWorksWindow,
+  user,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  mainMenu: MainMenuItem[];
+  activeMainId: string | null;
+  setActiveMainId: (id: string) => void;
+  isCurrentRouteWithQuery: (path: string) => boolean;
+  openWorksWindow: () => void;
+  user: any;
+}) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            className="absolute inset-0 bg-black bg-opacity-30"
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+          />
+          <motion.div
+            key="mobileMenu"
+            className="fixed inset-0 z-50 flex"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* 반투명 배경 */}
+
+            {/* 실제 사이드 패널 */}
+            <motion.div
+              className="relative ml-auto w-3/4 max-w-sm bg-white p-4 flex flex-col"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* 닫기 버튼 */}
+              <button
+                className="self-end mb-4 text-gray-500 hover:text-gray-700"
+                onClick={onClose}
+              >
+                닫기
+              </button>
+
+              {/* 사용자 정보 */}
+              <div className="mb-4 border-b pb-2">
+                <p className="text-sm font-semibold">
+                  {user?.name} {user?.level}님
+                  <TokenInfo />
+                </p>
+              </div>
+
+              {/* 모바일 1차 메뉴 */}
+              <div className="flex-1 overflow-y-auto space-y-4">
+                {mainMenu.map((menu) => (
+                  <div key={menu.id}>
+                    <button
+                      onClick={() => setActiveMainId(menu.id)}
+                      className="w-full text-left font-semibold text-gray-700 py-2"
+                    >
+                      {menu.title}
+                    </button>
+                    {/* 하위 메뉴 (2차) */}
+                    {activeMainId === menu.id && (
+                      <div className="pl-4 space-y-1">
+                        {menu.subItems.map((sub) => {
+                          if (sub.id === "works") {
+                            return (
+                              <div
+                                key={sub.id}
+                                className="cursor-pointer text-sm text-gray-600 hover:text-blue-500"
+                                onClick={() => {
+                                  openWorksWindow();
+                                  onClose();
+                                }}
+                              >
+                                {sub.title}
+                              </div>
+                            );
+                          }
+                          const isCurrent = isCurrentRouteWithQuery(sub.path);
+                          return (
+                            <Link href={sub.path} key={sub.id}>
+                              <span
+                                onClick={onClose}
+                                className={
+                                  isCurrent
+                                    ? "text-blue-500 font-semibold cursor-pointer text-sm block"
+                                    : "text-gray-600 hover:text-blue-500 text-sm block"
+                                }
+                              >
+                                {sub.title}
+                              </span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

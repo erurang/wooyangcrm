@@ -302,16 +302,16 @@ export default function ContactsPage() {
   return (
     <div className="text-sm text-[#37352F]">
       {/* 🔹 검색 필드 */}
-      <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="flex items-center justify-center">
-          <label className="w-1/4 block p-2 border rounded-l-md">
-            거래처명
+          <label className="w-1/4 min-w-[60px] p-2 border-t border-l border-b border-gray-300 rounded-l">
+            거래처
           </label>
           <motion.input
             placeholder="거래처명"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            className="w-3/4 p-2 border rounded-r-md"
+            className="w-3/4 p-2 border border-gray-300 rounded-r"
             whileFocus={{
               scale: 1.05,
               boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -319,14 +319,14 @@ export default function ContactsPage() {
           />
         </div>
         <div className="flex items-center justify-center">
-          <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-            담당자명
+          <label className="w-1/4 min-w-[60px] p-2 border-t border-l border-b border-gray-300 rounded-l">
+            담당자
           </label>
           <motion.input
             placeholder="담당자명"
             value={contactName}
             onChange={(e) => setContactName(e.target.value)}
-            className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+            className="w-3/4 p-2 border border-gray-300 rounded-r"
             whileFocus={{
               scale: 1.05, // 입력 시 약간 확대
               boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -334,14 +334,14 @@ export default function ContactsPage() {
           />
         </div>
         <div className="flex items-center justify-center">
-          <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+          <label className="w-1/4 min-w-[60px] p-2 border-t border-l border-b border-gray-300 rounded-l">
             이메일
           </label>
           <motion.input
             placeholder="이메일"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+            className="w-3/4 p-2 border border-gray-300 rounded-r"
             whileFocus={{
               scale: 1.05, // 입력 시 약간 확대
               boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -349,14 +349,14 @@ export default function ContactsPage() {
           />
         </div>
         <div className="flex items-center justify-center">
-          <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+          <label className="w-1/4 min-w-[60px] p-2 border-t border-l border-b border-gray-300 rounded-l">
             연락처
           </label>
           <motion.input
             placeholder="연락처"
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
-            className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+            className="w-3/4 p-2 border border-gray-300 rounded-r"
             whileFocus={{
               scale: 1.05, // 입력 시 약간 확대
               boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
@@ -371,7 +371,7 @@ export default function ContactsPage() {
               setContactName("");
               setCompanyName("");
             }}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md"
+            className="w-full sm:w-auto px-4 py-2 bg-gray-500 text-white rounded-md"
           >
             필터리셋
           </button>
@@ -490,14 +490,22 @@ export default function ContactsPage() {
             <thead>
               <tr className="bg-gray-100 text-center">
                 <th className="px-4 py-2 border-b border-r w-2/12">거래처명</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">담당자명</th>
+                <th className="px-4 py-2 border-b border-r w-1/12">담당자</th>
                 <th className="px-4 py-2 border-b border-r w-1/12">직급</th>
-                <th className="px-4 py-2 border-b border-r w-1/12">부서</th>
-                <th className="px-4 py-2 border-b border-r w-2/12">이메일</th>
+                <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
+                  부서
+                </th>
+                <th className="px-4 py-2 border-b border-r hidden md:table-cell w-2/12">
+                  이메일
+                </th>
                 <th className="px-4 py-2 border-b border-r w-2/12">연락처</th>
                 {/* <th className="px-4 py-2 border-b border-r w-1/4">비고</th> */}
-                <th className="px-4 py-2 border-b border-r w-1/12">수정</th>
-                <th className="px-4 py-2 border-b w-1/12">삭제</th>
+                <th className="px-4 py-2 border-b hidden border-r md:table-cell w-1/12">
+                  수정
+                </th>
+                <th className="px-4 py-2 border-b hidden md:table-cell w-1/12">
+                  삭제
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -519,13 +527,13 @@ export default function ContactsPage() {
                   >
                     {contact.contact_name}
                   </td>
-                  <td className="px-4 py-2 border-b border-r">
+                  <td className="px-4 py-2 border-b border-r ">
                     {contact.level}
                   </td>
-                  <td className="px-4 py-2 border-b border-r">
+                  <td className="px-4 py-2 border-b border-r hidden md:table-cell">
                     {contact.department}
                   </td>
-                  <td className="px-4 py-2 border-b border-r">
+                  <td className="px-4 py-2 border-b border-r hidden md:table-cell">
                     {contact.email}
                   </td>
                   <td className="px-4 py-2 border-b border-r">
@@ -543,7 +551,7 @@ export default function ContactsPage() {
                     {contact.note}
                   </td> */}
                   <td
-                    className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer"
+                    className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer hidden md:table-cell"
                     onClick={() => handleEditContact(contact)}
                   >
                     수정
@@ -614,7 +622,7 @@ export default function ContactsPage() {
               </h3>
 
               {/* 📌 거래처 입력 필드 (드롭다운 자동 검색) */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
                   <div className="relative mb-2">
                     <label className="block mb-1">거래처명</label>

@@ -506,7 +506,7 @@ export default function ConsultationPage() {
       <>
         {/* 🚀 거래처 기본 정보 */}
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr] gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr_1.5fr] gap-4">
           <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-40 flex flex-col justify-between">
             {isCompanyDetailLoading ? (
               <>

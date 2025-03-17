@@ -243,11 +243,11 @@ export default function RecentConsultations() {
   return (
     <div className="text-sm text-[#37352F]">
       {/* 검색 및 필터 */}
-      <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
-        <div className="grid grid-cols-5 gap-4">
+      <div className="bg-[#FBFBFB] rounded-md border px-4 py-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_0.5fr] gap-4">
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              거래처명
+            <label className="p-2 border border-gray-300 rounded-l min-w-[60px] h-full">
+              거래처
             </label>
             <motion.input
               value={searchTerm}
@@ -256,7 +256,7 @@ export default function RecentConsultations() {
                 setCurrentPage(1);
               }}
               placeholder="거래처명"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -264,14 +264,14 @@ export default function RecentConsultations() {
             />
           </div>
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              시작일
+            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
+              시작 날짜
             </label>
             <motion.input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -279,14 +279,14 @@ export default function RecentConsultations() {
             />
           </div>
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              종료일
+            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
+              종료 날짜
             </label>
             <motion.input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -294,11 +294,11 @@ export default function RecentConsultations() {
             />
           </div>
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[60px] h-full">
               상담자
             </label>
             <motion.select
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
               value={selectedUser?.id || ""} // ✅ userId 저장
               onChange={(e) => {
                 const user =
@@ -323,7 +323,7 @@ export default function RecentConsultations() {
                 setStartDate(today);
                 setEndDate(today);
               }}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
+              className="w-full sm:w-auto px-4 py-2 bg-gray-500 text-white rounded-md"
             >
               필터리셋
             </button>
@@ -352,10 +352,16 @@ export default function RecentConsultations() {
         <table className="min-w-full table-auto border-collapse text-center">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 border-b border-r w-2/12">거래처명</th>
-              <th className="px-4 py-2 border-b border-r w-1/12">상담일자</th>
-              <th className="px-4 py-2 border-b border-r w-1/12">피상담자</th>
-              <th className="px-4 py-2 border-b border-r w-1/12">상담자</th>
+              <th className="px-4 py-2 border-b border-r w-2/12">거래처</th>
+              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
+                상담일
+              </th>
+              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
+                담당자
+              </th>
+              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
+                상담자
+              </th>
               <th className="px-4 py-2 border-b border-r">내용</th>
               <th className="px-4 py-2 border-b border-r w-3/12">문서</th>
             </tr>
@@ -371,11 +377,13 @@ export default function RecentConsultations() {
                 >
                   {consultation.companies?.name}
                 </td>
-                <td className="px-4 py-2 border-r">{consultation.date}</td>
-                <td className="px-4 py-2 border-r">
+                <td className="px-4 py-2 border-r hidden md:table-cell">
+                  {consultation.date}
+                </td>
+                <td className="px-4 py-2 border-r hidden md:table-cell">
                   {consultation?.contact_name} {consultation?.contact_level}
                 </td>
-                <td className="px-4 py-2 border-r">
+                <td className="px-4 py-2 border-r hidden md:table-cell">
                   {consultation.users?.name} {consultation.users?.level}
                 </td>
                 <td

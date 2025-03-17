@@ -256,11 +256,11 @@ export default function DocumentsDetailsPage() {
   return (
     <div className="text-sm text-[#37352F]">
       {/* 검색 필터 */}
-      <div className="bg-[#FBFBFB] rounded-md border-[1px] px-4 py-4 mb-4">
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_0.5fr] gap-4">
+      <div className="bg-[#FBFBFB] rounded-md border px-4 py-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr_0.5fr] gap-4">
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
-              거래처명
+            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
+              거래처
             </label>
             <motion.input
               value={searchTerm}
@@ -269,7 +269,7 @@ export default function DocumentsDetailsPage() {
                 setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
               }}
               placeholder="거래처명"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -278,7 +278,7 @@ export default function DocumentsDetailsPage() {
           </div>
 
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
               문서번호
             </label>
             <motion.input
@@ -288,7 +288,7 @@ export default function DocumentsDetailsPage() {
                 setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
               }}
               placeholder="WY-YYYYMMDD-NNNN"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -297,7 +297,7 @@ export default function DocumentsDetailsPage() {
           </div>
 
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
               특기사항
             </label>
             <motion.input
@@ -307,7 +307,7 @@ export default function DocumentsDetailsPage() {
                 setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
               }}
               placeholder="...."
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -316,7 +316,7 @@ export default function DocumentsDetailsPage() {
           </div>
 
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border-t-[1px] border-b-[1px] border-r-[1px] border-l-[1px] rounded-l-md">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
               상태
             </label>
             <motion.select
@@ -325,7 +325,7 @@ export default function DocumentsDetailsPage() {
                 setSelectedStatus(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
             >
               <option value="all">전체</option> {/* ✅ "전체" 옵션 추가 */}
               <option value="pending">진행</option>
@@ -335,11 +335,11 @@ export default function DocumentsDetailsPage() {
           </div>
 
           <div className="flex items-center justify-center">
-            <label className="w-1/4 block p-2 border rounded-l-md">
+            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
               상담자
             </label>
             <motion.select
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md h-full"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
               value={selectedUser?.id || ""} // ✅ userId 저장
               onChange={(e) => {
                 const user =
@@ -366,7 +366,7 @@ export default function DocumentsDetailsPage() {
                 setSearchDocNumber("");
                 setCurrentPage(1); // ✅ 필터 리셋 시 현재 페이지 초기화
               }}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
+              className="w-full sm:w-auto px-4 py-2 bg-gray-500 text-white rounded-md"
             >
               필터리셋
             </button>
@@ -400,7 +400,7 @@ export default function DocumentsDetailsPage() {
                 {type === "order" && "발주일"}
                 {type === "requestQuote" && "의뢰일"}
               </th>
-              <th className="px-4 py-2 border-b border-r-[1px]">
+              <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                 {type === "estimate" && "견적유효기간"}
                 {type === "order" && "납기일"}
                 {type === "requestQuote" && "희망견적일"}
@@ -408,16 +408,22 @@ export default function DocumentsDetailsPage() {
               <th className="px-4 py-2 border-b border-r-[1px]">거래처명</th>
               <th className="px-4 py-2 border-b border-r-[1px]">문서 번호</th>
               {status === "pending" && (
-                <th className="px-4 py-2 border-b border-r-[1px]">수정</th>
+                <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                  수정
+                </th>
               )}
-              <th className="px-4 py-2 border-b border-r-[1px]">피상담자</th>
-              <th className="px-4 py-2 border-b border-r-[1px]">
+              <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                담당자
+              </th>
+              <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                 {type === "estimate" && "견적자"}
                 {type === "order" && "발주자"}
                 {type === "requestQuote" && "의뢰자"}
               </th>
               <th className="px-4 py-2 border-b border-r-[1px]">상태</th>
-              <th className="px-4 py-2 border-b border-r-[1px]">비고</th>
+              <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
+                비고
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -426,7 +432,7 @@ export default function DocumentsDetailsPage() {
                 <td className="px-4 py-2 border-b border-r-[1px]">
                   {doc.date}
                 </td>
-                <td className="px-4 py-2 border-b border-r-[1px]">
+                <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                   {type === "estimate" &&
                     new Date(doc.content?.valid_until).toLocaleDateString()}
                   {type === "order" && doc.content?.delivery_date}
@@ -447,7 +453,7 @@ export default function DocumentsDetailsPage() {
                 >
                   {doc.document_number}
                 </td>
-                {status === "pending" && (
+                {/* {status === "pending" && (
                   <td
                     className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
                     onClick={() =>
@@ -458,11 +464,11 @@ export default function DocumentsDetailsPage() {
                   >
                     이동
                   </td>
-                )}
-                <td className="px-4 py-2 border-b border-r-[1px]">
+                )} */}
+                <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                   {doc.contact_name} {doc.contact_level}
                 </td>
-                <td className="px-4 py-2 border-b border-r-[1px]">
+                <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
                   {doc.user_name} {doc.user_level}
                 </td>
                 <td className="px-4 py-2 border-b border-r-[1px]">
@@ -470,7 +476,7 @@ export default function DocumentsDetailsPage() {
                   {doc.status === "completed" && "완료"}
                   {doc.status === "canceled" && "취소"}
                 </td>
-                <td className="px-4 py-2 border-b border-r-[1px] w-1/3">
+                <td className="px-4 py-2 border-b border-r-[1px] w-1/3 hidden md:table-cell">
                   <div className="flex justify-center">
                     {doc.status === "pending" ? (
                       // 🔹 로그인한 사용자와 문서를 작성한 사용자가 같을 때만 버튼 활성화
