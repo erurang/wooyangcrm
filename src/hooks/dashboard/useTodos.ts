@@ -67,7 +67,7 @@ export function useTodos(userId: string) {
   const updateTodoOrder = async (newTodos: any[]) => {
     const orderedTodos = newTodos.map((todo, index) => ({
       id: todo.id,
-      order_index: index + 1,
+      sort_order: index + 1,
     }));
 
     await fetch(`/api/tests/dashboard/todos/order`, {
