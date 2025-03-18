@@ -557,7 +557,7 @@ export default function Page() {
               setContactTerm("");
               setCurrentPage(1);
             }}
-            className="w-full sm:w-auto px-4 py-2 bg-gray-500 text-white rounded-md"
+            className=" px-4 py-2 bg-gray-500 text-white rounded-md"
           >
             필터리셋
           </button>

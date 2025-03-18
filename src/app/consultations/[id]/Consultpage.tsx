@@ -22,6 +22,22 @@ import FileUpload from "@/components/consultations/FileUpload";
 import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
 import { useDebounce } from "@/hooks/useDebounce";
 
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 interface Consultation {
   id: string;
   date: string;
@@ -44,6 +60,7 @@ interface Contact {
   level: string;
   email: string;
   resign: boolean;
+  sort_order: null | number;
 }
 
 interface Company {
@@ -450,6 +467,7 @@ export default function ConsultationPage() {
   }, []);
 
   const [contactsUi, setContactsUi] = useState<any>(contacts ?? []);
+
   const { updateContacts } = useUpdateContacts();
 
   useEffect(() => {
@@ -475,6 +493,8 @@ export default function ConsultationPage() {
   const handleUpdateContacts = async () => {
     setSaving(true);
 
+    // console.log("contactsUi", contactsUi);
+    // return;
     try {
       await updateContacts(contactsUi, contacts[0].company_id);
       await refreshContacts();
@@ -499,6 +519,27 @@ export default function ConsultationPage() {
       updatedContact[index] = { ...updatedContact[index], [field]: value };
       return updatedContact;
     });
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = contactsUi.findIndex(
+        (contact: Contact, idx: number) => (contact.id || idx) === active.id
+      );
+      const newIndex = contactsUi.findIndex(
+        (contact: Contact, idx: number) => (contact.id || idx) === over?.id
+      );
+      setContactsUi((items: any) => arrayMove(items, oldIndex, newIndex));
+    }
   };
 
   return (
@@ -627,7 +668,7 @@ export default function ConsultationPage() {
 
         {/* 🚀 추가 버튼 */}
 
-        <div className="flex my-4 gap-4">
+        <div className="flex:col md:flex items-center my-4 gap-4">
           {favorites.find((fav: any) => fav.name === companyDetail?.name) ? (
             <div
               className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
@@ -670,7 +711,7 @@ export default function ConsultationPage() {
             <span className="mr-2">+</span>
             <span>비고 추가/수정</span>
           </div>
-          <div className="flex items-center border-b-2 border-gray-400 w-1/3 max-w-sm py-1 focus-within:border-black">
+          <div className="px-4 flex items-center  border-gray-400 w-1/3 max-w-sm py-1 focus-within:border-black">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 50 50"
@@ -685,7 +726,7 @@ export default function ConsultationPage() {
               placeholder="상담 내용 검색"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-2 py-1 w-full focus:outline-none focus:border-none font-semibold text-gray-700"
+              className="px-1 py-2 w-full focus:outline-none focus:border-none font-semibold text-gray-700"
             />
           </div>
         </div>
@@ -693,11 +734,11 @@ export default function ConsultationPage() {
         {/* 상담 내역 추가 모달 */}
         {openAddModal && (
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-1/2 ">
+            <div className="bg-white p-6 rounded-md w-full md:w-2/3">
               <h3 className="text-xl font-semibold mb-4">상담 내역 추가</h3>
 
               {/* 상담일 및 후속 날짜 (flex로 배치) */}
-              <div className="mb-4 grid space-x-4 grid-cols-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 <div className="">
                   <label className="block mb-2 text-sm font-medium">
                     상담일
@@ -833,11 +874,11 @@ export default function ConsultationPage() {
         {/* 상담 내역 수정 모달 */}
         {openEditModal && (
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-1/2">
+            <div className="bg-white p-6 rounded-md w-full md:w-2/3">
               <h3 className="text-xl font-semibold mb-4">상담 내역 수정</h3>
 
               {/* 상담일 및 후속 날짜 (flex로 배치) */}
-              <div className="mb-4 grid grid-cols-4 space-x-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div>
                   <label className="block mb-2 text-sm font-medium">
                     상담일
@@ -997,10 +1038,10 @@ export default function ConsultationPage() {
                   <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                     문서
                   </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-2/12">
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-2/12 hidden md:table-cell">
                     파일
                   </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
+                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12 hidden md:table-cell">
                     변경
                   </th>
                   {/* <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
@@ -1111,7 +1152,7 @@ export default function ConsultationPage() {
                         의뢰서
                       </p>
                     </td>
-                    <td className="px-2 py-2 border-r-[1px]">
+                    <td className="px-2 py-2 border-r-[1px] hidden md:table-cell">
                       <FileUpload
                         consultationId={consultation.id}
                         userId={loginUser?.id}
@@ -1162,7 +1203,7 @@ export default function ConsultationPage() {
                         의뢰서
                       </span>
                     </td> */}
-                    <td className="py-2 border-x-[1px]">
+                    <td className="py-2 border-x-[1px] hidden md:table-cell">
                       <span
                         className={`px-4 py-2 border-r-[1px] ${
                           loginUser?.id === consultation.user_id &&
@@ -1282,7 +1323,7 @@ export default function ConsultationPage() {
       {openEditNotesModal && (
         <>
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-1/3">
+            <div className="bg-white p-6 rounded-md w-full md:w-2/3">
               <h2 className="text-xl font-bold mb-4">비고 추가/수정</h2>
               <textarea
                 placeholder="해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
@@ -1311,17 +1352,45 @@ export default function ConsultationPage() {
       {openEditContactsModal && (
         <>
           <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-4/6 overflow-y-scroll max-h-">
+            <div className="bg-white p-6 rounded-md w-full md:w-2/3">
               <h2 className="text-xl font-bold ">담당자 추가/수정</h2>
               <div>
                 <p>
                   담당자 삭제시 연관된 문서(견적서,발주서,의뢰서)가 존재할시
                   삭제되지 않습니다. 퇴사를 선택하면 담당자 선택 목록에 나타나지
-                  않습니다.
+                  않습니다. "님" 호칭은 생략해주세요!
                 </p>
               </div>
               <div className="mt-4">
-                {/* 📌 담당자 한 줄 표현 & 추가 버튼 클릭 시 맨 위로 */}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={contactsUi.map(
+                      (contact: Contact, idx: number) => contact.id || idx
+                    )}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2 max-h-96 overflow-y-scroll">
+                      {contactsUi?.map((contact: Contact, index: number) => {
+                        if (!contact.resign)
+                          return (
+                            <SortableContactItem
+                              key={contact.id || index}
+                              contact={contact}
+                              index={index}
+                              handleContactChange={handleContactChange}
+                            />
+                          );
+                      })}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              </div>
+
+              {/* <div className="mt-4">
                 <div className="space-y-2 max-h-96 overflow-y-scroll">
                   {contactsUi?.map((contact: any, index: any) => {
                     if (!contact.resign)
@@ -1434,17 +1503,11 @@ export default function ConsultationPage() {
                             <span className="text-gray-700">퇴사</span>
                           </motion.label>
 
-                          {/* <button
-                      onClick={() => removeContact(index)}
-                      className="px-4 py-2 bg-red-500 text-white text-xs md:text-sm rounded-md"
-                    >
-                      삭제
-                    </button> */}
                         </div>
                       );
                   })}
                 </div>
-              </div>
+              </div> */}
               <div className="flex justify-between mt-4">
                 <div className="flex items-start mr-2 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 ">
                   <button
@@ -1466,10 +1529,14 @@ export default function ConsultationPage() {
                     취소
                   </button>
                   <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                    className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+                      saving ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    disabled={saving}
                     onClick={handleUpdateContacts}
                   >
                     저장
+                    {saving && <CircularProgress size={16} className="ml-2" />}
                   </button>
                 </div>
               </div>
@@ -1481,6 +1548,128 @@ export default function ConsultationPage() {
         message={snackbarMessage}
         onClose={() => setSnackbarMessage("")}
       />
+    </div>
+  );
+}
+
+function SortableContactItem({
+  contact,
+  index,
+  handleContactChange,
+}: {
+  contact: Contact;
+  index: number;
+  handleContactChange: (
+    index: number,
+    field: keyof Contact,
+    value: any
+  ) => void;
+}) {
+  // dnd-kit useSortable hook 사용 (id가 없으면 index 사용)
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id: contact.id || index,
+    });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="flex flex-wrap md:flex-nowrap gap-4"
+    >
+      <div className="cursor-grab flex-shrink-0 flex items-center justify-center">
+        <svg
+          className="w-6 h-6 text-gray-700"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </div>
+
+      <motion.input
+        whileFocus={{
+          scale: 1.05,
+          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+        }}
+        type="text"
+        value={contact?.contact_name || ""}
+        onChange={(e) =>
+          handleContactChange(index, "contact_name", e.target.value)
+        }
+        placeholder="이름"
+        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+      />
+      <motion.input
+        whileFocus={{
+          scale: 1.05,
+          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+        }}
+        type="text"
+        value={contact?.level || ""}
+        onChange={(e) => handleContactChange(index, "level", e.target.value)}
+        placeholder="직급"
+        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+      />
+      <motion.input
+        whileFocus={{
+          scale: 1.05,
+          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+        }}
+        type="text"
+        value={contact?.department || ""}
+        onChange={(e) =>
+          handleContactChange(index, "department", e.target.value)
+        }
+        placeholder="부서"
+        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+      />
+      <motion.input
+        whileFocus={{
+          scale: 1.05,
+          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+        }}
+        type="text"
+        value={contact?.mobile || ""}
+        onChange={(e) => handleContactChange(index, "mobile", e.target.value)}
+        placeholder="휴대폰"
+        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+      />
+      <motion.input
+        whileFocus={{
+          scale: 1.05,
+          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+        }}
+        type="email"
+        value={contact?.email || ""}
+        onChange={(e) => handleContactChange(index, "email", e.target.value)}
+        placeholder="이메일"
+        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+      />
+      <motion.label className="flex items-center space-x-2">
+        <motion.input
+          whileTap={{ scale: 0.9 }}
+          type="checkbox"
+          checked={contact?.resign || false}
+          onChange={(e) =>
+            handleContactChange(index, "resign", e.target.checked)
+          }
+          className="w-5 h-5 accent-blue-500 cursor-pointer"
+        />
+        <span className="text-gray-700">퇴사</span>
+      </motion.label>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { contact, companyId } = body;
+    let { contact, companyId } = body;
 
     if (!companyId) {
       return NextResponse.json(
@@ -13,11 +13,16 @@ export async function PUT(request: Request) {
       );
     }
 
+    contact = contact.map((c: any, index: number) => ({
+      ...c,
+      sort_order: index + 1, // 순서대로 1,2,3...
+    }));
+
     // 🔹 1️⃣ 기존 담당자 목록 가져오기
     const { data: existingContacts, error: contactsFetchError } = await supabase
       .from("contacts")
       .select(
-        "id, company_id, contact_name, mobile, department, level, email,resign"
+        "id, company_id, contact_name, mobile, department, level, email,resign,sort_order"
       )
       .eq("company_id", companyId);
 
@@ -42,6 +47,7 @@ export async function PUT(request: Request) {
         level: c.level,
         email: c.email,
         resign: c.resign,
+        sort_order: c.sort_order,
       }));
 
     // 🔹 6️⃣ 기존 담당자 업데이트 (id가 있는 경우)
@@ -58,6 +64,7 @@ export async function PUT(request: Request) {
           level: updatedContact.level,
           email: updatedContact.email,
           resign: updatedContact.resign,
+          sort_order: updatedContact.sort_order,
         })
         .eq("id", updatedContact.id);
     }
@@ -83,7 +90,7 @@ export async function PUT(request: Request) {
       await supabase
         .from("contacts")
         .select(
-          "id, company_id, contact_name, mobile, department, level, email,resign"
+          "id, company_id, contact_name, mobile, department, level, email,resign,sort_order"
         )
         .eq("company_id", companyId);
 

@@ -286,7 +286,7 @@ export default function RecentConsultations() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full"
+              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",

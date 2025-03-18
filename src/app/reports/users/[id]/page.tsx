@@ -246,7 +246,7 @@ export default function UserDetailPage() {
       {/* 🔹 상단: 유저 정보 및 탭 버튼 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-6 shadow-sm">
-          <div className="flex justify-between items-center border-b pb-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 justify-between items-center border-b pb-4">
             <div>
               <p className="text-xl font-bold text-gray-800">
                 {user?.name} {user?.level}{" "}
@@ -259,7 +259,7 @@ export default function UserDetailPage() {
                 </span>
               </p>
             </div>
-            <div className="flex space-x-4 mb-4">
+            <div className="flex space-x-4 my-4">
               <button
                 className={`px-4 py-2 rounded-md ${
                   activeTab === "consultation"
@@ -268,7 +268,7 @@ export default function UserDetailPage() {
                 }`}
                 onClick={() => setActiveTab("consultation")}
               >
-                상담내역
+                상담
               </button>
               <button
                 className={`px-4 py-2 rounded-md ${
@@ -459,24 +459,27 @@ export default function UserDetailPage() {
       {/* 🔹 탭별 섹션 */}
       {activeTab === "consultation" && (
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4 mb-4">
-          {/* 상담 내역 */}
-          <div className="overflow-x-auto">
-            {/* 헤더 */}
-            <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] gap-6 min-w-[900px] text-gray-700 text-lg font-bold">
+          {/* 스크롤 컨테이너 */}
+          <div className="space-y-4 overflow-y-auto max-h-[700px]">
+            {/* 헤더 (3열) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-700 text-lg font-bold min-w-[900px]">
               <div>상담 기록</div>
               <div>관련 문서</div>
               <div>품목 리스트</div>
             </div>
 
-            {/* 본문 */}
-            <div className="space-y-4 mt-2 overflow-y-auto max-h-[700px]">
-              {documentsDetails?.map((user: any) =>
-                user.consultations.map((consultation: any) => (
+            {/* 상담들 */}
+            {documentsDetails?.map((userObj: any) =>
+              userObj.consultations.map((consultation: any) => {
+                // 여기서 docTypes는 ["estimate", "order", "requestQuote"] 라고 가정
+                const docTypes = ["estimate", "order", "requestQuote"];
+
+                return (
                   <div
                     key={consultation.consultation_id}
-                    className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr] gap-6 items-center border-b pb-4"
+                    className="grid grid-cols-1 md:grid-cols-[1fr_0.5fr_1.5fr] gap-6 items-start border-b pb-4"
                   >
-                    {/* 상담 기록 */}
+                    {/* 왼쪽 열: 상담 기록 */}
                     <div
                       className="p-3 border rounded-md bg-white hover:bg-gray-100 cursor-pointer"
                       onClick={() =>
@@ -494,17 +497,30 @@ export default function UserDetailPage() {
                       </p>
                     </div>
 
-                    {/* 관련 문서 */}
+                    {/* 중간 열: 관련 문서 */}
                     <div className="p-3 border rounded-md bg-white">
                       {docTypes.map((docType) => {
+                        // docType별 문서만 추출
                         const docsOfThisType = consultation.documents.filter(
                           (doc: any) => doc.type === docType
                         );
-                        if (docsOfThisType.length === 0) return null;
-
+                        // 문서가 없으면 문서 없음
+                        if (docsOfThisType.length === 0) {
+                          return (
+                            <p
+                              key={docType}
+                              className="text-gray-400 text-sm mb-4"
+                            >
+                              📂 {docType === "estimate" && "견적"}
+                              {docType === "order" && "발주"}
+                              {docType === "requestQuote" && "의뢰"} 문서 없음
+                            </p>
+                          );
+                        }
+                        // 문서가 있으면 표시
                         return (
-                          <div key={docType} className="mb-4">
-                            <h2 className="font-semibold text-gray-600 mb-2">
+                          <div key={docType} className="mb-4 last:mb-0">
+                            <h2 className="font-bold text-gray-600 mb-2">
                               {getDocTypeLabel(docType)}
                             </h2>
                             {docsOfThisType.map((doc: any) => (
@@ -520,14 +536,22 @@ export default function UserDetailPage() {
                                 }
                               >
                                 <p className="text-sm font-semibold text-blue-600">
-                                  {getDocTypeLabel(doc.type)} (
-                                  {getStatusText(doc.status)})
+                                  {/* {getDocTypeLabel(doc.type)} ({getStatusText(doc.status)}) */}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  문서번호: {doc.document_number}
+                                  문서번호:{" "}
+                                  <span className="text-blue-500 font-semibold">
+                                    {doc.document_number}
+                                  </span>
                                 </p>
                                 <p className="text-xs text-gray-500">
                                   생성일: {doc.created_at.split("T")[0]}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  상태:{" "}
+                                  <span className="text-blue-500 font-bold">
+                                    {getStatusText(doc.status)}
+                                  </span>
                                 </p>
                                 <p className="text-xs">
                                   담당자:{" "}
@@ -543,34 +567,83 @@ export default function UserDetailPage() {
                       })}
                     </div>
 
-                    {/* 품목 리스트 */}
+                    {/* 오른쪽 열: 품목 리스트 */}
                     <div className="p-3 border rounded-md bg-white">
-                      {consultation.documents.length > 0 ? (
-                        consultation.documents.map((doc: any) =>
-                          doc.items.map((item: any, itemIndex: any) => (
-                            <div
-                              key={itemIndex}
-                              className="grid grid-cols-4 gap-4 p-2 border rounded-md bg-gray-50 text-sm mb-2"
+                      {docTypes.map((docType) => {
+                        // docType별 문서
+                        const docsOfThisType = consultation.documents.filter(
+                          (doc: any) => doc.type === docType
+                        );
+                        // 문서 자체가 없으면 품목도 없음
+                        if (docsOfThisType.length === 0) {
+                          return (
+                            <p
+                              key={docType}
+                              className="text-gray-400 text-sm mb-4"
                             >
-                              <span className="text-gray-700">{item.name}</span>
-                              <span className="text-gray-500">{item.spec}</span>
-                              <span className="text-gray-500">
-                                {item.quantity}
-                              </span>
-                              <span className="text-blue-600 font-semibold">
-                                {Number(item.amount).toLocaleString()} 원
-                              </span>
-                            </div>
-                          ))
-                        )
-                      ) : (
-                        <p className="text-gray-400 text-sm">📦 품목 없음</p>
-                      )}
+                              📂 {docType === "estimate" && "견적"}
+                              {docType === "order" && "발주"}
+                              {docType === "requestQuote" && "의뢰"} 품목 없음
+                            </p>
+                          );
+                        }
+
+                        // 문서가 있으면, 각 문서의 items 확인
+                        return docsOfThisType.map(
+                          (doc: any, docIndex: number) => {
+                            if (!doc.items || doc.items.length === 0) {
+                              // 문서는 있으나 품목이 없음
+                              return (
+                                <p
+                                  key={doc.document_id}
+                                  className="text-gray-400 text-sm mb-4"
+                                >
+                                  {getDocTypeLabel(docType)} - 품목 없음
+                                </p>
+                              );
+                            }
+                            // 품목이 있으면 나열
+                            return (
+                              <div
+                                key={doc.document_id}
+                                className="mb-4 last:mb-0"
+                              >
+                                <h2 className="font-bold text-gray-600 mb-2 text-sm">
+                                  {getDocTypeLabel(docType)}{" "}
+                                  {doc.document_number}
+                                </h2>
+                                {doc.items.map(
+                                  (item: any, itemIndex: number) => (
+                                    <div
+                                      key={itemIndex}
+                                      className="grid grid-cols-[2fr_1fr_0.5fr_0.5fr] gap-4 p-2 border rounded-md bg-gray-50 text-sm mb-2"
+                                    >
+                                      <span className="text-gray-700">
+                                        {item.name}
+                                      </span>
+                                      <span className="text-gray-500">
+                                        {item.spec}
+                                      </span>
+                                      <span className="text-gray-500">
+                                        {item.quantity}
+                                      </span>
+                                      <span className="text-blue-600 font-semibold">
+                                        {Number(item.amount).toLocaleString()}{" "}
+                                        원
+                                      </span>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            );
+                          }
+                        );
+                      })}
                     </div>
                   </div>
-                ))
-              )}
-            </div>
+                );
+              })
+            )}
           </div>
         </div>
       )}

@@ -109,13 +109,13 @@ export default function TokenInfo() {
   }
 
   return (
-    <span className="px-3 text-xs text-[#5F5E5B] opacity-60 text-center">
+    <span className="text-xs text-[#5F5E5B] opacity-60 text-center">
       {userData ? (
         <>
           <span>세션만료: </span>
           <span className="w-28 font-mono">{remainingTime}</span>
           <span
-            className="cursor-pointer text-red-500 font-semibold"
+            className="cursor-pointer text-red-500 font-semibold pl-2"
             onClick={handleLogout}
           >
             {" "}

@@ -213,7 +213,13 @@ export default function Header() {
   return (
     <>
       {/* 상단 헤더 */}
-      <header className="border-b bg-white text-sm text-gray-800">
+      <header
+        className="
+    border-b bg-white text-sm text-gray-800 
+    w-full z-50 top-0 left-0
+    fixed md:relative
+  "
+      >
         <div className="flex items-center justify-between px-4 py-2">
           {/* 왼쪽: 로고 */}
           <div
@@ -333,6 +339,8 @@ export default function Header() {
         user={user}
       />
 
+      <div className="pt-14 md:pt-0">{/* 메인 컨텐츠 */}</div>
+
       {/* 스낵바 알림 */}
       <SnackbarComponent
         onClose={() => setSnackbarMessage("")}
@@ -367,7 +375,7 @@ function MobileSidebar({
       {isOpen && (
         <>
           <motion.div
-            className="absolute inset-0 bg-black bg-opacity-30"
+            className="fixed inset-0 bg-black bg-opacity-30 z-40"
             transition={{ duration: 0.2 }}
             onClick={onClose}
           />
@@ -400,7 +408,9 @@ function MobileSidebar({
               {/* 사용자 정보 */}
               <div className="mb-4 border-b pb-2">
                 <p className="text-sm font-semibold">
-                  {user?.name} {user?.level}님
+                  <span className="pr-2">
+                    {user?.name} {user?.level}님
+                  </span>
                   <TokenInfo />
                 </p>
               </div>

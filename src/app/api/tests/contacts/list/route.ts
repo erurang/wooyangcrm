@@ -23,15 +23,16 @@ export async function GET(request: Request) {
       });
     }
 
-    // 🔹 2️⃣ 특정 companyIds에 속한 contacts 리스트 가져오기
+    // 🔹 2️⃣ 특정 companyIds에 속한 contacts 리스트 가져오기 (sort_order 추가)
     if (companyIds.length > 0) {
       const { data: contacts, error } = await supabase
         .from("contacts")
         .select(
-          "id,company_id, contact_name, mobile, department, level, email, resign"
+          "id, company_id, contact_name, mobile, department, level, email, resign, sort_order"
         )
         .in("company_id", companyIds)
         .order("company_id", { ascending: true })
+        .order("sort_order", { ascending: true })
         .order("contact_name", { ascending: true });
 
       if (error) {

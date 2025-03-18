@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -79,6 +79,60 @@ export default function ProductPage() {
     }
     return pageNumbers;
   };
+
+  // --- 추가: 정렬 상태 ---
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  function handleSort(field: string) {
+    // 같은 컬럼 클릭 시 asc -> desc -> asc 토글
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      // 다른 컬럼 클릭 시 필드 변경 & 오름차순 초기화
+      setSortField(field);
+      setSortDirection("asc");
+    }
+    // 첫 페이지로 이동
+    setCurrentPage(1);
+  }
+
+  // --- 정렬된 products ---
+  const sortedProducts = useMemo(() => {
+    if (!products) return [];
+    if (!sortField) return products;
+
+    return [...products].sort((a, b) => {
+      let valA: any = a[sortField];
+      let valB: any = b[sortField];
+
+      // number/string 구분 or 커스텀 로직
+      // 예: 'estimate_date' 는 날짜, 'unit_price' 는 number, 'company_name' 은 string 등
+      // 여기선 단순 비교로 처리
+
+      // number 비교
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortDirection === "asc" ? valA - valB : valB - valA;
+      }
+      // 날짜 (dayjs 파싱)
+      if (sortField === "estimate_date") {
+        valA = dayjs(a.estimate_date).valueOf();
+        valB = dayjs(b.estimate_date).valueOf();
+        return sortDirection === "asc" ? valA - valB : valB - valA;
+      }
+      // 기본 string 비교
+      valA = valA?.toString() || "";
+      valB = valB?.toString() || "";
+      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [products, sortField, sortDirection]);
+
+  function renderSortIcon(field: string) {
+    if (sortField !== field) return "";
+    return sortDirection === "asc" ? "▲" : "▼";
+  }
 
   return (
     <div className="text-sm text-[#37352F]">
@@ -251,30 +305,101 @@ export default function ProductPage() {
         <table className="min-w-full table-auto border-collapse">
           <thead>
             <tr className="bg-gray-100 text-center">
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell">
+              {/* 정렬 가능한 컬럼에 onClick 추가 */}
+              {/* 예: 견적/발주 날짜 (estimate_date) */}
+              <th
+                onClick={() => handleSort("estimate_date")}
+                className="px-4 py-2 border-b border-r hidden md:table-cell cursor-pointer select-none"
+              >
                 {type === "estimate" ? "견적" : "발주"} 날짜
+                {/* 정렬 아이콘 표시 */}
+                <span className="ml-1 text-xs">
+                  {renderSortIcon("estimate_date")}
+                </span>
               </th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell">
+
+              {/* 거래처명 (company_name) */}
+              <th
+                onClick={() => handleSort("company_name")}
+                className="px-4 py-2 border-b border-r hidden md:table-cell cursor-pointer select-none"
+              >
                 거래처명
+                <span className="ml-1 text-xs">
+                  {renderSortIcon("company_name")}
+                </span>
               </th>
-              <th className="px-4 py-2 border-b border-r">물품명</th>
-              <th className="px-4 py-2 border-b border-r">규격</th>
-              <th className="px-4 py-2 border-b border-r ">수량</th>
-              <th className="px-4 py-2 border-b border-r">단가</th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell">
+
+              {/* 물품명 (name) */}
+              <th
+                onClick={() => handleSort("name")}
+                className="px-4 py-2 border-b border-r cursor-pointer select-none"
+              >
+                물품명
+                <span className="ml-1 text-xs">{renderSortIcon("name")}</span>
+              </th>
+
+              {/* 규격 (spec) */}
+              <th
+                onClick={() => handleSort("spec")}
+                className="px-4 py-2 border-b border-r cursor-pointer select-none"
+              >
+                규격
+                <span className="ml-1 text-xs">{renderSortIcon("spec")}</span>
+              </th>
+
+              {/* 수량 (quantity) */}
+              <th
+                onClick={() => handleSort("quantity")}
+                className="px-4 py-2 border-b border-r cursor-pointer select-none"
+              >
+                수량
+                <span className="ml-1 text-xs">
+                  {renderSortIcon("quantity")}
+                </span>
+              </th>
+
+              {/* 단가 (unit_price) */}
+              <th
+                onClick={() => handleSort("unit_price")}
+                className="px-4 py-2 border-b border-r cursor-pointer select-none"
+              >
+                단가
+                <span className="ml-1 text-xs">
+                  {renderSortIcon("unit_price")}
+                </span>
+              </th>
+
+              {/* 담당자 (user_name) */}
+              <th
+                onClick={() => handleSort("user_name")}
+                className="px-4 py-2 border-b border-r hidden md:table-cell cursor-pointer select-none"
+              >
                 담당
+                <span className="ml-1 text-xs">
+                  {renderSortIcon("user_name")}
+                </span>
               </th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell">
+
+              {/* 상태 (status) */}
+              <th
+                onClick={() => handleSort("status")}
+                className="px-4 py-2 border-b border-r hidden md:table-cell cursor-pointer select-none"
+              >
                 상태
+                <span className="ml-1 text-xs">{renderSortIcon("status")}</span>
               </th>
             </tr>
           </thead>
           <tbody>
-            {products?.map((product: any, index: any) => (
+            {/* sortedProducts 를 사용 */}
+            {sortedProducts?.map((product: any, index: any) => (
               <tr className="hover:bg-gray-50 text-center" key={index}>
+                {/* 날짜 */}
                 <td className="px-4 py-2 border-b border-r hidden md:table-cell">
                   {dayjs(product.estimate_date).format("YYYY-MM-DD")}
                 </td>
+
+                {/* 거래처명 */}
                 <td
                   className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer hidden md:table-cell"
                   onClick={() =>
@@ -283,22 +408,29 @@ export default function ProductPage() {
                 >
                   {product.company_name}
                 </td>
+
+                {/* 물품명 */}
                 <td className="px-4 py-2 border-b border-r">{product.name}</td>
+
+                {/* 규격 */}
                 <td className="px-4 py-2 border-b border-r">{product.spec}</td>
+
+                {/* 수량 */}
                 <td className="px-4 py-2 border-b border-r">
                   {product.quantity}
                 </td>
+
+                {/* 단가 */}
                 <td className="px-4 py-2 border-b border-r">
                   {product.unit_price.toLocaleString()} 원
                 </td>
-                <td
-                  className="px-4 py-2 border-b border-r hidden md:table-cell"
-                  // onClick={() =>
-                  //   router.push(`/reports/users/${product.user_id}`)
-                  // }
-                >
+
+                {/* 담당자 */}
+                <td className="px-4 py-2 border-b border-r hidden md:table-cell">
                   {product.user_name} {product.user_level}
                 </td>
+
+                {/* 상태 */}
                 <td className="px-4 py-2 border-b cursor-pointer hidden md:table-cell">
                   {product.status === "pending" && "진행중"}
                   {product.status === "canceled" && "취소"}

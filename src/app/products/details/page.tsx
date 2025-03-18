@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import ProductPage from "./Product";
+import ProductPage from "./ProductDetail";
 
-export default function ProductsUnitPageWrapper() {
+export default function ProductDetailsPageWrapper() {
   return (
     <Suspense fallback={<div>로딩 중...</div>}>
       <ProductPage />
