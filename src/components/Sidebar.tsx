@@ -54,6 +54,7 @@ export default function Header() {
           title: "퇴사자 검색",
           path: "/manage/contacts/resign",
         },
+        { id: "search", title: "상담내용 검색", path: "/consultations/search" },
         { id: "recent", title: "상담내역 조회", path: "/consultations/recent" },
       ],
     },
