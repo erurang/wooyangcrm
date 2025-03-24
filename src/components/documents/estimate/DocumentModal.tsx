@@ -322,7 +322,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     <td style="text-align: center; font-weight: bold; padding: 10px; border-bottom: 1px solid black; font-size: 14px;">
       합계(VAT별도) : 金${koreanAmount(
         document.content.total_amount
-      )}원整$(₩${document.content.total_amount?.toLocaleString()})
+      )}원整(₩${document.content.total_amount?.toLocaleString()})
     </td>
   </tr>
   <tr>
@@ -632,7 +632,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     <td style="text-align: center; font-weight: bold; padding: 10px; border-bottom: 1px solid black; font-size: 14px;">
       합계(VAT별도) : 金${koreanAmount(
         document.content.total_amount
-      )}원整$(₩${document.content.total_amount.toLocaleString()})
+      )}원整(₩${document.content.total_amount.toLocaleString()})
     </td>
   </tr>
   <tr>

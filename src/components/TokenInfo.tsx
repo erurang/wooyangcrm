@@ -1,5 +1,6 @@
 "use client";
 
+import { useSetLoginUser } from "@/context/login";
 import { sendKakaoMessage } from "@/lib/sendKakaoMessage";
 import { createSupabaseClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
@@ -8,6 +9,7 @@ import { useEffect, useState } from "react";
 export default function TokenInfo() {
   const router = useRouter();
   const supabase = createSupabaseClient();
+  const setLoginUser = useSetLoginUser();
   const [userData, setUserData] = useState<any>(null);
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
 
@@ -69,6 +71,7 @@ export default function TokenInfo() {
 
       console.log("✅ 카카오 로그아웃 성공!");
       setUserData(null);
+      setLoginUser(undefined);
       setRemainingTime(null);
       router.push("/login");
       // ✅ 로그아웃 후 리디렉트
