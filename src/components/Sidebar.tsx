@@ -55,6 +55,11 @@ export default function Header() {
           path: "/manage/contacts/resign",
         },
         { id: "search", title: "상담내용 검색", path: "/consultations/search" },
+        {
+          id: "follow_search",
+          title: "후속상담 검색",
+          path: "/consultations/follow",
+        },
         { id: "recent", title: "상담내역 조회", path: "/consultations/recent" },
       ],
     },
