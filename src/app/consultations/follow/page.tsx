@@ -357,9 +357,6 @@ export default function RecentConsultations() {
                 상담일
               </th>
               <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
-                후속
-              </th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
                 담당자
               </th>
               <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
@@ -382,9 +379,7 @@ export default function RecentConsultations() {
                 </td>
                 <td className="px-4 py-2 border-r hidden md:table-cell">
                   {consultation.date}
-                </td>
-                <td className="px-4 py-2 border-r hidden md:table-cell">
-                  {consultation.follow_up_date}
+                  <p>~{consultation.follow_up_date}</p>
                 </td>
                 <td className="px-4 py-2 border-r hidden md:table-cell">
                   {consultation?.contact_name} {consultation?.contact_level}

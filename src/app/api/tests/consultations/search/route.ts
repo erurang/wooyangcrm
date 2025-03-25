@@ -33,11 +33,24 @@ export async function GET(request: Request) {
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
-    // 🔹 필터 적용 (중복 제거)
+    // 🔹 필터 적용
     if (userId) query = query.eq("user_id", userId);
     if (startDate) query = query.gte("date", startDate);
     if (endDate) query = query.lte("date", endDate);
-    if (content) query = query.ilike("content", `%${content}%`);
+
+    // ✅ `,`로 구분된 여러 키워드 검색 추가
+    if (content) {
+      const keywords = content
+        .split(",")
+        .map((keyword) => keyword.trim())
+        .filter(Boolean); // 공백 제거 및 빈 문자열 제거
+      if (keywords.length > 0) {
+        const contentFilters = keywords
+          .map((keyword) => `content.ilike.%${keyword}%`)
+          .join(",");
+        query = query.or(contentFilters);
+      }
+    }
 
     // 🔹 쿼리 실행
     const { data: consultations, count: total, error } = await query;

@@ -250,7 +250,7 @@ export default function RecentConsultations() {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="상담내용"
+              placeholder=", 로 구분하여 여러 조건을 검색 (ID,OD,500m 등등..)"
               className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
               whileFocus={{
                 scale: 1.05,
