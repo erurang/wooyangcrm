@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("todos")
-    .insert([{ user_id: userId, content: "" }])
+    .insert([{ user_id: userId, content: "", start_date: new Date() }])
     .select()
     .single();
 

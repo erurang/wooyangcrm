@@ -98,6 +98,26 @@ export default function Header() {
         },
       ],
     },
+    {
+      title: "캘린더",
+      items: [
+        {
+          id: "manage/calendar/todos",
+          title: "할 일",
+          path: "/manage/calendar/todos",
+        },
+        {
+          id: "manage/calendar/consultations",
+          title: "상담",
+          path: "/manage/calendar/consultations",
+        },
+        {
+          id: "manage/calendar/documents",
+          title: "문서",
+          path: "/manage/calendar/documents",
+        },
+      ],
+    },
   ];
 
   // role별 추가
@@ -108,13 +128,6 @@ export default function Header() {
         { id: "rndsorg", title: "지원기관 검색", path: "/manage/orgs" },
         { id: "rnds", title: "R&D 검색", path: "/manage/rnds" },
         { id: "brnds", title: "비 R&D 검색", path: "/manage/brnds" },
-      ],
-    });
-  }
-  if (user?.role === "research" || user?.role === "admin") {
-    baseMenuSections.push({
-      title: "개발",
-      items: [
         { id: "develop", title: "개발건 검색", path: "/manage/develop" },
         {
           id: "develop_contacts",
@@ -124,6 +137,7 @@ export default function Header() {
       ],
     });
   }
+
   if (user?.role === "managementSupport" || user?.role === "admin") {
     baseMenuSections.push({
       title: "경영지원",
