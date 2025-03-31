@@ -107,7 +107,8 @@ export default function CalendarPageConsult() {
       .from("consultations")
       .select("*, users(name, level), companies(name)")
       .gte("date", start.toISOString())
-      .lt("date", end.toISOString());
+      .lt("date", end.toISOString())
+      .eq("user_id", user?.id);
     if (error) {
       showSnackbar("상담 데이터 조회 오류: " + error.message, "error");
       return;
@@ -195,7 +196,7 @@ export default function CalendarPageConsult() {
         id: ev.id,
         calendarId: ev.user_id,
         title: ev.title,
-        category: "time",
+        category: "allday",
         start: ev.start,
         end: ev.end,
         extendedProps: { rawData: ev.rawData },
@@ -302,11 +303,11 @@ export default function CalendarPageConsult() {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "end",
           marginBottom: "1rem",
         }}
       >
-        {renderLegend()}
+        {/* {renderLegend()} */}
         {renderButtons()}
       </div>
       <div

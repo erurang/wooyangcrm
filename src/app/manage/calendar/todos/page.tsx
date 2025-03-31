@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
+import { createClient } from "@supabase/supabase-js";
 import { AlertColor } from "@mui/material";
 import SnackbarComponent from "@/components/Snackbar";
 import { useLoginUser } from "@/context/login";
-import { supabase } from "@/lib/supabaseClient";
 
 interface UserInfo {
   name: string;
@@ -33,104 +33,80 @@ interface UserCalendar {
   statusFilter: "진행중" | "완료";
 }
 
-// -----------------------------
-// 3. KST 변환 함수
-// -----------------------------
+// 저장된 날짜는 UTC ISO 문자열로 되어 있으므로 브라우저는 로컬(KST) 시간으로 자동 표시합니다.
 function convertToKST(dateStr: string): string {
-  const date = new Date(dateStr);
-  const kstTime = date.getTime() + 9 * 60 * 60 * 1000;
-  return new Date(kstTime).toISOString();
+  return dateStr;
 }
 
-// -----------------------------
-// 4. 파스텔톤 색상 팔레트
-// -----------------------------
 const COLOR_PALETTE = [
-  "#FFD3B6", // 연살구
-  "#FFAAA6", // 연핑크
-  "#FF8C94", // 진핑크
-  "#D9B2FF", // 라일락
-  "#B5EAD7", // 민트
-  "#E2F0CB", // 라이트 라임
-  "#FAD9C1", // 베이지톤
-  "#FCB0B3", // 연빨강
-  "#C7CEEA", // 연보라
-  "#F1F1F2", // 연회색
-  // 추가 색상들
-  "#FFE8D6", // 크림 살구
-  "#FFF5BA", // 연노랑
-  "#C1FFD7", // 라이트 민트
-  "#BDE0FE", // 파스텔 블루
-  "#A0C4FF", // 연파랑
-  "#FFC8DD", // 연분홍
-  "#BDE0FE", // 연파랑 (중복 가능)
-  "#CAF0F8", // 아주 연한 하늘
-  "#A7BED3", // 그레이시 라벤더
-  "#E2ECE9", // 라이트 그레이 그린
+  "#FFD3B6",
+  "#FFAAA6",
+  "#FF8C94",
+  "#D9B2FF",
+  "#B5EAD7",
+  "#E2F0CB",
+  "#FAD9C1",
+  "#FCB0B3",
+  "#C7CEEA",
+  "#F1F1F2",
+  "#FFE8D6",
+  "#FFF5BA",
+  "#C1FFD7",
+  "#BDE0FE",
+  "#A0C4FF",
+  "#FFC8DD",
+  "#CAF0F8",
+  "#A7BED3",
+  "#E2ECE9",
 ];
 
-// -----------------------------
-// 5. 달(월) 범위 구하기 (페이지네이션)
-// -----------------------------
 function getMonthRange(date: Date) {
   const start = new Date(date.getFullYear(), date.getMonth(), 1);
   const end = new Date(date.getFullYear(), date.getMonth() + 1, 1);
   return { start, end };
 }
 
-// -----------------------------
-// 6. TZDate → string 변환 (v2에서 start/end가 TZDate 가능)
-// -----------------------------
 function tzDateToString(tzdate: any): string {
   if (!tzdate) return new Date().toISOString();
-
-  if (tzdate instanceof Date) {
-    return tzdate.toISOString();
-  } else if (typeof tzdate === "string") {
-    return tzdate;
-  } else if (typeof tzdate.getTime === "function") {
-    const timeValue = tzdate.getTime();
-    return new Date(timeValue).toISOString();
+  if (tzdate instanceof Date) return tzdate.toISOString();
+  if (typeof tzdate === "string") return tzdate;
+  if (typeof tzdate.getTime === "function") {
+    return new Date(tzdate.getTime()).toISOString();
   }
   return new Date().toISOString();
 }
 
-// -----------------------------
-// 7. CalendarPage
-// -----------------------------
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 export default function CalendarPage() {
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // 로그인 사용자 (예: { id: string; ... })
   const user = useLoginUser();
+  const baseDate = new Date();
 
-  // Toast UI Calendar 클래스 (v2)
-  const [CalendarClass, setCalendarClass] = useState<any>(null);
-
-  // Calendar 인스턴스
-  const [calendar, setCalendar] = useState<any>(null);
-
-  // DB에서 가져온 todos
+  // todos 상태
   const [todos, setTodos] = useState<TodoWithUser[]>([]);
-
-  // 사용자별 달력(Calendars) 정보
+  // 캘린더 관련 상태
+  const [CalendarClass, setCalendarClass] = useState<any>(null);
+  const [calendar, setCalendar] = useState<any>(null);
+  // 유저별 달력(유저 리스트) 정보 (토글 상태 포함)
   const [userCalendars, setUserCalendars] = useState<UserCalendar[]>([]);
-
-  // **기본 뷰를 month로 설정**
+  // 글로벌 필터: "전체", "진행", "완료"
+  const [globalFilter, setGlobalFilter] = useState<"전체" | "진행" | "완료">(
+    "전체"
+  );
+  // 기본 뷰
   const [currentView, setCurrentView] = useState<"day" | "week" | "month">(
     "month"
   );
-
-  // Snackbar
+  // Snackbar 상태
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>("info");
 
-  // ---------------------------
-  // (A) 클라이언트에서만 @toast-ui/calendar 모듈 로드
-  // ---------------------------
+  // (A) 클라이언트에서만 캘린더 모듈 로드
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     try {
       const mod = require("@toast-ui/calendar");
       console.log("Loaded calendar mod:", mod);
@@ -140,151 +116,77 @@ export default function CalendarPage() {
     }
   }, []);
 
-  // ---------------------------
-  // (B) 특정 달의 todos + users(name, level) 조인
-  // ---------------------------
+  // (B) 특정 달의 todos 조회 (로그인한 사용자의 todos만 조회)
   async function fetchTodosForMonth(baseDate: Date) {
     const { start, end } = getMonthRange(baseDate);
-
     const { data, error } = await supabase
       .from("todos")
       .select("*, users(name, level)")
       .gte("start_date", start.toISOString())
-      .lt("start_date", end.toISOString());
-
+      .lt("start_date", end.toISOString())
+      .eq("user_id", user?.id);
     if (error) {
       showSnackbar("데이터 가져오기 오류: " + error.message, "error");
       return;
     }
     if (!data) return;
-
     setTodos(data as TodoWithUser[]);
   }
 
-  // ---------------------------
-  // (C) Calendar 인스턴스 생성
-  // ---------------------------
+  // (C) Calendar 인스턴스 생성 (읽기 전용)
   useEffect(() => {
     if (!CalendarClass || !containerRef.current || !user?.id) return;
-
     if (calendar) {
       calendar.destroy();
     }
-
     try {
-      const baseDate = new Date();
-
       const cal = new CalendarClass(containerRef.current, {
         defaultView: currentView,
+        readOnly: true, // 읽기 전용: 편집/삭제 UI 제거
         useFormPopup: true,
         useDetailPopup: true,
+        template: {
+          // popupEdit 템플릿: schedule?.title이 없으면 빈 문자열 사용
+          popupEdit: function (schedule: any) {
+            return `
+              <div class="tui-full-calendar-popup-edit">
+                <div class="tui-full-calendar-popup-content">
+                  <input type="text" class="tui-full-calendar-popup-title" value="${
+                    schedule?.title || ""
+                  }" placeholder="일정 제목" />
+                </div>
+                <div class="tui-full-calendar-popup-buttons">
+                  <button class="tui-full-calendar-popup-save-btn">저장</button>
+                  <button class="tui-full-calendar-popup-cancel-btn">취소</button>
+                </div>
+              </div>
+            `;
+          },
+        },
       });
       console.log("Created cal instance with user:", user.id);
-
-      // --- 일정 생성 ---
-      cal.on("beforeCreateEvent", async (eventData: any) => {
-        try {
-          if (!user?.id) {
-            showSnackbar("로그인한 사용자만 일정 생성 가능", "error");
-            return;
-          }
-          const startStr = tzDateToString(eventData.start);
-          const endStr = tzDateToString(eventData.end);
-
-          const { error } = await supabase.from("todos").insert({
-            content: eventData.title,
-            user_id: user.id,
-            is_completed: false,
-            start_date: new Date(new Date(startStr).getTime()).toISOString(),
-            due_date: new Date(new Date(endStr).getTime()).toISOString(),
-          });
-          if (error) throw error;
-
-          showSnackbar("일정이 생성되었습니다.", "success");
-          await fetchTodosForMonth(cal.getDate());
-        } catch (err: any) {
-          showSnackbar("일정 생성 오류: " + err.message, "error");
-        }
-      });
-
-      // --- 일정 수정 ---
-      cal.on("beforeUpdateEvent", async ({ event, changes }: any) => {
-        try {
-          const todoId = Number(event.id);
-          const scheduleOwner = event.calendarId;
-          if (!user?.id || user.id !== scheduleOwner) {
-            showSnackbar("본인 일정만 수정할 수 있습니다.", "error");
-            return;
-          }
-          const newTitle = changes.title ?? event.title;
-          const newStart = tzDateToString(changes.start ?? event.start);
-          const newEnd = tzDateToString(changes.end ?? event.end);
-
-          const { error } = await supabase
-            .from("todos")
-            .update({
-              content: newTitle,
-              start_date: new Date(new Date(newStart).getTime()).toISOString(),
-              due_date: new Date(new Date(newEnd).getTime()).toISOString(),
-            })
-            .eq("id", todoId);
-          if (error) throw error;
-
-          showSnackbar("일정이 수정되었습니다.", "success");
-          await fetchTodosForMonth(cal.getDate());
-        } catch (err: any) {
-          showSnackbar("일정 수정 오류: " + err.message, "error");
-        }
-      });
-
-      // --- 일정 삭제 ---
-      cal.on("beforeDeleteEvent", async (eventData: any) => {
-        try {
-          const todoId = Number(eventData.id);
-          const scheduleOwner = eventData.calendarId;
-          if (!user?.id || user.id !== scheduleOwner) {
-            showSnackbar("본인 일정만 삭제할 수 있습니다.", "error");
-            return;
-          }
-          const { error } = await supabase
-            .from("todos")
-            .delete()
-            .eq("id", todoId);
-          if (error) throw error;
-
-          showSnackbar("일정이 삭제되었습니다.", "success");
-          await fetchTodosForMonth(cal.getDate());
-        } catch (err: any) {
-          showSnackbar("일정 삭제 오류: " + err.message, "error");
-        }
-      });
-
       setCalendar(cal);
-      fetchTodosForMonth(baseDate);
+      fetchTodosForMonth(new Date());
     } catch (err) {
       console.error("Calendar instance creation error:", err);
     }
-  }, [CalendarClass, containerRef, user, currentView]);
+  }, [CalendarClass, containerRef, user?.id, currentView]);
 
-  // ---------------------------
-  // (D) todos 변경 시 userCalendars 구성
-  // ---------------------------
+  // (D1) todos가 변경될 때 유저별 달력(유저 리스트) 정보 계산
   useEffect(() => {
-    if (!calendar) return;
-
+    if (!todos) return;
     const userMap = new Map<string, UserInfo>();
     todos.forEach((t) => {
       userMap.set(t.user_id, t.users);
     });
-
     let colorIndex = 0;
     const newCals: UserCalendar[] = Array.from(userMap.entries()).map(
-      ([userId, user]) => {
+      ([userId, info]) => {
         const color = COLOR_PALETTE[colorIndex % COLOR_PALETTE.length];
-        colorIndex += 1;
+        colorIndex++;
         return {
           id: userId,
-          name: `${user.name} ${user.level}`,
+          name: `${info.name} ${info.level}`,
           backgroundColor: color,
           borderColor: color,
           isActive: true,
@@ -292,57 +194,39 @@ export default function CalendarPage() {
         };
       }
     );
-
     setUserCalendars(newCals);
-  }, [todos, calendar]);
+  }, [todos]);
 
-  // ---------------------------
-  // (E) todos, userCalendars 변경 시 달력 이벤트 업데이트
-  // ---------------------------
+  // (D2) todos, 글로벌 필터, userCalendars 변경 시 달력 이벤트 갱신
   useEffect(() => {
-    if (!calendar) return;
-
+    if (!calendar || !todos) return;
     if (typeof calendar.clear === "function") {
       calendar.clear();
     }
-
-    // 활성 사용자 및 필터 상태 가져오기
-    const activeUserFilters = userCalendars
-      .filter((cal) => cal.isActive)
-      .reduce((acc, cal) => {
-        acc[cal.id] = cal.statusFilter;
-        return acc;
-      }, {} as Record<string, "진행중" | "완료">);
-
-    const events = todos
-      .filter((todo) => {
-        // 활성 사용자인지 체크
-        if (!activeUserFilters[todo.user_id]) return false;
-        // 필터 상태에 따라 is_completed를 확인 (진행중이면 false, 완료면 true)
-        if (activeUserFilters[todo.user_id] === "진행중") {
-          return !todo.is_completed;
-        } else if (activeUserFilters[todo.user_id] === "완료") {
-          return todo.is_completed;
-        }
-        return true;
-      })
-      .map((todo) => {
-        const start = convertToKST(todo.start_date);
-        const end = convertToKST(todo.due_date);
-        return {
-          id: String(todo.id),
-          calendarId: todo.user_id,
-          title: todo.content,
-          category: "time",
-          start,
-          end,
-        };
-      });
-
+    const activeUserIds = userCalendars
+      .filter((uc) => uc.isActive)
+      .map((uc) => uc.id);
+    let filteredTodos = todos.filter((todo) =>
+      activeUserIds.includes(todo.user_id)
+    );
+    if (globalFilter === "진행") {
+      filteredTodos = filteredTodos.filter((todo) => !todo.is_completed);
+    } else if (globalFilter === "완료") {
+      filteredTodos = filteredTodos.filter((todo) => todo.is_completed);
+    }
+    const events = filteredTodos.map((todo) => {
+      return {
+        id: String(todo.id),
+        calendarId: todo.user_id,
+        title: todo.is_completed ? `[완료] ${todo.content}` : todo.content,
+        category: "time",
+        start: todo.start_date,
+        end: todo.due_date,
+      };
+    });
     if (typeof calendar.createEvents === "function") {
       calendar.createEvents(events);
     }
-
     if (typeof calendar.setCalendars === "function") {
       calendar.setCalendars(
         userCalendars.map((uc) => ({
@@ -353,98 +237,100 @@ export default function CalendarPage() {
         }))
       );
     }
-  }, [calendar, todos, userCalendars]);
+  }, [calendar, todos, globalFilter, userCalendars]);
 
+  // (E) 뷰 전환 / 이전/오늘/다음
   async function changeView(view: "day" | "week" | "month") {
     if (calendar?.changeView) {
       calendar.changeView(view);
     }
     setCurrentView(view);
   }
-
   async function moveToPrev() {
     if (!calendar?.prev) return;
     calendar.prev();
     await fetchTodosForMonth(calendar.getDate());
   }
-
   async function moveToNext() {
     if (!calendar?.next) return;
     calendar.next();
     await fetchTodosForMonth(calendar.getDate());
   }
-
   async function moveToToday() {
     if (!calendar?.today) return;
     calendar.today();
     await fetchTodosForMonth(calendar.getDate());
   }
 
-  function toggleUserCalendar(userId: string) {
-    setUserCalendars((prev) =>
-      prev.map((cal) =>
-        cal.id === userId ? { ...cal, isActive: !cal.isActive } : cal
-      )
-    );
-  }
-
-  function handleStatusChange(userId: string, newStatus: "진행중" | "완료") {
-    setUserCalendars((prev) =>
-      prev.map((cal) =>
-        cal.id === userId ? { ...cal, statusFilter: newStatus } : cal
-      )
-    );
-  }
-
+  // (F) Snackbar 처리
   function showSnackbar(message: string, severity: AlertColor = "info") {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
   }
-
   function handleSnackbarClose() {
     setSnackbarMessage(null);
   }
 
-  function renderLegend() {
+  // (G) 사이드바 UI: 글로벌 필터 및 유저 리스트
+  const renderSidebar = () => {
     return (
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "0.5rem" }}>
-        {userCalendars.map((cal) => (
-          <div
-            key={cal.id}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              cursor: "pointer",
-              opacity: cal.isActive ? 1 : 0.4,
-            }}
-            onClick={() => toggleUserCalendar(cal.id)}
+      <div className="h-full p-4 border-r border-gray-300 overflow-y-auto">
+        {/* 글로벌 필터 버튼 */}
+        <div className="mb-4 flex justify-around">
+          <button
+            onClick={() => setGlobalFilter("전체")}
+            className={`hover:underline ${
+              globalFilter === "전체" ? "font-bold" : ""
+            }`}
           >
+            전체
+          </button>
+          <button
+            onClick={() => setGlobalFilter("진행")}
+            className={`hover:underline ${
+              globalFilter === "진행" ? "font-bold" : ""
+            }`}
+          >
+            진행
+          </button>
+          <button
+            onClick={() => setGlobalFilter("완료")}
+            className={`hover:underline ${
+              globalFilter === "완료" ? "font-bold" : ""
+            }`}
+          >
+            완료
+          </button>
+        </div>
+        {/* 유저 리스트 */}
+        <div className="grid grid-cols-1 gap-2">
+          {userCalendars.map((uc) => (
             <div
-              style={{
-                width: "12px",
-                height: "12px",
-                borderRadius: "50%",
-                backgroundColor: cal.backgroundColor,
-              }}
-            />
-            <span>{cal.name}</span>
-            <select
-              onClick={(e) => e.stopPropagation()}
-              value={cal.statusFilter}
-              onChange={(e) =>
-                handleStatusChange(cal.id, e.target.value as "진행중" | "완료")
+              key={uc.id}
+              className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:opacity-100 ${
+                uc.isActive ? "opacity-100" : "opacity-50"
+              }`}
+              onClick={() =>
+                setUserCalendars((prev) =>
+                  prev.map((c) =>
+                    c.id === uc.id ? { ...c, isActive: !c.isActive } : c
+                  )
+                )
               }
             >
-              <option value="진행중">진행중</option>
-              <option value="완료">완료</option>
-            </select>
-          </div>
-        ))}
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: uc.backgroundColor }}
+              />
+              <span className="text-sm">{uc.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
     );
-  }
+  };
 
+  // (H) 우측 상단 버튼 영역
   function renderButtons() {
     return (
       <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -458,22 +344,27 @@ export default function CalendarPage() {
     );
   }
 
+  // (I) 최종 렌더링: 좌측 사이드바 + 우측 메인 영역
   return (
     <div>
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "end",
           marginBottom: "1rem",
         }}
       >
-        {renderLegend()}
+        {/* 좌측 사이드바: 1/10 */}
+        {/* <div className="col-span-1">{renderSidebar()}</div> */}
+        {/* 우측 메인 영역: 9/10 */}
         {renderButtons()}
       </div>
+
       <div
         ref={containerRef}
         style={{ height: "800px", border: "1px solid #ccc" }}
       />
+
       <SnackbarComponent
         message={snackbarMessage}
         severity={snackbarSeverity}

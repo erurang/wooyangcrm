@@ -135,7 +135,8 @@ export default function CalendarPageDoc() {
       .from("documents")
       .select("*, users(name, level)")
       .gte("date", start.toISOString())
-      .lt("date", end.toISOString());
+      .lt("date", end.toISOString())
+      .eq("user_id", user?.id);
     if (error) {
       showSnackbar("문서 데이터 조회 오류: " + error.message, "error");
       return;
@@ -349,11 +350,11 @@ export default function CalendarPageDoc() {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "end",
           marginBottom: "1rem",
         }}
       >
-        {renderLegend()}
+        {/* {renderLegend()} */}
         {renderButtons()}
       </div>
       <div
