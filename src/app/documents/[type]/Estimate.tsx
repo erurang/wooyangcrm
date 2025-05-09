@@ -1,185 +1,944 @@
 "use client";
 
-import { CircularProgress } from "@mui/material";
-import {
-  FileText,
-  Edit,
-  Trash2,
-  Plus,
-  Search,
-  ChevronDown,
-  Check,
-  X,
-  AlertCircle,
-  Calendar,
-  DollarSign,
-  Clipboard,
-  User,
-  Building,
-  Phone,
-  Printer,
-  Clock,
-  CreditCard,
-  MapPin,
-  Truck,
-  Package,
-  Info,
-} from "lucide-react";
+// components/DocumentModal.tsx
+import Image from "next/image";
+import type React from "react";
+import { Calendar, Printer, X, FileText } from "lucide-react";
 
-interface AppUser {
-  id: string;
-  name: string;
+interface DocumentModalProps {
+  document: any; // 문서 전체를 prop으로 받음
+  onClose: () => void; // 모달을 닫을 때 호출되는 함수
+  company_fax: string;
+  type: "requestQuote" | "estimate" | "order" | any;
+  koreanAmount: any;
+  company_phone?: any;
 }
 
-interface Items {
-  name: string;
-  spec: string;
-  quantity: string;
-  unit_price: number;
-  amount: number;
-}
-
-interface Document {
-  id: string;
-  date: string;
-  consultation_id: string;
-  type: string;
-  contact: string;
-  contact_name: string;
-  contact_level: string;
-  user_name: string;
-  user_level: string;
-  contact_mobile: string;
-  content: {
-    items: {
-      name: string;
-      spec: string;
-      amount: number;
-      number: number;
-      quantity: string;
-      unit_price: number;
-      unit: string;
-    }[];
-    notes: string;
-    valid_until: string;
-    company_name: string;
-    total_amount: number;
-    delivery_term: string;
-    delivery_place: string;
-    delivery_date: string;
-  };
-  payment_method: string;
-  document_number: string;
-  status: string;
-  created_at: string;
-  file_url: string;
-  company_id: string;
-  user_id: string;
-}
-
-interface newDocument {
-  id: string;
-  date: string;
-  company_name: string;
-  contact: string;
-  phone: string;
-  fax: string;
-  created_at: string;
-  valid_until: string;
-  payment_method: string;
-  notes: string;
-  delivery_term: string;
-  delivery_place: string;
-  status: string;
-  delivery_date: string;
-}
-
-interface Contacts {
-  resign: any;
-  id: string;
-  contact_name: string;
-  department: string;
-  mobile: string;
-  email: string;
-  company_id: string;
-  level: string;
-}
-
-interface EsitmateProps {
-  documents: Document[];
-  handleDocumentNumberClick: (document: Document) => void;
-  handleEditModal: (document: Document) => void;
-  handleDeleteDocument: (document: Document) => void;
-  openAddModal: boolean;
-  newDocument: newDocument;
-  setNewDocument: (newDocument: newDocument) => void;
-  koreanAmount: string;
-  totalAmount: number;
-  addItem: () => void;
-  items: Items[];
-  setItems: any;
-  handleQuantityChange: (index: number, value: string) => void;
-  handleUnitPriceChange: (index: number, value: string) => void;
-  setOpenAddModal: (type: boolean) => void;
-  handleAddDocument: () => Promise<void>;
-  removeItem: (index: number) => void;
-  openEditModal: boolean;
-  handleEditDocument: () => Promise<void>;
-  type: string;
-  user: AppUser;
-  setOpenEditModal: any;
-  paymentMethods: string[];
-  saving: boolean;
-  contacts: Contacts[];
-  handleEditCloseModal: any;
-  statusChangeDoc: Document | null;
-  setStatusChangeDoc: (doc: Document | null) => void;
-  handleStatusChange: () => Promise<void>;
-  selectedStatus: string;
-  setSelectedStatus: (status: string) => void;
-  statusReason: {
-    completed: { reason: string; amount: number };
-    canceled: { reason: string; amount: number };
-  };
-  setStatusReason: any;
-}
-
-export default function Estimate({
-  documents,
-  handleDocumentNumberClick,
-  handleEditModal,
-  handleDeleteDocument,
-  openAddModal,
-  newDocument,
-  setNewDocument,
-  koreanAmount,
-  totalAmount,
-  addItem,
-  items,
-  setItems,
-  handleQuantityChange,
-  handleUnitPriceChange,
-  setOpenAddModal,
-  handleAddDocument,
-  removeItem,
-  openEditModal,
-  handleEditDocument,
+const DocumentModal: React.FC<DocumentModalProps> = ({
+  document,
+  onClose,
+  company_fax,
   type,
-  user,
-  handleEditCloseModal,
-  paymentMethods,
-  saving,
-  contacts,
-  statusChangeDoc,
-  setStatusChangeDoc,
-  handleStatusChange,
-  selectedStatus,
-  setSelectedStatus,
-  statusReason,
-  setStatusReason,
-}: EsitmateProps) {
-  // 문서 타입에 따른 헤더 텍스트 설정
-  const getDocumentTypeText = () => {
+  koreanAmount,
+  company_phone,
+}) => {
+  const [datePart] = document.created_at.split("T"); // "2025-02-12"
+  const [year, month, day] = datePart.split("-").map(Number);
+
+  const formatContentWithLineBreaks = (content: string) => {
+    return content.split("\n").map((line, index) => (
+      <span key={index}>
+        {line}
+        <br />
+      </span>
+    ));
+  };
+
+  const formatContentForPrint = (content: string) => {
+    return content.replace(/\n/g, "<br>");
+  };
+
+  const handlePrint = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      alert("팝업이 차단되었습니다. 팝업 차단을 해제해주세요.");
+      return;
+    }
+
+    if (printWindow && type === "estimate") {
+      printWindow.document.open();
+      printWindow.document.write(`
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>견적서</title>
+  <style>
+    @page {
+      size: A4; /* A4 크기 지정 */
+      margin: 15mm 10mm 20mm 10mm; /* 상단, 우측, 하단, 좌측 여백 설정 */
+    }
+    body {
+      margin: 0; 
+      font-family: Arial, sans-serif; 
+      font-size: 12px !important;
+      counter-reset: page;
+    }
+    /* 페이지 번호 표시 */
+    .page-footer {
+      position: fixed;
+      bottom: 5mm;
+      width: 100%;
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+    }
+    .page-footer::after {
+      counter-increment: page;
+      content: "- " counter(page) " -";
+    }
+    /* 페이지 나누기 방지 */
+    .no-break {
+      page-break-inside: avoid;
+    }
+    /* 페이지 나누기 적용 */
+    .page-break {
+      page-break-after: always;
+    }
+    /* 테이블 행이 페이지 경계에서 나뉘지 않도록 설정 */
+    tr {
+      page-break-inside: avoid;
+    }
+    /* 기존 스타일은 유지 */
+    .section-header {
+      font-size: 14px;
+      font-weight: bold;
+      margin: 0 0 4px 0;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e5e7eb;
+      color: #374151;
+    }
+    .section-content {
+      padding: 0;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .info-label {
+      font-size: 11px;
+      color: #6b7280;
+      margin: 0 0 1px 0;
+    }
+    .info-value {
+      font-weight: 500;
+      font-size: 10px;
+      margin: 0;
+    }
+    .address-line {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+  <!-- 헤더 섹션 -->
+  <div style="background: linear-gradient(to right, #1e40af, #1e3a8a); color: white; padding: 15px 20px; border-radius: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">견적서</h2>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+      <div style="font-size: 14px; opacity: 0.9;">
+        ${year}년 ${month}월 ${day}일
+      </div>
+      <div style="font-size: 14px; font-family: monospace;">
+        ${document.document_number}
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 15px 20px;">
+    <!-- 회사 로고 및 정보 -->
+    <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
+        <!-- 로고 및 도장 -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+          <img src="/images/logo.png" alt="우양 신소재 로고" style="width: 250px; height: 40px; object-fit: contain;">
+          <img src="/images/dojang.png" alt="도장" style="width: 35px; height: 35px; object-fit: contain;">
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <!-- 본사 정보 -->
+          <div>
+            <p style="font-size: 12px; font-weight: 600; margin: 0 0 3px 0;">본사</p>
+            <div style="margin-bottom: 3px;">
+              <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">주소</span>
+              <span style="font-size: 10px;" class="address-line">대구광역시 북구 유통단지로 8길 21</span>
+            </div>
+            <div style="margin-bottom: 3px;">
+              <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">TEL</span>
+              <span style="font-size: 10px;">(053)383-5287</span>
+            </div>
+            <div style="margin-bottom: 3px;">
+              <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">FAX</span>
+              <span style="font-size: 10px;">(053)383-5283</span>
+            </div>
+            <div style="margin-bottom: 3px;">
+              <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">홈</span>
+              <span style="font-size: 10px;">www.iwooyang.com</span>
+            </div>
+          </div>
+          
+          <!-- 공장 정보 -->
+          <div>
+            <p style="font-size: 12px; font-weight: 600; margin: 0 0 3px 0;">공장</p>
+            <div style="margin-bottom: 3px;">
+              <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">주소</span>
+              <span style="font-size: 10px;" class="address-line">구미시 산동면 첨단기업3로 81</span>
+            </div>
+            <div style="margin-bottom: 3px;">
+              <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">TEL</span>
+              <span style="font-size: 10px;">(054)476-3100</span>
+            </div>
+            <div style="margin-bottom: 3px;">
+              <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">FAX</span>
+              <span style="font-size: 10px;">(054)476-3104</span>
+            </div>
+            <div style="margin-bottom: 3px;">
+              <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">메일</span>
+              <span style="font-size: 10px;">info@iwooyang.com</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 거래처 정보 및 문서 정보 -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;" class="no-break">
+      <!-- 거래처 정보 -->
+      <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 0; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+        <h3 class="section-header">거래처 정보</h3>
+        <div class="info-grid">
+          <div style="margin-bottom: 3px;">
+            <div>
+              <p class="info-label">회사명</p>
+              <p class="info-value">${document.content.company_name}</p>
+            </div>
+          </div>
+          <div style="margin-bottom: 3px;">
+            <div>
+              <p class="info-label">담당자</p>
+              <p class="info-value">${document.contact_name} ${
+        document.contact_level
+      }</p>
+            </div>
+          </div>
+          <div style="margin-bottom: 3px;">
+            <div>
+              <p class="info-label">전화번호</p>
+              <p class="info-value">${company_phone || "정보 없음"}</p>
+            </div>
+          </div>
+          <div style="margin-bottom: 3px;">
+            <div>
+              <p class="info-label">팩스</p>
+              <p class="info-value">${company_fax || "정보 없음"}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 문서 정보 -->
+      <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 0; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+        <h3 class="section-header">문서 정보</h3>
+        <div class="info-grid">
+          <div style="margin-bottom: 3px;">
+            <div>
+              <p class="info-label">유효기간</p>
+              <p class="info-value">${document.content.valid_until}</p>
+            </div>
+          </div>
+          <div style="margin-bottom: 3px;">
+            <div>
+              <p class="info-label">납품일</p>
+              <p class="info-value">${document.content.delivery_term}</p>
+            </div>
+          </div>
+          <div style="margin-bottom: 3px;">
+            <div>
+              <p class="info-label">납품장소</p>
+              <p class="info-value">${document.content.delivery_place}</p>
+            </div>
+          </div>
+          <div style="margin-bottom: 3px;">
+            <div>
+              <p class="info-label">결제방식</p>
+              <p class="info-value">${document.payment_method}</p>
+            </div>
+          </div>
+          <div style="margin-bottom: 3px;">
+            <div>
+              <p class="info-label">견적자</p>
+              <p class="info-value">${document.user_name} ${
+        document.user_level
+      }</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 항목 테이블 -->
+    <div style="margin-bottom: 15px;" class="no-break">
+      <h3 style="font-size: 15px; font-weight: bold; margin: 0 0 8px 0; color: #374151;">견적 항목</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr>
+            <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">No</th>
+            <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">품명</th>
+            <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">규격</th>
+            <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">수량</th>
+            <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">단가</th>
+            <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">금액</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${
+            document.content.items
+              ?.map(
+                (item: any, index: any) => `
+            <tr style="page-break-inside: avoid;">
+              <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                index + 1
+              }</td>
+              <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px; font-weight: 500;">${
+                item.name
+              }</td>
+              <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                item.spec
+              }</td>
+              <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                item.quantity
+              }</td>
+              <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${item.unit_price?.toLocaleString()}</td>
+              <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${item.amount?.toLocaleString()}</td>
+            </tr>
+          `
+              )
+              .join("") ||
+            `
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 15px; color: #6b7280; border: 1px solid #e5e7eb; font-size: 12px;">
+                항목이 없습니다.
+              </td>
+            </tr>
+          `
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 합계 정보 -->
+    <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+      <h3 class="section-header">합계 정보</h3>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+        <span style="color: #6b7280; font-size: 12px;">합계 (한글)</span>
+        <span style="font-weight: 500; font-size: 12px;">金 ${koreanAmount(
+          document.content.total_amount
+        )} 원整</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+        <span style="color: #6b7280; font-size: 12px;">합계 (숫자)</span>
+        <span style="font-weight: 500; font-size: 14px;">₩ ${document.content.total_amount?.toLocaleString()}</span>
+      </div>
+      <div style="font-size: 10px; color: #6b7280; margin-top: 4px;">* 부가세 별도</div>
+    </div>
+
+    <!-- 특기사항 -->
+    <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+      <h3 class="section-header">특기사항</h3>
+      <div style="white-space: pre-line; color: #374151; font-size: 12px;">
+        ${document.content.notes || "특기사항이 없습니다."}
+      </div>
+    </div>
+  </div>
+  <div class="page-footer"></div>
+</body>
+<script>
+  window.onload = function () {
+    setTimeout(function() {
+      window.print();
+      setTimeout(function() { window.close(); }, 500);
+    }, 500);
+  };
+</script>
+</html>
+`);
+      printWindow.document.close();
+    } else if (printWindow && type === "order") {
+      printWindow.document.open();
+      printWindow.document.write(`
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>발주서</title>
+        <style>
+          @page {
+            size: A4; /* A4 크기 지정 */
+            margin: 15mm 10mm 20mm 10mm; /* 상단, 우측, 하단, 좌측 여백 설정 */
+          }
+          body {
+            margin: 0; 
+            font-family: Arial, sans-serif; 
+            font-size: 12px !important;
+            counter-reset: page;
+          }
+          /* 페이지 번호 표시 */
+          .page-footer {
+            position: fixed;
+            bottom: 5mm;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+          }
+          .page-footer::after {
+            counter-increment: page;
+            content: "- " counter(page) " -";
+          }
+          /* 페이지 나누기 방지 */
+          .no-break {
+            page-break-inside: avoid;
+          }
+          /* 페이지 나누기 적용 */
+          .page-break {
+            page-break-after: always;
+          }
+          /* 테이블 행이 페이지 경계에서 나뉘지 않도록 설정 */
+          tr {
+            page-break-inside: avoid;
+          }
+          /* 기존 스타일은 유지 */
+          .section-header {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 0 4px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+          }
+          .section-content {
+            padding: 0;
+          }
+          .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+          }
+          .info-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin: 0 0 1px 0;
+          }
+          .info-value {
+            font-weight: 500;
+            font-size: 10px;
+            margin: 0;
+          }
+          .address-line {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        </style>
+      </head>
+      <body>
+        <!-- 헤더 섹션 -->
+        <div style="background: linear-gradient(to right, #047857, #065f46); color: white; padding: 15px 20px; border-radius: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">발주서</h2>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <div style="font-size: 14px; opacity: 0.9;">
+              ${year}년 ${month}월 ${day}일
+            </div>
+            <div style="font-size: 14px; font-family: monospace;">
+              ${document.document_number}
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 15px 20px;">
+          <!-- 회사 로고 및 정보 -->
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
+              <!-- 로고 및 도장 -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <img src="/images/logo.png" alt="우양 신소재 로고" style="width: 250px; height: 40px; object-fit: contain;">
+                <img src="/images/dojang.png" alt="도장" style="width: 35px; height: 35px; object-fit: contain;">
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <!-- 본사 정보 -->
+                <div>
+                  <p style="font-size: 12px; font-weight: 600; margin: 0 0 3px 0;">본사</p>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">주소</span>
+                    <span style="font-size: 10px;" class="address-line">대구광역시 북구 유통단지로 8길 21</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">TEL</span>
+                    <span style="font-size: 10px;">(053)383-5287</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">FAX</span>
+                    <span style="font-size: 10px;">(053)383-5283</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">홈</span>
+                    <span style="font-size: 10px;">www.iwooyang.com</span>
+                  </div>
+                </div>
+                
+                <!-- 공장 정보 -->
+                <div>
+                  <p style="font-size: 12px; font-weight: 600; margin: 0 0 3px 0;">공장</p>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">주소</span>
+                    <span style="font-size: 10px;" class="address-line">구미시 산동면 첨단기업3로 81</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">TEL</span>
+                    <span style="font-size: 10px;">(054)476-3100</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">FAX</span>
+                    <span style="font-size: 10px;">(054)476-3104</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">메일</span>
+                    <span style="font-size: 10px;">info@iwooyang.com</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 거래처 정보 및 문서 정보 -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;" class="no-break">
+            <!-- 거래처 정보 -->
+            <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 0; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+              <h3 class="section-header">거래처 정보</h3>
+              <div class="info-grid">
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">회사명</p>
+                    <p class="info-value">${document.content.company_name}</p>
+                  </div>
+                </div>
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">담당자</p>
+                    <p class="info-value">${document.contact_name} ${
+        document.contact_level
+      }</p>
+                  </div>
+                </div>
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">전화번호</p>
+                    <p class="info-value">${company_phone || "정보 없음"}</p>
+                  </div>
+                </div>
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">팩스</p>
+                    <p class="info-value">${company_fax || "정보 없음"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 문서 정보 -->
+            <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 0; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+              <h3 class="section-header">문서 정보</h3>
+              <div class="info-grid">
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">납기일자</p>
+                    <p class="info-value">${document.content.delivery_date}</p>
+                  </div>
+                </div>
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">결제방식</p>
+                    <p class="info-value">${document.payment_method}</p>
+                  </div>
+                </div>
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">발주자</p>
+                    <p class="info-value">${document.user_name} ${
+        document.user_level
+      }</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 항목 테이블 -->
+          <div style="margin-bottom: 15px;" class="no-break">
+            <h3 style="font-size: 15px; font-weight: bold; margin: 0 0 8px 0; color: #374151;">발주 항목</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+              <thead>
+                <tr>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">No</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">품명</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">규격</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">수량</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">단가</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">금액</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${
+                  document.content.items
+                    ?.map(
+                      (item: any, index: any) => `
+                  <tr style="page-break-inside: avoid;">
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                      index + 1
+                    }</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px; font-weight: 500;">${
+                      item.name
+                    }</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                      item.spec
+                    }</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                      item.quantity
+                    }</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${item.unit_price?.toLocaleString()}</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${item.amount?.toLocaleString()}</td>
+                  </tr>
+                `
+                    )
+                    .join("") ||
+                  `
+                  <tr>
+                    <td colspan="6" style="text-align: center; padding: 15px; color: #6b7280; border: 1px solid #e5e7eb; font-size: 12px;">
+                      항목이 없습니다.
+                    </td>
+                  </tr>
+                `
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 합계 정보 -->
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+            <h3 class="section-header">합계 정보</h3>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span style="color: #6b7280; font-size: 12px;">합계 (한글)</span>
+              <span style="font-weight: 500; font-size: 12px;">金 ${koreanAmount(
+                document.content.total_amount
+              )} 원整</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span style="color: #6b7280; font-size: 12px;">합계 (숫자)</span>
+              <span style="font-weight: 500; font-size: 14px;">₩ ${document.content.total_amount?.toLocaleString()}</span>
+            </div>
+            <div style="font-size: 10px; color: #6b7280; margin-top: 4px;">* 부가세 별도</div>
+          </div>
+
+          <!-- 특기사항 -->
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+            <h3 class="section-header">특기사항</h3>
+            <div style="white-space: pre-line; color: #374151; font-size: 12px;">
+              ${document.content.notes || "특기사항이 없습니다."}
+            </div>
+          </div>
+        </div>
+        <div class="page-footer"></div>
+      </body>
+      <script>
+        window.onload = function () {
+          setTimeout(function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 500);
+          }, 500);
+        };
+      </script>
+      </html>
+    `);
+      printWindow.document.close();
+    } else if (printWindow && type === "requestQuote") {
+      printWindow.document.open();
+      printWindow.document.write(`
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>견적의뢰서</title>
+        <style>
+          @page {
+            size: A4; /* A4 크기 지정 */
+            margin: 15mm 10mm 20mm 10mm; /* 상단, 우측, 하단, 좌측 여백 설정 */
+          }
+          body {
+            margin: 0; 
+            font-family: Arial, sans-serif; 
+            font-size: 12px !important;
+            counter-reset: page;
+          }
+          /* 페이지 번호 표시 */
+          .page-footer {
+            position: fixed;
+            bottom: 5mm;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+          }
+          .page-footer::after {
+            counter-increment: page;
+            content: "- " counter(page) " -";
+          }
+          /* 페이지 나누기 방지 */
+          .no-break {
+            page-break-inside: avoid;
+          }
+          /* 페이지 나누기 적용 */
+          .page-break {
+            page-break-after: always;
+          }
+          /* 테이블 행이 페이지 경계에서 나뉘지 않도록 설정 */
+          tr {
+            page-break-inside: avoid;
+          }
+          /* 기존 스타일은 유지 */
+          .section-header {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 0 4px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+          }
+          .section-content {
+            padding: 0;
+          }
+          .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+          }
+          .info-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin: 0 0 1px 0;
+          }
+          .info-value {
+            font-weight: 500;
+            font-size: 10px;
+            margin: 0;
+          }
+          .address-line {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        </style>
+      </head>
+      <body>
+        <!-- 헤더 섹션 -->
+        <div style="background: linear-gradient(to right, #7e22ce, #6b21a8); color: white; padding: 15px 20px; border-radius: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">견적의뢰서</h2>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <div style="font-size: 14px; opacity: 0.9;">
+              ${year}년 ${month}월 ${day}일
+            </div>
+            <div style="font-size: 14px; font-family: monospace;">
+              ${document.document_number}
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 15px 20px;">
+          <!-- 회사 로고 및 정보 -->
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
+              <!-- 로고 및 도장 -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <img src="/images/logo.png" alt="우양 신소재 로고" style="width: 250px; height: 40px; object-fit: contain;">
+                <img src="/images/dojang.png" alt="도장" style="width: 35px; height: 35px; object-fit: contain;">
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <!-- 본사 정보 -->
+                <div>
+                  <p style="font-size: 12px; font-weight: 600; margin: 0 0 3px 0;">본사</p>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">주소</span>
+                    <span style="font-size: 10px;" class="address-line">대구광역시 북구 유통단지로 8길 21</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">TEL</span>
+                    <span style="font-size: 10px;">(053)383-5287</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">FAX</span>
+                    <span style="font-size: 10px;">(053)383-5283</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">홈</span>
+                    <span style="font-size: 10px;">www.iwooyang.com</span>
+                  </div>
+                </div>
+                
+                <!-- 공장 정보 -->
+                <div>
+                  <p style="font-size: 12px; font-weight: 600; margin: 0 0 3px 0;">공장</p>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">주소</span>
+                    <span style="font-size: 10px;" class="address-line">구미시 산동면 첨단기업3로 81</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">TEL</span>
+                    <span style="font-size: 10px;">(054)476-3100</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">FAX</span>
+                    <span style="font-size: 10px;">(054)476-3104</span>
+                  </div>
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-size: 10px; color: #6b7280; width: 40px; display: inline-block;">메일</span>
+                    <span style="font-size: 10px;">info@iwooyang.com</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 거래처 정보 및 문서 정보 -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;" class="no-break">
+            <!-- 거래처 정보 -->
+            <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 0; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+              <h3 class="section-header">거래처 정보</h3>
+              <div class="info-grid">
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">회사명</p>
+                    <p class="info-value">${document.content.company_name}</p>
+                  </div>
+                </div>
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">담당자</p>
+                    <p class="info-value">${document.contact_name} ${
+        document.contact_level
+      }</p>
+                  </div>
+                </div>
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">전화번호</p>
+                    <p class="info-value">${company_phone || "정보 없음"}</p>
+                  </div>
+                </div>
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">팩스</p>
+                    <p class="info-value">${company_fax || "정보 없음"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 문서 정보 -->
+            <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 0; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+              <h3 class="section-header">문서 정보</h3>
+              <div class="info-grid">
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">희망견적일</p>
+                    <p class="info-value">${document.content.delivery_date}</p>
+                  </div>
+                </div>
+                <div style="margin-bottom: 3px;">
+                  <div>
+                    <p class="info-label">의뢰자</p>
+                    <p class="info-value">${document.user_name} ${
+        document.user_level
+      }</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 항목 테이블 -->
+          <div style="margin-bottom: 15px;" class="no-break">
+            <h3 style="font-size: 15px; font-weight: bold; margin: 0 0 8px 0; color: #374151;">의뢰 항목</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+              <thead>
+                <tr>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">No</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">품명</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">규격</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">수량</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">단위</th>
+                  <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${
+                  document.content.items
+                    ?.map(
+                      (item: any, index: any) => `
+                  <tr style="page-break-inside: avoid;">
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                      index + 1
+                    }</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px; font-weight: 500;">${
+                      item.name
+                    }</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                      item.spec
+                    }</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                      item.quantity
+                    }</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">${
+                      item.unit || "-"
+                    }</td>
+                    <td style="padding: 8px 10px; border: 1px solid #e5e7eb; font-size: 12px;">-</td>
+                  </tr>
+                `
+                    )
+                    .join("") ||
+                  `
+                  <tr>
+                    <td colspan="6" style="text-align: center; padding: 15px; color: #6b7280; border: 1px solid #e5e7eb; font-size: 12px;">
+                      항목이 없습니다.
+                    </td>
+                  </tr>
+                `
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 특기사항 -->
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="no-break">
+            <h3 class="section-header">특기사항</h3>
+            <div style="white-space: pre-line; color: #374151; font-size: 12px;">
+              ${document.content.notes || "특기사항이 없습니다."}
+            </div>
+          </div>
+        </div>
+        <div class="page-footer"></div>
+      </body>
+      <script>
+        window.onload = function () {
+          setTimeout(function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 500);
+          }, 500);
+        };
+      </script>
+      </html>
+    `);
+      printWindow.document.close();
+    }
+  };
+
+  // 문서 타입에 따른 제목 설정
+  const getDocumentTitle = () => {
     switch (type) {
       case "estimate":
         return "견적서";
@@ -188,1530 +947,950 @@ export default function Estimate({
       case "requestQuote":
         return "견적의뢰서";
       default:
-        return "";
+        return "문서";
     }
   };
 
-  // 상태에 따른 배지 색상 및 텍스트
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return (
-          <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            진행중
-          </span>
-        );
-      case "completed":
-        return (
-          <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 flex items-center gap-1">
-            <Check className="h-3 w-3" />
-            완료
-          </span>
-        );
-      case "canceled":
-        return (
-          <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 flex items-center gap-1">
-            <X className="h-3 w-3" />
-            취소
-          </span>
-        );
+  // 문서 타입에 따른 색상 테마 설정
+  const getThemeColor = () => {
+    switch (type) {
+      case "estimate":
+        return "bg-gradient-to-r from-blue-600 to-blue-800";
+      case "order":
+        return "bg-gradient-to-r from-green-600 to-green-800";
+      case "requestQuote":
+        return "bg-gradient-to-r from-purple-600 to-purple-800";
       default:
-        return null;
+        return "bg-gradient-to-r from-gray-600 to-gray-800";
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-      {/* 헤더 섹션 */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-xl font-bold text-gray-800">
-            {getDocumentTypeText()} 목록
-          </h2>
+    <div className="fixed inset-0 flex justify-center items-center bg-black/50 backdrop-blur-sm z-50 overflow-auto">
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+        {/* 헤더 섹션 */}
+        <div
+          className={`${getThemeColor()} text-white p-6 rounded-t-lg relative`}
+        >
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold flex items-center">
+              <FileText className="mr-2" size={24} />
+              {getDocumentTitle()}
+            </h2>
+            <div className="flex items-center space-x-2 z-50">
+              <button
+                onClick={handlePrint}
+                className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors"
+                title="인쇄하기"
+              >
+                <Printer size={20} />
+              </button>
+              <button
+                onClick={onClose}
+                className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors"
+                title="닫기"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center text-white/90">
+            <div className="flex items-center">
+              <Calendar className="mr-2" size={16} />
+              <span>
+                {year}년 {month}월 {day}일
+              </span>
+            </div>
+            <div className="flex items-center mt-2 sm:mt-0">
+              <span className="font-mono">{document.document_number}</span>
+            </div>
+          </div>
+        </div>
 
-          <div className="flex flex-col sm:flex-row gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="검색..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-              />
+        {/* 본문 섹션 */}
+        <div className="p-6">
+          {/* 회사 로고 및 정보 */}
+          <div
+            style={{
+              backgroundColor: "#f9fafb",
+              borderRadius: "8px",
+              padding: "15px",
+              marginBottom: "15px",
+              border: "1px solid #e5e7eb",
+            }}
+          >
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "15px",
+                alignItems: "center",
+              }}
+            >
+              {/* 로고 및 도장 */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "15px",
+                }}
+              >
+                <div className="relative">
+                  <Image
+                    src="/images/logo.png"
+                    alt="우양 신소재 로고"
+                    width={350}
+                    height={15}
+                    className="object-contain"
+                    style={{ height: "40px", objectFit: "contain" }}
+                  />
+                </div>
+                <Image
+                  src="/images/dojang.png"
+                  alt="도장"
+                  width={35}
+                  height={35}
+                  className="object-contain"
+                  style={{
+                    width: "35px",
+                    height: "35px",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "10px",
+                }}
+              >
+                {/* 본사 정보 */}
+                <div>
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      margin: "0 0 3px 0",
+                    }}
+                  >
+                    본사
+                  </p>
+                  <div style={{ marginBottom: "3px" }}>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        color: "#6b7280",
+                        width: "40px",
+                        display: "inline-block",
+                      }}
+                    >
+                      주소
+                    </span>
+                    <span style={{ fontSize: "10px" }}>
+                      대구광역시 북구 유통단지로 8길 21
+                    </span>
+                  </div>
+                  <div style={{ marginBottom: "3px" }}>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        color: "#6b7280",
+                        width: "40px",
+                        display: "inline-block",
+                      }}
+                    >
+                      TEL
+                    </span>
+                    <span style={{ fontSize: "10px" }}>(053)383-5287</span>
+                  </div>
+                  <div style={{ marginBottom: "3px" }}>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        color: "#6b7280",
+                        width: "40px",
+                        display: "inline-block",
+                      }}
+                    >
+                      FAX
+                    </span>
+                    <span style={{ fontSize: "10px" }}>(053)383-5283</span>
+                  </div>
+                  <div style={{ marginBottom: "3px" }}>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        color: "#6b7280",
+                        width: "40px",
+                        display: "inline-block",
+                      }}
+                    >
+                      홈
+                    </span>
+                    <span style={{ fontSize: "10px" }}>www.iwooyang.com</span>
+                  </div>
+                </div>
+
+                {/* 공장 정보 */}
+                <div>
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      margin: "0 0 3px 0",
+                    }}
+                  >
+                    공장
+                  </p>
+                  <div style={{ marginBottom: "3px" }}>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        color: "#6b7280",
+                        width: "40px",
+                        display: "inline-block",
+                      }}
+                    >
+                      주소
+                    </span>
+                    <span style={{ fontSize: "10px" }}>
+                      구미시 산동면 첨단기업3로 81
+                    </span>
+                  </div>
+                  <div style={{ marginBottom: "3px" }}>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        color: "#6b7280",
+                        width: "40px",
+                        display: "inline-block",
+                      }}
+                    >
+                      TEL
+                    </span>
+                    <span style={{ fontSize: "10px" }}>(054)476-3100</span>
+                  </div>
+                  <div style={{ marginBottom: "3px" }}>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        color: "#6b7280",
+                        width: "40px",
+                        display: "inline-block",
+                      }}
+                    >
+                      FAX
+                    </span>
+                    <span style={{ fontSize: "10px" }}>(054)476-3104</span>
+                  </div>
+                  <div style={{ marginBottom: "3px" }}>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        color: "#6b7280",
+                        width: "40px",
+                        display: "inline-block",
+                      }}
+                    >
+                      메일
+                    </span>
+                    <span style={{ fontSize: "10px" }}>info@iwooyang.com</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 거래처 정보 및 문서 정보 */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "15px",
+              marginBottom: "15px",
+            }}
+          >
+            {/* 좌측: 거래처 정보 */}
+            <div
+              style={{
+                backgroundColor: "#f9fafb",
+                borderRadius: "8px",
+                padding: "15px",
+                border: "1px solid #e5e7eb",
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  margin: "0 0 4px 0",
+                  paddingBottom: "4px",
+                  borderBottom: "1px solid #e5e7eb",
+                  color: "#374151",
+                }}
+              >
+                거래처 정보
+              </h3>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "4px",
+                }}
+              >
+                <div style={{ marginBottom: "3px" }}>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        color: "#6b7280",
+                        margin: "0 0 1px 0",
+                      }}
+                    >
+                      회사명
+                    </p>
+                    <p
+                      style={{
+                        fontWeight: "500",
+                        fontSize: "12px",
+                        margin: "0",
+                      }}
+                    >
+                      {document.content.company_name}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: "3px" }}>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        color: "#6b7280",
+                        margin: "0 0 1px 0",
+                      }}
+                    >
+                      담당자
+                    </p>
+                    <p
+                      style={{
+                        fontWeight: "500",
+                        fontSize: "12px",
+                        margin: "0",
+                      }}
+                    >
+                      {document.contact_name} {document.contact_level}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: "3px" }}>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        color: "#6b7280",
+                        margin: "0 0 1px 0",
+                      }}
+                    >
+                      전화번호
+                    </p>
+                    <p
+                      style={{
+                        fontWeight: "500",
+                        fontSize: "12px",
+                        margin: "0",
+                      }}
+                    >
+                      {company_phone || "정보 없음"}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: "3px" }}>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        color: "#6b7280",
+                        margin: "0 0 1px 0",
+                      }}
+                    >
+                      팩스
+                    </p>
+                    <p
+                      style={{
+                        fontWeight: "500",
+                        fontSize: "12px",
+                        margin: "0",
+                      }}
+                    >
+                      {company_fax || "정보 없음"}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <button
-              onClick={() => setOpenAddModal(true)}
-              className="flex items-center justify-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            {/* 우측: 문서 정보 */}
+            <div
+              style={{
+                backgroundColor: "#f9fafb",
+                borderRadius: "8px",
+                padding: "15px",
+                border: "1px solid #e5e7eb",
+              }}
             >
-              <Plus className="h-4 w-4" />
-              <span>추가</span>
+              <h3
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  margin: "0 0 4px 0",
+                  paddingBottom: "4px",
+                  borderBottom: "1px solid #e5e7eb",
+                  color: "#374151",
+                }}
+              >
+                문서 정보
+              </h3>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "4px",
+                }}
+              >
+                {type === "estimate" && (
+                  <>
+                    <div style={{ marginBottom: "3px" }}>
+                      <div>
+                        <p
+                          style={{
+                            fontSize: "11px",
+                            color: "#6b7280",
+                            margin: "0 0 1px 0",
+                          }}
+                        >
+                          유효기간
+                        </p>
+                        <p
+                          style={{
+                            fontWeight: "500",
+                            fontSize: "10px",
+                            margin: "0",
+                          }}
+                        >
+                          {document.content.valid_until}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: "3px" }}>
+                      <div>
+                        <p
+                          style={{
+                            fontSize: "11px",
+                            color: "#6b7280",
+                            margin: "0 0 1px 0",
+                          }}
+                        >
+                          납품일
+                        </p>
+                        <p
+                          style={{
+                            fontWeight: "500",
+                            fontSize: "10px",
+                            margin: "0",
+                          }}
+                        >
+                          {document.content.delivery_term}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: "3px" }}>
+                      <div>
+                        <p
+                          style={{
+                            fontSize: "11px",
+                            color: "#6b7280",
+                            margin: "0 0 1px 0",
+                          }}
+                        >
+                          납품장소
+                        </p>
+                        <p
+                          style={{
+                            fontWeight: "500",
+                            fontSize: "10px",
+                            margin: "0",
+                          }}
+                        >
+                          {document.content.delivery_place}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {type === "order" && (
+                  <>
+                    <div style={{ marginBottom: "3px" }}>
+                      <div>
+                        <p
+                          style={{
+                            fontSize: "11px",
+                            color: "#6b7280",
+                            margin: "0 0 1px 0",
+                          }}
+                        >
+                          납기일자
+                        </p>
+                        <p
+                          style={{
+                            fontWeight: "500",
+                            fontSize: "10px",
+                            margin: "0",
+                          }}
+                        >
+                          {document.content.delivery_date}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {type === "requestQuote" && (
+                  <>
+                    <div style={{ marginBottom: "3px" }}>
+                      <div>
+                        <p
+                          style={{
+                            fontSize: "11px",
+                            color: "#6b7280",
+                            margin: "0 0 1px 0",
+                          }}
+                        >
+                          희망견적일
+                        </p>
+                        <p
+                          style={{
+                            fontWeight: "500",
+                            fontSize: "10px",
+                            margin: "0",
+                          }}
+                        >
+                          {document.content.delivery_date}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {type !== "requestQuote" && (
+                  <div style={{ marginBottom: "3px" }}>
+                    <div>
+                      <p
+                        style={{
+                          fontSize: "11px",
+                          color: "#6b7280",
+                          margin: "0 0 1px 0",
+                        }}
+                      >
+                        결제방식
+                      </p>
+                      <p
+                        style={{
+                          fontWeight: "500",
+                          fontSize: "10px",
+                          margin: "0",
+                        }}
+                      >
+                        {document.payment_method}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ marginBottom: "3px" }}>
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        color: "#6b7280",
+                        margin: "0 0 1px 0",
+                      }}
+                    >
+                      {type === "estimate"
+                        ? "견적자"
+                        : type === "order"
+                        ? "발주자"
+                        : "의뢰자"}
+                    </p>
+                    <p
+                      style={{
+                        fontWeight: "500",
+                        fontSize: "10px",
+                        margin: "0",
+                      }}
+                    >
+                      {document.user_name} {document.user_level}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 항목 테이블 */}
+          <div style={{ marginBottom: "15px" }}>
+            <h3
+              style={{
+                fontSize: "15px",
+                fontWeight: "bold",
+                margin: "0 0 8px 0",
+                color: "#374151",
+              }}
+            >
+              {type === "estimate"
+                ? "견적 항목"
+                : type === "order"
+                ? "발주 항목"
+                : "의뢰 항목"}
+            </h3>
+
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  marginBottom: "20px",
+                }}
+              >
+                <thead>
+                  <tr style={{ backgroundColor: "#f3f4f6" }}>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "left",
+                        fontSize: "11px",
+                        fontWeight: "500",
+                        color: "#6b7280",
+                        textTransform: "uppercase",
+                        border: "1px solid #e5e7eb",
+                      }}
+                    >
+                      No
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "left",
+                        fontSize: "11px",
+                        fontWeight: "500",
+                        color: "#6b7280",
+                        textTransform: "uppercase",
+                        border: "1px solid #e5e7eb",
+                      }}
+                    >
+                      품명
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "left",
+                        fontSize: "11px",
+                        fontWeight: "500",
+                        color: "#6b7280",
+                        textTransform: "uppercase",
+                        border: "1px solid #e5e7eb",
+                      }}
+                    >
+                      규격
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "left",
+                        fontSize: "11px",
+                        fontWeight: "500",
+                        color: "#6b7280",
+                        textTransform: "uppercase",
+                        border: "1px solid #e5e7eb",
+                      }}
+                    >
+                      수량
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "left",
+                        fontSize: "11px",
+                        fontWeight: "500",
+                        color: "#6b7280",
+                        textTransform: "uppercase",
+                        border: "1px solid #e5e7eb",
+                      }}
+                    >
+                      {type === "requestQuote" ? "단위" : "단가"}
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "left",
+                        fontSize: "11px",
+                        fontWeight: "500",
+                        color: "#6b7280",
+                        textTransform: "uppercase",
+                        border: "1px solid #e5e7eb",
+                      }}
+                    >
+                      {type === "requestQuote" ? "비고" : "금액"}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {document.content.items?.map((item: any, index: any) => (
+                    <tr
+                      key={index}
+                      style={{
+                        backgroundColor: "#ffffff",
+                        borderBottom: "1px solid #e5e7eb",
+                      }}
+                    >
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: "12px",
+                          border: "1px solid #e5e7eb",
+                        }}
+                      >
+                        {index + 1}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: "12px",
+                          fontWeight: "500",
+                          border: "1px solid #e5e7eb",
+                        }}
+                      >
+                        {item.name}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: "12px",
+                          border: "1px solid #e5e7eb",
+                        }}
+                      >
+                        {item.spec}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: "12px",
+                          border: "1px solid #e5e7eb",
+                        }}
+                      >
+                        {item.quantity}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: "12px",
+                          border: "1px solid #e5e7eb",
+                        }}
+                      >
+                        {type !== "requestQuote"
+                          ? item.unit_price?.toLocaleString()
+                          : item.unit || "-"}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: "12px",
+                          border: "1px solid #e5e7eb",
+                        }}
+                      >
+                        {type !== "requestQuote"
+                          ? item.amount?.toLocaleString()
+                          : "-"}
+                      </td>
+                    </tr>
+                  ))}
+
+                  {!document.content.items?.length && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        style={{
+                          padding: "15px",
+                          textAlign: "center",
+                          color: "#6b7280",
+                          border: "1px solid #e5e7eb",
+                        }}
+                      >
+                        항목이 없습니다.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 합계 정보 */}
+          {type !== "requestQuote" && (
+            <div
+              style={{
+                backgroundColor: "#f9fafb",
+                borderRadius: "8px",
+                padding: "15px",
+                marginBottom: "15px",
+                border: "1px solid #e5e7eb",
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  margin: "0 0 8px 0",
+                  paddingBottom: "6px",
+                  borderBottom: "1px solid #e5e7eb",
+                  color: "#374151",
+                }}
+              >
+                합계 정보
+              </h3>
+              <div
+                style={{
+                  marginBottom: "4px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span style={{ color: "#6b7280", fontSize: "12px" }}>
+                  합계 (한글)
+                </span>
+                <span style={{ fontWeight: "500", fontSize: "12px" }}>
+                  金 {koreanAmount(document.content.total_amount)} 원整
+                </span>
+              </div>
+              <div
+                style={{
+                  marginBottom: "4px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span style={{ color: "#6b7280", fontSize: "12px" }}>
+                  합계 (숫자)
+                </span>
+                <span style={{ fontWeight: "500", fontSize: "14px" }}>
+                  ₩ {document.content.total_amount?.toLocaleString()}
+                </span>
+              </div>
+              <div
+                style={{ fontSize: "10px", color: "#6b7280", marginTop: "4px" }}
+              >
+                * 부가세 별도
+              </div>
+            </div>
+          )}
+
+          {/* 특기사항 */}
+          <div
+            style={{
+              backgroundColor: "#f9fafb",
+              borderRadius: "8px",
+              padding: "15px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              border: "1px solid #e5e7eb",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                margin: "0 0 8px 0",
+                paddingBottom: "6px",
+                borderBottom: "1px solid #e5e7eb",
+                color: "#374151",
+              }}
+            >
+              특기사항
+            </h3>
+            <div
+              style={{
+                whiteSpace: "pre-line",
+                color: "#374151",
+                fontSize: "12px",
+              }}
+            >
+              {document.content.notes ? (
+                formatContentWithLineBreaks(document.content.notes)
+              ) : (
+                <p style={{ color: "#6b7280", fontStyle: "italic" }}>
+                  특기사항이 없습니다.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* 버튼 영역 */}
+          <div
+            style={{
+              marginTop: "20px",
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "10px",
+            }}
+          >
+            <button
+              onClick={onClose}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#e5e7eb",
+                color: "#374151",
+                borderRadius: "6px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <X size={16} />
+              닫기
+            </button>
+            <button
+              onClick={handlePrint}
+              style={{
+                padding: "8px 16px",
+                background: getThemeColor().replace("bg-", ""),
+                color: "white",
+                borderRadius: "6px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <Printer size={16} />
+              인쇄하기
             </button>
           </div>
         </div>
       </div>
-
-      {/* 테이블 섹션 */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              {type === "estimate" && (
-                <>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    견적일
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    유효기간
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                    담당자
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                    견적자
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    견적내용
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    총액
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    문서번호
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    상태
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    관리
-                  </th>
-                </>
-              )}
-              {type === "order" && (
-                <>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    발주일
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    납기일
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                    담당자
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                    발주자
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    발주내역
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    총액
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    문서번호
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    상태
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    관리
-                  </th>
-                </>
-              )}
-              {type === "requestQuote" && (
-                <>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    의뢰일
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    희망견적일
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                    담당자
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                    의뢰자
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    의뢰내역
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    총액
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    문서번호
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    상태
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    관리
-                  </th>
-                </>
-              )}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {documents?.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <FileText className="h-12 w-12 text-gray-300 mb-2" />
-                    <p>등록된 문서가 없습니다.</p>
-                    <button
-                      onClick={() => setOpenAddModal(true)}
-                      className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                    >
-                      {getDocumentTypeText()} 추가하기
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              documents?.map((document) => (
-                <tr
-                  key={document.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                    {document.date}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                    {type === "estimate" &&
-                      new Date(
-                        document.content.valid_until
-                      ).toLocaleDateString()}
-                    {type === "order" && document.content.delivery_date}
-                    {type === "requestQuote" && document.content.delivery_date}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 hidden md:table-cell">
-                    {document.contact_name} {document.contact_level}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 hidden md:table-cell">
-                    {document.user_name} {document.user_level}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">
-                    <div className="max-h-24 overflow-y-auto">
-                      {document.content.items.map((item, index) => (
-                        <div key={index} className="mb-1 last:mb-0">
-                          <p className="text-xs">
-                            <span className="font-medium">품명:</span>{" "}
-                            {item.name}
-                          </p>
-                          <p className="text-xs">
-                            <span className="font-medium">규격:</span>{" "}
-                            {item.spec}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {document.content.total_amount?.toLocaleString()} 원
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm">
-                    <button
-                      onClick={() => handleDocumentNumberClick(document)}
-                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
-                    >
-                      {document.document_number}
-                    </button>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {document.status === "pending" &&
-                    user?.id === document.user_id ? (
-                      <button
-                        onClick={() => setStatusChangeDoc(document)}
-                        className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium"
-                      >
-                        변경
-                      </button>
-                    ) : (
-                      getStatusBadge(document.status)
-                    )}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                    <div className="flex items-center justify-center space-x-2">
-                      {user?.id === document.user_id && (
-                        <>
-                          <button
-                            onClick={() => handleEditModal(document)}
-                            className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
-                            title="수정"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteDocument(document)}
-                            className="p-1 text-gray-500 hover:text-red-600 transition-colors"
-                            title="삭제"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 추가 모달 */}
-      {openAddModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            {/* 모달 헤더 */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                    {type === "estimate" && <FileText className="h-6 w-6" />}
-                    {type === "order" && <Package className="h-6 w-6" />}
-                    {type === "requestQuote" && (
-                      <Clipboard className="h-6 w-6" />
-                    )}
-                  </div>
-                  <h3 className="text-xl font-bold">
-                    {type === "estimate" && "견적서"}
-                    {type === "order" && "발주서"}
-                    {type === "requestQuote" && "의뢰서"} 추가
-                  </h3>
-                </div>
-                <button
-                  onClick={() => setOpenAddModal(false)}
-                  className="text-white hover:text-gray-200 bg-white bg-opacity-20 rounded-full p-1.5 transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* 모달 내용 */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-              <div className="space-y-8">
-                {/* 기본 정보 섹션 */}
-                <div className="bg-gray-50 p-5 rounded-xl">
-                  <div className="flex items-center gap-2 mb-4 text-gray-800">
-                    <Building className="h-5 w-5 text-blue-600" />
-                    <h4 className="text-lg font-semibold">기본 정보</h4>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        회사명
-                      </label>
-                      <div className="relative">
-                        <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                          type="text"
-                          disabled
-                          value={newDocument.company_name}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        전화
-                      </label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                          type="text"
-                          disabled
-                          value={newDocument.phone}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        팩스
-                      </label>
-                      <div className="relative">
-                        <Printer className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                          type="text"
-                          disabled
-                          value={newDocument.fax}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        담당자명
-                      </label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <select
-                          value={newDocument.contact}
-                          onChange={(e) =>
-                            setNewDocument({
-                              ...newDocument,
-                              contact: e.target.value,
-                            })
-                          }
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-                        >
-                          <option value="">선택</option>
-                          {contacts.map((contact) => {
-                            if (!contact.resign)
-                              return (
-                                <option
-                                  key={contact.id}
-                                  value={contact.contact_name}
-                                >
-                                  {contact.contact_name} {contact.level}
-                                </option>
-                              );
-                          })}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 문서 정보 섹션 */}
-                <div className="bg-gray-50 p-5 rounded-xl">
-                  <div className="flex items-center gap-2 mb-4 text-gray-800">
-                    <FileText className="h-5 w-5 text-blue-600" />
-                    <h4 className="text-lg font-semibold">문서 정보</h4>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {type !== "requestQuote" && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          결제조건
-                        </label>
-                        <div className="relative">
-                          <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                          <select
-                            value={newDocument.payment_method}
-                            onChange={(e) =>
-                              setNewDocument({
-                                ...newDocument,
-                                payment_method: e.target.value,
-                              })
-                            }
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-                          >
-                            <option value="">선택</option>
-                            {paymentMethods.map((method) => (
-                              <option key={method} value={method}>
-                                {method}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none" />
-                        </div>
-                      </div>
-                    )}
-                    <div>
-                      {type === "estimate" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            견적일
-                          </label>
-                          <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              type="date"
-                              value={newDocument.date}
-                              onChange={(e) =>
-                                setNewDocument({
-                                  ...newDocument,
-                                  date: e.target.value,
-                                })
-                              }
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        </>
-                      )}
-                      {type === "order" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            발주일
-                          </label>
-                          <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              disabled
-                              type="date"
-                              value={newDocument.date}
-                              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                            />
-                          </div>
-                        </>
-                      )}
-                      {type === "requestQuote" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            의뢰일
-                          </label>
-                          <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              disabled
-                              type="date"
-                              value={newDocument.date}
-                              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <div>
-                      {type === "estimate" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            유효기간
-                          </label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              type="date"
-                              value={newDocument.valid_until}
-                              onChange={(e) =>
-                                setNewDocument({
-                                  ...newDocument,
-                                  valid_until: e.target.value,
-                                })
-                              }
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        </>
-                      )}
-                      {type === "order" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            납기일
-                          </label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              type="text"
-                              value={newDocument.delivery_date}
-                              onChange={(e) =>
-                                setNewDocument({
-                                  ...newDocument,
-                                  delivery_date: e.target.value,
-                                })
-                              }
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        </>
-                      )}
-                      {type === "requestQuote" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            희망견적일
-                          </label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              type="text"
-                              value={newDocument.delivery_date}
-                              onChange={(e) =>
-                                setNewDocument({
-                                  ...newDocument,
-                                  delivery_date: e.target.value,
-                                })
-                              }
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        {type === "estimate"
-                          ? "견적자"
-                          : type === "order"
-                          ? "발주자"
-                          : "의뢰자"}
-                      </label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                          disabled
-                          type="text"
-                          value={user?.name}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 추가 정보 섹션 */}
-                {type === "estimate" && (
-                  <div className="bg-gray-50 p-5 rounded-xl">
-                    <div className="flex items-center gap-2 mb-4 text-gray-800">
-                      <Info className="h-5 w-5 text-blue-600" />
-                      <h4 className="text-lg font-semibold">추가 정보</h4>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          납품장소
-                        </label>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                          <input
-                            type="text"
-                            value={newDocument.delivery_place}
-                            onChange={(e) =>
-                              setNewDocument({
-                                ...newDocument,
-                                delivery_place: e.target.value,
-                              })
-                            }
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          납품일
-                        </label>
-                        <div className="relative">
-                          <Truck className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                          <input
-                            type="text"
-                            value={newDocument.delivery_term}
-                            onChange={(e) =>
-                              setNewDocument({
-                                ...newDocument,
-                                delivery_term: e.target.value,
-                              })
-                            }
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 특기사항 */}
-                <div className="bg-gray-50 p-5 rounded-xl">
-                  <div className="flex items-center gap-2 mb-4 text-gray-800">
-                    <Info className="h-5 w-5 text-blue-600" />
-                    <h4 className="text-lg font-semibold">특기사항</h4>
-                  </div>
-                  <textarea
-                    value={newDocument.notes}
-                    onChange={(e) =>
-                      setNewDocument({ ...newDocument, notes: e.target.value })
-                    }
-                    className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={3}
-                    placeholder="특기사항을 입력하세요..."
-                  />
-                </div>
-
-                {/* 금액 정보 */}
-                {type !== "requestQuote" && (
-                  <div className="bg-gray-50 p-5 rounded-xl">
-                    <div className="flex items-center gap-2 mb-4 text-gray-800">
-                      <DollarSign className="h-5 w-5 text-blue-600" />
-                      <h4 className="text-lg font-semibold">금액 정보</h4>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          총액金
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={`${koreanAmount}`}
-                            readOnly
-                            className="w-full pl-4 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          원
-                        </label>
-                        <div className="relative">
-                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                          <input
-                            type="text"
-                            value={`${totalAmount?.toLocaleString()}`}
-                            readOnly
-                            className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 항목 섹션 */}
-                <div className="bg-gray-50 p-5 rounded-xl">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-2 text-gray-800">
-                      <Package className="h-5 w-5 text-blue-600" />
-                      <h4 className="text-lg font-semibold">항목</h4>
-                    </div>
-                    <button
-                      onClick={addItem}
-                      className="flex items-center text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      추가
-                    </button>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
-                    <div className="bg-blue-50 px-4 py-3 border-b border-gray-200 grid grid-cols-12 gap-2 text-xs font-medium text-gray-700">
-                      <div className="col-span-4">제품명</div>
-                      <div className="col-span-2">규격</div>
-                      <div className="col-span-1">수량</div>
-                      <div className="col-span-2">단가</div>
-                      <div className="col-span-2">금액</div>
-                      <div className="col-span-1">관리</div>
-                    </div>
-
-                    <div className="max-h-64 overflow-y-auto">
-                      {items.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500">
-                          <Package className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                          <p className="mb-2">등록된 항목이 없습니다.</p>
-                          <button
-                            onClick={addItem}
-                            className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
-                          >
-                            <Plus className="h-4 w-4 mr-1" />
-                            항목 추가하기
-                          </button>
-                        </div>
-                      ) : (
-                        items.map((item, index) => (
-                          <div
-                            key={index}
-                            className="px-4 py-3 border-b last:border-b-0 border-gray-200 grid grid-cols-12 gap-2 items-center hover:bg-gray-50 transition-colors"
-                          >
-                            <div className="col-span-4">
-                              <input
-                                type="text"
-                                placeholder="제품명"
-                                value={item.name}
-                                onChange={(e) =>
-                                  setItems((prev: Items[]): Items[] =>
-                                    prev.map((item, i) =>
-                                      i === index
-                                        ? { ...item, name: e.target.value }
-                                        : item
-                                    )
-                                  )
-                                }
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <input
-                                type="text"
-                                placeholder="규격"
-                                value={item.spec}
-                                onChange={(e) =>
-                                  setItems((prev: Items[]): Items[] =>
-                                    prev.map((item, i) =>
-                                      i === index
-                                        ? { ...item, spec: e.target.value }
-                                        : item
-                                    )
-                                  )
-                                }
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              />
-                            </div>
-                            <div className="col-span-1">
-                              <input
-                                type="text"
-                                placeholder="수량"
-                                value={items[index].quantity}
-                                onChange={(e) =>
-                                  handleQuantityChange(index, e.target.value)
-                                }
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <input
-                                type="text"
-                                placeholder="단가"
-                                value={items[
-                                  index
-                                ].unit_price?.toLocaleString()}
-                                onChange={(e) =>
-                                  handleUnitPriceChange(index, e.target.value)
-                                }
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <input
-                                type="text"
-                                placeholder="금액"
-                                value={items[index].amount?.toLocaleString()}
-                                readOnly
-                                className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                              />
-                            </div>
-                            <div className="col-span-1 text-center">
-                              <button
-                                onClick={() => removeItem(index)}
-                                className="p-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
-                                title="삭제"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 mt-8">
-                <button
-                  onClick={() => setOpenAddModal(false)}
-                  className="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  disabled={saving}
-                >
-                  취소
-                </button>
-                <button
-                  onClick={handleAddDocument}
-                  className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center shadow-sm"
-                  disabled={saving}
-                >
-                  {saving ? (
-                    <>
-                      <CircularProgress size={16} className="mr-2 text-white" />
-                      저장 중...
-                    </>
-                  ) : (
-                    <>
-                      <Check className="h-4 w-4 mr-1.5" />
-                      저장
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 수정 모달 */}
-      {openEditModal && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            {/* 모달 헤더 */}
-            <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 p-6 text-white">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                    <Edit className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-xl font-bold">
-                    {type === "estimate" && "견적서"}
-                    {type === "order" && "발주서"}
-                    {type === "requestQuote" && "의뢰서"} 수정
-                  </h3>
-                </div>
-                <button
-                  onClick={handleEditCloseModal}
-                  className="text-white hover:text-gray-200 bg-white bg-opacity-20 rounded-full p-1.5 transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* 모달 내용 */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-              <div className="space-y-8">
-                {/* 기본 정보 섹션 */}
-                <div className="bg-gray-50 p-5 rounded-xl">
-                  <div className="flex items-center gap-2 mb-4 text-gray-800">
-                    <Building className="h-5 w-5 text-indigo-600" />
-                    <h4 className="text-lg font-semibold">기본 정보</h4>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        회사명
-                      </label>
-                      <div className="relative">
-                        <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                          type="text"
-                          disabled
-                          value={newDocument.company_name}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        전화
-                      </label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                          type="text"
-                          disabled
-                          value={newDocument.phone}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        팩스
-                      </label>
-                      <div className="relative">
-                        <Printer className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                          type="text"
-                          disabled
-                          value={newDocument.fax}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        담당자명
-                      </label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <select
-                          value={newDocument.contact}
-                          onChange={(e) =>
-                            setNewDocument({
-                              ...newDocument,
-                              contact: e.target.value,
-                            })
-                          }
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
-                        >
-                          <option value="">선택</option>
-                          {contacts.map((contact) => {
-                            if (!contact.resign)
-                              return (
-                                <option
-                                  key={contact.id}
-                                  value={contact.contact_name}
-                                >
-                                  {contact.contact_name} {contact.level}
-                                </option>
-                              );
-                          })}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 문서 정보 섹션 */}
-                <div className="bg-gray-50 p-5 rounded-xl">
-                  <div className="flex items-center gap-2 mb-4 text-gray-800">
-                    <FileText className="h-5 w-5 text-indigo-600" />
-                    <h4 className="text-lg font-semibold">문서 정보</h4>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        결제조건
-                      </label>
-                      <div className="relative">
-                        <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <select
-                          value={newDocument.payment_method}
-                          onChange={(e) =>
-                            setNewDocument({
-                              ...newDocument,
-                              payment_method: e.target.value,
-                            })
-                          }
-                          className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
-                        >
-                          <option value="">선택</option>
-                          {paymentMethods.map((method) => (
-                            <option key={method} value={method}>
-                              {method}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none" />
-                      </div>
-                    </div>
-                    <div>
-                      {type === "estimate" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            견적일
-                          </label>
-                          <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              type="date"
-                              value={newDocument.date}
-                              onChange={(e) =>
-                                setNewDocument({
-                                  ...newDocument,
-                                  date: e.target.value,
-                                })
-                              }
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            />
-                          </div>
-                        </>
-                      )}
-                      {type === "order" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            발주일
-                          </label>
-                          <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              type="date"
-                              value={newDocument.date}
-                              onChange={(e) =>
-                                setNewDocument({
-                                  ...newDocument,
-                                  date: e.target.value,
-                                })
-                              }
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            />
-                          </div>
-                        </>
-                      )}
-                      {type === "requestQuote" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            의뢰일
-                          </label>
-                          <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              disabled
-                              type="date"
-                              value={newDocument.created_at}
-                              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <div>
-                      {type === "estimate" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            유효기간
-                          </label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              type="date"
-                              value={newDocument.valid_until}
-                              onChange={(e) =>
-                                setNewDocument({
-                                  ...newDocument,
-                                  valid_until: e.target.value,
-                                })
-                              }
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            />
-                          </div>
-                        </>
-                      )}
-                      {type === "order" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            납기일
-                          </label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              type="text"
-                              value={newDocument.delivery_date}
-                              onChange={(e) =>
-                                setNewDocument({
-                                  ...newDocument,
-                                  delivery_date: e.target.value,
-                                })
-                              }
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            />
-                          </div>
-                        </>
-                      )}
-                      {type === "requestQuote" && (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                            희망견적일
-                          </label>
-                          <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                              type="text"
-                              value={newDocument.delivery_date}
-                              onChange={(e) =>
-                                setNewDocument({
-                                  ...newDocument,
-                                  delivery_date: e.target.value,
-                                })
-                              }
-                              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        {type === "estimate"
-                          ? "견적자"
-                          : type === "order"
-                          ? "발주자"
-                          : "의뢰자"}
-                      </label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                          disabled
-                          type="text"
-                          value={user?.name}
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 추가 정보 섹션 */}
-                {type === "estimate" && (
-                  <div className="bg-gray-50 p-5 rounded-xl">
-                    <div className="flex items-center gap-2 mb-4 text-gray-800">
-                      <Info className="h-5 w-5 text-indigo-600" />
-                      <h4 className="text-lg font-semibold">추가 정보</h4>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          납품장소
-                        </label>
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                          <input
-                            type="text"
-                            value={newDocument.delivery_place}
-                            onChange={(e) =>
-                              setNewDocument({
-                                ...newDocument,
-                                delivery_place: e.target.value,
-                              })
-                            }
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          납품일
-                        </label>
-                        <div className="relative">
-                          <Truck className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                          <input
-                            type="text"
-                            value={newDocument.delivery_term}
-                            onChange={(e) =>
-                              setNewDocument({
-                                ...newDocument,
-                                delivery_term: e.target.value,
-                              })
-                            }
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 특기사항 */}
-                <div className="bg-gray-50 p-5 rounded-xl">
-                  <div className="flex items-center gap-2 mb-4 text-gray-800">
-                    <Info className="h-5 w-5 text-indigo-600" />
-                    <h4 className="text-lg font-semibold">특기사항</h4>
-                  </div>
-                  <textarea
-                    value={newDocument.notes}
-                    onChange={(e) =>
-                      setNewDocument({ ...newDocument, notes: e.target.value })
-                    }
-                    className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    rows={3}
-                    placeholder="특기사항을 입력하세요..."
-                  />
-                </div>
-
-                {/* 금액 정보 */}
-                <div className="bg-gray-50 p-5 rounded-xl">
-                  <div className="flex items-center gap-2 mb-4 text-gray-800">
-                    <DollarSign className="h-5 w-5 text-indigo-600" />
-                    <h4 className="text-lg font-semibold">금액 정보</h4>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        총액金
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={`${koreanAmount} 원`}
-                          readOnly
-                          className="w-full pl-4 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                        원
-                      </label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <input
-                          type="text"
-                          value={`${totalAmount?.toLocaleString()}`}
-                          readOnly
-                          className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 항목 섹션 */}
-                <div className="bg-gray-50 p-5 rounded-xl">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-2 text-gray-800">
-                      <Package className="h-5 w-5 text-indigo-600" />
-                      <h4 className="text-lg font-semibold">항목</h4>
-                    </div>
-                    <button
-                      onClick={addItem}
-                      className="flex items-center text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      추가
-                    </button>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
-                    <div className="bg-indigo-50 px-4 py-3 border-b border-gray-200 grid grid-cols-12 gap-2 text-xs font-medium text-gray-700">
-                      <div className="col-span-4">제품명</div>
-                      <div className="col-span-2">규격</div>
-                      <div className="col-span-1">수량</div>
-                      <div className="col-span-2">단가</div>
-                      <div className="col-span-2">금액</div>
-                      <div className="col-span-1">관리</div>
-                    </div>
-
-                    <div className="max-h-64 overflow-y-auto">
-                      {items.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500">
-                          <Package className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                          <p className="mb-2">등록된 항목이 없습니다.</p>
-                          <button
-                            onClick={addItem}
-                            className="inline-flex items-center text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                          >
-                            <Plus className="h-4 w-4 mr-1" />
-                            항목 추가하기
-                          </button>
-                        </div>
-                      ) : (
-                        items.map((item, index) => (
-                          <div
-                            key={index}
-                            className="px-4 py-3 border-b last:border-b-0 border-gray-200 grid grid-cols-12 gap-2 items-center hover:bg-gray-50 transition-colors"
-                          >
-                            <div className="col-span-4">
-                              <input
-                                type="text"
-                                placeholder="제품명"
-                                value={item.name}
-                                onChange={(e) =>
-                                  setItems((prev: Items[]): Items[] =>
-                                    prev.map((item, i) =>
-                                      i === index
-                                        ? { ...item, name: e.target.value }
-                                        : item
-                                    )
-                                  )
-                                }
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <input
-                                type="text"
-                                placeholder="규격"
-                                value={item.spec}
-                                onChange={(e) =>
-                                  setItems((prev: Items[]): Items[] =>
-                                    prev.map((item, i) =>
-                                      i === index
-                                        ? { ...item, spec: e.target.value }
-                                        : item
-                                    )
-                                  )
-                                }
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                              />
-                            </div>
-                            <div className="col-span-1">
-                              <input
-                                type="text"
-                                placeholder="수량"
-                                value={item.quantity?.toLocaleString()}
-                                onChange={(e) =>
-                                  handleQuantityChange(index, e.target.value)
-                                }
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <input
-                                type="text"
-                                placeholder="단가"
-                                value={item.unit_price?.toLocaleString()}
-                                onChange={(e) =>
-                                  handleUnitPriceChange(index, e.target.value)
-                                }
-                                className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <input
-                                type="text"
-                                placeholder="금액"
-                                value={item.amount?.toLocaleString()}
-                                readOnly
-                                className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg text-sm"
-                              />
-                            </div>
-                            <div className="col-span-1 text-center">
-                              <button
-                                onClick={() => removeItem(index)}
-                                className="p-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
-                                title="삭제"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 mt-8">
-                <button
-                  onClick={handleEditCloseModal}
-                  className="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  disabled={saving}
-                >
-                  취소
-                </button>
-                <button
-                  onClick={handleEditDocument}
-                  className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium flex items-center shadow-sm"
-                  disabled={saving}
-                >
-                  {saving ? (
-                    <>
-                      <CircularProgress size={16} className="mr-2 text-white" />
-                      저장 중...
-                    </>
-                  ) : (
-                    <>
-                      <Check className="h-4 w-4 mr-1.5" />
-                      저장
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 상태 변경 모달 */}
-      {statusChangeDoc && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
-            {/* 모달 헤더 */}
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-5 text-white">
-              <div className="flex items-center gap-3">
-                <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-                  <AlertCircle className="h-5 w-5" />
-                </div>
-                <h2 className="text-xl font-bold">진행 상태 변경</h2>
-              </div>
-            </div>
-
-            {/* 모달 내용 */}
-            <div className="p-6">
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    상태 선택
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
-                        selectedStatus === "completed"
-                          ? "border-green-500 bg-green-50 text-green-700"
-                          : "border-gray-200 hover:border-gray-300 text-gray-600"
-                      }`}
-                      onClick={() => {
-                        setSelectedStatus("completed");
-                        setStatusReason((prev: any) => ({
-                          ...prev,
-                          completed: {
-                            reason: prev.completed?.reason || "",
-                          },
-                        }));
-                      }}
-                    >
-                      <Check
-                        className={`h-5 w-5 ${
-                          selectedStatus === "completed"
-                            ? "text-green-500"
-                            : "text-gray-400"
-                        }`}
-                      />
-                      <span className="font-medium">완료</span>
-                    </button>
-                    <button
-                      className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
-                        selectedStatus === "canceled"
-                          ? "border-red-500 bg-red-50 text-red-700"
-                          : "border-gray-200 hover:border-gray-300 text-gray-600"
-                      }`}
-                      onClick={() => {
-                        setSelectedStatus("canceled");
-                        setStatusReason((prev: any) => ({
-                          ...prev,
-                          canceled: {
-                            reason: prev.canceled?.reason || "",
-                          },
-                        }));
-                      }}
-                    >
-                      <X
-                        className={`h-5 w-5 ${
-                          selectedStatus === "canceled"
-                            ? "text-red-500"
-                            : "text-gray-400"
-                        }`}
-                      />
-                      <span className="font-medium">취소</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {selectedStatus === "completed" ? "완료 사유" : "취소 사유"}
-                  </label>
-                  <div className="relative">
-                    <textarea
-                      placeholder={
-                        selectedStatus === "completed"
-                          ? "완료 사유를 입력하세요."
-                          : "취소 사유를 입력하세요."
-                      }
-                      className={`w-full p-3 border rounded-lg text-sm min-h-[120px] focus:outline-none focus:ring-2 ${
-                        selectedStatus === "completed"
-                          ? "border-green-300 focus:ring-green-500"
-                          : "border-red-300 focus:ring-red-500"
-                      }`}
-                      value={
-                        statusReason[selectedStatus as "completed" | "canceled"]
-                          ?.reason || ""
-                      }
-                      onChange={(e) =>
-                        setStatusReason((prev: any) => ({
-                          ...prev,
-                          [selectedStatus]: {
-                            reason: e.target.value,
-                          },
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end space-x-3 mt-2">
-                  <button
-                    className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                    onClick={() => setStatusChangeDoc(null)}
-                  >
-                    취소
-                  </button>
-                  <button
-                    className={`px-4 py-2.5 text-white rounded-lg text-sm font-medium flex items-center shadow-sm ${
-                      selectedStatus === "completed"
-                        ? "bg-green-600 hover:bg-green-700"
-                        : "bg-red-600 hover:bg-red-700"
-                    }`}
-                    onClick={handleStatusChange}
-                  >
-                    {selectedStatus === "completed" ? (
-                      <>
-                        <Check className="h-4 w-4 mr-1.5" />
-                        완료로 변경
-                      </>
-                    ) : (
-                      <>
-                        <X className="h-4 w-4 mr-1.5" />
-                        취소로 변경
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
-}
+};
+
+export default DocumentModal;
