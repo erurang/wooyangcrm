@@ -12,6 +12,8 @@ interface DocumentModalProps {
   type: "requestQuote" | "estimate" | "order" | any;
   koreanAmount: any;
   company_phone?: any;
+  // 추가 props는 무시하도록 설정
+  [key: string]: any;
 }
 
 const DocumentModal: React.FC<DocumentModalProps> = ({
@@ -26,7 +28,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   const [year, month, day] = datePart.split("-").map(Number);
 
   const formatContentWithLineBreaks = (content: string) => {
-    return content.split("\n").map((line, index) => (
+    return content.split("\n").map((line: any, index: any) => (
       <span key={index}>
         {line}
         <br />
@@ -53,15 +55,44 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   <meta charset="UTF-8">
   <title>견적서</title>
   <style>
+    @font-face {
+      font-family: 'NanumSquareNeo';
+      src: url('/fonts/NanumSquareNeo-Variable.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
     @page {
       size: A4; /* A4 크기 지정 */
-      margin: 0mm; 
+      margin: 15mm 10mm 20mm 10mm; /* 상단, 우측, 하단, 좌측 여백 설정 */
     }
     body {
       margin: 0; 
-      font-family: Arial, sans-serif; 
+      font-family: "NanumSquareNeo", sans-serif; 
       font-size: 12px !important;
     }
+    /* 테이블 관련 설정 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      page-break-inside: auto;
+    }
+    /* 테이블 헤더는 각 페이지에서 반복 */
+    thead {
+      display: table-header-group;
+    }
+    /* 테이블 행은 필요시 자연스럽게 나눠지도록 설정 */
+    tr {
+      page-break-inside: auto;
+    }
+    /* 테이블 푸터는 각 페이지 마지막에 표시 */
+    tfoot {
+      display: table-footer-group;
+    }
+    /* 페이지 나누기 방지가 필요한 요소 */
+    .avoid-break {
+      page-break-inside: avoid;
+    }
+    /* 기존 스타일은 유지 */
     .section-header {
       font-size: 14px;
       font-weight: bold;
@@ -93,11 +124,19 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    /* 섹션 간 간격 조정 */
+    .section {
+      margin-bottom: 15px;
+    }
+    /* 페이지 내 요소들이 자연스럽게 흐르도록 설정 */
+    .flow-content {
+      page-break-inside: auto;
+    }
   </style>
 </head>
 <body>
   <!-- 헤더 섹션 -->
-  <div style="background: linear-gradient(to right, #1e40af, #1e3a8a); color: white; padding: 15px 20px; border-radius: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+  <div style="background: linear-gradient(to right, #1e40af, #1e3a8a); color: white; padding: 15px 20px; border-radius: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="avoid-break">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">견적서</h2>
     </div>
@@ -111,9 +150,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     </div>
   </div>
 
-  <div style="padding: 15px 20px;">
+  <div style="padding: 15px 20px;" class="flow-content">
     <!-- 회사 로고 및 정보 -->
-    <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+    <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="avoid-break">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
         <!-- 로고 및 도장 -->
         <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
@@ -168,7 +207,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     </div>
 
     <!-- 거래처 정보 및 문서 정보 -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;" class="section">
       <!-- 거래처 정보 -->
       <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 0; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
         <h3 class="section-header">거래처 정보</h3>
@@ -243,9 +282,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     </div>
 
     <!-- 항목 테이블 -->
-    <div style="margin-bottom: 15px;">
+    <div style="margin-bottom: 15px;" class="section">
       <h3 style="font-size: 15px; font-weight: bold; margin: 0 0 8px 0; color: #374151;">견적 항목</h3>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+      <table>
         <thead>
           <tr>
             <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">No</th>
@@ -293,7 +332,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     </div>
 
     <!-- 합계 정보 -->
-    <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+    <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="section">
       <h3 class="section-header">합계 정보</h3>
       <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
         <span style="color: #6b7280; font-size: 12px;">합계 (한글)</span>
@@ -309,7 +348,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
     </div>
 
     <!-- 특기사항 -->
-    <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+    <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="section">
       <h3 class="section-header">특기사항</h3>
       <div style="white-space: pre-line; color: #374151; font-size: 12px;">
         ${document.content.notes || "특기사항이 없습니다."}
@@ -336,15 +375,44 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
         <meta charset="UTF-8">
         <title>발주서</title>
         <style>
+          @font-face {
+            font-family: 'NanumSquareNeo';
+            src: url('/fonts/NanumSquareNeo-Variable.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+          }
           @page {
             size: A4; /* A4 크기 지정 */
-            margin: 0mm; 
+            margin: 15mm 10mm 20mm 10mm; /* 상단, 우측, 하단, 좌측 여백 설정 */
           }
           body {
             margin: 0; 
-            font-family: Arial, sans-serif; 
+            font-family: "NanumSquareNeo", sans-serif; 
             font-size: 12px !important;
           }
+          /* 테이블 관련 설정 */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: auto;
+          }
+          /* 테이블 헤더는 각 페이지에서 반복 */
+          thead {
+            display: table-header-group;
+          }
+          /* 테이블 행은 필요시 자연스럽게 나눠지도록 설정 */
+          tr {
+            page-break-inside: auto;
+          }
+          /* 테이블 푸터는 각 페이지 마지막에 표시 */
+          tfoot {
+            display: table-footer-group;
+          }
+          /* 페이지 나누기 방지가 필요한 요소 */
+          .avoid-break {
+            page-break-inside: avoid;
+          }
+          /* 기존 스타일은 유지 */
           .section-header {
             font-size: 14px;
             font-weight: bold;
@@ -376,11 +444,19 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             overflow: hidden;
             text-overflow: ellipsis;
           }
+          /* 섹션 간 간격 조정 */
+          .section {
+            margin-bottom: 15px;
+          }
+          /* 페이지 내 요소들이 자연스럽게 흐르도록 설정 */
+          .flow-content {
+            page-break-inside: auto;
+          }
         </style>
       </head>
       <body>
         <!-- 헤더 섹션 -->
-        <div style="background: linear-gradient(to right, #047857, #065f46); color: white; padding: 15px 20px; border-radius: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+        <div style="background: linear-gradient(to right, #047857, #065f46); color: white; padding: 15px 20px; border-radius: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="avoid-break">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">발주서</h2>
           </div>
@@ -394,9 +470,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
         </div>
 
-        <div style="padding: 15px 20px;">
+        <div style="padding: 15px 20px;" class="flow-content">
           <!-- 회사 로고 및 정보 -->
-          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="avoid-break">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
               <!-- 로고 및 도장 -->
               <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
@@ -451,7 +527,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
 
           <!-- 거래처 정보 및 문서 정보 -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;" class="section">
             <!-- 거래처 정보 -->
             <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 0; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
               <h3 class="section-header">거래처 정보</h3>
@@ -514,9 +590,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
 
           <!-- 항목 테이블 -->
-          <div style="margin-bottom: 15px;">
+          <div style="margin-bottom: 15px;" class="section">
             <h3 style="font-size: 15px; font-weight: bold; margin: 0 0 8px 0; color: #374151;">발주 항목</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <table>
               <thead>
                 <tr>
                   <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">No</th>
@@ -564,7 +640,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
 
           <!-- 합계 정보 -->
-          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="section">
             <h3 class="section-header">합계 정보</h3>
             <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
               <span style="color: #6b7280; font-size: 12px;">합계 (한글)</span>
@@ -580,7 +656,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
 
           <!-- 특기사항 -->
-          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="section">
             <h3 class="section-header">특기사항</h3>
             <div style="white-space: pre-line; color: #374151; font-size: 12px;">
               ${document.content.notes || "특기사항이 없습니다."}
@@ -607,15 +683,44 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
         <meta charset="UTF-8">
         <title>견적의뢰서</title>
         <style>
+          @font-face {
+            font-family: 'NanumSquareNeo';
+            src: url('/fonts/NanumSquareNeo-Variable.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+          }
           @page {
             size: A4; /* A4 크기 지정 */
-            margin: 0mm; 
+            margin: 15mm 10mm 20mm 10mm; /* 상단, 우측, 하단, 좌측 여백 설정 */
           }
           body {
             margin: 0; 
-            font-family: Arial, sans-serif; 
+            font-family: "NanumSquareNeo", sans-serif; 
             font-size: 12px !important;
           }
+          /* 테이블 관련 설정 */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: auto;
+          }
+          /* 테이블 헤더는 각 페이지에서 반복 */
+          thead {
+            display: table-header-group;
+          }
+          /* 테이블 행은 필요시 자연스럽게 나눠지도록 설정 */
+          tr {
+            page-break-inside: auto;
+          }
+          /* 테이블 푸터는 각 페이지 마지막에 표시 */
+          tfoot {
+            display: table-footer-group;
+          }
+          /* 페이지 나누기 방지가 필요한 요소 */
+          .avoid-break {
+            page-break-inside: avoid;
+          }
+          /* 기존 스타일은 유지 */
           .section-header {
             font-size: 14px;
             font-weight: bold;
@@ -647,11 +752,19 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             overflow: hidden;
             text-overflow: ellipsis;
           }
+          /* 섹션 간 간격 조정 */
+          .section {
+            margin-bottom: 15px;
+          }
+          /* 페이지 내 요소들이 자연스럽게 흐르도록 설정 */
+          .flow-content {
+            page-break-inside: auto;
+          }
         </style>
       </head>
       <body>
         <!-- 헤더 섹션 -->
-        <div style="background: linear-gradient(to right, #7e22ce, #6b21a8); color: white; padding: 15px 20px; border-radius: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+        <div style="background: linear-gradient(to right, #7e22ce, #6b21a8); color: white; padding: 15px 20px; border-radius: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="avoid-break">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">견적의뢰서</h2>
           </div>
@@ -665,9 +778,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
         </div>
 
-        <div style="padding: 15px 20px;">
+        <div style="padding: 15px 20px;" class="flow-content">
           <!-- 회사 로고 및 정보 -->
-          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="avoid-break">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;">
               <!-- 로고 및 도장 -->
               <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
@@ -722,7 +835,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
 
           <!-- 거래처 정보 및 문서 정보 -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;" class="section">
             <!-- 거래처 정보 -->
             <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 0; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
               <h3 class="section-header">거래처 정보</h3>
@@ -779,9 +892,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
 
           <!-- 항목 테이블 -->
-          <div style="margin-bottom: 15px;">
+          <div style="margin-bottom: 15px;" class="section">
             <h3 style="font-size: 15px; font-weight: bold; margin: 0 0 8px 0; color: #374151;">의뢰 항목</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <table>
               <thead>
                 <tr>
                   <th style="background-color: #f3f4f6; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b7280; text-transform: uppercase; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">No</th>
@@ -831,7 +944,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           </div>
 
           <!-- 특기사항 -->
-          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+          <div style="background-color: #f9fafb; border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid #e5e7eb; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;" class="section">
             <h3 class="section-header">특기사항</h3>
             <div style="white-space: pre-line; color: #374151; font-size: 12px;">
               ${document.content.notes || "특기사항이 없습니다."}
