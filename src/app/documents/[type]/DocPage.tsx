@@ -691,7 +691,7 @@ const DocPage = () => {
 
   return (
     <div className="text-sm">
-      <div className="flex my-3">
+      {/* <div className="flex my-3">
         <div
           className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
           onClick={() => setOpenAddModal(true)}
@@ -699,7 +699,7 @@ const DocPage = () => {
           <span className="mr-2">+</span>
           <span>추가</span>
         </div>
-      </div>
+      </div> */}
 
       <Estimate
         contacts={contacts as Contacts[]}

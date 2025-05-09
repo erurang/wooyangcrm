@@ -17,23 +17,57 @@ export default function LoginPage() {
     });
   };
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-200">
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg text-center">
-        <h1 className="text-3xl text-gray-800">우양신소재</h1>
-        <p className="text-gray-500 mt-2 mb-6">고객 관리 시스템</p>
+  const currentYear = new Date().getFullYear();
 
-        <button onClick={signInWithKakao}>
-          <Image
-            src="/images/kakao_login_large_wide.png"
-            alt="카카오 로그인"
-            width={400}
-            height={100}
-          />
-        </button>
-        <p className="text-gray-400 text-sm mt-4">
-          카카오 로그인을 사용해 접속해주세요.
-        </p>
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+      <div className="relative w-full max-w-md">
+        {/* Decorative elements */}
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-blue-100 rounded-full opacity-70 blur-2xl"></div>
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-green-100 rounded-full opacity-70 blur-2xl"></div>
+
+        {/* Card */}
+        <div className="relative w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-10">
+          {/* Logo and header */}
+          <div className="flex flex-col items-center mb-2">
+            <div className="mb-4">
+              <Image
+                src="/images/logo.png"
+                alt="우양신소재 로고"
+                width={400}
+                height={80}
+                className="object-contain"
+              />
+            </div>
+          </div>
+
+          {/* Login section */}
+          <div className="space-y-6">
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+              <p className="text-gray-600 text-sm mb-2 text-center">
+                안전한 로그인을 위해 카카오 계정을 사용합니다
+              </p>
+              <button
+                onClick={signInWithKakao}
+                className="transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] w-full"
+              >
+                <Image
+                  src="/images/kakao_login_large_wide.png"
+                  alt="카카오 로그인"
+                  width={400}
+                  height={100}
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-10 pt-4 border-t border-gray-100">
+            <p className="text-gray-400 text-xs text-center">
+              © {currentYear} 우양신소재. All rights reserved.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

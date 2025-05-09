@@ -3,13 +3,21 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Calendar,
+  User,
+  RefreshCw,
+  FileText,
+  Building,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 import { useUsersList } from "@/hooks/useUserList";
 import SnackbarComponent from "@/components/Snackbar";
 import DocumentModal from "@/components/documents/estimate/DocumentModal";
-
-import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
 import { useConsultationsList } from "@/hooks/consultations/recent/useConsultationsList";
 
 interface Document {
@@ -36,17 +44,17 @@ interface Document {
   payment_method?: string;
 }
 
-interface User {
+interface UserType {
   id: string;
   name: string;
   level: string;
 }
 
-export default function RecentConsultations() {
+export default function RecentConsultationsList() {
   const today = new Date().toISOString().split("T")[0];
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
 
   const [startDate, setStartDate] = useState<string>(today);
   const [endDate, setEndDate] = useState<string>(today);
@@ -91,7 +99,7 @@ export default function RecentConsultations() {
   //
 
   const paginationNumbers = () => {
-    let pageNumbers = [];
+    const pageNumbers = [];
     for (let i = 1; i <= totalPages; i++) {
       if (
         i === 1 ||
@@ -243,10 +251,11 @@ export default function RecentConsultations() {
   return (
     <div className="text-sm text-[#37352F]">
       {/* 검색 및 필터 */}
-      <div className="bg-[#FBFBFB] rounded-md border px-4 py-4 mb-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_0.5fr] gap-4">
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[60px] h-full">
+      <div className="bg-white rounded-lg border shadow-sm p-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Building className="w-4 h-4 mr-2 text-gray-500" />
               거래처
             </label>
             <motion.input
@@ -255,239 +264,345 @@ export default function RecentConsultations() {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="거래처명"
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
+              placeholder="거래처명 입력"
+              className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
+                scale: 1.02,
+                boxShadow: "0px 0px 8px rgba(59, 130, 246, 0.3)",
               }}
             />
           </div>
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
-              시작 날짜
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+              상담 기간
             </label>
-            <motion.input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+            <div className="flex items-center space-x-2">
+              <motion.input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                whileFocus={{
+                  scale: 1.02,
+                  boxShadow: "0px 0px 8px rgba(59, 130, 246, 0.3)",
+                }}
+              />
+              <span className="text-gray-500">~</span>
+              <motion.input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                whileFocus={{
+                  scale: 1.02,
+                  boxShadow: "0px 0px 8px rgba(59, 130, 246, 0.3)",
+                }}
+              />
+            </div>
           </div>
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
-              종료 날짜
-            </label>
-            <motion.input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
-          </div>
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[60px] h-full">
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 flex items-center">
+              <User className="w-4 h-4 mr-2 text-gray-500" />
               상담자
             </label>
             <motion.select
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              value={selectedUser?.id || ""} // ✅ userId 저장
+              className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={selectedUser?.id || ""}
               onChange={(e) => {
                 const user =
-                  users.find((user: User) => user.id === e.target.value) ||
+                  users.find((user: UserType) => user.id === e.target.value) ||
                   null;
                 setSelectedUser(user);
               }}
+              whileFocus={{
+                scale: 1.02,
+                boxShadow: "0px 0px 8px rgba(59, 130, 246, 0.3)",
+              }}
             >
-              <option value="">전체</option>
-              {users.map((user: User) => (
+              <option value="">전체 상담자</option>
+              {users.map((user: UserType) => (
                 <option key={user.id} value={user.id}>
-                  {" "}
                   {user.name} {user.level}
                 </option>
               ))}
             </motion.select>
           </div>
-          <div className="flex items-center justify-end">
+
+          <div className="flex items-end">
             <button
               onClick={() => {
                 setSearchTerm("");
                 setStartDate(today);
                 setEndDate(today);
+                setSelectedUser(null);
               }}
-              className="w-full sm:w-auto px-4 py-2 bg-gray-500 text-white rounded-md"
+              className="w-full p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md transition-colors flex items-center justify-center"
             >
-              필터리셋
+              <RefreshCw className="w-4 h-4 mr-2" />
+              필터 초기화
             </button>
           </div>
         </div>
       </div>
+
       {/* 상담 내역 테이블 */}
-      <div className="flex justify-end items-center mb-4">
-        <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
-        <select
-          value={consultationsPerPage}
-          onChange={(e) => {
-            setConsultationsPerPage(Number(e.target.value));
-            setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
-          }}
-          className="border border-gray-300 p-2 rounded-md text-sm"
-        >
-          <option value="5">5개</option>
-          <option value="10">10개</option>
-          <option value="15">15개</option>
-          <option value="20">20개</option>
-        </select>
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-gray-500">
+          {isConsultationsLoading ? (
+            <span>로딩 중...</span>
+          ) : (
+            <span>
+              총{" "}
+              {totalPages > 0
+                ? (currentPage - 1) * consultationsPerPage + 1
+                : 0}{" "}
+              -{" "}
+              {Math.min(
+                currentPage * consultationsPerPage,
+                totalPages * consultationsPerPage
+              )}{" "}
+              / {totalPages * consultationsPerPage} 건
+            </span>
+          )}
+        </div>
+        <div className="flex items-center">
+          <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+          <select
+            value={consultationsPerPage}
+            onChange={(e) => {
+              setConsultationsPerPage(Number(e.target.value));
+              setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
+            }}
+            className="border border-gray-300 p-2 rounded-md text-sm"
+          >
+            <option value="5">5개</option>
+            <option value="10">10개</option>
+            <option value="15">15개</option>
+            <option value="20">20개</option>
+          </select>
+        </div>
       </div>
 
-      <div className="bg-[#FBFBFB] rounded-md border">
-        <table className="min-w-full table-auto border-collapse text-center">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="px-4 py-2 border-b border-r w-2/12">거래처</th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                거래처
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+              >
                 상담일
               </th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+              >
                 담당자
               </th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+              >
                 상담자
               </th>
-              <th className="px-4 py-2 border-b border-r">내용</th>
-              <th className="px-4 py-2 border-b border-r w-3/12">문서</th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                내용
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                문서
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {consultations?.map((consultation: any) => (
-              <tr key={consultation.id} className="hover:bg-gray-100 border-b">
-                <td
-                  className="px-4 py-2 border-r text-blue-500 cursor-pointer"
-                  onClick={() =>
-                    router.push(`/consultations/${consultation.companies.id}`)
-                  }
-                >
-                  {consultation.companies?.name}
-                </td>
-                <td className="px-4 py-2 border-r hidden md:table-cell">
-                  {consultation.date}
-                </td>
-                <td className="px-4 py-2 border-r hidden md:table-cell">
-                  {consultation?.contact_name} {consultation?.contact_level}
-                </td>
-                <td className="px-4 py-2 border-r hidden md:table-cell">
-                  {consultation.users?.name} {consultation.users?.level}
-                </td>
-                <td
-                  className="px-4 pt-2 border-r text-start"
-                  style={{
-                    minHeight: "8rem",
-                    maxHeight: "8rem",
-                    overflowY: "auto",
-                    display: "block",
-                  }}
-                >
-                  {formatContentWithLineBreaks(consultation.content)}
-                </td>
-                <td className="px-4 pt-2">
-                  <div
-                    className="gap-4 text-left"
-                    style={{
-                      minHeight: "7rem",
-                      maxHeight: "7rem",
-                      overflowY: "auto",
-                      display: "block",
-                    }}
-                  >
-                    {["estimate", "order", "requestQuote"].map((type) => {
-                      const filteredDocs = consultation.documents.filter(
-                        (doc: any) => doc.type === type
-                      );
-                      if (filteredDocs?.length > 0) {
-                        return (
-                          <div key={type} className="mb-2">
-                            <span className="font-semibold">
-                              {type === "estimate"
-                                ? "견적서"
-                                : type === "order"
-                                ? "발주서"
-                                : "의뢰서"}
-                            </span>
-                            :{" "}
-                            {filteredDocs?.map((doc: any, index: any) => (
-                              <span key={doc.id}>
-                                <span
-                                  className="text-blue-500 cursor-pointer"
-                                  onClick={() => handleDocumentClick(doc)}
-                                >
-                                  {doc.document_number}
-                                </span>
-                                {index < filteredDocs?.length - 1 && " | "}
-                              </span>
-                            ))}
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
+          <tbody className="bg-white divide-y divide-gray-200">
+            {isConsultationsLoading ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  <div className="flex justify-center items-center py-10">
+                    <svg
+                      className="animate-spin h-8 w-8 text-blue-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    <span className="ml-3">데이터를 불러오는 중입니다...</span>
                   </div>
                 </td>
               </tr>
-            ))}
+            ) : consultations?.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  검색 결과가 없습니다
+                </td>
+              </tr>
+            ) : (
+              consultations?.map((consultation: any) => (
+                <tr
+                  key={consultation.id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div
+                      className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
+                      onClick={() =>
+                        router.push(
+                          `/consultations/${consultation.companies.id}`
+                        )
+                      }
+                    >
+                      {consultation.companies?.name}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                    <div className="text-sm text-gray-900">
+                      {consultation.date}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                    <div className="text-sm text-gray-900">
+                      {consultation?.contact_name} {consultation?.contact_level}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                    <div className="text-sm text-gray-900">
+                      {consultation.users?.name} {consultation.users?.level}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div
+                      className="text-sm text-gray-900 overflow-y-auto pr-2"
+                      style={{ maxHeight: "80px" }}
+                    >
+                      {formatContentWithLineBreaks(consultation.content)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-2">
+                      {["estimate", "order", "requestQuote"].map((type) => {
+                        const filteredDocs = consultation.documents.filter(
+                          (doc: any) => doc.type === type
+                        );
+                        if (filteredDocs?.length > 0) {
+                          return (
+                            <div key={type} className="flex items-start">
+                              <FileText className="w-4 h-4 mt-1 mr-2 text-gray-500 flex-shrink-0" />
+                              <div>
+                                <span className="text-xs font-medium text-gray-700">
+                                  {type === "estimate"
+                                    ? "견적서"
+                                    : type === "order"
+                                    ? "발주서"
+                                    : "의뢰서"}
+                                </span>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {filteredDocs?.map((doc: any) => (
+                                    <span
+                                      key={doc.id}
+                                      onClick={() => handleDocumentClick(doc)}
+                                      className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md cursor-pointer hover:bg-blue-100 transition-colors"
+                                    >
+                                      {doc.document_number}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
       {/* 페이지네이션 */}
-
-      <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
-        <div className="flex justify-center mt-4 space-x-2">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-          >
-            이전
-          </button>
-
-          {paginationNumbers().map((page, index) => (
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <nav className="flex items-center space-x-1">
             <button
-              key={index}
-              onClick={() => setCurrentPage(Number(page))}
-              className={`px-3 py-1 border rounded ${
-                currentPage === page
-                  ? "bg-blue-500 text-white font-bold"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-md ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-100"
               }`}
             >
-              {page}
+              <ChevronLeft size={18} />
             </button>
-          ))}
 
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-          >
-            다음
-          </button>
+            {paginationNumbers().map((page, index) => (
+              <button
+                key={index}
+                onClick={() => typeof page === "number" && setCurrentPage(page)}
+                className={`px-3 py-1.5 rounded-md ${
+                  currentPage === page
+                    ? "bg-blue-600 text-white font-medium"
+                    : page === "..."
+                    ? "text-gray-500 cursor-default"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-md ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronRight size={18} />
+            </button>
+          </nav>
         </div>
-      </div>
+      )}
 
       {/* 스낵바 */}
       <SnackbarComponent
         message={snackbarMessage}
         onClose={() => setSnackbarMessage("")}
       />
+
       {/* 모달 */}
       {openModal && selectedDocument && (
         <DocumentModal

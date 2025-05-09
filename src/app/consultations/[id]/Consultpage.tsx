@@ -1,6 +1,4 @@
 "use client";
-
-import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -18,7 +16,6 @@ import { useUsersList } from "@/hooks/useUserList";
 import { useAddConsultation } from "@/hooks/consultations/useAddConsultation";
 import { useAssignConsultationContact } from "@/hooks/consultations/useAssignConsultationContact";
 import { useUpdateConsultation } from "@/hooks/consultations/useUpdateConsultation";
-import FileUpload from "@/components/consultations/FileUpload";
 import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -28,7 +25,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
+  type DragEndEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -37,6 +34,19 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import {
+  Search,
+  Star,
+  StarOff,
+  Plus,
+  Edit,
+  Trash2,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+  GripVertical,
+  X,
+} from "lucide-react";
 
 interface Consultation {
   id: string;
@@ -61,6 +71,7 @@ interface Contact {
   email: string;
   resign: boolean;
   sort_order: null | number;
+  company_id?: string;
 }
 
 interface Company {
@@ -72,6 +83,7 @@ interface Company {
   fax: string;
   notes: string;
   business_number: string;
+  parcel?: string;
 }
 
 interface User {
@@ -101,7 +113,7 @@ export default function ConsultationPage() {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, 300); // 🔹 디바운스 적용
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedConsultation, setSelectedConsultation] =
@@ -113,39 +125,35 @@ export default function ConsultationPage() {
   const [consultationToDelete, setConsultationToDelete] =
     useState<Consultation | null>(null);
 
-  /// swr ///////
+  // SWR Hooks
   const { users } = useUsersList();
-
   const { favorites, removeFavorite, refetchFavorites, addFavorite } =
     useFavorites(loginUser?.id);
   const { consultations, totalPages, refreshConsultations } =
     useConsultationsList(id as string, currentPage, debouncedSearchTerm);
-
   const {
     companyDetail,
     isLoading: isCompanyDetailLoading,
     refreshCompany,
   } = useCompanyDetails(id as any);
-
   const { contacts, refreshContacts } = useContactsByCompany([id] as any);
-
   const consultationIds = consultations?.map((con: any) => con.id) || [];
   const { contactsConsultations, refreshContactsConsultations } =
     useConsultationContacts(consultationIds);
-
   const { addConsultation, isAdding } = useAddConsultation();
   const { assignConsultationContact } = useAssignConsultationContact();
-
   const { updateConsultation, isUpdating } = useUpdateConsultation();
 
-  //// swr ////////
-
   const [notes, setNotes] = useState(companyDetail?.notes || "");
+  const [contactsUi, setContactsUi] = useState<any>(contacts ?? []);
+  const { updateContacts } = useUpdateContacts();
 
+  // 비고 업데이트 핸들러
   const handleUpdateNotes = async () => {
     if (!companyDetail?.id) return;
 
     try {
+      setSaving(true);
       const { error } = await supabase
         .from("companies")
         .update({ notes })
@@ -161,20 +169,19 @@ export default function ConsultationPage() {
       }
     } catch (error) {
       setSnackbarMessage("비고 수정 중 오류 발생");
+    } finally {
+      setSaving(false);
     }
   };
 
+  // 상담 내역 처리
   const processedConsultations = useMemo(() => {
     return consultations?.map((consultation: any) => {
-      // 🔹 상담 ID에 해당하는 연락처 정보 찾기
       const contactRelation = contactsConsultations.find(
         (cc: any) => cc.consultation_id === consultation.id
       );
-
-      // 🔹 `Partial<Contact>`로 빈 객체의 타입 지정
       const firstContact: any = contactRelation?.contacts || {};
 
-      // 🔹 문서 변환 로직
       const documentTypes = {
         estimate: false,
         order: false,
@@ -193,11 +200,12 @@ export default function ConsultationPage() {
         contact_level: firstContact.level || "",
         contact_email: firstContact.email || "",
         contact_mobile: firstContact.mobile || "",
-        documents: documentTypes, // 🔹 변환된 documents 적용
+        documents: documentTypes,
       };
     });
   }, [consultations, contactsConsultations]);
 
+  // 상담 추가 핸들러
   const handleAddConsultation = async () => {
     if (isAdding) return;
 
@@ -233,7 +241,6 @@ export default function ConsultationPage() {
         throw new Error("상담 추가 실패");
       }
 
-      // 🔹 담당자 찾기
       const selectedContact = contacts.find(
         (c: Contact) => c.contact_name === contact_name
       );
@@ -242,7 +249,6 @@ export default function ConsultationPage() {
         throw new Error("담당자 정보를 찾을 수 없습니다.");
       }
 
-      // 🔹 상담-담당자 연결
       await assignConsultationContact({
         method: "POST",
         body: {
@@ -263,6 +269,7 @@ export default function ConsultationPage() {
     }
   };
 
+  // 상담 수정 핸들러
   const handleEditConsultation = (consultation: Consultation) => {
     setSelectedConsultation(consultation);
     setNewConsultation({
@@ -275,6 +282,7 @@ export default function ConsultationPage() {
     setOpenEditModal(true);
   };
 
+  // 상담 업데이트 핸들러
   const handleUpdateConsultation = async () => {
     if (isUpdating) return;
 
@@ -297,7 +305,6 @@ export default function ConsultationPage() {
     try {
       setSaving(true);
 
-      // ✅ SWR Mutation 호출
       await updateConsultation({
         method: "PATCH",
         body: {
@@ -320,16 +327,19 @@ export default function ConsultationPage() {
     }
   };
 
+  // 상담 삭제 핸들러
   const handleDeleteConsultation = async (consultation: Consultation) => {
     setConsultationToDelete(consultation);
     setOpenDeleteModal(true);
   };
 
+  // 삭제 확인 핸들러
   const handleConfirmDelete = async () => {
     if (!consultationToDelete) return;
     if (deleteReason.length === 0) return;
 
     try {
+      setSaving(true);
       const { error } = await supabase.from("deletion_requests").insert([
         {
           related_id: consultationToDelete.id,
@@ -348,14 +358,16 @@ export default function ConsultationPage() {
         setSnackbarMessage("삭제 요청을 생성하는 데 실패했습니다.");
       } else {
         setSnackbarMessage("삭제 요청이 생성되었습니다.");
-
         setOpenDeleteModal(false);
       }
     } catch (error) {
       setSnackbarMessage("삭제 요청 생성 중 오류가 발생했습니다.");
+    } finally {
+      setSaving(false);
     }
   };
 
+  // 페이지네이션 핸들러
   const prevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
@@ -374,7 +386,7 @@ export default function ConsultationPage() {
   };
 
   const paginationNumbers = () => {
-    let pageNumbers = [];
+    const pageNumbers = [];
     for (let i = 1; i <= totalPages; i++) {
       if (
         i === 1 ||
@@ -389,23 +401,14 @@ export default function ConsultationPage() {
     return pageNumbers;
   };
 
-  const formatContentWithLineBreaks = (content: string) => {
-    return content.split("\n").map((line, index) => (
-      <span key={index}>
-        {line}
-        <br />
-      </span>
-    ));
-  };
-
+  // 즐겨찾기 핸들러
   const handleAddFavorite = async () => {
     try {
       await addFavorite(loginUser?.id, id, companyDetail?.name);
       await refetchFavorites();
-
       setSnackbarMessage("즐겨찾기에 추가되었습니다.");
     } catch (error) {
-      console.error("Error fetching performance data:", error);
+      console.error("Error adding favorite:", error);
     }
   };
 
@@ -419,57 +422,7 @@ export default function ConsultationPage() {
     }
   };
 
-  useEffect(() => {
-    // 🔹 첫 번째 담당자를 찾고, 없으면 유지
-    const defaultContactName =
-      contacts.length > 0
-        ? contacts[0].contact_name
-        : newConsultation.contact_name;
-    const defaultUserId = loginUser?.id ?? newConsultation.user_id;
-
-    // 🔹 상태 변경이 필요할 때만 실행
-    if (
-      newConsultation.contact_name !== defaultContactName ||
-      newConsultation.user_id !== defaultUserId
-    ) {
-      setNewConsultation((prev) => ({
-        ...prev,
-        contact_name: defaultContactName,
-        user_id: defaultUserId,
-      }));
-    }
-  }, [contacts, loginUser]);
-
-  useEffect(() => {
-    // 🔹 URL에서 page 값을 읽어서 상태 업데이트
-    const pageParam = searchParams.get("page");
-    if (pageParam) {
-      setCurrentPage(Number(pageParam));
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpenAddModal(false);
-        setOpenEditModal(false);
-        setOpenDeleteModal(false);
-        setOpenEditNotesModal(false);
-        setOpenEditContactsModal(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
-  const [contactsUi, setContactsUi] = useState<any>(contacts ?? []);
-
-  const { updateContacts } = useUpdateContacts();
-
+  // 담당자 관리
   useEffect(() => {
     if (contacts && JSON.stringify(contactsUi) !== JSON.stringify(contacts)) {
       setContactsUi(contacts);
@@ -492,18 +445,15 @@ export default function ConsultationPage() {
 
   const handleUpdateContacts = async () => {
     setSaving(true);
-
-    // console.log("contactsUi", contactsUi);
-    // return;
     try {
-      await updateContacts(contactsUi, contacts[0].company_id);
+      await updateContacts(contactsUi, contacts[0]?.company_id);
       await refreshContacts();
       await refreshContactsConsultations();
-      setSnackbarMessage("거래처 수정 완료");
+      setSnackbarMessage("담당자 정보 수정 완료");
       setOpenEditContactsModal(false);
     } catch (error) {
-      console.error("Error updating company:", error);
-      setSnackbarMessage("거래처 수정 실패");
+      console.error("Error updating contacts:", error);
+      setSnackbarMessage("담당자 정보 수정 실패");
     } finally {
       setSaving(false);
     }
@@ -521,6 +471,7 @@ export default function ConsultationPage() {
     });
   };
 
+  // DnD 관련 설정
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -542,826 +493,974 @@ export default function ConsultationPage() {
     }
   };
 
-  return (
-    <div className="text-sm text-[#37352F]">
-      <>
-        {/* 🚀 거래처 기본 정보 */}
+  // 기타 유틸리티 함수
+  const formatContentWithLineBreaks = (content: string) => {
+    return content.split("\n").map((line, index) => (
+      <span key={index}>
+        {line}
+        <br />
+      </span>
+    ));
+  };
 
-        <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr_1.5fr] gap-4">
-          <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-40 flex flex-col justify-between">
-            {isCompanyDetailLoading ? (
-              <>
-                <Skeleton variant="text" width="100%" height="100%" />
-              </>
-            ) : (
-              <div>
-                <h2 className="font-semibold text-md mb-1">거래처</h2>
-                <ul className="space-y-1 text-gray-700 text-sm pl-1">
-                  <li className="flex items-center">
-                    <span className="font-medium w-14">회사명</span>
-                    <span className="flex-1 truncate">
+  // 초기 설정
+  useEffect(() => {
+    const defaultContactName =
+      contacts.length > 0
+        ? contacts[0].contact_name
+        : newConsultation.contact_name;
+    const defaultUserId = loginUser?.id ?? newConsultation.user_id;
+
+    if (
+      newConsultation.contact_name !== defaultContactName ||
+      newConsultation.user_id !== defaultUserId
+    ) {
+      setNewConsultation((prev) => ({
+        ...prev,
+        contact_name: defaultContactName,
+        user_id: defaultUserId,
+      }));
+    }
+  }, [contacts, loginUser]);
+
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    if (pageParam) {
+      setCurrentPage(Number(pageParam));
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenAddModal(false);
+        setOpenEditModal(false);
+        setOpenDeleteModal(false);
+        setOpenEditNotesModal(false);
+        setOpenEditContactsModal(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  return (
+    <div className="bg-white text-gray-800 min-h-screen">
+      {/* 헤더 섹션 */}
+      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div className="py-3 px-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="flex items-center">
+              <h1 className="text-xl font-bold text-gray-900">
+                {companyDetail?.name || "거래처 상세"}
+              </h1>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative w-full md:w-64">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <Search size={16} className="text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="상담 내용 검색"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full py-1.5 pl-10 pr-4 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <button
+                onClick={() => setOpenAddModal(true)}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+              >
+                <Plus size={16} />
+                <span>상담 추가</span>
+              </button>
+              {favorites.find(
+                (fav: any) => fav.name === companyDetail?.name
+              ) ? (
+                <button
+                  onClick={() => {
+                    if (companyDetail?.id) {
+                      handleRemoveFavorite(companyDetail.id);
+                    }
+                  }}
+                  className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-yellow-600 bg-yellow-50 rounded-md hover:bg-yellow-100 transition-colors"
+                >
+                  <StarOff size={16} />
+                  <span>즐겨찾기 삭제</span>
+                </button>
+              ) : (
+                <button
+                  onClick={handleAddFavorite}
+                  className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  <Star size={16} />
+                  <span>즐겨찾기 추가</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4">
+        {/* 거래처 정보 요약 - 더 컴팩트한 디자인 */}
+        <div className="bg-white rounded-lg border shadow-sm mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x">
+            {/* 거래처 기본 정보 */}
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-base font-semibold text-gray-900">
+                  거래처 정보
+                </h2>
+              </div>
+
+              {isCompanyDetailLoading ? (
+                <div className="space-y-2">
+                  <Skeleton variant="text" width="100%" height={20} />
+                  <Skeleton variant="text" width="100%" height={20} />
+                  <Skeleton variant="text" width="100%" height={20} />
+                </div>
+              ) : (
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-start">
+                    <span className="w-16 text-xs font-medium text-gray-500">
+                      회사명
+                    </span>
+                    <span className="flex-1 text-gray-900">
                       {companyDetail?.name}
                     </span>
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-medium w-14">주소</span>
-                    <span className="flex-1 truncate">
-                      {companyDetail?.address ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
+                  </div>
+                  <div className="flex items-start">
+                    <span className="w-16 text-xs font-medium text-gray-500">
+                      주소
                     </span>
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-medium w-14">배송</span>
-                    <span className="flex-1 truncate">
-                      {companyDetail?.parcel ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
+                    <span className="flex-1 text-gray-900">
+                      {companyDetail?.address || "정보 없음"}
                     </span>
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-medium w-14">전화</span>
-                    <span className="flex-1">
-                      {companyDetail?.phone ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
+                  </div>
+                  <div className="flex items-start">
+                    <span className="w-16 text-xs font-medium text-gray-500">
+                      배송
                     </span>
-                  </li>
-                  <li className="flex items-center">
-                    <span className="font-medium w-14">팩스</span>
-                    <span className="flex-1">
-                      {companyDetail?.fax ||
-                        "거래처검색 -> 수정 정보를 입력해주세요."}
+                    <span className="flex-1 text-gray-900">
+                      {companyDetail?.parcel || "정보 없음"}
                     </span>
-                  </li>
-                </ul>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="w-16 text-xs font-medium text-gray-500">
+                      전화
+                    </span>
+                    <span className="flex-1 text-gray-900">
+                      {companyDetail?.phone || "정보 없음"}
+                    </span>
+                  </div>
+                  <div className="flex items-start">
+                    <span className="w-16 text-xs font-medium text-gray-500">
+                      팩스
+                    </span>
+                    <span className="flex-1 text-gray-900">
+                      {companyDetail?.fax || "정보 없음"}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 비고 정보 */}
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-base font-semibold text-gray-900">비고</h2>
+                <button
+                  onClick={() => setOpenEditNotesModal(true)}
+                  className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                >
+                  수정
+                </button>
+              </div>
+
+              {isCompanyDetailLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={80} />
+              ) : (
+                <div className="text-sm text-gray-700 max-h-24 overflow-y-auto">
+                  {companyDetail?.notes ? (
+                    formatContentWithLineBreaks(companyDetail.notes)
+                  ) : (
+                    <p className="text-gray-500 italic text-xs">
+                      비고 정보가 없습니다. '수정' 버튼을 클릭하여 추가하세요.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* 담당자 정보 */}
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-base font-semibold text-gray-900">
+                  담당자
+                </h2>
+                <button
+                  onClick={() => setOpenEditContactsModal(true)}
+                  className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                >
+                  관리
+                </button>
+              </div>
+
+              {isCompanyDetailLoading ? (
+                <Skeleton variant="rectangular" width="100%" height={80} />
+              ) : (
+                <div className="max-h-24 overflow-y-auto">
+                  {contacts && contacts.length > 0 ? (
+                    <div className="space-y-2">
+                      {contacts.map((contact: Contact, index: number) => {
+                        if (!contact.resign) {
+                          return (
+                            <div key={contact.id || index} className="text-sm">
+                              <div className="flex items-center">
+                                <div
+                                  className="font-medium text-blue-600 cursor-pointer hover:underline"
+                                  onClick={() =>
+                                    router.push(
+                                      `/manage/contacts/${contact.id}`
+                                    )
+                                  }
+                                >
+                                  {contact.contact_name}{" "}
+                                  {contact.level && `(${contact.level})`}
+                                </div>
+                              </div>
+                              <div className="mt-0.5 text-xs text-gray-500">
+                                {contact.department &&
+                                  `${contact.department} · `}
+                                {contact.mobile || "-"}
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic text-xs">
+                      담당자 정보가 없습니다. '관리' 버튼을 클릭하여 추가하세요.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 상담 내역 섹션 */}
+        <div className="bg-white rounded-lg border shadow-sm mb-6">
+          {/* 상담 내역 테이블 */}
+          <div className="overflow-x-auto">
+            {consultations && consultations.length > 0 ? (
+              <table className="min-w-full divide-y divide-gray-200 table-fixed sm:table-auto">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24 sm:w-20"
+                    >
+                      날짜
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28 sm:w-24"
+                    >
+                      담당자
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28 sm:w-24 hidden sm:table-cell"
+                    >
+                      상담자
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      내용
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20 sm:w-16"
+                    >
+                      문서
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24 sm:w-16"
+                    >
+                      관리
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {processedConsultations.map(
+                    (consultation: any, index: number) => (
+                      <tr key={consultation.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 sm:w-auto">
+                          <div>{consultation.date}</div>
+                          {consultation.follow_up_date && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              ~ {consultation.follow_up_date}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 sm:w-auto">
+                          {consultation.contact_name}{" "}
+                          {consultation.contact_level}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 sm:w-auto hidden sm:table-cell">
+                          {
+                            users.find(
+                              (user: User) => user.id === consultation.user_id
+                            )?.name
+                          }{" "}
+                          {
+                            users.find(
+                              (user: User) => user.id === consultation.user_id
+                            )?.level
+                          }
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900 sm:w-auto">
+                          <div className="max-h-32 overflow-y-auto w-screen md:w-auto">
+                            {formatContentWithLineBreaks(consultation.content)}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm sm:w-auto">
+                          <div className="space-y-2">
+                            <button
+                              className={`block w-full text-left px-2 py-1 rounded ${
+                                consultation.documents.estimate
+                                  ? "text-blue-600 hover:bg-blue-50"
+                                  : "text-gray-400 hover:text-gray-700 hover:bg-gray-50"
+                              }`}
+                              onClick={() =>
+                                window.open(
+                                  `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                                  "_blank",
+                                  "width=1200,height=800,top=100,left=100"
+                                )
+                              }
+                            >
+                              <span className="flex items-center">
+                                <FileText size={14} className="mr-1.5" />
+                                견적서
+                              </span>
+                            </button>
+
+                            <button
+                              className={`block w-full text-left px-2 py-1 rounded ${
+                                consultation.documents.order
+                                  ? "text-blue-600 hover:bg-blue-50"
+                                  : "text-gray-400 hover:text-gray-700 hover:bg-gray-50"
+                              }`}
+                              onClick={() =>
+                                window.open(
+                                  `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                                  "_blank",
+                                  "width=1200,height=800,top=100,left=100"
+                                )
+                              }
+                            >
+                              <span className="flex items-center">
+                                <FileText size={14} className="mr-1.5" />
+                                발주서
+                              </span>
+                            </button>
+
+                            <button
+                              className={`block w-full text-left px-2 py-1 rounded ${
+                                consultation.documents.requestQuote
+                                  ? "text-blue-600 hover:bg-blue-50"
+                                  : "text-gray-400 hover:text-gray-700 hover:bg-gray-50"
+                              }`}
+                              onClick={() =>
+                                window.open(
+                                  `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                                  "_blank",
+                                  "width=1200,height=800,top=100,left=100"
+                                )
+                              }
+                            >
+                              <span className="flex items-center">
+                                <FileText size={14} className="mr-1.5" />
+                                의뢰서
+                              </span>
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 sm:w-auto">
+                          {loginUser?.id === consultation.user_id && (
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() =>
+                                  handleEditConsultation(consultation)
+                                }
+                                className="text-blue-600 hover:text-blue-800"
+                                title="수정"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleDeleteConsultation(consultation)
+                                }
+                                className="text-red-600 hover:text-red-800"
+                                title="삭제"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              <div className="py-8 text-center text-gray-500">
+                {debouncedSearchTerm
+                  ? "검색 결과가 없습니다."
+                  : "상담 내역이 없습니다."}
               </div>
             )}
           </div>
 
-          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3">
-            {isCompanyDetailLoading ? (
-              <Skeleton variant="rectangular" width="100%" height="100%" />
-            ) : (
-              <>
-                <h2 className="font-semibold text-md mb-1">비고</h2>
-                <div className="text-sm min-h-[80px] max-h-28 overflow-y-auto px-1">
-                  <span>
-                    {companyDetail?.notes
-                      ? formatContentWithLineBreaks(companyDetail?.notes)
-                      : "비고 추가/수정을 사용하여 해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."}
-                  </span>
+          {/* 페이지네이션 */}
+          {totalPages > 1 && (
+            <div className="px-5 py-3 border-t flex items-center justify-center">
+              <nav className="flex items-center space-x-1">
+                <button
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                  className={`px-2 py-1 rounded-md ${
+                    currentPage === 1
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  <ChevronLeft size={18} />
+                </button>
+
+                {paginationNumbers().map((page, index) => (
+                  <button
+                    key={index}
+                    onClick={() =>
+                      typeof page === "number" && handlePageClick(page)
+                    }
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === page
+                        ? "bg-blue-600 text-white"
+                        : page === "..."
+                        ? "text-gray-500 cursor-default"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                    disabled={page === "..."}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                  className={`px-2 py-1 rounded-md ${
+                    currentPage === totalPages
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </nav>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 모달: 상담 추가 */}
+      <AnimatePresence>
+        {openAddModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-5 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  상담 내역 추가
+                </h3>
+                <button
+                  onClick={() => setOpenAddModal(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      상담일
+                    </label>
+                    <input
+                      type="date"
+                      value={newConsultation.date}
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      후속 날짜
+                    </label>
+                    <input
+                      type="date"
+                      value={newConsultation.follow_up_date}
+                      onChange={(e) =>
+                        setNewConsultation({
+                          ...newConsultation,
+                          follow_up_date: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
 
-          <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 h-40 flex flex-col ">
-            {isCompanyDetailLoading ? (
-              <>
-                <Skeleton variant="text" width="100%" height="100%" />
-              </>
-            ) : (
-              <>
-                <h2 className="font-semibold text-md mb-1">담당자</h2>
-
-                <div className=" h-40 overflow-y-auto">
-                  <table className="w-full text-xs border-collapse">
-                    <thead className="border-b font-semibold bg-gray-100 sticky top-0"></thead>
-                    <tbody className="text-sm">
-                      {contacts?.map((contact: any, index: any) => {
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      담당자
+                    </label>
+                    <select
+                      value={newConsultation.contact_name}
+                      onChange={(e) =>
+                        setNewConsultation({
+                          ...newConsultation,
+                          contact_name: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">담당자 선택</option>
+                      {contacts.map((contact: Contact) => {
                         if (!contact.resign)
                           return (
-                            <tr
-                              key={index}
-                              className={`${
-                                index !== contacts.length - 1 ? "border-b" : ""
-                              }`}
+                            <option
+                              key={contact.id}
+                              value={contact.contact_name}
                             >
-                              <td
-                                className="px-1 py-1 text-blue-500 cursor-pointer hover:font-semibold w-1/6"
-                                onClick={() =>
-                                  router.push(`/manage/contacts/${contact.id}`)
-                                }
-                              >
-                                {contact.contact_name} {contact.level}
-                              </td>
-                              {/* <td className="px-1 py-1 w-1/6">
-                                
-                              </td> */}
-                              <td className="px-1 py-1 w-1/6">
-                                {contact.department}
-                              </td>
-                              <td className="px-1 py-1 w-1/6">
-                                {contact.mobile}
-                              </td>
-                              <td className="px-1 py-1 truncate w-2/6">
-                                {contact.email}
-                              </td>
-                            </tr>
+                              {contact.contact_name}{" "}
+                              {contact.level && `(${contact.level})`}
+                            </option>
                           );
+                        return null;
                       })}
-                    </tbody>
-                  </table>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      상담자
+                    </label>
+                    <select
+                      value={newConsultation.user_id}
+                      disabled
+                      className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm"
+                    >
+                      {users.map((user: User) => (
+                        <option key={user.id} value={user.id}>
+                          {user.name} {user.level}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
-        </div>
 
-        {/* 🚀 추가 버튼 */}
-
-        <div className="flex:col md:flex items-center my-4 gap-4">
-          {favorites.find((fav: any) => fav.name === companyDetail?.name) ? (
-            <div
-              className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-              onClick={() => {
-                if (companyDetail?.id) {
-                  handleRemoveFavorite(companyDetail.id);
-                }
-              }}
-            >
-              <span className="mr-2">-</span>
-              <span>즐겨찾기 삭제</span>
-            </div>
-          ) : (
-            <div
-              className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-              onClick={() => handleAddFavorite()}
-            >
-              <span className="mr-2">+</span>
-              <span>즐겨찾기 추가</span>
-            </div>
-          )}
-          <div
-            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-            onClick={() => setOpenAddModal(true)}
-          >
-            <span className="mr-2">+</span>
-            <span>상담 추가</span>
-          </div>
-          <div
-            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-            onClick={() => setOpenEditContactsModal(true)}
-          >
-            <span className="mr-2">+</span>
-            <span>담당자 추가/수정</span>
-          </div>
-          <div
-            className="px-4 py-2 font-semibold cursor-pointer hover:bg-opacity-10 hover:bg-black hover:rounded-md"
-            onClick={() => setOpenEditNotesModal(true)}
-          >
-            <span className="mr-2">+</span>
-            <span>비고 추가/수정</span>
-          </div>
-          <div className="px-4 flex items-center  border-gray-400 w-1/3 max-w-sm py-1 focus-within:border-black">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 50 50"
-              width="18px"
-              height="18px"
-              className="text-gray-500"
-            >
-              <path d="M 21 3 C 11.601563 3 4 10.601563 4 20 C 4 29.398438 11.601563 37 21 37 C 24.355469 37 27.460938 36.015625 30.09375 34.34375 L 42.375 46.625 L 46.625 42.375 L 34.5 30.28125 C 36.679688 27.421875 38 23.878906 38 20 C 38 10.601563 30.398438 3 21 3 Z M 21 7 C 28.199219 7 34 12.800781 34 20 C 34 27.199219 28.199219 33 21 33 C 13.800781 33 8 27.199219 8 20 C 8 12.800781 7 21 7 Z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="상담 내용 검색"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-1 py-2 w-full focus:outline-none focus:border-none font-semibold text-gray-700"
-            />
-          </div>
-        </div>
-
-        {/* 상담 내역 추가 모달 */}
-        {openAddModal && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-full md:w-2/3">
-              <h3 className="text-xl font-semibold mb-4">상담 내역 추가</h3>
-
-              {/* 상담일 및 후속 날짜 (flex로 배치) */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                <div className="">
-                  <label className="block mb-2 text-sm font-medium">
-                    상담일
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    상담 내용
                   </label>
-                  <input
-                    type="date"
-                    value={newConsultation.date}
-                    readOnly
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  <textarea
+                    placeholder="상담 내용을 입력하세요..."
+                    value={newConsultation.content}
+                    onChange={(e) =>
+                      setNewConsultation({
+                        ...newConsultation,
+                        content: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={10}
                   />
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    후속 날짜
-                  </label>
-                  <input
-                    type="date"
-                    value={newConsultation.follow_up_date}
-                    onChange={(e) =>
-                      setNewConsultation({
-                        ...newConsultation,
-                        follow_up_date: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    담당자
-                  </label>
-                  <select
-                    defaultValue={newConsultation.contact_name}
-                    onChange={(e) =>
-                      setNewConsultation({
-                        ...newConsultation,
-                        contact_name: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  >
-                    <option value="">담당자 선택</option>
-                    {contacts.map((contact: any) => {
-                      if (!contact.resign)
-                        return (
-                          <option key={contact.id} value={contact.contact_name}>
-                            {contact.contact_name} ({contact.level})
-                          </option>
-                        );
-                    })}
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    상담자
-                  </label>
-                  <select
-                    value={newConsultation.user_id}
-                    disabled
-                    onChange={(e) =>
-                      setNewConsultation({
-                        ...newConsultation,
-                        user_id: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  >
-                    {/* 다른 유저들 */}
-                    {users.map((user: any) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name} {user.level}
-                      </option>
-                    ))}
-                  </select>
+                  <p className="mt-1 text-xs text-gray-500">
+                    담당자를 선택 후 상담을 작성해주세요. 후속 날짜를 설정하면
+                    지정날짜 7일 전에 대시보드의 후속 상담 필요 고객 리스트에
+                    표시됩니다.
+                  </p>
                 </div>
               </div>
 
-              {/* 상담 내용 */}
-              <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium">
-                  상담 내용
-                </label>
-                <textarea
-                  placeholder="담당자를 선택후 상담을 작성해주세요. 담당자가 없으면 상담이 추가되지 않습니다. 담당자가 없다면 담당자를 추가후 상담을 추가해주세요. 후속 날짜를 설정하게 되면 지정날짜 7일전에 대시보드의 후속 상담 필요 고객 리스트에 나타나게 됩니다."
-                  value={newConsultation.content}
-                  onChange={(e) =>
-                    setNewConsultation({
-                      ...newConsultation,
-                      content: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  rows={16}
-                />
-              </div>
-
-              {/* 버튼 */}
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">
                 <button
-                  onClick={() => {
-                    setOpenAddModal(false);
-                    setNewConsultation({
-                      date: new Date().toISOString().split("T")[0],
-                      follow_up_date: "",
-                      user_id: loginUser ? loginUser.id : "",
-                      content: "",
-                      contact_name: "",
-                    });
-                  }}
-                  className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
-                    saving ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  onClick={() => setOpenAddModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   disabled={saving}
                 >
                   취소
                 </button>
-
                 <button
                   onClick={handleAddConsultation}
-                  className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
-                    saving ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                   disabled={saving}
                 >
-                  저장
-                  {saving && <CircularProgress size={18} className="ml-2" />}
+                  {saving ? (
+                    <>
+                      <CircularProgress size={16} className="mr-2" />
+                      저장 중...
+                    </>
+                  ) : (
+                    "저장"
+                  )}
                 </button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* 상담 내역 수정 모달 */}
+      {/* 모달: 상담 수정 */}
+      <AnimatePresence>
         {openEditModal && (
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-full md:w-2/3">
-              <h3 className="text-xl font-semibold mb-4">상담 내역 수정</h3>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-5 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  상담 내역 수정
+                </h3>
+                <button
+                  onClick={() => setOpenEditModal(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X size={20} />
+                </button>
+              </div>
 
-              {/* 상담일 및 후속 날짜 (flex로 배치) */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    상담일
-                  </label>
-                  <input
-                    type="date"
-                    value={newConsultation.date}
-                    readOnly
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  />
+              <div className="p-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      상담일
+                    </label>
+                    <input
+                      type="date"
+                      value={newConsultation.date}
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      후속 날짜
+                    </label>
+                    <input
+                      type="date"
+                      value={newConsultation.follow_up_date || ""}
+                      onChange={(e) =>
+                        setNewConsultation({
+                          ...newConsultation,
+                          follow_up_date: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    후속 날짜
-                  </label>
-                  <input
-                    type="date"
-                    value={
-                      newConsultation.follow_up_date
-                        ? newConsultation.follow_up_date
-                        : ""
-                    }
-                    onChange={(e) =>
-                      setNewConsultation({
-                        ...newConsultation,
-                        follow_up_date: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    담당자
-                  </label>
-                  <select
-                    defaultValue={newConsultation.contact_name}
-                    onChange={(e) =>
-                      setNewConsultation({
-                        ...newConsultation,
-                        contact_name: e.target.value,
-                      })
-                    }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  >
-                    <option value="">담당자 선택</option>
-                    {contacts.map((contact: any) => {
-                      if (!contact.resign)
-                        return (
-                          <option key={contact.id} value={contact.contact_name}>
-                            {contact.contact_name} ({contact.level})
-                          </option>
-                        );
-                    })}
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm font-medium">
-                    상담자
-                  </label>
 
-                  <select
-                    value={newConsultation.user_id}
-                    disabled
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      담당자
+                    </label>
+                    <select
+                      value={newConsultation.contact_name}
+                      onChange={(e) =>
+                        setNewConsultation({
+                          ...newConsultation,
+                          contact_name: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">담당자 선택</option>
+                      {contacts.map((contact: Contact) => {
+                        if (!contact.resign)
+                          return (
+                            <option
+                              key={contact.id}
+                              value={contact.contact_name}
+                            >
+                              {contact.contact_name}{" "}
+                              {contact.level && `(${contact.level})`}
+                            </option>
+                          );
+                        return null;
+                      })}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      상담자
+                    </label>
+                    <select
+                      value={newConsultation.user_id}
+                      disabled
+                      className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm"
+                    >
+                      {users.map((user: User) => (
+                        <option key={user.id} value={user.id}>
+                          {user.name} {user.level}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    상담 내용
+                  </label>
+                  <textarea
+                    value={newConsultation.content}
                     onChange={(e) =>
                       setNewConsultation({
                         ...newConsultation,
-                        user_id: e.target.value,
+                        content: e.target.value,
                       })
                     }
-                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  >
-                    {users.map((user: any) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name} {user.level}
-                      </option>
-                    ))}
-                  </select>
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={10}
+                  />
                 </div>
               </div>
 
-              {/* 상담 내용 */}
-              <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium">
-                  상담 내용
-                </label>
+              <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">
+                <button
+                  onClick={() => setOpenEditModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  disabled={saving}
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleUpdateConsultation}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <>
+                      <CircularProgress size={16} className="mr-2" />
+                      저장 중...
+                    </>
+                  ) : (
+                    "저장"
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 모달: 상담 삭제 */}
+      <AnimatePresence>
+        {openDeleteModal && consultationToDelete && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden"
+            >
+              <div className="p-5 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  삭제 요청
+                </h3>
+              </div>
+
+              <div className="p-5">
+                <p className="mb-4 text-sm text-gray-600">
+                  상담 내역을 삭제하시려면 삭제 사유를 입력해주세요.
+                </p>
                 <textarea
-                  value={newConsultation.content}
-                  onChange={(e) =>
-                    setNewConsultation({
-                      ...newConsultation,
-                      content: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  rows={16}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="삭제 사유를 입력해주세요."
+                  rows={5}
+                  value={deleteReason}
+                  onChange={(e) => setDeleteReason(e.target.value)}
                 />
               </div>
 
-              {/* 버튼 */}
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">
                 <button
-                  onClick={() => {
-                    setOpenEditModal(false);
-                    setNewConsultation({
-                      date: new Date().toISOString().split("T")[0],
-                      follow_up_date: "",
-                      user_id: "",
-                      content: "",
-                      contact_name: "",
-                    });
-                  }}
-                  className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
-                    saving ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  onClick={() => setOpenDeleteModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   disabled={saving}
                 >
                   취소
                 </button>
-
                 <button
-                  onClick={handleUpdateConsultation}
-                  className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
-                    saving ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
-                  disabled={saving}
+                  onClick={handleConfirmDelete}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  disabled={saving || !deleteReason.trim()}
                 >
-                  저장
-                  {saving && <CircularProgress size={18} className="ml-2" />}
+                  {saving ? (
+                    <>
+                      <CircularProgress size={16} className="mr-2" />
+                      처리 중...
+                    </>
+                  ) : (
+                    "삭제 요청"
+                  )}
                 </button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+      </AnimatePresence>
 
-        {/* 상담 내역 테이블 */}
-        <div className="bg-[#FBFBFB] rounded-md border">
-          {consultations.length > 0 && (
-            <table className="min-w-full table-auto border-collapse text-center">
-              <thead>
-                <tr className="bg-gray-100 text-left">
-                  {/* <th className="px-4 py-2 border-b border-r-[1px] text-center">
-                    No.
-                  </th> */}
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    날짜
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    담당자
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    상담자
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-5/12">
-                    내용
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    문서
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-2/12 hidden md:table-cell">
-                    파일
-                  </th>
-                  <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12 hidden md:table-cell">
-                    변경
-                  </th>
-                  {/* <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
-                    삭제
-                  </th> */}
-                </tr>
-              </thead>
-              <tbody>
-                {processedConsultations.map((consultation: any, index: any) => (
-                  <tr
-                    key={consultation.id}
-                    className="hover:bg-gray-100 border-b"
-                  >
-                    {/* <td className="px-4 py-2 border-r-[1px]">
-                      {consultation.id.slice(0, 4)}
-                    </td> */}
-                    <td className="px-4 py-2 border-r-[1px]">
-                      {consultation.date}
-                      <div>
-                        <p>
-                          {consultation?.follow_up_date &&
-                            `~ ${consultation?.follow_up_date}`}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2 border-r-[1px]">
-                      {consultation.contact_name} {consultation.contact_level}
-                    </td>
-                    <td className="px-4 py-2 border-r-[1px]">
-                      {
-                        users.find(
-                          (user: any) => user.id === consultation.user_id
-                        )?.name
-                      }{" "}
-                      {
-                        users.find(
-                          (user: any) => user.id === consultation.user_id
-                        )?.level
-                      }
-                    </td>
-                    <td
-                      className="px-4 py-2 w-full text-start"
-                      style={{
-                        minHeight: "140px",
-                        maxHeight: "140px",
-                        overflowY: "auto",
-                        display: "block",
-                      }}
-                    >
-                      {formatContentWithLineBreaks(consultation.content)}
-                    </td>
-                    <td className="px-4 py-2 border-x-[1px]">
-                      <p
-                        className={`mb-4 cursor-pointer ${
-                          consultation.documents.estimate
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          // router.push(
-                          //   `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          // )
-                          window.open(
-                            `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
-                            "_blank",
-                            "width=1200,height=800,top=100,left=100"
-                          )
-                        }
-                      >
-                        견적서
-                      </p>
-                      <p
-                        className={`my-4 cursor-pointer ${
-                          consultation.documents.order
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          // router.push(
-                          //   `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          // )
-                          window.open(
-                            `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
-                            "_blank",
-                            "width=1200,height=800,top=100,left=100"
-                          )
-                        }
-                      >
-                        발주서
-                      </p>
-                      <p
-                        className={`mt-4 cursor-pointer ${
-                          consultation.documents.requestQuote
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          // router.push(
-                          //   `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          // )
-                          window.open(
-                            `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
-                            "_blank",
-                            "width=1200,height=800,top=100,left=100"
-                          )
-                        }
-                      >
-                        의뢰서
-                      </p>
-                    </td>
-                    <td className="px-2 py-2 border-r-[1px] hidden md:table-cell">
-                      <FileUpload
-                        consultationId={consultation.id}
-                        userId={loginUser?.id}
-                      />
-                    </td>
-
-                    {/* <td className="px-4 py-2 border-r-[1px]">
-                      <span
-                        className={`mr-2 cursor-pointer ${
-                          consultation.documents.estimate
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          router.push(
-                            `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          )
-                        }
-                      >
-                        견적서
-                      </span>
-                      <span
-                        className={`mr-2 cursor-pointer ${
-                          consultation.documents.order
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          router.push(
-                            `/documents/order?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          )
-                        }
-                      >
-                        발주서
-                      </span>
-                      <span
-                        className={`mr-2 cursor-pointer ${
-                          consultation.documents.requestQuote
-                            ? "text-blue-500 hover:font-bold"
-                            : "text-gray-400 hover:text-black"
-                        }`}
-                        onClick={() =>
-                          router.push(
-                            `/documents/requestQuote?consultId=${consultation.id}&compId=${companyDetail?.id}`
-                          )
-                        }
-                      >
-                        의뢰서
-                      </span>
-                    </td> */}
-                    <td className="py-2 border-x-[1px] hidden md:table-cell">
-                      <span
-                        className={`px-4 py-2 border-r-[1px] ${
-                          loginUser?.id === consultation.user_id &&
-                          "text-blue-500 cursor-pointer"
-                        }`}
-                        onClick={() => {
-                          if (loginUser?.id === consultation.user_id)
-                            handleEditConsultation(consultation);
-                        }}
-                      >
-                        수정
-                      </span>
-                      <span
-                        className={`px-4 py-2 ${
-                          loginUser?.id === consultation.user_id &&
-                          "text-red-500 cursor-pointer"
-                        }`}
-                        // onClick={() => {
-                        //   handleDeleteConsultation(consultation);
-                        // }}
-                        onClick={() => {
-                          if (loginUser?.id === consultation.user_id)
-                            handleDeleteConsultation(consultation);
-                        }}
-                      >
-                        삭제
-                      </span>
-                    </td>
-                    {/* <td
-                      className={`px-4 py-2 border-r-[1px] ${
-                        loginUser?.id === consultation.user_id &&
-                        "text-red-500 cursor-pointer"
-                      }`}
-                      onClick={() => {
-                        if (loginUser?.id === consultation.user_id)
-                          handleDeleteConsultation(consultation);
-                      }}
-                    >
-                      삭제
-                    </td> */}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* 페이지네이션 */}
-        <div className="flex justify-center overflow-x-auto space-x-1 md:space-x-2">
-          <div className="flex justify-center mt-4 space-x-2">
-            <button
-              onClick={prevPage}
-              disabled={currentPage === 1}
-              className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+      {/* 모달: 비고 수정 */}
+      <AnimatePresence>
+        {openEditNotesModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl w-full max-w-2xl overflow-hidden"
             >
-              이전
-            </button>
-
-            {paginationNumbers().map((page, index) => (
-              <button
-                key={index}
-                onClick={() => handlePageClick(Number(page))}
-                className={`px-3 py-1 border rounded ${
-                  currentPage === page
-                    ? "bg-blue-500 text-white font-bold"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={nextPage}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-            >
-              다음
-            </button>
-          </div>
-        </div>
-      </>
-
-      {openDeleteModal && consultationToDelete && (
-        <motion.div
-          initial={{ opacity: 0, scale: 1 }} // 시작 애니메이션
-          animate={{ opacity: 1, scale: 1 }} // 나타나는 애니메이션
-          exit={{ opacity: 0, scale: 1 }} // 사라질 때 애니메이션
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50"
-        >
-          <div className="bg-white p-6 rounded-md w-1/3">
-            <h3 className="text-xl font-semibold mb-4">삭제 요청</h3>
-            <textarea
-              className="w-full border rounded-md p-4 h-48"
-              placeholder="삭제 사유를 입력해주세요."
-              onChange={(e) => setDeleteReason(e.target.value)}
-            />
-
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={() => setOpenDeleteModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md"
-              >
-                취소
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded-md"
-              >
-                삭제
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      )}
-      {openEditNotesModal && (
-        <>
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-full md:w-2/3">
-              <h2 className="text-xl font-bold mb-4">비고 추가/수정</h2>
-              <textarea
-                placeholder="해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
-                className="w-full min-h-80 p-2 border border-gray-300 rounded-md"
-                defaultValue={companyDetail.notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-              <div className="flex justify-end mt-4">
+              <div className="flex items-center justify-between p-5 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  비고 추가/수정
+                </h3>
                 <button
-                  className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
                   onClick={() => setOpenEditNotesModal(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-5">
+                <textarea
+                  placeholder="해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={12}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
+              </div>
+
+              <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">
+                <button
+                  onClick={() => setOpenEditNotesModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  disabled={saving}
                 >
                   취소
                 </button>
                 <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md"
                   onClick={handleUpdateNotes}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  disabled={saving}
                 >
-                  저장
+                  {saving ? (
+                    <>
+                      <CircularProgress size={16} className="mr-2" />
+                      저장 중...
+                    </>
+                  ) : (
+                    "저장"
+                  )}
                 </button>
               </div>
-            </div>
-          </div>
-        </>
-      )}
-      {openEditContactsModal && (
-        <>
-          <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-full md:w-2/3">
-              <h2 className="text-xl font-bold ">담당자 추가/수정</h2>
-              <div>
-                <p>
-                  담당자 삭제시 연관된 문서(견적서,발주서,의뢰서)가 존재할시
-                  삭제되지 않습니다. 퇴사를 선택하면 담당자 선택 목록에 나타나지
-                  않습니다. "님" 호칭은 생략해주세요!
-                </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 모달: 담당자 관리 */}
+      <AnimatePresence>
+        {openEditContactsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg shadow-xl w-full max-w-4xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-5 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  담당자 관리
+                </h3>
+                <button
+                  onClick={() => setOpenEditContactsModal(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X size={20} />
+                </button>
               </div>
-              <div className="mt-4">
+
+              <div className="p-5">
+                <p className="mb-4 text-sm text-gray-600">
+                  담당자 정보를 관리합니다. 순서를 변경하려면 드래그하여
+                  이동하세요. 퇴사를 선택하면 담당자 선택 목록에 나타나지
+                  않습니다.
+                </p>
+
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
@@ -1373,7 +1472,7 @@ export default function ConsultationPage() {
                     )}
                     strategy={verticalListSortingStrategy}
                   >
-                    <div className="space-y-2 max-h-96 overflow-y-scroll">
+                    <div className="space-y-3 max-h-96 overflow-y-auto p-1">
                       {contactsUi?.map((contact: Contact, index: number) => {
                         if (!contact.resign)
                           return (
@@ -1384,166 +1483,53 @@ export default function ConsultationPage() {
                               handleContactChange={handleContactChange}
                             />
                           );
+                        return null;
                       })}
                     </div>
                   </SortableContext>
                 </DndContext>
+
+                <button
+                  onClick={addContact}
+                  className="mt-4 flex items-center gap-1 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                >
+                  <Plus size={16} />
+                  <span>담당자 추가</span>
+                </button>
               </div>
 
-              {/* <div className="mt-4">
-                <div className="space-y-2 max-h-96 overflow-y-scroll">
-                  {contactsUi?.map((contact: any, index: any) => {
-                    if (!contact.resign)
-                      return (
-                        <div
-                          key={index}
-                          className="flex flex-wrap md:flex-nowrap gap-4"
-                        >
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="text"
-                            value={contact?.contact_name || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "contact_name",
-                                e.target.value
-                              )
-                            }
-                            placeholder="이름"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="text"
-                            value={contact?.level || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "level",
-                                e.target.value
-                              )
-                            }
-                            placeholder="직급"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
-
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="text"
-                            value={contact?.department || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "department",
-                                e.target.value
-                              )
-                            }
-                            placeholder="부서"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
-
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="text"
-                            value={contact?.mobile || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "mobile",
-                                e.target.value
-                              )
-                            }
-                            placeholder="휴대폰"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
-                          <motion.input
-                            whileFocus={{
-                              scale: 1.05, // 입력 시 약간 확대
-                              boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)", // 그림자 효과
-                            }}
-                            type="email"
-                            value={contact?.email || ""}
-                            onChange={(e) =>
-                              handleContactChange(
-                                index,
-                                "email",
-                                e.target.value
-                              )
-                            }
-                            placeholder="이메일"
-                            className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-                          />
-                          <motion.label className="flex items-center space-x-2">
-                            <motion.input
-                              whileTap={{ scale: 0.9 }} // 클릭 시 약간 축소 효과
-                              type="checkbox"
-                              checked={contact?.resign || false}
-                              onChange={(e) =>
-                                handleContactChange(
-                                  index,
-                                  "resign",
-                                  e.target.checked
-                                )
-                              }
-                              className="w-5 h-5 accent-blue-500 cursor-pointer"
-                            />
-                            <span className="text-gray-700">퇴사</span>
-                          </motion.label>
-
-                        </div>
-                      );
-                  })}
-                </div>
-              </div> */}
-              <div className="flex justify-between mt-4">
-                <div className="flex items-start mr-2 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 ">
-                  <button
-                    className=" text-xs md:text-sm rounded-md items-end"
-                    onClick={addContact}
-                  >
-                    담당자 추가
-                  </button>
-                </div>
-
-                <div>
-                  <button
-                    className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
-                    onClick={() => {
-                      setContactsUi(contacts);
-                      setOpenEditContactsModal(false);
-                    }}
-                  >
-                    취소
-                  </button>
-                  <button
-                    className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
-                      saving ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    disabled={saving}
-                    onClick={handleUpdateContacts}
-                  >
-                    저장
-                    {saving && <CircularProgress size={16} className="ml-2" />}
-                  </button>
-                </div>
+              <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">
+                <button
+                  onClick={() => {
+                    setContactsUi(contacts);
+                    setOpenEditContactsModal(false);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  disabled={saving}
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleUpdateContacts}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <>
+                      <CircularProgress size={16} className="mr-2" />
+                      저장 중...
+                    </>
+                  ) : (
+                    "저장"
+                  )}
+                </button>
               </div>
-            </div>
-          </div>
-        </>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 알림 메시지 */}
       <SnackbarComponent
         message={snackbarMessage}
         onClose={() => setSnackbarMessage("")}
@@ -1565,7 +1551,6 @@ function SortableContactItem({
     value: any
   ) => void;
 }) {
-  // dnd-kit useSortable hook 사용 (id가 없으면 index 사용)
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: contact.id || index,
@@ -1581,95 +1566,104 @@ function SortableContactItem({
       style={style}
       {...attributes}
       {...listeners}
-      className="flex flex-wrap md:flex-nowrap gap-4"
+      className="bg-white border rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
     >
-      <div className="cursor-grab flex-shrink-0 flex items-center justify-center">
-        <svg
-          className="w-6 h-6 text-gray-700"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-      </div>
+      <div className="flex flex-wrap md:flex-nowrap gap-3">
+        <div className="cursor-grab flex-shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-600">
+          <GripVertical size={18} />
+        </div>
 
-      <motion.input
-        whileFocus={{
-          scale: 1.05,
-          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-        }}
-        type="text"
-        value={contact?.contact_name || ""}
-        onChange={(e) =>
-          handleContactChange(index, "contact_name", e.target.value)
-        }
-        placeholder="이름"
-        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-      />
-      <motion.input
-        whileFocus={{
-          scale: 1.05,
-          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-        }}
-        type="text"
-        value={contact?.level || ""}
-        onChange={(e) => handleContactChange(index, "level", e.target.value)}
-        placeholder="직급"
-        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-      />
-      <motion.input
-        whileFocus={{
-          scale: 1.05,
-          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-        }}
-        type="text"
-        value={contact?.department || ""}
-        onChange={(e) =>
-          handleContactChange(index, "department", e.target.value)
-        }
-        placeholder="부서"
-        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-      />
-      <motion.input
-        whileFocus={{
-          scale: 1.05,
-          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-        }}
-        type="text"
-        value={contact?.mobile || ""}
-        onChange={(e) => handleContactChange(index, "mobile", e.target.value)}
-        placeholder="휴대폰"
-        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-      />
-      <motion.input
-        whileFocus={{
-          scale: 1.05,
-          boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-        }}
-        type="email"
-        value={contact?.email || ""}
-        onChange={(e) => handleContactChange(index, "email", e.target.value)}
-        placeholder="이메일"
-        className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
-      />
-      <motion.label className="flex items-center space-x-2">
-        <motion.input
-          whileTap={{ scale: 0.9 }}
-          type="checkbox"
-          checked={contact?.resign || false}
-          onChange={(e) =>
-            handleContactChange(index, "resign", e.target.checked)
-          }
-          className="w-5 h-5 accent-blue-500 cursor-pointer"
-        />
-        <span className="text-gray-700">퇴사</span>
-      </motion.label>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 w-full">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">
+              이름
+            </label>
+            <input
+              type="text"
+              value={contact?.contact_name || ""}
+              onChange={(e) =>
+                handleContactChange(index, "contact_name", e.target.value)
+              }
+              placeholder="이름"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">
+              직급
+            </label>
+            <input
+              type="text"
+              value={contact?.level || ""}
+              onChange={(e) =>
+                handleContactChange(index, "level", e.target.value)
+              }
+              placeholder="직급"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">
+              부서
+            </label>
+            <input
+              type="text"
+              value={contact?.department || ""}
+              onChange={(e) =>
+                handleContactChange(index, "department", e.target.value)
+              }
+              placeholder="부서"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">
+              휴대폰
+            </label>
+            <input
+              type="text"
+              value={contact?.mobile || ""}
+              onChange={(e) =>
+                handleContactChange(index, "mobile", e.target.value)
+              }
+              placeholder="휴대폰"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">
+              이메일
+            </label>
+            <input
+              type="email"
+              value={contact?.email || ""}
+              onChange={(e) =>
+                handleContactChange(index, "email", e.target.value)
+              }
+              placeholder="이메일"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-end pb-1">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={contact?.resign || false}
+              onChange={(e) =>
+                handleContactChange(index, "resign", e.target.checked)
+              }
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700">퇴사</span>
+          </label>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,20 @@
 "use client";
-
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  Building,
+  FileText,
+  User,
+  Search,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle,
+  XCircle,
+  Clock,
+} from "lucide-react";
+import { CircularProgress } from "@mui/material";
 
 import DocumentModal from "@/components/documents/estimate/DocumentModal";
 import SnackbarComponent from "@/components/Snackbar";
@@ -50,7 +61,7 @@ interface Document {
   company_id: string;
 }
 
-interface User {
+interface UserType {
   id: string;
   name: string;
   level: string;
@@ -81,7 +92,7 @@ export default function DocumentsDetailsPage() {
   });
 
   const [selectedStatus, setSelectedStatus] = useState<string>(
-    searchParams.get("status") || "all" // ✅ 기본값을 "all"로 변경
+    searchParams.get("status") || "all"
   );
 
   const [changedStatus, setChangedStatus] = useState("");
@@ -91,8 +102,7 @@ export default function DocumentsDetailsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchDocNumber, setSearchDocNumber] = useState("");
   const [searchNotes, setSearchNotes] = useState("");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  // 🔹 로그인한 유저를 기본 선택값으로 설정
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
 
   const debounceSearchTerm = useDebounce(searchTerm, 300);
   const { companies } = useCompanySearch(debounceSearchTerm);
@@ -104,10 +114,15 @@ export default function DocumentsDetailsPage() {
   // swr
   const { users } = useUsersList();
 
-  const { documents, total, refreshDocuments } = useDocumentsStatusList({
+  const {
+    documents,
+    total,
+    refreshDocuments,
+    isLoading: isDocumentsLoading,
+  } = useDocumentsStatusList({
     userId: selectedUser?.id as string,
     type,
-    status: selectedStatus, // ✅ "all"이면 빈 값으로 설정
+    status: selectedStatus,
     docNumber: debounceDocNumber,
     page: currentPage,
     limit: documentsPerPage,
@@ -117,10 +132,8 @@ export default function DocumentsDetailsPage() {
 
   const { trigger: updateStatus, isMutating } = useUpdateDocumentStatus();
 
-  ///
-
   const numberToKorean = (num: number): string => {
-    if (num === 0) return "영"; // ✅ "영 원"이 아니라 "영"만 반환
+    if (num === 0) return "영";
 
     const isNegative = num < 0;
     num = Math.abs(num);
@@ -131,7 +144,7 @@ export default function DocumentsDetailsPage() {
     let result = "";
 
     const [integerPart, decimalPart] = num.toString().split(".");
-    let intNum = parseInt(integerPart, 10);
+    let intNum = Number.parseInt(integerPart, 10);
     let bigUnitIndex = 0;
 
     while (intNum > 0) {
@@ -157,13 +170,11 @@ export default function DocumentsDetailsPage() {
       bigUnitIndex++;
     }
 
-    // result = result.trim().replace(/일십/g, "십");
-
     let decimalResult = "";
-    if (decimalPart && parseInt(decimalPart) > 0) {
+    if (decimalPart && Number.parseInt(decimalPart) > 0) {
       decimalResult = " 점 ";
       for (const digit of decimalPart) {
-        decimalResult += digits[parseInt(digit, 10)] + " ";
+        decimalResult += digits[Number.parseInt(digit, 10)] + " ";
       }
     }
 
@@ -198,6 +209,13 @@ export default function DocumentsDetailsPage() {
     if (!statusChangeDoc || !changedStatus) return;
     if (isMutating) return;
 
+    // 사유가 비어있으면 처리하지 않음
+    if (
+      !statusReason[changedStatus as "canceled" | "completed"].reason.trim()
+    ) {
+      return;
+    }
+
     const confirmChange = window.confirm(
       "상태 변경은 되돌릴 수 없습니다. 변경할까요?"
     );
@@ -207,14 +225,14 @@ export default function DocumentsDetailsPage() {
       const reason = {
         [changedStatus]: {
           reason:
-            statusReason[changedStatus as "canceled" | "completed"].reason, // ✅ 여기에 값이 없었음
+            statusReason[changedStatus as "canceled" | "completed"].reason,
         },
       };
 
       await updateStatus({
         id: statusChangeDoc.id,
         status: changedStatus,
-        status_reason: reason, // ✅ 수정된 형식으로 전달
+        status_reason: reason,
       });
 
       setCurrentPage(1);
@@ -253,378 +271,641 @@ export default function DocumentsDetailsPage() {
     return numbers;
   };
 
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSelectedUser(null);
+    setSearchDocNumber("");
+    setSearchNotes("");
+    setCurrentPage(1);
+  };
+
   return (
-    <div className="text-sm text-[#37352F]">
+    <div className="text-sm text-gray-800">
       {/* 검색 필터 */}
-      <div className="bg-[#FBFBFB] rounded-md border px-4 py-4 mb-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr_0.5fr] gap-4">
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* 거래처 */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               거래처
             </label>
-            <motion.input
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
-              }}
-              placeholder="거래처명"
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="거래처명 입력"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+              <Building
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+            </div>
           </div>
 
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
+          {/* 문서번호 */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               문서번호
             </label>
-            <motion.input
-              value={searchDocNumber}
-              onChange={(e) => {
-                setSearchDocNumber(e.target.value);
-                setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
-              }}
-              placeholder="WY-YYYYMMDD-NNNN"
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={searchDocNumber}
+                onChange={(e) => {
+                  setSearchDocNumber(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="WY-YYYYMMDD-NNNN"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+              <FileText
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+            </div>
           </div>
 
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
+          {/* 특기사항 */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               특기사항
             </label>
-            <motion.input
-              value={searchNotes}
-              onChange={(e) => {
-                setSearchNotes(e.target.value);
-                setCurrentPage(1); // ✅ 검색 시 현재 페이지 초기화
-              }}
-              placeholder="...."
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={searchNotes}
+                onChange={(e) => {
+                  setSearchNotes(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="특기사항 검색"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+            </div>
           </div>
 
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
+          {/* 상태 */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               상태
             </label>
-            <motion.select
-              value={selectedStatus}
-              onChange={(e) => {
-                setSelectedStatus(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-            >
-              <option value="all">전체</option> {/* ✅ "전체" 옵션 추가 */}
-              <option value="pending">진행</option>
-              <option value="completed">완료</option>
-              <option value="canceled">취소</option>
-            </motion.select>
+            <div className="relative">
+              <select
+                value={selectedStatus}
+                onChange={(e) => {
+                  setSelectedStatus(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
+              >
+                <option value="all">전체</option>
+                <option value="pending">진행</option>
+                <option value="completed">완료</option>
+                <option value="canceled">취소</option>
+              </select>
+              <Clock
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+            </div>
           </div>
 
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
+          {/* 상담자 */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               상담자
             </label>
-            <motion.select
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              value={selectedUser?.id || ""} // ✅ userId 저장
-              onChange={(e) => {
-                const user =
-                  users.find((user: User) => user.id === e.target.value) ||
-                  null;
-                setSelectedUser(user);
-                setCurrentPage(1); // ✅ 상담자 변경 시 현재 페이지 초기화
-              }}
-            >
-              <option value="">전체</option>
-              {users.map((u: any) => (
-                <option key={u.id} value={u.id}>
-                  {u.name} {u.level}
-                </option>
-              ))}
-            </motion.select>
-          </div>
-
-          <div className="flex items-center justify-end">
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setSelectedUser(null);
-                setSearchDocNumber("");
-                setCurrentPage(1); // ✅ 필터 리셋 시 현재 페이지 초기화
-              }}
-              className="w-full sm:w-auto px-4 py-2 bg-gray-500 text-white rounded-md"
-            >
-              필터리셋
-            </button>
+            <div className="relative">
+              <select
+                value={selectedUser?.id || ""}
+                onChange={(e) => {
+                  const user =
+                    users.find(
+                      (user: UserType) => user.id === e.target.value
+                    ) || null;
+                  setSelectedUser(user);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
+              >
+                <option value="">전체 상담자</option>
+                {users.map((u: any) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} {u.level}
+                  </option>
+                ))}
+              </select>
+              <User
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+            </div>
           </div>
         </div>
       </div>
-      <div className="flex justify-end items-center mb-4">
-        <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
-        <select
-          value={documentsPerPage}
-          onChange={(e) => {
-            setDocumentsPerPage(Number(e.target.value));
-            setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
-          }}
-          className="border border-gray-300 p-2 rounded-md text-sm"
-        >
-          <option value="10">10개</option>
-          <option value="20">20개</option>
-          <option value="30">30개</option>
-          <option value="50">50개</option>
-        </select>
+
+      {/* 테이블 컨트롤 */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-gray-600">
+          {isDocumentsLoading ? (
+            <span>로딩 중...</span>
+          ) : (
+            <span>
+              총 <span className="font-semibold text-blue-600">{total}</span>개
+              문서
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <label className="text-sm text-gray-600">표시 개수:</label>
+          <select
+            value={documentsPerPage}
+            onChange={(e) => {
+              setDocumentsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="10">10개</option>
+            <option value="20">20개</option>
+            <option value="30">30개</option>
+            <option value="50">50개</option>
+          </select>
+
+          <button
+            onClick={resetFilters}
+            className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+          >
+            <X size={14} />
+            <span className="text-sm">필터 초기화</span>
+          </button>
+        </div>
       </div>
 
-      {/* 문서 목록 */}
-      <div className="bg-[#FBFBFB] rounded-md border">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-center">
-              <th className="px-4 py-2 border-b border-r-[1px]">
-                {type === "estimate" && "견적일"}
-                {type === "order" && "발주일"}
-                {type === "requestQuote" && "의뢰일"}
-              </th>
-              <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                {type === "estimate" && "견적유효기간"}
-                {type === "order" && "납기일"}
-                {type === "requestQuote" && "희망견적일"}
-              </th>
-              <th className="px-4 py-2 border-b border-r-[1px]">거래처명</th>
-              <th className="px-4 py-2 border-b border-r-[1px]">문서 번호</th>
-              {status === "pending" && (
-                <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                  수정
-                </th>
-              )}
-              <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                담당자
-              </th>
-              <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                {type === "estimate" && "견적자"}
-                {type === "order" && "발주자"}
-                {type === "requestQuote" && "의뢰자"}
-              </th>
-              <th className="px-4 py-2 border-b border-r-[1px]">상태</th>
-              <th className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                비고
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {documents.map((doc: any) => (
-              <tr key={doc.id} className="hover:bg-gray-100 text-center">
-                <td className="px-4 py-2 border-b border-r-[1px]">
-                  {doc.date}
-                </td>
-                <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                  {type === "estimate" &&
-                    new Date(doc.content?.valid_until).toLocaleDateString()}
-                  {type === "order" && doc.content?.delivery_date}
-                  {type === "requestQuote" && doc.content?.delivery_date}
-                </td>
-                <td
-                  className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
-                  onClick={() =>
-                    router.push(`/consultations/${doc.company_id}`)
-                  }
-                >
-                  {doc.content?.company_name}
-                </td>
-
-                <td
-                  className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
-                  onClick={() => setSelectedDocument(doc)}
-                >
-                  {doc.document_number}
-                </td>
-                {/* {status === "pending" && (
-                  <td
-                    className="px-4 py-2 border-b border-r-[1px] text-blue-500 cursor-pointer"
-                    onClick={() =>
-                      router.push(
-                        `/documents/${type}?consultId=${doc.consultation_id}&compId=${doc.company_id}`
-                      )
-                    }
+      {/* 문서 목록 테이블 */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        {isDocumentsLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <CircularProgress size={40} />
+          </div>
+        ) : documents && documents.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    이동
-                  </td>
-                )} */}
-                <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                  {doc.contact_name} {doc.contact_level}
-                </td>
-                <td className="px-4 py-2 border-b border-r-[1px] hidden md:table-cell">
-                  {doc.user_name} {doc.user_level}
-                </td>
-                <td className="px-4 py-2 border-b border-r-[1px]">
-                  {doc.status === "pending" && "진행중"}
-                  {doc.status === "completed" && "완료"}
-                  {doc.status === "canceled" && "취소"}
-                </td>
-                <td className="px-4 py-2 border-b border-r-[1px] w-1/3 hidden md:table-cell">
-                  <div className="flex justify-center">
-                    {doc.status === "pending" ? (
-                      // 🔹 로그인한 사용자와 문서를 작성한 사용자가 같을 때만 버튼 활성화
-                      doc.user_id === loginUser?.id ? (
-                        ["pending", "completed", "canceled"].map((status) => (
-                          <button
-                            key={status}
-                            className={`px-6 py-2 rounded-md ${
-                              status === doc.status
-                                ? "text-blue-500"
-                                : "hover:text-black text-gray-400 cursor-pointer"
-                            }`}
-                            onClick={() => {
-                              if (status !== doc.status) {
-                                setChangedStatus(status);
-                                setStatusChangeDoc(doc);
-                              }
-                            }}
-                          >
-                            {status === "pending"
-                              ? "진행 중"
-                              : status === "completed"
-                              ? "완료"
-                              : "취소"}
-                          </button>
-                        ))
-                      ) : (
-                        <span className="text-gray-400">수정 권한 없음</span>
-                      )
-                    ) : (
-                      <>
-                        {doc.status === "completed" ? (
-                          <>
-                            {doc.status_reason &&
-                              doc.status_reason.completed?.reason}
-                          </>
+                    {type === "estimate" && "견적일"}
+                    {type === "order" && "발주일"}
+                    {type === "requestQuote" && "의뢰일"}
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                  >
+                    {type === "estimate" && "견적유효기간"}
+                    {type === "order" && "납기일"}
+                    {type === "requestQuote" && "희망견적일"}
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    거래처명
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    문서 번호
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                  >
+                    담당자
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                  >
+                    {type === "estimate" && "견적자"}
+                    {type === "order" && "발주자"}
+                    {type === "requestQuote" && "의뢰자"}
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    상태
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                  >
+                    비고
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {documents.map((doc: any) => (
+                  <tr
+                    key={doc.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{doc.date}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                      <div className="text-sm text-gray-900">
+                        {type === "estimate" &&
+                          new Date(
+                            doc.content?.valid_until
+                          ).toLocaleDateString()}
+                        {type === "order" && doc.content?.delivery_date}
+                        {type === "requestQuote" && doc.content?.delivery_date}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div
+                        className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
+                        onClick={() =>
+                          router.push(`/consultations/${doc.company_id}`)
+                        }
+                      >
+                        {doc.content?.company_name}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div
+                        className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
+                        onClick={() => setSelectedDocument(doc)}
+                      >
+                        {doc.document_number}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                      <div className="text-sm text-gray-900">
+                        {doc.contact_name} {doc.contact_level}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                      <div className="text-sm text-gray-900">
+                        {doc.user_name} {doc.user_level}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          doc.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : doc.status === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {doc.status === "pending" && (
+                          <Clock className="w-3 h-3 mr-1" />
+                        )}
+                        {doc.status === "completed" && (
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                        )}
+                        {doc.status === "canceled" && (
+                          <XCircle className="w-3 h-3 mr-1" />
+                        )}
+                        {doc.status === "pending" && "진행중"}
+                        {doc.status === "completed" && "완료"}
+                        {doc.status === "canceled" && "취소"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 hidden md:table-cell">
+                      <div className="text-sm text-gray-900">
+                        {doc.status === "pending" ? (
+                          doc.user_id === loginUser?.id ? (
+                            <div className="flex space-x-2">
+                              {["completed", "canceled"].map((status) => (
+                                <button
+                                  key={status}
+                                  className={`px-3 py-1 text-xs rounded-md ${
+                                    status === "completed"
+                                      ? "bg-green-50 text-green-600 hover:bg-green-100"
+                                      : "bg-red-50 text-red-600 hover:bg-red-100"
+                                  } transition-colors`}
+                                  onClick={() => {
+                                    setChangedStatus(status);
+                                    setStatusChangeDoc(doc);
+                                  }}
+                                >
+                                  {status === "completed" ? "완료" : "취소"}
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">
+                              수정 권한 없음
+                            </span>
+                          )
                         ) : (
                           <>
-                            {doc.status_reason &&
-                              doc.status_reason.canceled?.reason}
+                            {doc.status === "completed" ? (
+                              <>
+                                {doc.status_reason &&
+                                  doc.status_reason.completed?.reason}
+                              </>
+                            ) : (
+                              <>
+                                {doc.status_reason &&
+                                  doc.status_reason.canceled?.reason}
+                              </>
+                            )}
                           </>
                         )}
-                      </>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Search size={48} className="text-gray-300 mb-4" />
+            <p className="text-gray-500 text-lg">검색 결과가 없습니다</p>
+            <p className="text-gray-400 text-sm mt-2">
+              다른 검색어로 시도해보세요
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 페이지네이션 */}
-      <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
-        <div className="flex justify-center mt-4 space-x-2">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-          >
-            이전
-          </button>
-          {paginationNumbers().map((page, index) =>
-            typeof page === "number" ? (
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <nav className="flex items-center space-x-1">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-md ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronLeft size={18} />
+            </button>
+
+            {paginationNumbers().map((page, index) => (
               <button
                 key={index}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 border rounded ${
+                onClick={() => typeof page === "number" && setCurrentPage(page)}
+                className={`px-3 py-1.5 rounded-md ${
                   currentPage === page
-                    ? "bg-blue-500 text-white font-bold"
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+                    ? "bg-blue-600 text-white font-medium"
+                    : page === "..."
+                    ? "text-gray-500 cursor-default"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 {page}
               </button>
-            ) : (
-              <span key={index} className="px-2">
-                ...
-              </span>
-            )
-          )}
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-          >
-            다음
-          </button>
+            ))}
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-md ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronRight size={18} />
+            </button>
+          </nav>
         </div>
-      </div>
+      )}
 
       {/* 문서 상세 모달 */}
+      <AnimatePresence>
+        {selectedDocument && (
+          <motion.div
+            className="fixed inset-0 z-[1000] overflow-y-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div
+              className="fixed inset-0 transition-opacity"
+              aria-hidden="true"
+            >
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
 
-      {selectedDocument && (
-        <DocumentModal
-          koreanAmount={numberToKorean}
-          document={selectedDocument}
-          onClose={() => setSelectedDocument(null)}
-          company_phone={selectedDocument.companies.phone}
-          company_fax={selectedDocument.companies.fax}
-          type={selectedDocument.type}
-        />
-      )}
+            <div className="relative z-[1001] flex items-center justify-center min-h-screen">
+              <DocumentModal
+                koreanAmount={numberToKorean}
+                document={selectedDocument}
+                onClose={() => setSelectedDocument(null)}
+                company_phone={selectedDocument.companies.phone}
+                company_fax={selectedDocument.companies.fax}
+                type={selectedDocument.type}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 상태 변경 모달 */}
-      {statusChangeDoc && (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-md w-1/3">
-            <h2 className="text-xl font-bold mb-4">진행 상태 변경</h2>
-            <textarea
-              placeholder={
-                changedStatus === "completed"
-                  ? "발주처리, 단가로 인한 취소, 프로젝트 취소.. 등등"
-                  : "취소 사유를 입력하세요"
-              }
-              className="w-full min-h-32 p-2 border border-gray-300 rounded-md"
-              value={
-                statusReason[changedStatus as "canceled" | "completed"].reason
-              }
-              onChange={(e) =>
-                setStatusReason((prev) => ({
-                  ...prev,
-                  [changedStatus]: {
-                    ...prev[changedStatus as "canceled" | "completed"],
-                    reason: e.target.value,
-                  },
-                }))
-              }
-            />
-            <div className="flex justify-end mt-4">
-              <button
-                className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
-                onClick={() => setStatusChangeDoc(null)}
-              >
-                취소
-              </button>
-              <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-md"
-                onClick={handleStatusChange}
-              >
-                저장
-              </button>
+      <AnimatePresence>
+        {statusChangeDoc && (
+          <motion.div
+            className="fixed inset-0 z-[1000] overflow-y-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div
+              className="fixed inset-0 transition-opacity"
+              aria-hidden="true"
+              onClick={() => setStatusChangeDoc(null)}
+            >
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
-          </div>
-        </div>
-      )}
+
+            <div className="relative z-[1001] flex items-center justify-center min-h-screen p-4">
+              <motion.div
+                className="bg-white rounded-lg overflow-hidden shadow-xl w-full max-w-md mx-auto"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* 모달 헤더 */}
+                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      {changedStatus === "completed"
+                        ? "문서 완료 처리"
+                        : "문서 취소 처리"}
+                    </h3>
+                    <button
+                      onClick={() => setStatusChangeDoc(null)}
+                      className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* 모달 본문 */}
+                <div className="px-6 py-4">
+                  <div className="mb-4">
+                    <div className="flex items-center mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        문서 번호:
+                      </span>
+                      <span className="ml-2 text-sm text-gray-900">
+                        {statusChangeDoc.document_number}
+                      </span>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        거래처:
+                      </span>
+                      <span className="ml-2 text-sm text-gray-900">
+                        {statusChangeDoc.content?.company_name}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium text-gray-700">
+                        변경할 상태:
+                      </span>
+                      <span
+                        className={`ml-2 text-sm font-medium px-2 py-0.5 rounded-full ${
+                          changedStatus === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {changedStatus === "completed" ? "완료" : "취소"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <label
+                      htmlFor="status-reason"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      {changedStatus === "completed"
+                        ? "완료 사유"
+                        : "취소 사유"}
+                    </label>
+                    <textarea
+                      id="status-reason"
+                      placeholder={
+                        changedStatus === "completed"
+                          ? "발주처리, 계약 완료 등 완료 사유를 입력하세요"
+                          : "단가 문제, 프로젝트 취소 등 취소 사유를 입력하세요"
+                      }
+                      className="w-full min-h-[120px] p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      value={
+                        statusReason[changedStatus as "canceled" | "completed"]
+                          .reason
+                      }
+                      onChange={(e) =>
+                        setStatusReason((prev) => ({
+                          ...prev,
+                          [changedStatus]: {
+                            ...prev[changedStatus as "canceled" | "completed"],
+                            reason: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* 모달 푸터 */}
+                <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    onClick={() => setStatusChangeDoc(null)}
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      changedStatus === "completed"
+                        ? "bg-green-600 hover:bg-green-700 focus:ring-green-500"
+                        : "bg-red-600 hover:bg-red-700 focus:ring-red-500"
+                    } ${
+                      !statusReason[
+                        changedStatus as "canceled" | "completed"
+                      ].reason.trim()
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                    onClick={handleStatusChange}
+                    disabled={
+                      !statusReason[
+                        changedStatus as "canceled" | "completed"
+                      ].reason.trim()
+                    }
+                  >
+                    {isMutating ? (
+                      <span className="flex items-center">
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        처리 중...
+                      </span>
+                    ) : (
+                      `${changedStatus === "completed" ? "완료" : "취소"} 처리`
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 스낵바 */}
       <SnackbarComponent
         message={snackbarMessage}
         onClose={() => setSnackbarMessage("")}

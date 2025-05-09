@@ -1,14 +1,22 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Search,
+  Calendar,
+  User,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+  X,
+} from "lucide-react";
+import { CircularProgress } from "@mui/material";
 
 import { useUsersList } from "@/hooks/useUserList";
 import SnackbarComponent from "@/components/Snackbar";
 import DocumentModal from "@/components/documents/estimate/DocumentModal";
-
-import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useConsultationSearch } from "@/hooks/consultations/search/useConsultationSearch";
 
@@ -36,7 +44,7 @@ interface Document {
   payment_method?: string;
 }
 
-interface User {
+interface UserType {
   id: string;
   name: string;
   level: string;
@@ -46,13 +54,13 @@ export default function RecentConsultations() {
   const today = new Date().toISOString().split("T")[0];
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
 
   const [startDate, setStartDate] = useState<string>(today);
   const [endDate, setEndDate] = useState<string>(today);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [consultationsPerPage, setConsultationsPerPage] = useState(5);
+  const [consultationsPerPage, setConsultationsPerPage] = useState(10);
 
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
@@ -83,10 +91,8 @@ export default function RecentConsultations() {
     content: debounceSearchTerm,
   });
 
-  //
-
   const paginationNumbers = () => {
-    let pageNumbers = [];
+    const pageNumbers = [];
     for (let i = 1; i <= totalPages; i++) {
       if (
         i === 1 ||
@@ -221,6 +227,14 @@ export default function RecentConsultations() {
     ));
   };
 
+  const resetFilters = () => {
+    setSearchTerm("");
+    setStartDate(today);
+    setEndDate(today);
+    setSelectedUser(null);
+    setCurrentPage(1);
+  };
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -236,264 +250,374 @@ export default function RecentConsultations() {
   }, []);
 
   return (
-    <div className="text-sm text-[#37352F]">
-      {/* 검색 및 필터 */}
-      <div className="bg-[#FBFBFB] rounded-md border px-4 py-4 mb-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_0.5fr] gap-4">
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
+    <div className="text-sm text-gray-800">
+      {/* 검색 필터 */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 상담내용 */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               상담내용
             </label>
-            <motion.input
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              placeholder=", 로 구분하여 여러 조건을 검색 (ID,OD,500m 등등..)"
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="검색어 입력 (ID,OD,500m 등)"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+            </div>
           </div>
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
-              시작 날짜
+
+          {/* 상담 기간 */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              상담 기간
             </label>
-            <motion.input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+            <div className="flex items-center space-x-2">
+              <div className="relative flex-1">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                <Calendar
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={18}
+                />
+              </div>
+              <span className="text-gray-500">~</span>
+              <div className="relative flex-1">
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                <Calendar
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={18}
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] h-full">
-              종료 날짜
-            </label>
-            <motion.input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              whileFocus={{
-                scale: 1.05,
-                boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
-          </div>
-          <div className="flex items-center justify-center">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[60px] h-full">
+
+          {/* 상담자 */}
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               상담자
             </label>
-            <motion.select
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full h-full"
-              value={selectedUser?.id || ""} // ✅ userId 저장
-              onChange={(e) => {
-                const user =
-                  users.find((user: User) => user.id === e.target.value) ||
-                  null;
-                setSelectedUser(user);
-              }}
-            >
-              <option value="">전체</option>
-              {users.map((user: User) => (
-                <option key={user.id} value={user.id}>
-                  {" "}
-                  {user.name} {user.level}
-                </option>
-              ))}
-            </motion.select>
+            <div className="relative">
+              <select
+                value={selectedUser?.id || ""}
+                onChange={(e) => {
+                  const user =
+                    users.find(
+                      (user: UserType) => user.id === e.target.value
+                    ) || null;
+                  setSelectedUser(user);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
+              >
+                <option value="">전체 상담자</option>
+                {users.map((user: UserType) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name} {user.level}
+                  </option>
+                ))}
+              </select>
+              <User
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+            </div>
           </div>
-          <div className="flex items-center justify-end">
+
+          {/* 필터 액션 */}
+          <div className="flex items-end">
             <button
-              onClick={() => {
-                setSearchTerm("");
-                setStartDate(today);
-                setEndDate(today);
-              }}
-              className="w-full sm:w-auto px-4 py-2 bg-gray-500 text-white rounded-md"
+              onClick={resetFilters}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors w-full justify-center"
             >
-              필터리셋
+              <X size={16} />
+              <span>필터 초기화</span>
             </button>
           </div>
         </div>
       </div>
-      {/* 상담 내역 테이블 */}
-      <div className="flex justify-end items-center mb-4">
-        <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
-        <select
-          value={consultationsPerPage}
-          onChange={(e) => {
-            setConsultationsPerPage(Number(e.target.value));
-            setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
-          }}
-          className="border border-gray-300 p-2 rounded-md text-sm"
-        >
-          <option value="5">5개</option>
-          <option value="10">10개</option>
-          <option value="15">15개</option>
-          <option value="20">20개</option>
-        </select>
-      </div>
 
-      <div className="bg-[#FBFBFB] rounded-md border">
-        <table className="min-w-full table-auto border-collapse text-center">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="px-4 py-2 border-b border-r w-2/12">거래처</th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
-                상담일
-              </th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
-                담당자
-              </th>
-              <th className="px-4 py-2 border-b border-r hidden md:table-cell w-1/12">
-                상담자
-              </th>
-              <th className="px-4 py-2 border-b border-r">내용</th>
-              <th className="px-4 py-2 border-b border-r w-3/12">문서</th>
-            </tr>
-          </thead>
-          <tbody>
-            {consultations?.map((consultation: any) => (
-              <tr key={consultation.id} className="hover:bg-gray-100 border-b">
-                <td
-                  className="px-4 py-2 border-r text-blue-500 cursor-pointer"
-                  onClick={() =>
-                    router.push(`/consultations/${consultation.companies.id}`)
-                  }
-                >
-                  {consultation.companies?.name}
-                </td>
-                <td className="px-4 py-2 border-r hidden md:table-cell">
-                  {consultation.date}
-                </td>
-                <td className="px-4 py-2 border-r hidden md:table-cell">
-                  {consultation?.contact_name} {consultation?.contact_level}
-                </td>
-                <td className="px-4 py-2 border-r hidden md:table-cell">
-                  {consultation.users?.name} {consultation.users?.level}
-                </td>
-                <td
-                  className="px-4 pt-2 border-r text-start"
-                  style={{
-                    minHeight: "8rem",
-                    maxHeight: "8rem",
-                    overflowY: "auto",
-                    display: "block",
-                  }}
-                >
-                  {formatContentWithLineBreaks(consultation.content)}
-                </td>
-                <td className="px-4 pt-2">
-                  <div
-                    className="gap-4 text-left"
-                    style={{
-                      minHeight: "7rem",
-                      maxHeight: "7rem",
-                      overflowY: "auto",
-                      display: "block",
-                    }}
-                  >
-                    {["estimate", "order", "requestQuote"].map((type) => {
-                      const filteredDocs = consultation.documents.filter(
-                        (doc: any) => doc.type === type
-                      );
-                      if (filteredDocs?.length > 0) {
-                        return (
-                          <div key={type} className="mb-2">
-                            <span className="font-semibold">
-                              {type === "estimate"
-                                ? "견적서"
-                                : type === "order"
-                                ? "발주서"
-                                : "의뢰서"}
-                            </span>
-                            :{" "}
-                            {filteredDocs?.map((doc: any, index: any) => (
-                              <span key={doc.id}>
-                                <span
-                                  className="text-blue-500 cursor-pointer"
-                                  onClick={() => handleDocumentClick(doc)}
-                                >
-                                  {doc.document_number}
-                                </span>
-                                {index < filteredDocs?.length - 1 && " | "}
-                              </span>
-                            ))}
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {/* 페이지네이션 */}
-
-      <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
-        <div className="flex justify-center mt-4 space-x-2">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+      {/* 테이블 컨트롤 */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-gray-600">
+          {isConsultationsLoading ? (
+            <span>로딩 중...</span>
+          ) : (
+            <span>
+              총{" "}
+              <span className="font-semibold text-blue-600">
+                {totalPages * consultationsPerPage}
+              </span>
+              개 상담 내역
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-600">표시 개수:</label>
+          <select
+            value={consultationsPerPage}
+            onChange={(e) => {
+              setConsultationsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            이전
-          </button>
+            <option value="10">10개</option>
+            <option value="20">20개</option>
+            <option value="30">30개</option>
+            <option value="50">50개</option>
+          </select>
+        </div>
+      </div>
 
-          {paginationNumbers().map((page, index) => (
+      {/* 상담 내역 테이블 */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        {isConsultationsLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <CircularProgress size={40} />
+          </div>
+        ) : consultations && consultations.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    거래처
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                  >
+                    상담일
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                  >
+                    담당자
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                  >
+                    상담자
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    내용
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    문서
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {consultations.map((consultation: any) => (
+                  <tr
+                    key={consultation.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div
+                        className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
+                        onClick={() =>
+                          router.push(
+                            `/consultations/${consultation.companies.id}`
+                          )
+                        }
+                      >
+                        {consultation.companies?.name}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                      <div className="text-sm text-gray-900">
+                        {consultation.date}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                      <div className="text-sm text-gray-900">
+                        {consultation?.contact_name}{" "}
+                        {consultation?.contact_level}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                      <div className="text-sm text-gray-900">
+                        {consultation.users?.name} {consultation.users?.level}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div
+                        className="text-sm text-gray-900 overflow-y-auto pr-2"
+                        style={{ maxHeight: "80px" }}
+                      >
+                        {formatContentWithLineBreaks(consultation.content)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-2">
+                        {["estimate", "order", "requestQuote"].map((type) => {
+                          const filteredDocs = consultation.documents.filter(
+                            (doc: any) => doc.type === type
+                          );
+                          if (filteredDocs?.length > 0) {
+                            return (
+                              <div key={type} className="flex items-start">
+                                <FileText className="w-4 h-4 mt-1 mr-2 text-gray-500 flex-shrink-0" />
+                                <div>
+                                  <span className="text-xs font-medium text-gray-700">
+                                    {type === "estimate"
+                                      ? "견적서"
+                                      : type === "order"
+                                      ? "발주서"
+                                      : "의뢰서"}
+                                  </span>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {filteredDocs?.map((doc: any) => (
+                                      <span
+                                        key={doc.id}
+                                        onClick={() => handleDocumentClick(doc)}
+                                        className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md cursor-pointer hover:bg-blue-100 transition-colors"
+                                      >
+                                        {doc.document_number}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Search size={48} className="text-gray-300 mb-4" />
+            <p className="text-gray-500 text-lg">검색 결과가 없습니다</p>
+            <p className="text-gray-400 text-sm mt-2">
+              다른 검색어로 시도해보세요
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* 페이지네이션 */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <nav className="flex items-center space-x-1">
             <button
-              key={index}
-              onClick={() => setCurrentPage(Number(page))}
-              className={`px-3 py-1 border rounded ${
-                currentPage === page
-                  ? "bg-blue-500 text-white font-bold"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-md ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-100"
               }`}
             >
-              {page}
+              <ChevronLeft size={18} />
             </button>
-          ))}
 
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-          >
-            다음
-          </button>
+            {paginationNumbers().map((page, index) => (
+              <button
+                key={index}
+                onClick={() => typeof page === "number" && setCurrentPage(page)}
+                className={`px-3 py-1.5 rounded-md ${
+                  currentPage === page
+                    ? "bg-blue-600 text-white font-medium"
+                    : page === "..."
+                    ? "text-gray-500 cursor-default"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-md ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <ChevronRight size={18} />
+            </button>
+          </nav>
         </div>
-      </div>
+      )}
+
+      {/* 모달 */}
+      <AnimatePresence>
+        {openModal && selectedDocument && (
+          <motion.div
+            className="fixed inset-0 z-50 overflow-y-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+              <div
+                className="fixed inset-0 transition-opacity"
+                aria-hidden="true"
+              >
+                <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+              </div>
+
+              <DocumentModal
+                type={selectedDocument.type}
+                koreanAmount={numberToKorean}
+                company_fax={selectedDocument.company_phone || ""}
+                company_phone={selectedDocument.company_fax || ""}
+                document={selectedDocument}
+                onClose={handleModalClose}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 스낵바 */}
       <SnackbarComponent
         message={snackbarMessage}
         onClose={() => setSnackbarMessage("")}
       />
-      {/* 모달 */}
-      {openModal && selectedDocument && (
-        <DocumentModal
-          type={selectedDocument.type}
-          koreanAmount={numberToKorean}
-          company_fax={selectedDocument.company_phone || ""}
-          company_phone={selectedDocument.company_fax || ""}
-          document={selectedDocument}
-          onClose={handleModalClose}
-        />
-      )}
     </div>
   );
 }
