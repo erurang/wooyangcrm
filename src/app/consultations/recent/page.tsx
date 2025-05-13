@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Calendar,
   User,
@@ -51,28 +51,73 @@ interface UserType {
 }
 
 export default function RecentConsultationsList() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const today = new Date().toISOString().split("T")[0];
 
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  // URL 쿼리 파라미터에서 초기값 가져오기
+  const initialPage = Number(searchParams.get("page") || "1");
+  const initialSearchTerm = searchParams.get("search") || "";
+  const initialStartDate = searchParams.get("startDate") || today;
+  const initialEndDate = searchParams.get("endDate") || today;
+  const initialUserId = searchParams.get("user") || "";
+  const initialPerPage = Number(searchParams.get("perPage") || "5");
+
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
-
-  const [startDate, setStartDate] = useState<string>(today);
-  const [endDate, setEndDate] = useState<string>(today);
-
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [consultationsPerPage, setConsultationsPerPage] = useState(5);
+  const [startDate, setStartDate] = useState<string>(initialStartDate);
+  const [endDate, setEndDate] = useState<string>(initialEndDate);
+  const [currentPage, setCurrentPage] = useState<number>(initialPage);
+  const [consultationsPerPage, setConsultationsPerPage] =
+    useState(initialPerPage);
 
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
-
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null
   );
 
-  const router = useRouter();
-
   // swr
   const { users } = useUsersList();
+
+  // URL 업데이트 함수
+  const updateUrl = () => {
+    const params = new URLSearchParams();
+
+    if (currentPage > 1) params.set("page", currentPage.toString());
+    if (searchTerm) params.set("search", searchTerm);
+    if (startDate !== today) params.set("startDate", startDate);
+    if (endDate !== today) params.set("endDate", endDate);
+    if (selectedUser?.id) params.set("user", selectedUser.id);
+    if (consultationsPerPage !== 5)
+      params.set("perPage", consultationsPerPage.toString());
+
+    const newUrl = `/consultations/recent${
+      params.toString() ? `?${params.toString()}` : ""
+    }`;
+    router.push(newUrl, { scroll: false });
+  };
+
+  // 상태가 변경될 때마다 URL 업데이트
+  useEffect(() => {
+    updateUrl();
+  }, [
+    currentPage,
+    searchTerm,
+    startDate,
+    endDate,
+    selectedUser,
+    consultationsPerPage,
+  ]);
+
+  // 초기 사용자 ID로 사용자 객체 찾기
+  useEffect(() => {
+    if (initialUserId && users.length > 0) {
+      const user =
+        users.find((user: UserType) => user.id === initialUserId) || null;
+      setSelectedUser(user);
+    }
+  }, [initialUserId, users]);
 
   const debounceSearchTerm = useDebounce(searchTerm, 300);
   const { companies, isLoading, isError } =
@@ -95,8 +140,6 @@ export default function RecentConsultationsList() {
     endDate: debounceEndDate,
     companyIds: debounceCompanyIds,
   });
-
-  //
 
   const paginationNumbers = () => {
     const pageNumbers = [];
@@ -234,6 +277,14 @@ export default function RecentConsultationsList() {
     ));
   };
 
+  const resetFilters = () => {
+    setSearchTerm("");
+    setStartDate(today);
+    setEndDate(today);
+    setSelectedUser(null);
+    setCurrentPage(1);
+  };
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -316,6 +367,7 @@ export default function RecentConsultationsList() {
                   users.find((user: UserType) => user.id === e.target.value) ||
                   null;
                 setSelectedUser(user);
+                setCurrentPage(1);
               }}
               whileFocus={{
                 scale: 1.02,
@@ -333,12 +385,7 @@ export default function RecentConsultationsList() {
 
           <div className="flex items-end">
             <button
-              onClick={() => {
-                setSearchTerm("");
-                setStartDate(today);
-                setEndDate(today);
-                setSelectedUser(null);
-              }}
+              onClick={resetFilters}
               className="w-full p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md transition-colors flex items-center justify-center"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
@@ -553,7 +600,7 @@ export default function RecentConsultationsList() {
         <div className="flex justify-center mt-6">
           <nav className="flex items-center space-x-1">
             <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
               disabled={currentPage === 1}
               className={`p-2 rounded-md ${
                 currentPage === 1
@@ -582,7 +629,7 @@ export default function RecentConsultationsList() {
 
             <button
               onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                setCurrentPage(Math.min(currentPage + 1, totalPages))
               }
               disabled={currentPage === totalPages}
               className={`p-2 rounded-md ${

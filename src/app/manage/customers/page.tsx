@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { CircularProgress } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Search,
   Plus,
@@ -59,16 +59,32 @@ interface Company {
 
 export default function CompanySearchPage() {
   const user = useLoginUser();
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [addressTerm, setAddressTerm] = useState<string>("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // URL 쿼리 파라미터에서 상태 초기화
+  const initialPage = searchParams.get("page")
+    ? Number.parseInt(searchParams.get("page") as string)
+    : 1;
+  const initialSearchTerm = searchParams.get("search") || "";
+  const initialAddressTerm = searchParams.get("address") || "";
+  const initialContactTerm = searchParams.get("contact") || "";
+  const initialCompaniesPerPage = searchParams.get("perPage")
+    ? Number.parseInt(searchParams.get("perPage") as string)
+    : 10;
+
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
+  const [addressTerm, setAddressTerm] = useState<string>(initialAddressTerm);
   const [industries, setIndustries] = useState<{ id: number; name: string }[]>(
     []
   );
   const [saving, setSaving] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(1);
-  const [companiesPerPage, setCompaniesPerPage] = useState(10);
-  const [contactTerm, setContactTerm] = useState<string>("");
+  const [companiesPerPage, setCompaniesPerPage] = useState(
+    initialCompaniesPerPage
+  );
+  const [contactTerm, setContactTerm] = useState<string>(initialContactTerm);
   const [deleteReason, setDeleteReason] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -90,7 +106,24 @@ export default function CompanySearchPage() {
   });
   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
 
-  const router = useRouter();
+  // URL 업데이트 함수
+  const updateUrl = () => {
+    const params = new URLSearchParams();
+
+    if (currentPage !== 1) params.set("page", currentPage.toString());
+    if (searchTerm) params.set("search", searchTerm);
+    if (addressTerm) params.set("address", addressTerm);
+    if (contactTerm) params.set("contact", contactTerm);
+    if (companiesPerPage !== 10)
+      params.set("perPage", companiesPerPage.toString());
+
+    router.replace(`/manage/customers?${params.toString()}`);
+  };
+
+  // 상태가 변경될 때마다 URL 업데이트
+  useEffect(() => {
+    updateUrl();
+  }, [currentPage, searchTerm, addressTerm, contactTerm, companiesPerPage]);
 
   // Debounced search terms
   const debouncedSearchTerm = useDebounce(searchTerm, 300);

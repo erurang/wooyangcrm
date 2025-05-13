@@ -211,6 +211,12 @@ export default function Header() {
   // 상단 메뉴 토글
   const [activeMainId, setActiveMainId] = useState<string | null>(null);
   const handleMainMenuClick = (id: string) => {
+    // If dashboard is clicked, navigate to root path directly
+    if (id === "대시보드") {
+      router.push("/");
+      return;
+    }
+    // Otherwise, toggle the dropdown as usual
     setActiveMainId((prev) => (prev === id ? null : id));
   };
 

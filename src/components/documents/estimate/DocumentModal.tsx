@@ -19,8 +19,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   koreanAmount,
   company_phone,
 }) => {
-  const [datePart] = document.created_at.split("T"); // "2025-02-12"
-  const [year, month, day] = datePart.split("-").map(Number);
+  const [year, month, day] = document?.date.split("-").map(Number);
 
   const formatContentWithLineBreaks = (content: string) => {
     return content.split("\n").map((line, index) => (
@@ -293,7 +292,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               ${
                 document.content.items?.length < 12
                   ? Array.from(
-                      { length: 12 - document.content.items.length },
+                      { length: 4 - document.content.items.length },
                       (_, i) => `
                       <tr style="background-color: white;">
                       <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; solid black;">&nbsp;</td>
@@ -603,7 +602,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               ${
                 document.content.items?.length < 12
                   ? Array.from(
-                      { length: 12 - document.content.items.length },
+                      { length: 4 - document.content.items.length },
                       (_, i) => `
                       <tr style="background-color: white;">
                       <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; solid black;">&nbsp;</td>
@@ -897,7 +896,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               ${
                 document.content.items?.length < 12
                   ? Array.from(
-                      { length: 12 - document.content.items.length },
+                      { length: 4 - document.content.items.length },
                       (_, i) => `
                       <tr style="background-color: white;">
                       <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; solid black;">&nbsp;</td>

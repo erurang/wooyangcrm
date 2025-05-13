@@ -19,6 +19,11 @@ import {
   BarChart,
   Briefcase,
   Package,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  ChevronRight,
+  LayoutDashboard,
 } from "lucide-react";
 
 import { useUserDetail } from "@/hooks/useUserDetail";
@@ -26,6 +31,9 @@ import { useUserSalesSummary } from "@/hooks/reports/useUserSalesSummary";
 import { useUserTransactions } from "@/hooks/reports/userDetail/useUserTransactions";
 import { useUserDocumentsCount } from "@/hooks/reports/useUserDocumentsCount";
 import { useUserDocumentList } from "@/hooks/reports/userDetail/documents/useUserDocumentList";
+import { useLoginLogs } from "@/hooks/dashboard/useLoginLogs";
+import { useClientSummary } from "@/hooks/dashboard/useClientSummary";
+import TodoList from "@/components/dashboard/Todos";
 
 // 동적으로 차트 컴포넌트 불러오기
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -75,6 +83,7 @@ export default function UserDetailPage() {
   const userId = Array.isArray(id) ? id[0] : id || "";
 
   const [activeTab, setActiveTab] = useState<
+    | "dashboard"
     | "consultation"
     | "sales"
     | "purchase"
@@ -82,7 +91,8 @@ export default function UserDetailPage() {
     | "performance"
     | "clients"
     | "items"
-  >("consultation");
+    | "todo"
+  >("dashboard"); // 기본 탭을 대시보드로 변경
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItemCategory, setSelectedItemCategory] = useState<
     "all" | "sales" | "purchase"
@@ -108,7 +118,7 @@ export default function UserDetailPage() {
   let endDate: string;
 
   // 날짜 변환 (연도별, 분기별, 월별) 부분을 다음과 같이 수정합니다.
-  // 타임존 차이를 고려하여 endDate에 하루를 추가합니다.
+  // 타임존 차이를 고려하여 endDate에 하루를 추가합니다。
 
   if (dateFilter === "year") {
     startDate = `${selectedYear}-01-01`;
@@ -133,7 +143,7 @@ export default function UserDetailPage() {
   }
 
   // API 호출 시 타임존 고려를 위해 endDate에 하루를 추가
-  // 이렇게 하면 UTC 기준으로도 해당 월의 마지막 날 데이터까지 모두 포함됩니다
+  // 이렇게 하면 UTC 기준으로도 해당 월의 마지막 날 데이터��지 모두 포함됩니다
   if (dateFilter === "month" || dateFilter === "quarter") {
     const endDateObj = new Date(endDate);
     endDateObj.setDate(endDateObj.getDate() + 1);
@@ -158,6 +168,43 @@ export default function UserDetailPage() {
   const { documents, isLoading: isConsultationsLoading } =
     useUserDocumentsCount([userId], startDate, endDate);
   const { documentsDetails } = useUserDocumentList(userId, startDate, endDate);
+
+  // 대시보드 탭에 필요한 추가 데이터
+  const { loginLogs } = useLoginLogs(userId);
+  const { followUpClients, clients } = useClientSummary(userId);
+
+  // 만료 예정 견적서 계산
+  const today = new Date();
+  const sevenDaysLater = new Date(today);
+  sevenDaysLater.setDate(today.getDate() + 7);
+
+  // 직접 만료 예정 견적서 계산
+  const expiringDocuments = useMemo(() => {
+    return (documentsDetails ?? [])
+      .flatMap((user: any) => user.consultations ?? [])
+      .flatMap((consultation: any) =>
+        (consultation.documents ?? [])
+          .filter((doc: any) => {
+            // 견적서이고 valid_until이 있는 경우만 필터링
+            if (doc.type !== "estimate" || !doc.valid_until) return false;
+
+            // 유효기간이 오늘과 7일 후 사이에 있는지 확인
+            const validUntil = new Date(doc.valid_until);
+            return validUntil >= today && validUntil <= sevenDaysLater;
+          })
+          .map((doc: any) => ({
+            id: doc.document_id,
+            content: {
+              company_name: consultation.company_name,
+              valid_until: doc.valid_until,
+              total_amount: (doc.items ?? []).reduce(
+                (sum: number, item: any) => sum + (item.amount || 0),
+                0
+              ),
+            },
+          }))
+      );
+  }, [documentsDetails, today, sevenDaysLater]);
 
   const userDocuments = documents?.[userId] || {
     estimates: { pending: 0, completed: 0, canceled: 0, total: 0 },
@@ -475,7 +522,7 @@ export default function UserDetailPage() {
             acc[companyName].estimates += 1;
             if (doc.status === "completed") {
               const docTotal = (doc.items ?? []).reduce(
-                (sum: number, item: any) => sum + (item.amount ?? 0),
+                (sum: number, item: any) => sum + (item.amount || 0),
                 0
               );
               acc[companyName].totalSales += docTotal;
@@ -484,7 +531,7 @@ export default function UserDetailPage() {
             acc[companyName].orders += 1;
             if (doc.status === "completed") {
               const docTotal = (doc.items ?? []).reduce(
-                (sum: number, item: any) => sum + (item.amount ?? 0),
+                (sum: number, item: any) => sum + (item.amount || 0),
                 0
               );
               acc[companyName].totalPurchases += docTotal;
@@ -574,6 +621,17 @@ export default function UserDetailPage() {
     };
   }, [user, completedSales, estimates, documentsDetails]);
 
+  // 날짜 변환 함수
+  function formatDate(dateString: string) {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
   return (
     <div className="bg-slate-50 min-h-screen">
       {/* 헤더 영역 */}
@@ -585,11 +643,20 @@ export default function UserDetailPage() {
               <div className="bg-indigo-50 p-2 rounded-md mr-3">
                 <User className="h-5 w-5 text-indigo-600" />
               </div>
-              <div>
+              <div className="flex-grow">
                 <h2 className="text-xl font-semibold text-slate-800">
                   {user?.name} {user?.level}
                 </h2>
                 <p className="text-slate-500">{user?.position}</p>
+              </div>
+              <div className="text-end text-slate-500 text-xs">
+                <p>최근 접속IP : {loginLogs?.ip_address || "-"}</p>
+                <p>
+                  최근 로그인 :{" "}
+                  {loginLogs?.login_time
+                    ? new Date(loginLogs.login_time).toLocaleString()
+                    : "-"}
+                </p>
               </div>
             </div>
 
@@ -823,6 +890,20 @@ export default function UserDetailPage() {
         {/* 탭 네비게이션 */}
         <div className="bg-white border-t border-b border-slate-200 p-1 mb-5">
           <div className="flex flex-wrap space-x-1 max-w-7xl mx-auto">
+            {/* 새로운 대시보드 탭 추가 */}
+            <button
+              className={`py-3 px-4 rounded-md font-medium text-sm transition-all ${
+                activeTab === "dashboard"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+              onClick={() => setActiveTab("dashboard")}
+            >
+              <span className="flex items-center justify-center">
+                <LayoutDashboard className="h-4 w-4 mr-2" />
+                대시보드
+              </span>
+            </button>
             <button
               className={`py-3 px-4 rounded-md font-medium text-sm transition-all ${
                 activeTab === "consultation"
@@ -914,10 +995,119 @@ export default function UserDetailPage() {
                 거래처 분석
               </span>
             </button>
+            <button
+              className={`py-3 px-4 rounded-md font-medium text-sm transition-all ${
+                activeTab === "todo"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+              onClick={() => setActiveTab("todo")}
+            >
+              <span className="flex items-center justify-center">
+                <CheckCircle className="h-4 w-4 mr-2" />할 일
+              </span>
+            </button>
           </div>
         </div>
 
-        {/* 탭별 섹션 */}
+        {/* 대시보드 탭 */}
+        {activeTab === "dashboard" && (
+          <div className="p-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* 후속 상담 필요 거래처 */}
+              <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
+                <div className="flex items-center mb-4">
+                  <div className="bg-indigo-50 p-2 rounded-md mr-3">
+                    <Clock className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-slate-800">
+                    후속 상담 필요 거래처
+                  </h2>
+                </div>
+
+                {followUpClients && followUpClients.length > 0 ? (
+                  <ul className="space-y-3">
+                    {followUpClients.map((client: any) => (
+                      <li
+                        key={client.company_id}
+                        className="p-3 bg-white border border-slate-200 rounded-lg shadow-sm"
+                      >
+                        <div
+                          className="text-slate-800 font-medium cursor-pointer hover:text-indigo-600 transition-colors flex items-center justify-between"
+                          onClick={() =>
+                            router.push(`/consultations/${client.company_id}`)
+                          }
+                        >
+                          <span>{client.company_name}</span>
+                          <ChevronRight className="h-4 w-4 text-slate-400" />
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">
+                          마지막 상담일:{" "}
+                          {new Date(
+                            client.last_consultation
+                          ).toLocaleDateString()}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-32 text-slate-500">
+                    <div className="bg-indigo-50 p-3 rounded-full mb-2">
+                      <Clock className="h-6 w-6 text-indigo-400" />
+                    </div>
+                    <p>후속 상담이 필요한 고객이 없습니다</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 곧 만료되는 견적서 */}
+              <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
+                <div className="flex items-center mb-4">
+                  <div className="bg-indigo-50 p-2 rounded-md mr-3">
+                    <AlertCircle className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <h2 className="text-lg font-semibold text-slate-800">
+                    곧 만료되는 견적서
+                  </h2>
+                </div>
+
+                {expiringDocuments && expiringDocuments.length > 0 ? (
+                  <ul className="space-y-3">
+                    {expiringDocuments.map((doc: any) => (
+                      <li
+                        key={doc.id}
+                        className="p-3 bg-white border border-slate-200 rounded-lg shadow-sm"
+                      >
+                        <div className="font-medium text-slate-800">
+                          {doc.content.company_name}
+                        </div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-xs text-slate-500">
+                            만료일:{" "}
+                            {new Date(
+                              doc.content.valid_until
+                            ).toLocaleDateString()}
+                          </span>
+                          <span className="text-sm font-medium text-indigo-600">
+                            {doc.content.total_amount.toLocaleString()}원
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-32 text-slate-500">
+                    <div className="bg-indigo-50 p-3 rounded-full mb-2">
+                      <AlertCircle className="h-6 w-6 text-indigo-400" />
+                    </div>
+                    <p>유효기간 7일 내 만료 임박한 견적서가 없습니다</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === "consultation" && (
           <div className="bg-white border border-slate-200 shadow-sm p-5 mx-5 mb-5 rounded-lg">
             <div className="flex items-center mb-6">
@@ -2330,6 +2520,23 @@ export default function UserDetailPage() {
                   height={300}
                 />
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "todo" && (
+          <div className="bg-white border border-slate-200 shadow-sm p-5 mx-5 mb-5 rounded-lg">
+            <div className="flex items-center mb-6">
+              <div className="bg-indigo-50 p-2 rounded-md mr-3">
+                <CheckCircle className="h-5 w-5 text-indigo-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-slate-800">
+                할 일 관리
+              </h2>
+            </div>
+
+            <div className="rounded-lg">
+              <TodoList userId={userId} />
             </div>
           </div>
         )}
