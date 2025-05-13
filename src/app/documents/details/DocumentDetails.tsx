@@ -78,7 +78,9 @@ export default function DocumentsDetailsPage() {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null
   );
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(
+    Number.parseInt(searchParams.get("page") || "1", 10)
+  );
   const [statusChangeDoc, setStatusChangeDoc] = useState<Document | null>(null);
   const [statusReason, setStatusReason] = useState({
     canceled: {
@@ -97,12 +99,39 @@ export default function DocumentsDetailsPage() {
 
   const [changedStatus, setChangedStatus] = useState("");
 
-  const [documentsPerPage, setDocumentsPerPage] = useState(10);
+  const [documentsPerPage, setDocumentsPerPage] = useState(
+    Number.parseInt(searchParams.get("limit") || "10", 10)
+  );
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchDocNumber, setSearchDocNumber] = useState("");
-  const [searchNotes, setSearchNotes] = useState("");
-  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("company") || ""
+  );
+  const [searchDocNumber, setSearchDocNumber] = useState(
+    searchParams.get("docNumber") || ""
+  );
+  const [searchNotes, setSearchNotes] = useState(
+    searchParams.get("notes") || ""
+  );
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(() => {
+    const userId = searchParams.get("userId");
+    if (!userId) return null;
+    // We'll populate this with actual user data when users are loaded
+    return { id: userId, name: "", level: "" };
+  });
+
+  const updateUrlParams = (params: Record<string, string | null>) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === null || value === "") {
+        newParams.delete(key);
+      } else {
+        newParams.set(key, value);
+      }
+    });
+
+    router.push(`/documents/details?${newParams.toString()}`);
+  };
 
   const debounceSearchTerm = useDebounce(searchTerm, 300);
   const { companies } = useCompanySearch(debounceSearchTerm);
@@ -277,7 +306,22 @@ export default function DocumentsDetailsPage() {
     setSearchDocNumber("");
     setSearchNotes("");
     setCurrentPage(1);
+    setSelectedStatus("all");
+    setDocumentsPerPage(10);
+
+    // Reset URL to just the type parameter
+    router.push(`/documents/details?type=${type}`);
   };
+
+  useEffect(() => {
+    if (users.length > 0 && searchParams.get("userId")) {
+      const userId = searchParams.get("userId");
+      const user = users.find((u: UserType) => u.id === userId) || null;
+      if (user) {
+        setSelectedUser(user);
+      }
+    }
+  }, [users, searchParams]);
 
   return (
     <div className="text-sm text-gray-800">
@@ -296,6 +340,7 @@ export default function DocumentsDetailsPage() {
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
+                  updateUrlParams({ company: e.target.value, page: "1" });
                 }}
                 placeholder="거래처명 입력"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -319,6 +364,7 @@ export default function DocumentsDetailsPage() {
                 onChange={(e) => {
                   setSearchDocNumber(e.target.value);
                   setCurrentPage(1);
+                  updateUrlParams({ docNumber: e.target.value, page: "1" });
                 }}
                 placeholder="WY-YYYYMMDD-NNNN"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -342,6 +388,7 @@ export default function DocumentsDetailsPage() {
                 onChange={(e) => {
                   setSearchNotes(e.target.value);
                   setCurrentPage(1);
+                  updateUrlParams({ notes: e.target.value, page: "1" });
                 }}
                 placeholder="특기사항 검색"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -364,6 +411,7 @@ export default function DocumentsDetailsPage() {
                 onChange={(e) => {
                   setSelectedStatus(e.target.value);
                   setCurrentPage(1);
+                  updateUrlParams({ status: e.target.value, page: "1" });
                 }}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
               >
@@ -394,6 +442,7 @@ export default function DocumentsDetailsPage() {
                     ) || null;
                   setSelectedUser(user);
                   setCurrentPage(1);
+                  updateUrlParams({ userId: user?.id || null, page: "1" });
                 }}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
               >
@@ -430,8 +479,10 @@ export default function DocumentsDetailsPage() {
           <select
             value={documentsPerPage}
             onChange={(e) => {
-              setDocumentsPerPage(Number(e.target.value));
+              const newLimit = Number(e.target.value);
+              setDocumentsPerPage(newLimit);
               setCurrentPage(1);
+              updateUrlParams({ limit: newLimit.toString(), page: "1" });
             }}
             className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
@@ -654,7 +705,11 @@ export default function DocumentsDetailsPage() {
         <div className="flex justify-center mt-6">
           <nav className="flex items-center space-x-1">
             <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onClick={() => {
+                const newPage = Math.max(currentPage - 1, 1);
+                setCurrentPage(newPage);
+                updateUrlParams({ page: newPage.toString() });
+              }}
               disabled={currentPage === 1}
               className={`p-2 rounded-md ${
                 currentPage === 1
@@ -668,7 +723,12 @@ export default function DocumentsDetailsPage() {
             {paginationNumbers().map((page, index) => (
               <button
                 key={index}
-                onClick={() => typeof page === "number" && setCurrentPage(page)}
+                onClick={() => {
+                  if (typeof page === "number") {
+                    setCurrentPage(page);
+                    updateUrlParams({ page: page.toString() });
+                  }
+                }}
                 className={`px-3 py-1.5 rounded-md ${
                   currentPage === page
                     ? "bg-blue-600 text-white font-medium"
@@ -682,9 +742,11 @@ export default function DocumentsDetailsPage() {
             ))}
 
             <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
+              onClick={() => {
+                const newPage = Math.min(currentPage + 1, totalPages);
+                setCurrentPage(newPage);
+                updateUrlParams({ page: newPage.toString() });
+              }}
               disabled={currentPage === totalPages}
               className={`p-2 rounded-md ${
                 currentPage === totalPages

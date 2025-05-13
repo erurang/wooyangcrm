@@ -108,26 +108,26 @@ export default function Header() {
         },
       ],
     },
-    {
-      title: "캘린더",
-      items: [
-        {
-          id: "manage/calendar/todos",
-          title: "할 일",
-          path: "/manage/calendar/todos",
-        },
-        {
-          id: "manage/calendar/consultations",
-          title: "상담",
-          path: "/manage/calendar/consultations",
-        },
-        {
-          id: "manage/calendar/documents",
-          title: "문서",
-          path: "/manage/calendar/documents",
-        },
-      ],
-    },
+    // {
+    //   title: "캘린더",
+    //   items: [
+    //     {
+    //       id: "manage/calendar/todos",
+    //       title: "할 일",
+    //       path: "/manage/calendar/todos",
+    //     },
+    //     {
+    //       id: "manage/calendar/consultations",
+    //       title: "상담",
+    //       path: "/manage/calendar/consultations",
+    //     },
+    //     {
+    //       id: "manage/calendar/documents",
+    //       title: "문서",
+    //       path: "/manage/calendar/documents",
+    //     },
+    //   ],
+    // },
   ];
 
   // role별 추가

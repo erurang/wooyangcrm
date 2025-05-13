@@ -566,13 +566,13 @@ export default function CompanySearchPage() {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell"
                   >
-                    팩스
+                    번호
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell"
                   >
-                    번호
+                    팩스
                   </th>
                   <th
                     scope="col"
@@ -616,12 +616,12 @@ export default function CompanySearchPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                       <div className="text-sm text-gray-900">
-                        {company.fax || "-"}
+                        {company.phone || "-"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                       <div className="text-sm text-gray-900">
-                        {company.phone || "-"}
+                        {company.fax || "-"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">

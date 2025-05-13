@@ -19,6 +19,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   koreanAmount,
   company_phone,
 }) => {
+  console.log("document", document);
   const [year, month, day] = document?.date.split("-").map(Number);
 
   const formatContentWithLineBreaks = (content: string) => {

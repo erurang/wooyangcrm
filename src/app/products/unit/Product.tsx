@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import type React from "react";
+
+import { useMemo, useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -99,14 +101,84 @@ export default function ProductPage() {
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
+  // First, add a function to update URL parameters at the top of the component function
+  const updateUrlParams = (params: Record<string, string | null>) => {
+    const url = new URL(window.location.href);
+
+    // Update or add each parameter
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === null || value === "") {
+        url.searchParams.delete(key);
+      } else {
+        url.searchParams.set(key, value);
+      }
+    });
+
+    // Keep the type parameter
+    if (!url.searchParams.has("type") && type) {
+      url.searchParams.set("type", type);
+    }
+
+    // Replace the URL without reloading the page
+    router.replace(url.pathname + url.search, { scroll: false });
+  };
+
+  // Add an effect to initialize state from URL parameters
+  useEffect(() => {
+    const searchCompanyParam = searchParams.get("company") || "";
+    const searchProductParam = searchParams.get("product") || "";
+    const searchSpecParam = searchParams.get("spec") || "";
+    const minPriceParam = searchParams.get("minPrice");
+    const maxPriceParam = searchParams.get("maxPrice");
+    const statusParam = searchParams.get("status") || "all";
+    const pageParam = searchParams.get("page");
+    const perPageParam = searchParams.get("perPage");
+    const sortFieldParam = searchParams.get("sortField") || null;
+    const sortDirParam =
+      (searchParams.get("sortDir") as "asc" | "desc") || "asc";
+    const userIdParam = searchParams.get("userId") || "";
+
+    if (searchCompanyParam) setSearchCompany(searchCompanyParam);
+    if (searchProductParam) setSearchProduct(searchProductParam);
+    if (searchSpecParam) setSearchSpec(searchSpecParam);
+    if (minPriceParam) setMinPrice(Number(minPriceParam));
+    if (maxPriceParam) setMaxPrice(Number(maxPriceParam));
+    if (statusParam) setStatus(statusParam);
+    if (pageParam) setCurrentPage(Number(pageParam));
+    if (perPageParam) setProductsPerPage(Number(perPageParam));
+    if (sortFieldParam) setSortField(sortFieldParam);
+    if (sortDirParam) setSortDirection(sortDirParam);
+  }, [searchParams]);
+
+  // Add an effect to update selected user when users data is loaded
+  useEffect(() => {
+    const userIdParam = searchParams.get("userId");
+    if (userIdParam && users && users.length > 0) {
+      const foundUser = users.find((u: User) => u.id === userIdParam);
+      if (foundUser) {
+        setSelectedUser(foundUser);
+      }
+    }
+  }, [users, searchParams]);
+
   function handleSort(field: string) {
+    let direction: "asc" | "desc";
+
     if (sortField === field) {
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+      direction = sortDirection === "asc" ? "desc" : "asc";
+      setSortDirection(direction);
     } else {
       setSortField(field);
+      direction = "asc";
       setSortDirection("asc");
     }
+
     setCurrentPage(1);
+    updateUrlParams({
+      sortField: field,
+      sortDir: direction,
+      page: "1",
+    });
   }
 
   // 정렬된 products
@@ -146,6 +218,116 @@ export default function ProductPage() {
     setSelectedUser(null);
     setStatus("all");
     setCurrentPage(1);
+    setSortField(null);
+    setSortDirection("asc");
+
+    // Reset URL to only keep the type parameter
+    const url = new URL(window.location.href);
+    Array.from(url.searchParams.keys()).forEach((key) => {
+      if (key !== "type") {
+        url.searchParams.delete(key);
+      }
+    });
+    router.replace(url.pathname + url.search, { scroll: false });
+  };
+
+  // Modify the setSearchCompany handler
+  const handleSearchCompanyChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setSearchCompany(value);
+    setCurrentPage(1);
+    updateUrlParams({
+      company: value || null,
+      page: "1",
+    });
+  };
+
+  // Modify the setSearchProduct handler
+  const handleSearchProductChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setSearchProduct(value);
+    setCurrentPage(1);
+    updateUrlParams({
+      product: value || null,
+      page: "1",
+    });
+  };
+
+  // Modify the setSearchSpec handler
+  const handleSearchSpecChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchSpec(value);
+    setCurrentPage(1);
+    updateUrlParams({
+      spec: value || null,
+      page: "1",
+    });
+  };
+
+  // Modify the setMinPrice handler
+  const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value) || "";
+    setMinPrice(value);
+    setCurrentPage(1);
+    updateUrlParams({
+      minPrice: value ? String(value) : null,
+      page: "1",
+    });
+  };
+
+  // Modify the setMaxPrice handler
+  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value) || "";
+    setMaxPrice(value);
+    setCurrentPage(1);
+    updateUrlParams({
+      maxPrice: value ? String(value) : null,
+      page: "1",
+    });
+  };
+
+  // Modify the setStatus handler
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setStatus(value);
+    setCurrentPage(1);
+    updateUrlParams({
+      status: value === "all" ? null : value,
+      page: "1",
+    });
+  };
+
+  // Modify the setSelectedUser handler
+  const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const userId = e.target.value;
+    const user = users.find((user: User) => user.id === userId) || null;
+    setSelectedUser(user);
+    setCurrentPage(1);
+    updateUrlParams({
+      userId: userId || null,
+      page: "1",
+    });
+  };
+
+  // Modify the setCurrentPage handler
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateUrlParams({ page: String(page) });
+  };
+
+  // Modify the setProductsPerPage handler
+  const handlePerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = Number(e.target.value);
+    setProductsPerPage(value);
+    setCurrentPage(1);
+    updateUrlParams({
+      perPage: String(value),
+      page: "1",
+    });
   };
 
   return (
@@ -167,10 +349,7 @@ export default function ProductPage() {
                 <input
                   type="text"
                   value={searchCompany}
-                  onChange={(e) => {
-                    setSearchCompany(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={handleSearchCompanyChange}
                   placeholder="거래처명"
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
@@ -189,10 +368,7 @@ export default function ProductPage() {
                 <input
                   type="text"
                   value={searchProduct}
-                  onChange={(e) => {
-                    setSearchProduct(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={handleSearchProductChange}
                   placeholder="물품명"
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
@@ -211,10 +387,7 @@ export default function ProductPage() {
                 <input
                   type="text"
                   value={searchSpec}
-                  onChange={(e) => {
-                    setSearchSpec(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={handleSearchSpecChange}
                   placeholder="규격"
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
@@ -237,10 +410,7 @@ export default function ProductPage() {
                   <input
                     type="number"
                     value={minPrice}
-                    onChange={(e) => {
-                      setMinPrice(Number(e.target.value) || "");
-                      setCurrentPage(1);
-                    }}
+                    onChange={handleMinPriceChange}
                     placeholder="최소"
                     className="pl-10 pr-2 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
@@ -250,10 +420,7 @@ export default function ProductPage() {
                   <input
                     type="number"
                     value={maxPrice}
-                    onChange={(e) => {
-                      setMaxPrice(Number(e.target.value) || "");
-                      setCurrentPage(1);
-                    }}
+                    onChange={handleMaxPriceChange}
                     placeholder="최대"
                     className="pl-3 pr-2 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
@@ -272,10 +439,7 @@ export default function ProductPage() {
                 </div>
                 <select
                   value={status}
-                  onChange={(e) => {
-                    setStatus(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={handleStatusChange}
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
                 >
                   <option value="all">모든 상태</option>
@@ -301,14 +465,7 @@ export default function ProductPage() {
                   </div>
                   <select
                     value={selectedUser?.id || ""}
-                    onChange={(e) => {
-                      const user =
-                        users.find(
-                          (user: User) => user.id === e.target.value
-                        ) || null;
-                      setSelectedUser(user);
-                      setCurrentPage(1);
-                    }}
+                    onChange={handleUserChange}
                     className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
                   >
                     <option value="">모든 상담자</option>
@@ -345,10 +502,7 @@ export default function ProductPage() {
             <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
             <select
               value={productsPerPage}
-              onChange={(e) => {
-                setProductsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
+              onChange={handlePerPageChange}
               className="border border-gray-300 p-1.5 rounded-md text-sm"
             >
               <option value="10">10개</option>
@@ -624,7 +778,7 @@ export default function ProductPage() {
         <div className="flex justify-center mt-6">
           <nav className="flex items-center space-x-1">
             <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
               disabled={currentPage === 1}
               className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             >
@@ -636,7 +790,7 @@ export default function ProductPage() {
               typeof page === "number" ? (
                 <button
                   key={index}
-                  onClick={() => setCurrentPage(page)}
+                  onClick={() => handlePageChange(page)}
                   className={`px-3 py-1 rounded-md ${
                     currentPage === page
                       ? "bg-blue-600 text-white font-medium"
@@ -654,7 +808,7 @@ export default function ProductPage() {
 
             <button
               onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                handlePageChange(Math.min(currentPage + 1, totalPages))
               }
               disabled={currentPage === totalPages || totalPages === 0}
               className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"

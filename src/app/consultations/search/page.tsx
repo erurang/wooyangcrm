@@ -294,6 +294,8 @@ export default function RecentConsultations() {
     };
   }, []);
 
+  console.log("documentststst", consultations);
+
   return (
     <div className="text-sm text-gray-800">
       {/* 검색 필터 */}

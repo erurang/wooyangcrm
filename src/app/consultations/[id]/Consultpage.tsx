@@ -200,10 +200,21 @@ export default function ConsultationPage() {
         contact_level: firstContact.level || "",
         contact_email: firstContact.email || "",
         contact_mobile: firstContact.mobile || "",
+        contact_id: firstContact.id || "",
         documents: documentTypes,
       };
     });
   }, [consultations, contactsConsultations]);
+
+  // 담당자 클릭 핸들러
+  const handleContactClick = (contactId: string) => {
+    if (!contactId) {
+      setSnackbarMessage("담당자 ID 정보가 없습니다.");
+      return;
+    }
+
+    router.push(`/manage/contacts/${contactId}`);
+  };
 
   // 상담 추가 핸들러
   const handleAddConsultation = async () => {
@@ -815,8 +826,15 @@ export default function ConsultationPage() {
                           )}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 sm:w-auto">
-                          {consultation.contact_name}{" "}
-                          {consultation.contact_level}
+                          <div
+                            className="font-medium text-blue-600 cursor-pointer hover:underline"
+                            onClick={() =>
+                              handleContactClick(consultation.contact_id)
+                            }
+                          >
+                            {consultation.contact_name}{" "}
+                            {consultation.contact_level}
+                          </div>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 sm:w-auto hidden sm:table-cell">
                           {
