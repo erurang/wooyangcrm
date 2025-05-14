@@ -746,6 +746,11 @@ export default function ConsultationPage() {
                                 </div>
                               </div>
                               <div className="mt-0.5 text-xs text-gray-500">
+                                {contact.email && (
+                                  <div className="mt-0.5 text-xs text-gray-500">
+                                    {contact.email}
+                                  </div>
+                                )}
                                 {contact.department &&
                                   `${contact.department} · `}
                                 {contact.mobile || "-"}
