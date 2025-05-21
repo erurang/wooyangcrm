@@ -384,7 +384,15 @@ export default function Estimate({
                     {type === "order" && document.content.delivery_date}
                     {type === "requestQuote" && document.content.delivery_date}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 hidden md:table-cell">
+                  <td
+                    className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 hidden md:table-cell"
+
+                    // onClick={() => window.open(
+                    //   `/documents/estimate?consultId=${consultation.id}&compId=${companyDetail?.id}&fullscreen=true`,
+                    //   "_blank",
+                    //   "width=1200,height=800,top=100,left=100"
+                    // )}
+                  >
                     {document.contact_name} {document.contact_level}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 hidden md:table-cell">
@@ -439,7 +447,9 @@ export default function Estimate({
                             className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
                             title="수정"
                           >
-                            <Edit className="h-4 w-4" />
+                            {document.status === "pending" && (
+                              <Edit className="h-4 w-4" />
+                            )}
                           </button>
                           <button
                             onClick={() => handleDeleteDocument(document)}
