@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 const SIDEBAR_STORAGE_KEY = "sidebar-expanded";
 
 export function useSidebar() {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(true);  // 기본값 펼침
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
