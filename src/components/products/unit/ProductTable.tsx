@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 
 interface Product {
+  id: string;
+  document_number: string;
   estimate_date: string;
   company_id: string;
   company_name: string;
@@ -31,6 +33,7 @@ interface ProductTableProps {
   sortField: string | null;
   sortDirection: "asc" | "desc";
   onSort: (field: string) => void;
+  onDocumentClick?: (documentId: string) => void;
 }
 
 export default function ProductTable({
@@ -40,6 +43,7 @@ export default function ProductTable({
   sortField,
   sortDirection,
   onSort,
+  onDocumentClick,
 }: ProductTableProps) {
   const router = useRouter();
 
@@ -133,6 +137,9 @@ export default function ProductTable({
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
+              <SortableHeader field="document_number" className="hidden md:table-cell">
+                문서번호
+              </SortableHeader>
               <SortableHeader field="estimate_date" className="hidden md:table-cell">
                 {type === "estimate" ? "견적" : "발주"} 날짜
               </SortableHeader>
@@ -154,6 +161,14 @@ export default function ProductTable({
           <tbody className="bg-white divide-y divide-gray-200">
             {products.map((product, index) => (
               <tr key={index} className="hover:bg-gray-50 transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap text-sm hidden md:table-cell">
+                  <button
+                    onClick={() => onDocumentClick?.(product.id)}
+                    className="text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium"
+                  >
+                    {product.document_number}
+                  </button>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
                   {dayjs(product.estimate_date).format("YYYY-MM-DD")}
                 </td>

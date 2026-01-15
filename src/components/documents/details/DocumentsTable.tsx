@@ -1,7 +1,8 @@
 "use client";
 
-import { Search, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { CircularProgress } from "@mui/material";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface DocumentItem {
   name: string;
@@ -75,13 +76,7 @@ export default function DocumentsTable({
   if (!documents || documents.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <div className="flex flex-col items-center justify-center py-16">
-          <Search size={48} className="text-gray-300 mb-4" />
-          <p className="text-gray-500 text-lg">검색 결과가 없습니다</p>
-          <p className="text-gray-400 text-sm mt-2">
-            다른 검색어로 시도해보세요
-          </p>
-        </div>
+        <EmptyState type="document" />
       </div>
     );
   }

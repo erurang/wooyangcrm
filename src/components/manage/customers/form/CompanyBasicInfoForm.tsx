@@ -1,5 +1,7 @@
 "use client";
 
+import { AlertCircle } from "lucide-react";
+
 interface Company {
   name: string;
   business_number: string;
@@ -10,15 +12,40 @@ interface Company {
   parcel: string;
 }
 
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  business_number?: string;
+}
+
 interface CompanyBasicInfoFormProps {
   company: Company;
   onChange: (field: keyof Company, value: string) => void;
+  errors?: FormErrors;
+  onClearError?: (field: keyof FormErrors) => void;
 }
+
+// 입력 필드 스타일
+const getInputClass = (hasError: boolean) => {
+  const base = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent transition-colors";
+  if (hasError) return `${base} border-red-500 focus:ring-red-500 bg-red-50`;
+  return `${base} border-gray-300 focus:ring-blue-500`;
+};
 
 export default function CompanyBasicInfoForm({
   company,
   onChange,
+  errors = {},
+  onClearError,
 }: CompanyBasicInfoFormProps) {
+  const handleChange = (field: keyof Company, value: string) => {
+    onChange(field, value);
+    if (onClearError && errors[field as keyof FormErrors]) {
+      onClearError(field as keyof FormErrors);
+    }
+  };
+
   return (
     <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div>
@@ -28,10 +55,16 @@ export default function CompanyBasicInfoForm({
         <input
           type="text"
           value={company.name || ""}
-          onChange={(e) => onChange("name", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => handleChange("name", e.target.value)}
+          className={getInputClass(!!errors.name)}
           placeholder="거래처명 입력"
         />
+        {errors.name && (
+          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            {errors.name}
+          </p>
+        )}
       </div>
 
       <div>
@@ -41,10 +74,16 @@ export default function CompanyBasicInfoForm({
         <input
           type="text"
           value={company.business_number || ""}
-          onChange={(e) => onChange("business_number", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => handleChange("business_number", e.target.value)}
+          className={getInputClass(!!errors.business_number)}
           placeholder="000-00-00000"
         />
+        {errors.business_number && (
+          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            {errors.business_number}
+          </p>
+        )}
       </div>
 
       <div>
@@ -54,10 +93,16 @@ export default function CompanyBasicInfoForm({
         <input
           type="email"
           value={company.email || ""}
-          onChange={(e) => onChange("email", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => handleChange("email", e.target.value)}
+          className={getInputClass(!!errors.email)}
           placeholder="company@example.com"
         />
+        {errors.email && (
+          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            {errors.email}
+          </p>
+        )}
       </div>
 
       <div>
@@ -67,8 +112,8 @@ export default function CompanyBasicInfoForm({
         <input
           type="text"
           value={company.address || ""}
-          onChange={(e) => onChange("address", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => handleChange("address", e.target.value)}
+          className={getInputClass(false)}
           placeholder="주소 입력"
         />
       </div>
@@ -80,10 +125,16 @@ export default function CompanyBasicInfoForm({
         <input
           type="text"
           value={company.phone || ""}
-          onChange={(e) => onChange("phone", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => handleChange("phone", e.target.value)}
+          className={getInputClass(!!errors.phone)}
           placeholder="000-0000-0000"
         />
+        {errors.phone && (
+          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            {errors.phone}
+          </p>
+        )}
       </div>
 
       <div>
@@ -93,8 +144,8 @@ export default function CompanyBasicInfoForm({
         <input
           type="text"
           value={company.fax || ""}
-          onChange={(e) => onChange("fax", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => handleChange("fax", e.target.value)}
+          className={getInputClass(false)}
           placeholder="000-0000-0000"
         />
       </div>
@@ -106,8 +157,8 @@ export default function CompanyBasicInfoForm({
         <input
           type="text"
           value={company.parcel || ""}
-          onChange={(e) => onChange("parcel", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => handleChange("parcel", e.target.value)}
+          className={getInputClass(false)}
           placeholder="경동화물, 대신화물, 로젠택배, 직송 등"
         />
       </div>

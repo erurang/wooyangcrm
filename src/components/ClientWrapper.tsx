@@ -2,6 +2,7 @@
 
 import Layout from "@/components/layout/Layout";
 import { LoginUserProvider } from "@/context/login";
+import { ToastProvider } from "@/context/toast";
 
 export default function ClientWrapper({
   children,
@@ -10,7 +11,9 @@ export default function ClientWrapper({
 }) {
   return (
     <LoginUserProvider>
-      <Layout>{children}</Layout>
+      <ToastProvider>
+        <Layout>{children}</Layout>
+      </ToastProvider>
     </LoginUserProvider>
   );
 }

@@ -49,7 +49,8 @@ interface Contact {
 }
 
 export default function ConsultationPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = typeof params.id === "string" ? params.id : params.id?.[0] ?? "";
   const router = useRouter();
   const loginUser = useLoginUser();
   const searchParams = useSearchParams();
@@ -194,8 +195,9 @@ export default function ConsultationPage() {
 
   // 즐겨찾기 핸들러
   const handleAddFavorite = async () => {
+    if (!loginUser?.id || !companyDetail?.name) return;
     try {
-      await addFavorite(loginUser?.id, id, companyDetail?.name);
+      await addFavorite(loginUser.id, id, companyDetail.name);
       await refetchFavorites();
       setSnackbarMessage("즐겨찾기에 추가되었습니다.");
     } catch (error) {

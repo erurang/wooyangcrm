@@ -1,6 +1,13 @@
 import useSWR, { mutate } from "swr";
 import { useState } from "react";
 
+interface Todo {
+  id: string;
+  content: string;
+  is_completed: boolean;
+  sort_order: number;
+}
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useTodos(userId: string) {
@@ -64,7 +71,7 @@ export function useTodos(userId: string) {
     mutate(`/api/dashboard/todos?userId=${userId}`);
   };
 
-  const updateTodoOrder = async (newTodos: any[]) => {
+  const updateTodoOrder = async (newTodos: Todo[]) => {
     const orderedTodos = newTodos.map((todo, index) => ({
       id: todo.id,
       sort_order: index + 1,

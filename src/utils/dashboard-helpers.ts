@@ -17,6 +17,11 @@ import type {
   DocumentCounts,
 } from "@/types/dashboard";
 
+// 안전하게 배열 반환 (JSONB 파싱 실패 방어)
+function safeArray<T>(data: T[] | null | undefined): T[] {
+  return Array.isArray(data) ? data : [];
+}
+
 // 중복 제거 및 총합 계산 함수 (generic)
 export function aggregateData<T extends { name: string; total: number }>(
   data: T[],
@@ -59,14 +64,14 @@ export const calculateDocumentTotals = (
   status: string,
   type: string
 ): number => {
-  return (documentsDetails ?? [])
-    .flatMap((user: DashboardUserData) => user.consultations ?? [])
-    .flatMap((consultation: DashboardConsultation) => consultation.documents ?? [])
+  return safeArray(documentsDetails)
+    .flatMap((user: DashboardUserData) => safeArray(user.consultations))
+    .flatMap((consultation: DashboardConsultation) => safeArray(consultation.documents))
     .filter((doc: DashboardDocument) => doc.status === status && doc.type === type)
     .reduce(
       (sum: number, doc: DashboardDocument) =>
         sum +
-        (doc.items ?? []).reduce(
+        safeArray(doc.items).reduce(
           (subSum: number, item: DashboardDocumentItem) => subSum + (item.amount ?? 0),
           0
         ),
@@ -91,10 +96,10 @@ export const calculateAllDocumentTotals = (
     orders: { pending: 0, completed: 0, canceled: 0, total: 0 },
   };
 
-  (documentsDetails ?? []).forEach((userObj: DashboardUserData) => {
-    (userObj.consultations ?? []).forEach((consultation: DashboardConsultation) => {
-      (consultation.documents ?? []).forEach((doc: DashboardDocument) => {
-        const docTotal = (doc.items ?? []).reduce(
+  safeArray(documentsDetails).forEach((userObj: DashboardUserData) => {
+    safeArray(userObj.consultations).forEach((consultation: DashboardConsultation) => {
+      safeArray(consultation.documents).forEach((doc: DashboardDocument) => {
+        const docTotal = safeArray(doc.items).reduce(
           (sum: number, item: DashboardDocumentItem) => sum + (item.amount ?? 0),
           0
         );
@@ -135,8 +140,8 @@ export const calculateAllDocumentTotals = (
 export const generateClientAnalysisData = (
   documentsDetails: DashboardUserData[]
 ): ClientAnalysis[] => {
-  const consultationsByClient = (documentsDetails ?? [])
-    .flatMap((user: DashboardUserData) => user.consultations ?? [])
+  const consultationsByClient = safeArray(documentsDetails)
+    .flatMap((user: DashboardUserData) => safeArray(user.consultations))
     .reduce((acc: Record<string, ClientAnalysis>, consultation: DashboardConsultation) => {
       const companyId = consultation.company_id;
       const companyName = consultation.company_name;
@@ -153,11 +158,11 @@ export const generateClientAnalysisData = (
       }
       acc[companyId].consultations += 1;
 
-      (consultation.documents ?? []).forEach((doc: DashboardDocument) => {
+      safeArray(consultation.documents).forEach((doc: DashboardDocument) => {
         if (doc.type === "estimate") {
           acc[companyId].estimates += 1;
           if (doc.status === "completed") {
-            const docTotal = (doc.items ?? []).reduce(
+            const docTotal = safeArray(doc.items).reduce(
               (sum: number, item: DashboardDocumentItem) => sum + (item.amount || 0),
               0
             );
@@ -166,7 +171,7 @@ export const generateClientAnalysisData = (
         } else if (doc.type === "order") {
           acc[companyId].orders += 1;
           if (doc.status === "completed") {
-            const docTotal = (doc.items ?? []).reduce(
+            const docTotal = safeArray(doc.items).reduce(
               (sum: number, item: DashboardDocumentItem) => sum + (item.amount || 0),
               0
             );
@@ -181,7 +186,7 @@ export const generateClientAnalysisData = (
   return Object.values(consultationsByClient);
 };
 
-// 성과 지표 계산
+// 성과 지표 계산 (단일 순회 최적화)
 export const calculatePerformanceMetrics = (
   user: DashboardUser | null,
   completedSales: number,
@@ -198,36 +203,35 @@ export const calculatePerformanceMetrics = (
   const avgTransactionAmount =
     estimates?.completed > 0 ? completedSales / estimates.completed : 0;
 
-  // 완료된 견적서별 거래 금액 추출
-  const completedEstimateAmounts = (documentsDetails ?? [])
-    .flatMap((userObj: DashboardUserData) => userObj.consultations ?? [])
-    .flatMap((consultation: DashboardConsultation) => consultation.documents ?? [])
-    .filter((doc: DashboardDocument) => doc.type === "estimate" && doc.status === "completed")
-    .map((doc: DashboardDocument) =>
-      (doc.items ?? []).reduce(
-        (sum: number, item: DashboardDocumentItem) => sum + (item.amount ?? 0),
-        0
-      )
-    )
-    .filter((amount: number) => amount > 0);
+  // 단일 순회로 모든 지표 계산
+  let totalConsultations = 0;
+  let totalEstimates = 0;
+  let minTransactionAmount = Infinity;
+  let maxTransactionAmount = 0;
 
-  // 실제 최소/최대 거래 금액 계산
-  const minTransactionAmount =
-    completedEstimateAmounts.length > 0
-      ? Math.min(...completedEstimateAmounts)
-      : 0;
-  const maxTransactionAmount =
-    completedEstimateAmounts.length > 0
-      ? Math.max(...completedEstimateAmounts)
-      : 0;
+  safeArray(documentsDetails).forEach((userObj: DashboardUserData) => {
+    safeArray(userObj.consultations).forEach((consultation: DashboardConsultation) => {
+      totalConsultations++;
+      safeArray(consultation.documents).forEach((doc: DashboardDocument) => {
+        if (doc.type === "estimate") {
+          totalEstimates++;
+          if (doc.status === "completed") {
+            const docTotal = safeArray(doc.items).reduce(
+              (sum: number, item: DashboardDocumentItem) => sum + (item.amount ?? 0),
+              0
+            );
+            if (docTotal > 0) {
+              minTransactionAmount = Math.min(minTransactionAmount, docTotal);
+              maxTransactionAmount = Math.max(maxTransactionAmount, docTotal);
+            }
+          }
+        }
+      });
+    });
+  });
 
-  const totalConsultations = (documentsDetails ?? []).flatMap(
-    (userObj: DashboardUserData) => userObj.consultations ?? []
-  ).length;
-  const totalEstimates = (documentsDetails ?? [])
-    .flatMap((userObj: DashboardUserData) => userObj.consultations ?? [])
-    .flatMap((consultation: DashboardConsultation) => consultation.documents ?? [])
-    .filter((doc: DashboardDocument) => doc.type === "estimate").length;
+  // Infinity인 경우 0으로 처리
+  if (minTransactionAmount === Infinity) minTransactionAmount = 0;
 
   const consultationToEstimateRate =
     totalConsultations > 0 ? (totalEstimates / totalConsultations) * 100 : 0;
@@ -257,31 +261,29 @@ export const generateMonthlyTrendData = (
   const monthlySales = Array(12).fill(0);
   const monthlyPurchases = Array(12).fill(0);
 
-  if (documentsDetails && documentsDetails.length > 0) {
-    documentsDetails.forEach((userObj: DashboardUserData) => {
-      (userObj.consultations || []).forEach((consultation: DashboardConsultation) => {
-        if (!consultation.date) return;
+  safeArray(documentsDetails).forEach((userObj: DashboardUserData) => {
+    safeArray(userObj.consultations).forEach((consultation: DashboardConsultation) => {
+      if (!consultation.date) return;
 
-        const consultDate = new Date(consultation.date);
-        const month = consultDate.getMonth();
+      const consultDate = new Date(consultation.date);
+      const month = consultDate.getMonth();
 
-        (consultation.documents || []).forEach((doc: DashboardDocument) => {
-          if (doc.status === "completed") {
-            const total = (doc.items || []).reduce(
-              (sum: number, item: DashboardDocumentItem) => sum + (item.amount || 0),
-              0
-            );
+      safeArray(consultation.documents).forEach((doc: DashboardDocument) => {
+        if (doc.status === "completed") {
+          const total = safeArray(doc.items).reduce(
+            (sum: number, item: DashboardDocumentItem) => sum + (item.amount || 0),
+            0
+          );
 
-            if (doc.type === "estimate") {
-              monthlySales[month] += total;
-            } else if (doc.type === "order") {
-              monthlyPurchases[month] += total;
-            }
+          if (doc.type === "estimate") {
+            monthlySales[month] += total;
+          } else if (doc.type === "order") {
+            monthlyPurchases[month] += total;
           }
-        });
+        }
       });
     });
-  }
+  });
 
   let filteredMonths: string[] = [];
   let filteredSales: number[] = [];
@@ -315,10 +317,10 @@ export const getExpiringDocuments = (
   today: Date,
   sevenDaysLater: Date
 ): ExpiringDocument[] => {
-  return (documentsDetails ?? [])
-    .flatMap((user: DashboardUserData) => user.consultations ?? [])
+  return safeArray(documentsDetails)
+    .flatMap((user: DashboardUserData) => safeArray(user.consultations))
     .flatMap((consultation: DashboardConsultation) =>
-      (consultation.documents ?? [])
+      safeArray(consultation.documents)
         .filter((doc: DashboardDocument) => {
           if (doc.type !== "estimate" || !doc.valid_until) return false;
           const validUntil = new Date(doc.valid_until);
@@ -328,7 +330,7 @@ export const getExpiringDocuments = (
           id: doc.document_id,
           company_name: consultation.company_name,
           valid_until: doc.valid_until!,
-          total_amount: (doc.items ?? []).reduce(
+          total_amount: safeArray(doc.items).reduce(
             (sum: number, item: DashboardDocumentItem) => sum + (item.amount || 0),
             0
           ),

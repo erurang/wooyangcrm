@@ -7,12 +7,12 @@ import { Filter } from "lucide-react";
 import { useProductsList } from "@/hooks/products/useProductsList";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUsersList } from "@/hooks/useUserList";
-import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
 import { useLoginUser } from "@/context/login";
 import {
   ProductSearchFilter,
   ProductTable,
   ProductPagination,
+  ProductDocumentModal,
 } from "@/components/products/unit";
 
 interface User {
@@ -36,6 +36,9 @@ export default function ProductPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [status, setStatus] = useState("all");
 
+  // 문서 모달 상태
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+
   // 페이징 및 정렬 상태
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage, setProductsPerPage] = useState(10);
@@ -49,10 +52,6 @@ export default function ProductPage() {
   const debounceMinPrice = useDebounce(minPrice, 300);
   const debounceMaxPrice = useDebounce(maxPrice, 300);
 
-  const { companies } = useCompanySearch(debounceSearchCompany);
-  const companyIds = companies.map((company: any) => company.id);
-  const debounceCompanyIds = useDebounce(companyIds, 300);
-
   // SWR hooks
   const { users } = useUsersList();
   const { products, total, isLoading } = useProductsList({
@@ -61,7 +60,7 @@ export default function ProductPage() {
       user?.role === "admin" || user?.role === "managementSupport"
         ? selectedUser?.id || ""
         : (user?.id as string),
-    companyIds: debounceCompanyIds,
+    companyName: debounceSearchCompany,
     searchProduct: debounceSearchProduct,
     searchSpec: debounceSearchSpec,
     minPrice: debounceMinPrice,
@@ -298,6 +297,7 @@ export default function ProductPage() {
         sortField={sortField}
         sortDirection={sortDirection}
         onSort={handleSort}
+        onDocumentClick={setSelectedDocumentId}
       />
 
       {!isLoading && sortedProducts.length > 0 && (
@@ -307,6 +307,13 @@ export default function ProductPage() {
           onPageChange={handlePageChange}
         />
       )}
+
+      {/* 문서 상세 모달 */}
+      <ProductDocumentModal
+        documentId={selectedDocumentId}
+        type={type}
+        onClose={() => setSelectedDocumentId(null)}
+      />
     </div>
   );
 }

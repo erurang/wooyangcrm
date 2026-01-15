@@ -35,6 +35,7 @@ import {
   ScrollText,
   Trash2,
   Star,
+  Newspaper,
   LucideIcon,
 } from "lucide-react";
 
@@ -114,6 +115,12 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
       { id: "estimate-unit", title: "매출 단가", path: "/products/unit?type=estimate" },
     ],
   },
+  {
+    id: "board",
+    title: "게시판",
+    icon: Newspaper,
+    path: "/board",
+  },
 ];
 
 // Research role menu
@@ -191,6 +198,7 @@ export const MENU_ICONS: Record<string, LucideIcon> = {
   consultations: MessageSquare,
   documents: FileText,
   pricing: DollarSign,
+  board: Newspaper,
   research: Beaker,
   management: ChartBar,
   admin: Settings,

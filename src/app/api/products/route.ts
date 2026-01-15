@@ -9,11 +9,27 @@ interface DocumentItem {
   amount?: number;
 }
 
+interface UserRecord {
+  id: string;
+  name: string;
+  level?: string;
+}
+
 interface DocumentRecord {
   id: string;
+  document_number: string;
+  company_id: string | null;
+  user: UserRecord | UserRecord[] | null;
   content: {
     items: DocumentItem[];
     company_name?: string;
+    notes?: string;
+    total_amount?: number;
+    valid_until?: string;
+    delivery_term?: string;
+    delivery_place?: string;
+    delivery_date?: string;
+    payment_method?: string;
   };
   created_at: string;
   status: string;
@@ -46,7 +62,10 @@ export async function GET(request: Request) {
     // Query 생성 (company_name은 content JSONB 내에 있음)
     let query = supabase
       .from("documents")
-      .select("id, content, created_at, status")
+      .select(`
+        id, document_number, company_id, content, created_at, status,
+        user:users!documents_user_id_fkey(id, name, level)
+      `)
       .eq("type", searchType)
       .ilike("content->>company_name", `%${searchCompany}%`);
 
@@ -62,6 +81,9 @@ export async function GET(request: Request) {
     if (endDate) {
       query = query.lte("created_at", `${endDate}T23:59:59`);
     }
+
+    // 날짜 최신순 정렬
+    query = query.order("created_at", { ascending: false });
 
     const { data, error } = await query;
 
@@ -100,16 +122,29 @@ export async function GET(request: Request) {
 
           return true;
         })
-        .map((item) => ({
-          id: doc.id,
-          estimate_date: doc.created_at,
-          company_name: doc.content.company_name || "",
-          name: item.name,
-          spec: item.spec,
-          unit_price: Number(item.unit_price),
-          quantity: item.quantity,
-          status: doc.status,
-        }))
+        .map((item) => {
+          // Handle user being array or single object
+          const userData = Array.isArray(doc.user) ? doc.user[0] : doc.user;
+          return {
+            id: doc.id,
+            document_number: doc.document_number,
+            estimate_date: doc.created_at,
+            company_id: doc.company_id || "",
+            company_name: doc.content.company_name || "",
+            name: item.name,
+            spec: item.spec,
+            unit_price: Number(item.unit_price),
+            quantity: item.quantity,
+            status: doc.status,
+            user_name: userData?.name || "",
+            user_level: userData?.level || "",
+          };
+        })
+    );
+
+    // 날짜 최신순 정렬 (프론트엔드에서 정렬하지 않은 경우 기본값)
+    filteredProducts.sort((a, b) =>
+      new Date(b.estimate_date).getTime() - new Date(a.estimate_date).getTime()
     );
 
     // 페이지네이션 적용

@@ -1,14 +1,9 @@
 "use client";
 
 import { CircularProgress } from "@mui/material";
-import {
-  Search,
-  Edit,
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface Contact {
   contact_name: string;
@@ -45,6 +40,8 @@ interface CompaniesTableProps {
   onPerPageChange: (perPage: number) => void;
   onEdit: (company: Company) => void;
   onDelete: (company: Company) => void;
+  onAdd?: () => void;
+  hasSearchQuery?: boolean;
 }
 
 export default function CompaniesTable({
@@ -58,6 +55,8 @@ export default function CompaniesTable({
   onPerPageChange,
   onEdit,
   onDelete,
+  onAdd,
+  hasSearchQuery = false,
 }: CompaniesTableProps) {
   const router = useRouter();
 
@@ -212,13 +211,10 @@ export default function CompaniesTable({
             </table>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Search size={48} className="text-gray-300 mb-4" />
-            <p className="text-gray-500 text-lg">검색 결과가 없습니다</p>
-            <p className="text-gray-400 text-sm mt-2">
-              다른 검색어로 시도해보세요
-            </p>
-          </div>
+          <EmptyState
+            type={hasSearchQuery ? "search" : "company"}
+            onAction={!hasSearchQuery && onAdd ? onAdd : undefined}
+          />
         )}
       </div>
 

@@ -13,7 +13,7 @@ export function useFavorites(userId: string | undefined) {
     fetcher
   );
 
-  const addFavorite = async (userId: any, companyId: any, companyName: any) => {
+  const addFavorite = async (userId: string, companyId: string, companyName: string) => {
     try {
       const res = await fetch(
         `/api/favorite?userId=${userId}&type=company&name=${companyName}&itemId=${companyId}`,

@@ -2,7 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CircularProgress } from "@mui/material";
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
+import { useState, useCallback } from "react";
 
 interface Contact {
   id: string;
@@ -23,6 +24,12 @@ interface ConsultationFormData {
   contact_name: string;
   user_id: string;
   content: string;
+}
+
+interface FormErrors {
+  contact_name?: string;
+  content?: string;
+  follow_up_date?: string;
 }
 
 interface ConsultationFormModalProps {
@@ -50,6 +57,73 @@ export default function ConsultationFormModal({
 }: ConsultationFormModalProps) {
   const isAddMode = mode === "add";
   const title = isAddMode ? "상담 내역 추가" : "상담 내역 수정";
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  // 필드별 검증
+  const validateField = useCallback((field: keyof FormErrors, value: string): string | undefined => {
+    switch (field) {
+      case "contact_name":
+        return !value?.trim() ? "담당자를 선택해주세요." : undefined;
+      case "content":
+        return !value?.trim() ? "상담 내용을 입력해주세요." : undefined;
+      case "follow_up_date":
+        if (value && formData.date && new Date(value) < new Date(formData.date)) {
+          return "후속 날짜는 상담일 이후여야 합니다.";
+        }
+        return undefined;
+      default:
+        return undefined;
+    }
+  }, [formData.date]);
+
+  // 폼 전체 검증
+  const validateForm = useCallback((): boolean => {
+    const newErrors: FormErrors = {};
+
+    const contactError = validateField("contact_name", formData.contact_name);
+    if (contactError) newErrors.contact_name = contactError;
+
+    const contentError = validateField("content", formData.content);
+    if (contentError) newErrors.content = contentError;
+
+    const followUpError = validateField("follow_up_date", formData.follow_up_date);
+    if (followUpError) newErrors.follow_up_date = followUpError;
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, [formData, validateField]);
+
+  // 필드 변경 시 에러 클리어
+  const handleFieldChange = useCallback((field: keyof ConsultationFormData, value: string) => {
+    setFormData({ ...formData, [field]: value });
+    if (errors[field as keyof FormErrors]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field as keyof FormErrors];
+        return newErrors;
+      });
+    }
+  }, [formData, setFormData, errors]);
+
+  // 제출 시 검증
+  const handleSubmit = useCallback(async () => {
+    if (!validateForm()) return;
+    await onSubmit();
+  }, [validateForm, onSubmit]);
+
+  // 모달 닫을 때 에러 초기화
+  const handleClose = useCallback(() => {
+    setErrors({});
+    onClose();
+  }, [onClose]);
+
+  // 입력 필드 스타일
+  const getInputClass = (hasError: boolean, isDisabled = false) => {
+    const base = "w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors";
+    if (isDisabled) return `${base} bg-gray-100 border-gray-300`;
+    if (hasError) return `${base} border-red-500 focus:ring-red-500 bg-red-50`;
+    return `${base} border-gray-300 focus:ring-blue-500`;
+  };
 
   return (
     <AnimatePresence>
@@ -86,7 +160,7 @@ export default function ConsultationFormModal({
                     type="date"
                     value={formData.date}
                     readOnly
-                    className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm"
+                    className={getInputClass(false, true)}
                   />
                 </div>
                 <div>
@@ -96,31 +170,27 @@ export default function ConsultationFormModal({
                   <input
                     type="date"
                     value={formData.follow_up_date || ""}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        follow_up_date: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => handleFieldChange("follow_up_date", e.target.value)}
+                    className={getInputClass(!!errors.follow_up_date)}
                   />
+                  {errors.follow_up_date && (
+                    <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {errors.follow_up_date}
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    담당자
+                    담당자 <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={formData.contact_name}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        contact_name: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => handleFieldChange("contact_name", e.target.value)}
+                    className={getInputClass(!!errors.contact_name)}
                   >
                     <option value="">담당자 선택</option>
                     {contacts.map((contact) => {
@@ -134,6 +204,12 @@ export default function ConsultationFormModal({
                       return null;
                     })}
                   </select>
+                  {errors.contact_name && (
+                    <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      {errors.contact_name}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -142,7 +218,7 @@ export default function ConsultationFormModal({
                   <select
                     value={formData.user_id}
                     disabled
-                    className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm"
+                    className={getInputClass(false, true)}
                   >
                     {users.map((user) => (
                       <option key={user.id} value={user.id}>
@@ -155,21 +231,21 @@ export default function ConsultationFormModal({
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  상담 내용
+                  상담 내용 <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   placeholder="상담 내용을 입력하세요..."
                   value={formData.content}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      content: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={(e) => handleFieldChange("content", e.target.value)}
+                  className={`${getInputClass(!!errors.content)} resize-none`}
                   rows={10}
                 />
-                {isAddMode && (
+                {errors.content ? (
+                  <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.content}
+                  </p>
+                ) : isAddMode && (
                   <p className="mt-1 text-xs text-gray-500">
                     담당자를 선택 후 상담을 작성해주세요. 후속 날짜를 설정하면
                     지정날짜 7일 전에 대시보드의 후속 상담 필요 고객 리스트에
@@ -181,14 +257,14 @@ export default function ConsultationFormModal({
 
             <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                 disabled={saving}
               >
                 취소
               </button>
               <button
-                onClick={onSubmit}
+                onClick={handleSubmit}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                 disabled={saving}
               >

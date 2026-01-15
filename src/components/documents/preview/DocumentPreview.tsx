@@ -276,9 +276,15 @@ export default function DocumentPreview({
   onClose,
   onPrint,
 }: DocumentPreviewProps) {
-  // 날짜가 없으면 현재 날짜 사용
-  const dateStr = document?.date || new Date().toISOString().split("T")[0];
+  // 날짜가 없으면 현재 날짜 사용 (ISO timestamp에서 날짜 부분만 추출)
+  const rawDate = document?.date || new Date().toISOString();
+  const dateStr = rawDate.split("T")[0]; // "2026-01-15T06:54:53" -> "2026-01-15"
   const [year, month, day] = dateStr.split("-").map(Number);
+
+  // 담당자 정보 (없으면 빈 문자열)
+  const contactDisplay = document.contact_name
+    ? `${document.contact_name} ${document.contact_level || ""}님`
+    : "";
 
   const renderEstimate = () => (
     <>
@@ -293,10 +299,7 @@ export default function DocumentPreview({
       <div className="grid grid-cols-1 md:grid-cols-5 mt-12">
         <div className="col-span-3 space-y-2 font-semibold pr-0 md:pr-16">
           <InfoField label="회사명" value={document.company_name || ""} />
-          <InfoField
-            label="담당자명"
-            value={`${document.contact_name} ${document.contact_level}님`}
-          />
+          <InfoField label="담당자명" value={contactDisplay} />
           <InfoField label="TEL" value={company_phone || ""} />
           <InfoField label="FAX" value={company_fax || ""} />
           <InfoField label="유효기간" value={document.valid_until || ""} />
@@ -338,10 +341,7 @@ export default function DocumentPreview({
       <div className="grid grid-cols-1 md:grid-cols-5 mt-12">
         <div className="col-span-3 space-y-2 font-semibold pr-0 md:pr-16">
           <InfoField label="회사명" value={document.company_name || ""} />
-          <InfoField
-            label="담당자명"
-            value={`${document.contact_name} ${document.contact_level}님`}
-          />
+          <InfoField label="담당자명" value={contactDisplay} />
           <InfoField label="TEL" value={company_phone || ""} />
           <InfoField label="FAX" value={company_fax || ""} />
           <InfoField label="납기일자" value={document.delivery_date || ""} />
@@ -384,10 +384,7 @@ export default function DocumentPreview({
       <div className="grid grid-cols-1 md:grid-cols-5 mt-12">
         <div className="col-span-3 space-y-2 font-semibold pr-0 md:pr-16">
           <InfoField label="회사명" value={document.company_name || ""} />
-          <InfoField
-            label="담당자명"
-            value={`${document.contact_name} ${document.contact_level}님`}
-          />
+          <InfoField label="담당자명" value={contactDisplay} />
           <InfoField label="TEL" value={company_phone || ""} />
           <InfoField label="FAX" value={company_fax || ""} />
           <div className="mt-12 relative">

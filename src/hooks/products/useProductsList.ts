@@ -9,7 +9,7 @@ const fetcher = async (url: string) => {
 export const useProductsList = ({
   type,
   userId,
-  companyIds,
+  companyName,
   searchProduct,
   searchSpec,
   minPrice,
@@ -20,7 +20,7 @@ export const useProductsList = ({
 }: {
   type: "estimate" | "order";
   userId: string;
-  companyIds: string[];
+  companyName: string;
   searchProduct: string;
   searchSpec: string;
   minPrice: number | "";
@@ -31,6 +31,7 @@ export const useProductsList = ({
 }) => {
   const queryParams = new URLSearchParams({
     type,
+    company_name: companyName,
     product_name: searchProduct,
     specification: searchSpec,
     min_price: minPrice ? minPrice.toString() : "",
@@ -42,9 +43,6 @@ export const useProductsList = ({
   // ✅ userId가 있을 때만 추가
   if (userId) queryParams.append("userId", userId);
   if (status !== "all") queryParams.append("status", status);
-
-  // ✅ companyIds가 있을 때만 추가
-  companyIds.forEach((id) => queryParams.append("companyIds", id));
 
   const { data, error, isLoading, mutate } = useSWR(
     `/api/products?${queryParams.toString()}`,

@@ -2,6 +2,15 @@ import useSWRMutation from "swr/mutation";
 import { fetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 
+interface BRnDsData {
+  name: string;
+  address?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  notes?: string;
+}
+
 export function useAddbRnDs() {
   const { trigger, isMutating, error } = useSWRMutation(
     `/api/manage/brnds/add`,
@@ -10,7 +19,7 @@ export function useAddbRnDs() {
 
   const { mutate } = useSWR(`/api/manage/brnds/list`); // 🔹 SWR의 mutate 가져오기
 
-  const addbRnds = async (rndsData: any) => {
+  const addbRnds = async (rndsData: BRnDsData) => {
     try {
       const response = await trigger({
         method: "POST",

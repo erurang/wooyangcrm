@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CircularProgress } from "@mui/material";
 import {
@@ -31,6 +32,13 @@ interface Company {
   parcel: string;
 }
 
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  business_number?: string;
+}
+
 interface CompanyFormModalProps {
   mode: "add" | "edit";
   isOpen: boolean;
@@ -40,6 +48,12 @@ interface CompanyFormModalProps {
   onSubmit: () => Promise<void>;
   saving: boolean;
 }
+
+// 이메일 형식 검증
+const isValidEmail = (email: string) => {
+  if (!email) return true; // 선택 필드이므로 빈 값은 허용
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
 
 export default function CompanyFormModal({
   mode,
@@ -51,6 +65,44 @@ export default function CompanyFormModal({
   saving,
 }: CompanyFormModalProps) {
   const title = mode === "add" ? "거래처 추가" : "거래처 수정";
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  // 폼 검증
+  const validateForm = useCallback((): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!company.name?.trim()) {
+      newErrors.name = "거래처명을 입력해주세요.";
+    }
+
+    if (company.email && !isValidEmail(company.email)) {
+      newErrors.email = "올바른 이메일 형식이 아닙니다.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, [company]);
+
+  // 에러 클리어
+  const clearError = useCallback((field: keyof FormErrors) => {
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
+    });
+  }, []);
+
+  // 제출 핸들러
+  const handleSubmit = useCallback(async () => {
+    if (!validateForm()) return;
+    await onSubmit();
+  }, [validateForm, onSubmit]);
+
+  // 모달 닫기
+  const handleClose = useCallback(() => {
+    setErrors({});
+    onClose();
+  }, [onClose]);
 
   const handleCompanyChange = (field: keyof Company, value: string) => {
     setCompany({ ...company, [field]: value });
@@ -124,6 +176,8 @@ export default function CompanyFormModal({
                     <CompanyBasicInfoForm
                       company={company}
                       onChange={handleCompanyChange}
+                      errors={errors}
+                      onClearError={clearError}
                     />
 
                     <ContactsSection
@@ -156,7 +210,7 @@ export default function CompanyFormModal({
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
-                  onClick={onSubmit}
+                  onClick={handleSubmit}
                   disabled={saving}
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
                 >
@@ -171,7 +225,7 @@ export default function CompanyFormModal({
                 </button>
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={handleClose}
                   disabled={saving}
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 >

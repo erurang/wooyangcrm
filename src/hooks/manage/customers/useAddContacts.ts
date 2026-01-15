@@ -1,5 +1,16 @@
 import useSWRMutation from "swr/mutation";
 import { fetcher } from "@/lib/fetcher";
+import type { ContactFormData } from "@/types";
+
+interface NewContact {
+  contact_name: string;
+  mobile?: string;
+  department?: string;
+  level?: string;
+  email?: string;
+  resign?: boolean;
+  note?: string;
+}
 
 export function useAddContacts() {
   const { trigger, isMutating, error } = useSWRMutation(
@@ -7,7 +18,7 @@ export function useAddContacts() {
     fetcher
   );
 
-  const addContacts = async (contacts: any, companyId: any) => {
+  const addContacts = async (contacts: NewContact[], companyId: string) => {
     try {
       const response = await trigger({
         method: "POST",

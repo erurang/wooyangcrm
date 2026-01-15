@@ -1,13 +1,23 @@
 import useSWRMutation from "swr/mutation";
 import { fetcher } from "@/lib/fetcher";
 
+interface RnDsUpdateData {
+  id: string;
+  name: string;
+  address?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  notes?: string;
+}
+
 export function useUpdateRnDs() {
   const { trigger, isMutating, error } = useSWRMutation(
     `/api/manage/rnds/update`,
     fetcher
   );
 
-  const updateRnds = async (rndsData: any) => {
+  const updateRnds = async (rndsData: RnDsUpdateData) => {
     try {
       const response = await trigger({
         method: "PUT",

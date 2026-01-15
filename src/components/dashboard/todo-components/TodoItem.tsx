@@ -1,7 +1,31 @@
 "use client";
 
 import CircularProgress from "@mui/material/CircularProgress";
-import { Trash2, CheckCircle, Circle, GripVertical } from "lucide-react";
+import { Trash2, CheckCircle, Circle, GripVertical, Calendar, AlertCircle } from "lucide-react";
+
+// 마감일까지 남은 일수 계산
+function getDueDateStatus(dueDate: string | null): { daysLeft: number; status: "overdue" | "urgent" | "soon" | "normal" | null } {
+  if (!dueDate) return { daysLeft: 0, status: null };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+
+  const diffTime = due.getTime() - today.getTime();
+  const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (daysLeft < 0) return { daysLeft, status: "overdue" };
+  if (daysLeft === 0) return { daysLeft, status: "urgent" };
+  if (daysLeft <= 3) return { daysLeft, status: "soon" };
+  return { daysLeft, status: "normal" };
+}
+
+// 마감일 포맷팅
+function formatDueDate(dueDate: string): string {
+  const date = new Date(dueDate);
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
 
 interface Todo {
   id: string;
@@ -56,6 +80,33 @@ export default function TodoItem({
   const ringColor = isCompleted ? "focus:ring-emerald-300" : "focus:ring-indigo-300";
   const textStyle = isCompleted ? "text-slate-500 line-through" : "text-slate-700";
 
+  // 마감일 상태 계산
+  const { daysLeft, status: dueDateStatus } = getDueDateStatus(todo.due_date);
+
+  // 마감일 배지 색상
+  const getDueDateBadgeStyle = () => {
+    if (isCompleted) return "bg-slate-100 text-slate-400";
+    switch (dueDateStatus) {
+      case "overdue":
+        return "bg-red-100 text-red-600";
+      case "urgent":
+        return "bg-orange-100 text-orange-600";
+      case "soon":
+        return "bg-amber-100 text-amber-600";
+      default:
+        return "bg-slate-100 text-slate-500";
+    }
+  };
+
+  // 마감일 텍스트
+  const getDueDateText = () => {
+    if (!todo.due_date) return null;
+    if (dueDateStatus === "overdue") return `${Math.abs(daysLeft)}일 지남`;
+    if (dueDateStatus === "urgent") return "오늘";
+    if (dueDateStatus === "soon") return `${daysLeft}일 남음`;
+    return formatDueDate(todo.due_date);
+  };
+
   return (
     <div
       draggable
@@ -92,6 +143,21 @@ export default function TodoItem({
         onChange={(e) => onContentChange(e.target.value)}
         className={`flex-grow px-2 py-1 bg-transparent border-none focus:outline-none focus:ring-2 ${ringColor} rounded-md ${textStyle}`}
       />
+
+      {/* 마감일 배지 */}
+      {todo.due_date && (
+        <div
+          className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md ml-2 ${getDueDateBadgeStyle()}`}
+          title={`마감일: ${todo.due_date}`}
+        >
+          {dueDateStatus === "overdue" ? (
+            <AlertCircle className="h-3 w-3" />
+          ) : (
+            <Calendar className="h-3 w-3" />
+          )}
+          <span>{getDueDateText()}</span>
+        </div>
+      )}
 
       {/* 삭제 버튼 */}
       <button

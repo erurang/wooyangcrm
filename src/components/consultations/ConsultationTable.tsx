@@ -2,6 +2,7 @@
 
 import { Edit, Trash2, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import type { ProcessedConsultation } from "@/types/consultation";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface User {
   id: string;
@@ -21,6 +22,7 @@ interface ConsultationTableProps {
   onEditConsultation: (consultation: ProcessedConsultation) => void;
   onDeleteConsultation: (consultation: ProcessedConsultation) => void;
   onPageChange: (page: number) => void;
+  onAddConsultation?: () => void;
 }
 
 export default function ConsultationTable({
@@ -35,6 +37,7 @@ export default function ConsultationTable({
   onEditConsultation,
   onDeleteConsultation,
   onPageChange,
+  onAddConsultation,
 }: ConsultationTableProps) {
   const formatContentWithLineBreaks = (content: string) => {
     return content.split("\n").map((line, index) => (
@@ -194,9 +197,10 @@ export default function ConsultationTable({
             </tbody>
           </table>
         ) : (
-          <div className="py-8 text-center text-gray-500">
-            {searchTerm ? "검색 결과가 없습니다." : "상담 내역이 없습니다."}
-          </div>
+          <EmptyState
+            type={searchTerm ? "search" : "consultation"}
+            onAction={!searchTerm && onAddConsultation ? onAddConsultation : undefined}
+          />
         )}
       </div>
 

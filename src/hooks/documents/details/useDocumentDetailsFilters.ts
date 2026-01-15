@@ -11,6 +11,11 @@ interface UserType {
   level: string;
 }
 
+interface CompanySearchResult {
+  id: string;
+  name: string;
+}
+
 interface UseDocumentDetailsFiltersProps {
   type: string;
   users: UserType[];
@@ -61,7 +66,7 @@ export function useDocumentDetailsFilters({
   // Debounced values
   const debounceSearchTerm = useDebounce(searchTerm, 300);
   const { companies } = useCompanySearch(debounceSearchTerm);
-  const companyIds = companies.map((company: any) => company.id);
+  const companyIds = companies.map((company: CompanySearchResult) => company.id);
   const debounceCompanyIds = useDebounce(companyIds, 300);
   const debounceDocNumber = useDebounce(searchDocNumber, 300);
   const debounceNotes = useDebounce(searchNotes, 300);

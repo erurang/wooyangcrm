@@ -2,6 +2,15 @@ import useSWRMutation from "swr/mutation";
 import { fetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 
+interface OrgsData {
+  name: string;
+  address?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  notes?: string;
+}
+
 export function useAddOrgs() {
   const { trigger, isMutating, error } = useSWRMutation(
     `/api/manage/orgs/add`,
@@ -10,7 +19,7 @@ export function useAddOrgs() {
 
   const { mutate } = useSWR(`/api/manage/orgs/list/page`); // 🔹 SWR의 mutate 가져오기
 
-  const addOrgs = async (orgsData: any) => {
+  const addOrgs = async (orgsData: OrgsData) => {
     try {
       const response = await trigger({
         method: "POST",

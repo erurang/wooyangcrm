@@ -13,6 +13,16 @@ interface LoginUser {
   worksEmail: string;
 }
 
+// Supabase 쿼리 결과 타입
+interface UserQueryResult {
+  name: string;
+  id: string;
+  position: string | null;
+  level: string | null;
+  works_email: string | null;
+  roles: { role_name: string } | { role_name: string }[] | null;
+}
+
 // Context에 저장할 값 (loginUser + setLoginUser)
 interface LoginUserContextValue {
   loginUser: LoginUser | undefined;
@@ -49,14 +59,18 @@ export function LoginUserProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
+        const typedUserData = userData as UserQueryResult;
+        const roles = typedUserData.roles;
+        const roleName = Array.isArray(roles) ? roles[0]?.role_name : roles?.role_name;
+
         setLoginUser({
           email: data.session.user.email || "",
-          role: (userData as any).roles.role_name || "user",
-          name: userData.name,
-          id: userData.id,
-          position: userData.position || "",
-          level: userData.level || "",
-          worksEmail: userData.works_email || "",
+          role: roleName || "user",
+          name: typedUserData.name,
+          id: typedUserData.id,
+          position: typedUserData.position || "",
+          level: typedUserData.level || "",
+          worksEmail: typedUserData.works_email || "",
         });
       } catch (error) {
         console.error("🚨 fetchUser 에러:", error);

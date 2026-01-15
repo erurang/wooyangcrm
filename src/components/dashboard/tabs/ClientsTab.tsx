@@ -3,8 +3,9 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Building, Users, PieChart, ArrowUpDown, ArrowUp, ArrowDown, Calendar, ExternalLink } from "lucide-react";
+import { Building, Users, PieChart, ArrowUpDown, ArrowUp, ArrowDown, Calendar, ExternalLink, Download } from "lucide-react";
 import { formatPeriodLabel } from "@/utils/dashboard-helpers";
+import { exportClientsToExcel } from "@/utils/exportToExcel";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -147,9 +148,19 @@ export default function ClientsTab({
           </div>
           <h2 className="text-xl font-semibold text-slate-800">거래처 분석</h2>
         </div>
-        <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-3 py-1.5 rounded-md">
-          <Calendar className="h-4 w-4" />
-          <span>{periodLabel}</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 px-3 py-1.5 rounded-md">
+            <Calendar className="h-4 w-4" />
+            <span>{periodLabel}</span>
+          </div>
+          <button
+            onClick={() => exportClientsToExcel(sortedClients, periodLabel)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors"
+            title="Excel로 내보내기"
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">내보내기</span>
+          </button>
         </div>
       </div>
 

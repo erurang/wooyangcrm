@@ -159,28 +159,27 @@ export default function TrendsTab({
             <h3 className="text-lg font-semibold text-slate-800">이익률</h3>
             <span className="text-slate-400">-</span>
           </div>
-          {monthlyTrendData.salesData.length > 0 &&
-          monthlyTrendData.purchaseData.length > 0 &&
-          monthlyTrendData.salesData[monthlyTrendData.salesData.length - 1] >
-            0 ? (
-            <p className="text-3xl font-bold text-indigo-600 mb-2">
-              {Math.round(
-                (1 -
-                  monthlyTrendData.purchaseData[
-                    monthlyTrendData.purchaseData.length - 1
-                  ] /
-                    monthlyTrendData.salesData[
-                      monthlyTrendData.salesData.length - 1
-                    ]) *
-                  100
-              )}
-              %
-            </p>
-          ) : (
-            <p className="text-3xl font-bold text-indigo-600 mb-2">
-              데이터 없음
-            </p>
-          )}
+          {(() => {
+            const lastSales = monthlyTrendData.salesData[monthlyTrendData.salesData.length - 1] || 0;
+            const lastPurchase = monthlyTrendData.purchaseData[monthlyTrendData.purchaseData.length - 1] || 0;
+
+            if (lastSales === 0) {
+              return (
+                <p className="text-3xl font-bold text-slate-400 mb-2">
+                  데이터 없음
+                </p>
+              );
+            }
+
+            const profitRate = Math.round((1 - lastPurchase / lastSales) * 100);
+            const isPositive = profitRate >= 0;
+
+            return (
+              <p className={`text-3xl font-bold mb-2 ${isPositive ? "text-indigo-600" : "text-red-500"}`}>
+                {profitRate}%
+              </p>
+            );
+          })()}
           <p className="text-sm text-slate-500">매출 대비 매입 비율 기준</p>
         </div>
       </div>

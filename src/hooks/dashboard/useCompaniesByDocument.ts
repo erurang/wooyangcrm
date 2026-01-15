@@ -1,8 +1,12 @@
 import { fetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 
+interface DocumentWithCompany {
+  company_id: string;
+}
+
 // 📌 특정 문서에서 사용된 회사 목록 가져오기 훅
-export function useCompaniesByDocument(documents: any[]) {
+export function useCompaniesByDocument(documents: DocumentWithCompany[]) {
   const companyIds = Array.from(
     new Set(documents?.map((doc) => doc.company_id))
   );

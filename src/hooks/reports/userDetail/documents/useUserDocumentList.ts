@@ -15,7 +15,7 @@ export function useUserDocumentList(
   );
 
   return {
-    documentsDetails: data,
+    documentsDetails: Array.isArray(data) ? data : [],
     isLoading,
     error,
   };
