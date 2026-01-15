@@ -105,7 +105,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                   <tr>
                     <td style=" font-weight: bold; font-size: 14px;">회사명 : ${
-                      document.content.company_name
+                      document.company_name
                     }</td>
                   </tr>
                   <tr>
@@ -133,7 +133,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                   <tr>
                     <td style=" font-weight: bold; font-size: 14px;">유효기간 : ${
-                      document.content.valid_until
+                      document.valid_until
                     }</td>
                   </tr>
                   <tr>
@@ -141,7 +141,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                   <tr>
                     <td style=" font-weight: bold;font-size: 14px;">납품일 : ${
-                      document.content.delivery_term
+                      document.delivery_term
                     }</td>
                   </tr>
                   <tr>
@@ -157,7 +157,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                   <tr>
                     <td style=" font-weight: bold;font-size: 14px;">납품장소 : ${
-                      document.content.delivery_place
+                      document.delivery_place
                     }</td>
                   </tr>
                   <tr>
@@ -321,8 +321,8 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   <tr>
     <td style="text-align: center; font-weight: bold; padding: 10px; border-bottom: 1px solid black; font-size: 14px;">
       합계(VAT별도) : 金${koreanAmount(
-        document.content.total_amount
-      )}원整(₩${document.content.total_amount?.toLocaleString()})
+        document.total_amount
+      )}원整(₩${document.total_amount?.toLocaleString()})
     </td>
   </tr>
   <tr>
@@ -339,7 +339,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           <td style="border-right: 1px solid black;"></td>
           <td style="padding: 12px; font-size: 10px; vertical-align: top;">
             <b>특기사항 : </br>${formatContentForPrint(
-              document.content.notes
+              document.notes
             )}</b> 
           </td>          
         </tr>
@@ -431,7 +431,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                   <tr>
                     <td style=" font-weight: bold; font-size: 14px;">회사명 : ${
-                      document.content.company_name
+                      document.company_name
                     }</td>
                   </tr>
                   <tr>
@@ -459,7 +459,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                   <tr>
                     <td style=" font-weight: bold; font-size: 14px;">납기일자 : ${
-                      document.content.delivery_date
+                      document.delivery_date
                     }</td>
                   </tr>
                   <tr>
@@ -631,8 +631,8 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   <tr>
     <td style="text-align: center; font-weight: bold; padding: 10px; border-bottom: 1px solid black; font-size: 14px;">
       합계(VAT별도) : 金${koreanAmount(
-        document.content.total_amount
-      )}원整(₩${document.content.total_amount.toLocaleString()})
+        document.total_amount
+      )}원整(₩${document.total_amount.toLocaleString()})
     </td>
   </tr>
   <tr>
@@ -649,7 +649,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           <td style="border-right: 1px solid black;"></td>
           <td style="padding: 10px; font-size: 12px; vertical-align: top;">
             <b>특기사항 : </br>${formatContentForPrint(
-              document.content.notes
+              document.notes
             )}</b> 
           </td>          
         </tr>
@@ -733,7 +733,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                   <tr>
                     <td style=" font-weight: bold; font-size: 14px;">회사명 : ${
-                      document.content.company_name
+                      document.company_name
                     }</td>
                   </tr>
                   <tr>
@@ -761,7 +761,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                   <tr>
                     <td style=" font-weight: bold; font-size: 14px;">희망견적일 : ${
-                      document.content.delivery_date
+                      document.delivery_date
                     }</td>
                   </tr>
                   <tr>
@@ -936,7 +936,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
           <td style="border-right: 1px solid black;"></td>
           <td style="padding: 10px; font-size: 12px; vertical-align: top;">
             <b>특기사항 : </br>${formatContentForPrint(
-              document.content.notes
+              document.notes
             )}</b> 
           </td>          
         </tr>
@@ -997,7 +997,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-5 mt-12">
               <div className="col-span-3 space-y-2 font-semibold pr-0 md:pr-16">
                 <div className="relative">
-                  <p>회사명 : {document.content.company_name}</p>
+                  <p>회사명 : {document.company_name}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
@@ -1016,11 +1016,11 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
-                  <p>유효기간 : {document.content.valid_until}</p>
+                  <p>유효기간 : {document.valid_until}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
-                  <p>납품일 : {document.content.delivery_term}</p>
+                  <p>납품일 : {document.delivery_term}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
@@ -1028,7 +1028,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
-                  <p>납품장소 : {document.content.delivery_place}</p>
+                  <p>납품장소 : {document.delivery_place}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="mt-12 relative">
@@ -1139,7 +1139,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                     <th className="px-4 py-2 border-black border-r-[1px] text-center">
                       합계(VAT별도) : 金
                       {koreanAmount(document.content?.total_amount)}원整 (₩
-                      {document.content.total_amount.toLocaleString()})
+                      {document.total_amount.toLocaleString()})
                     </th>
                   </tr>
                 </thead>
@@ -1159,7 +1159,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                             <p>특기사항</p>
                             <p>
                               {formatContentWithLineBreaks(
-                                document.content.notes
+                                document.notes
                               )}
                             </p>
                           </div>
@@ -1211,7 +1211,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-5 mt-12">
               <div className="col-span-3 space-y-2 font-semibold pr-0 md:pr-16">
                 <div className="relative">
-                  <p>회사명 : {document.content.company_name}</p>
+                  <p>회사명 : {document.company_name}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
@@ -1230,11 +1230,11 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
-                  <p>납기일자 : {document.content.delivery_date}</p>
+                  <p>납기일자 : {document.delivery_date}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
-                  <p>결제방식 : {document.content.payment_method}</p>
+                  <p>결제방식 : {document.payment_method}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="mt-12 relative">
@@ -1344,8 +1344,8 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   <tr className="text-left border-black border-2">
                     <th className="px-4 py-2 border-black border-r-[1px] text-center">
                       합계(VAT별도) : 金
-                      {koreanAmount(document.content.total_amount)}원整 (₩
-                      {document.content.total_amount.toLocaleString()})
+                      {koreanAmount(document.total_amount)}원整 (₩
+                      {document.total_amount.toLocaleString()})
                     </th>
                   </tr>
                 </thead>
@@ -1365,7 +1365,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                             <p>특기사항</p>
                             <p>
                               {formatContentWithLineBreaks(
-                                document.content.notes
+                                document.notes
                               )}
                             </p>
                           </div>
@@ -1415,7 +1415,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-5 mt-12">
               <div className="col-span-3 space-y-2 font-semibold pr-0 md:pr-16">
                 <div className="relative">
-                  <p>회사명 : {document.content.company_name}</p>
+                  <p>회사명 : {document.company_name}</p>
                   <div className="absolute -bottom-1 border-b-[1px] border-black w-full border-dotted"></div>
                 </div>
                 <div className="relative">
@@ -1552,7 +1552,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                             <p>특기사항</p>
                             <p>
                               {formatContentWithLineBreaks(
-                                document.content.notes
+                                document.notes
                               )}
                             </p>
                           </div>
