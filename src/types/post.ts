@@ -1,6 +1,11 @@
 // 게시판 관련 타입 정의
 
 /**
+ * 참조 타입
+ */
+export type ReferenceType = "company" | "consultation" | "document";
+
+/**
  * 게시글 카테고리
  */
 export interface PostCategory {
@@ -37,6 +42,27 @@ export interface PostWithAuthor extends Post {
 }
 
 /**
+ * 댓글 첨부파일
+ */
+export interface CommentFile {
+  id: string;
+  name: string;
+  url: string;
+  filePath: string;
+  user_id: string;
+}
+
+/**
+ * 댓글 참조 (간단한 형태)
+ */
+export interface SimpleCommentReference {
+  id: string;
+  reference_type: ReferenceType;
+  reference_id: string;
+  reference_name?: string;
+}
+
+/**
  * 게시글 댓글
  */
 export interface PostComment {
@@ -48,6 +74,8 @@ export interface PostComment {
   content: string;
   parent_id?: string;
   user: { id: string; name: string; level?: string };
+  files?: CommentFile[];
+  references?: SimpleCommentReference[];
 }
 
 /**
@@ -73,6 +101,7 @@ export interface CreatePostData {
   title: string;
   content: string;
   is_pinned?: boolean;
+  references?: CreateReferenceData[];
 }
 
 /**
@@ -85,6 +114,7 @@ export interface UpdatePostData {
   title?: string;
   content?: string;
   is_pinned?: boolean;
+  references?: CreateReferenceData[];
 }
 
 /**
@@ -101,6 +131,7 @@ export interface CreateCommentData {
  */
 export interface PostListFilter {
   category_id?: string;
+  category?: string; // 카테고리 이름으로 필터링
   search?: string;
   user_id?: string;
   is_pinned?: boolean;
@@ -117,4 +148,62 @@ export interface PostListResponse {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+/**
+ * 게시글/댓글 참조
+ */
+export interface PostReference {
+  id: string;
+  created_at: string;
+  post_id: string;
+  reference_type: ReferenceType;
+  reference_id: string;
+  reference_name?: string;
+}
+
+/**
+ * 참조 생성 데이터
+ */
+export interface CreateReferenceData {
+  reference_type: ReferenceType;
+  reference_id: string;
+  reference_name?: string;
+}
+
+/**
+ * 참조 검색 결과 아이템
+ */
+export interface ReferenceSearchItem {
+  id: string;
+  name: string;
+  type: ReferenceType;
+  // 추가 정보 (UI 표시용)
+  subtext?: string;
+}
+
+/**
+ * 참조가 포함된 게시글
+ */
+export interface PostWithReferences extends PostWithAuthor {
+  references: PostReference[];
+}
+
+/**
+ * 댓글 참조
+ */
+export interface CommentReference {
+  id: string;
+  created_at: string;
+  comment_id: string;
+  reference_type: ReferenceType;
+  reference_id: string;
+  reference_name?: string;
+}
+
+/**
+ * 참조가 포함된 댓글
+ */
+export interface PostCommentWithReferences extends PostComment {
+  references?: CommentReference[];
 }

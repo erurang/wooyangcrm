@@ -11,6 +11,7 @@ export function usePosts(filter: PostListFilter = {}) {
   const params = new URLSearchParams();
 
   if (filter.category_id) params.append("category_id", filter.category_id);
+  if (filter.category) params.append("category", filter.category); // 카테고리 이름
   if (filter.search) params.append("search", filter.search);
   if (filter.user_id) params.append("user_id", filter.user_id);
   if (filter.is_pinned !== undefined)

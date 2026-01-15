@@ -52,6 +52,9 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         case "todo":
           router.push("/");
           break;
+        case "post":
+          router.push(`/board/${notification.related_id}`);
+          break;
       }
     }
     setIsOpen(false);
@@ -66,6 +69,10 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         return "💬";
       case "todo_reminder":
         return "✅";
+      case "post_comment":
+        return "💬";
+      case "post_mention":
+        return "@";
       default:
         return "🔔";
     }
@@ -80,6 +87,10 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         return "bg-blue-50 border-blue-200";
       case "todo_reminder":
         return "bg-yellow-50 border-yellow-200";
+      case "post_comment":
+        return "bg-green-50 border-green-200";
+      case "post_mention":
+        return "bg-purple-50 border-purple-200";
       default:
         return "bg-gray-50 border-gray-200";
     }

@@ -7,11 +7,23 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "20");
   const offset = parseInt(searchParams.get("offset") || "0");
   const category_id = searchParams.get("category_id");
+  const category_name = searchParams.get("category"); // 카테고리 이름으로도 필터링 가능
   const search = searchParams.get("search");
   const user_id = searchParams.get("user_id");
   const is_pinned = searchParams.get("is_pinned");
   const sortBy = searchParams.get("sort_by") || "created_at";
   const order = searchParams.get("order") || "desc";
+
+  // 카테고리 이름으로 ID 조회
+  let resolvedCategoryId = category_id;
+  if (!category_id && category_name) {
+    const { data: categoryData } = await supabase
+      .from("post_categories")
+      .select("id")
+      .eq("name", category_name)
+      .single();
+    resolvedCategoryId = categoryData?.id || null;
+  }
 
   let query = supabase
     .from("posts")
@@ -24,8 +36,8 @@ export async function GET(req: NextRequest) {
       { count: "exact" }
     );
 
-  if (category_id) {
-    query = query.eq("category_id", category_id);
+  if (resolvedCategoryId) {
+    query = query.eq("category_id", resolvedCategoryId);
   }
 
   if (search) {

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Pin, Eye, Calendar, User, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Pin, Eye, Calendar, User, Pencil, Trash2, Paperclip, Link2 } from "lucide-react";
 import dayjs from "dayjs";
 import { useLoginUser } from "@/context/login";
 import { usePost, useUpdatePost, useDeletePost, useComments, useAddComment } from "@/hooks/posts";
@@ -11,7 +11,11 @@ import CommentList from "@/components/board/comments/CommentList";
 import CommentForm from "@/components/board/comments/CommentForm";
 import PostFormModal from "@/components/board/modals/PostFormModal";
 import DeletePostModal from "@/components/board/modals/DeletePostModal";
-import type { UpdatePostData } from "@/types/post";
+import PostFileList from "@/components/board/PostFileList";
+import ReferenceDisplay from "@/components/board/ReferenceDisplay";
+import { uploadPostFile } from "@/lib/postFiles";
+import { uploadCommentFile } from "@/lib/commentFiles";
+import type { UpdatePostData, PostReference, CreateReferenceData } from "@/types/post";
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -31,6 +35,26 @@ export default function PostDetailPage() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  // 참조 상태
+  const [references, setReferences] = useState<PostReference[]>([]);
+
+  // 참조 로드
+  useEffect(() => {
+    if (!postId) return;
+    const loadReferences = async () => {
+      try {
+        const response = await fetch(`/api/posts/references?postId=${postId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setReferences(data.references || []);
+        }
+      } catch (error) {
+        console.error("Failed to load references:", error);
+      }
+    };
+    loadReferences();
+  }, [postId]);
+
   // 핸들러
   const handleBack = () => {
     router.push("/board");
@@ -44,9 +68,59 @@ export default function PostDetailPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleUpdateSubmit = async (data: UpdatePostData) => {
+  // 참조 저장/삭제 헬퍼 함수
+  const saveReferences = async (targetPostId: string, refs: UpdatePostData["references"]) => {
+    if (!refs || refs.length === 0) return;
+    for (const ref of refs) {
+      try {
+        await fetch("/api/posts/references", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            postId: targetPostId,
+            reference_type: ref.reference_type,
+            reference_id: ref.reference_id,
+            reference_name: ref.reference_name,
+          }),
+        });
+      } catch (error) {
+        console.error("Failed to save reference:", error);
+      }
+    }
+  };
+
+  const clearReferences = async (targetPostId: string) => {
+    try {
+      const response = await fetch(`/api/posts/references?postId=${targetPostId}`);
+      const { references: existingRefs } = await response.json();
+      for (const ref of existingRefs || []) {
+        await fetch(`/api/posts/references?id=${ref.id}`, { method: "DELETE" });
+      }
+    } catch (error) {
+      console.error("Failed to clear references:", error);
+    }
+  };
+
+  const handleUpdateSubmit = async (data: UpdatePostData, pendingFiles?: File[]) => {
     try {
       await updatePost({ id: postId, data });
+      // 새 파일 업로드
+      if (pendingFiles && pendingFiles.length > 0) {
+        for (const file of pendingFiles) {
+          await uploadPostFile(file, postId, user?.id || "");
+        }
+      }
+      // 참조 업데이트
+      if (data.references !== undefined) {
+        await clearReferences(postId);
+        await saveReferences(postId, data.references);
+        // 참조 다시 로드
+        const response = await fetch(`/api/posts/references?postId=${postId}`);
+        if (response.ok) {
+          const refData = await response.json();
+          setReferences(refData.references || []);
+        }
+      }
       setIsFormModalOpen(false);
       mutatePost();
     } catch (error) {
@@ -63,7 +137,55 @@ export default function PostDetailPage() {
     }
   };
 
-  const handleCommentSubmit = async (content: string, parentId?: string) => {
+  // 댓글 참조 저장 헬퍼 함수
+  const saveCommentReferences = async (commentId: string, refs: CreateReferenceData[]) => {
+    if (!refs || refs.length === 0) return;
+    for (const ref of refs) {
+      try {
+        await fetch("/api/posts/comments/references", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            commentId,
+            reference_type: ref.reference_type,
+            reference_id: ref.reference_id,
+            reference_name: ref.reference_name,
+          }),
+        });
+      } catch (error) {
+        console.error("Failed to save comment reference:", error);
+      }
+    }
+  };
+
+  const handleCommentSubmit = async (content: string, files?: File[], commentRefs?: CreateReferenceData[]) => {
+    if (!user?.id) return;
+    try {
+      const newComment = await addComment({
+        postId,
+        data: {
+          user_id: user.id,
+          content,
+        },
+      });
+      // 파일 업로드
+      if (newComment?.id && files && files.length > 0) {
+        for (const file of files) {
+          await uploadCommentFile(file, newComment.id, user.id);
+        }
+      }
+      // 참조 저장
+      if (newComment?.id && commentRefs && commentRefs.length > 0) {
+        await saveCommentReferences(newComment.id, commentRefs);
+      }
+      mutateComments();
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+    }
+  };
+
+  // 대댓글 제출 (파일 첨부 없음)
+  const handleReplySubmit = async (content: string, parentId?: string) => {
     if (!user?.id) return;
     try {
       await addComment({
@@ -76,7 +198,7 @@ export default function PostDetailPage() {
       });
       mutateComments();
     } catch (error) {
-      console.error("Failed to add comment:", error);
+      console.error("Failed to add reply:", error);
     }
   };
 
@@ -105,15 +227,22 @@ export default function PostDetailPage() {
   const isAuthor = user?.id === post.user_id;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* 뒤로가기 */}
-      <button
-        onClick={handleBack}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        목록으로
-      </button>
+    <div className="max-w-6xl mx-auto">
+      {/* 상단 네비게이션 */}
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          목록으로
+        </button>
+        {post?.category && (
+          <span className="text-sm text-gray-500">
+            게시판 &gt; {post.category.name}
+          </span>
+        )}
+      </div>
 
       {/* 게시글 본문 */}
       <article className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
@@ -182,9 +311,22 @@ export default function PostDetailPage() {
 
         {/* 내용 */}
         <div className="p-6">
-          <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-            {post.content}
+          <div
+            className="prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+        </div>
+
+        {/* 첨부파일 */}
+        <div className="px-6 pb-6">
+          <div className="flex items-center gap-2 mb-3 text-sm font-medium text-gray-700">
+            <Paperclip className="w-4 h-4" />
+            첨부파일
           </div>
+          <PostFileList postId={postId} />
+
+          {/* 참조 연결 */}
+          <ReferenceDisplay references={references} />
         </div>
       </article>
 
@@ -205,9 +347,20 @@ export default function PostDetailPage() {
           <CommentList
             comments={comments}
             currentUserId={user?.id || ""}
-            onReply={handleCommentSubmit}
+            onReply={handleReplySubmit}
           />
         </div>
+      </div>
+
+      {/* 하단 네비게이션 */}
+      <div className="flex justify-center mt-6">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-2 px-6 py-2.5 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          목록으로
+        </button>
       </div>
 
       {/* 수정 모달 */}
@@ -215,6 +368,7 @@ export default function PostDetailPage() {
         isOpen={isFormModalOpen}
         post={post}
         categories={categories}
+        userId={user?.id || ""}
         isLoading={isUpdating}
         onClose={() => setIsFormModalOpen(false)}
         onSubmit={handleUpdateSubmit}

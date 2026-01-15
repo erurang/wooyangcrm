@@ -1,22 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X } from "lucide-react";
-import type { PostWithAuthor, PostCategory, CreatePostData, UpdatePostData } from "@/types/post";
+import { useState, useEffect, useRef } from "react";
+import { X, Paperclip, Upload, FileText, Loader2, Link2 } from "lucide-react";
+import TiptapEditor from "@/components/board/TiptapEditor";
+import ReferenceSelector from "@/components/board/ReferenceSelector";
+import { uploadPostFile, fetchPostFiles, deletePostFile } from "@/lib/postFiles";
+import type { PostWithAuthor, PostCategory, CreatePostData, UpdatePostData, CreateReferenceData, PostReference } from "@/types/post";
+
+interface PostFile {
+  id: string;
+  name: string;
+  url: string;
+  filePath: string;
+  user_id: string;
+}
 
 interface PostFormModalProps {
   isOpen: boolean;
   post: PostWithAuthor | null;
   categories: PostCategory[];
+  defaultCategoryName?: string;
+  userId: string;
   isLoading: boolean;
   onClose: () => void;
-  onSubmit: (data: CreatePostData | UpdatePostData) => void;
+  onSubmit: (data: CreatePostData | UpdatePostData, pendingFiles?: File[]) => void;
 }
 
 export default function PostFormModal({
   isOpen,
   post,
   categories,
+  defaultCategoryName,
+  userId,
   isLoading,
   onClose,
   onSubmit,
@@ -27,20 +42,110 @@ export default function PostFormModal({
   const [isPinned, setIsPinned] = useState(false);
   const [errors, setErrors] = useState<{ title?: string; content?: string }>({});
 
+  // 파일 관련 상태
+  const [existingFiles, setExistingFiles] = useState<PostFile[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [deletingFile, setDeletingFile] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 참조 관련 상태
+  const [references, setReferences] = useState<CreateReferenceData[]>([]);
+
+  // 모달이 열릴 때만 초기화 (categories 변경 시 리셋 방지)
   useEffect(() => {
+    if (!isOpen) return;
+
     if (post) {
       setTitle(post.title);
       setContent(post.content);
       setCategoryId(post.category_id || "");
       setIsPinned(post.is_pinned);
+      // 기존 파일 로드
+      loadExistingFiles(post.id);
+      // 기존 참조 로드
+      loadExistingReferences(post.id);
     } else {
       setTitle("");
       setContent("");
-      setCategoryId("");
       setIsPinned(false);
+      setExistingFiles([]);
+      setReferences([]);
     }
+    setPendingFiles([]);
     setErrors({});
-  }, [post, isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post?.id, isOpen]);
+
+  // 카테고리 기본값 설정 (새 글 작성 시)
+  useEffect(() => {
+    if (!isOpen || post) return;
+
+    const defaultCategory = defaultCategoryName
+      ? categories.find((c) => c.name === defaultCategoryName)
+      : null;
+    if (defaultCategory) {
+      setCategoryId(defaultCategory.id);
+    }
+  }, [isOpen, post, defaultCategoryName, categories]);
+
+  const loadExistingFiles = async (postId: string) => {
+    const files = await fetchPostFiles(postId);
+    setExistingFiles(files);
+  };
+
+  const loadExistingReferences = async (postId: string) => {
+    try {
+      const response = await fetch(`/api/posts/references?postId=${postId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const refs: CreateReferenceData[] = (data.references || []).map((r: PostReference) => ({
+          reference_type: r.reference_type,
+          reference_id: r.reference_id,
+          reference_name: r.reference_name,
+        }));
+        setReferences(refs);
+      }
+    } catch (error) {
+      console.error("Failed to load references:", error);
+    }
+  };
+
+  const handleAddReference = (ref: CreateReferenceData) => {
+    setReferences((prev) => [...prev, ref]);
+  };
+
+  const handleRemoveReference = (index: number) => {
+    setReferences((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // 파일 선택
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("[FileUpload] handleFileSelect triggered, files:", e.target.files?.length);
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArray = Array.from(e.target.files);
+      console.log("[FileUpload] Adding files:", filesArray.map(f => f.name));
+      setPendingFiles(prev => [...prev, ...filesArray]);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // 대기 파일 삭제
+  const removePendingFile = (index: number) => {
+    setPendingFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // 기존 파일 삭제
+  const handleDeleteExistingFile = async (fileId: string, filePath: string) => {
+    setDeletingFile(fileId);
+    const success = await deletePostFile(fileId, filePath);
+    if (success) {
+      setExistingFiles(prev => prev.filter(f => f.id !== fileId));
+    }
+    setDeletingFile(null);
+  };
 
   const validate = () => {
     const newErrors: { title?: string; content?: string } = {};
@@ -63,16 +168,18 @@ export default function PostFormModal({
       content: content.trim(),
       category_id: categoryId || undefined,
       is_pinned: isPinned,
+      references: references.length > 0 ? references : undefined,
     };
 
-    onSubmit(data);
+    console.log("PostFormModal handleSubmit:", { pendingFilesCount: pendingFiles.length, pendingFiles, references });
+    onSubmit(data, pendingFiles.length > 0 ? pendingFiles : undefined);
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl w-[70vw] max-h-[85vh] overflow-y-auto">
         {/* 헤더 */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold">
@@ -131,15 +238,13 @@ export default function PostFormModal({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               내용 <span className="text-red-500">*</span>
             </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={10}
-              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
-                errors.content ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="내용을 입력하세요"
-            />
+            <div className={errors.content ? "ring-1 ring-red-500 rounded-md" : ""}>
+              <TiptapEditor
+                content={content}
+                onChange={setContent}
+                placeholder="내용을 입력하세요..."
+              />
+            </div>
             {errors.content && (
               <p className="mt-1 text-xs text-red-500">{errors.content}</p>
             )}
@@ -157,6 +262,118 @@ export default function PostFormModal({
             <label htmlFor="isPinned" className="text-sm text-gray-700">
               상단 고정
             </label>
+          </div>
+
+          {/* 파일 첨부 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Paperclip className="w-4 h-4 inline mr-1" />
+              첨부파일
+            </label>
+
+            {/* 기존 파일 목록 (수정 시) */}
+            {existingFiles.length > 0 && (
+              <div className="space-y-1.5 mb-3">
+                {existingFiles.map((file) => (
+                  <div
+                    key={file.id}
+                    className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-md"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:underline truncate"
+                      >
+                        {file.name}
+                      </a>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteExistingFile(file.id, file.filePath)}
+                      disabled={deletingFile === file.id}
+                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      {deletingFile === file.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <X className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 대기 파일 목록 */}
+            {pendingFiles.length > 0 && (
+              <div className="space-y-1.5 mb-3">
+                {pendingFiles.map((file, index) => (
+                  <div
+                    key={`pending-${index}`}
+                    className="flex items-center justify-between px-3 py-2 bg-blue-50 rounded-md"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 truncate">
+                        {file.name}
+                        <span className="text-xs text-gray-400 ml-1">(대기중)</span>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removePendingFile(index)}
+                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 파일 선택 버튼 */}
+            <div className="flex items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileSelect}
+                className="sr-only"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  console.log("[FileUpload] Button clicked, triggering file input");
+                  fileInputRef.current?.click();
+                }}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md cursor-pointer transition-colors"
+              >
+                <Upload className="w-4 h-4" />
+                파일 선택
+              </button>
+              <span className="text-xs text-gray-500">
+                여러 파일을 선택할 수 있습니다
+              </span>
+            </div>
+          </div>
+
+          {/* 참조 연결 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Link2 className="w-4 h-4 inline mr-1" />
+              참조 연결
+            </label>
+            <p className="text-xs text-gray-500 mb-2">
+              관련 거래처, 상담, 문서를 연결할 수 있습니다
+            </p>
+            <ReferenceSelector
+              selectedReferences={references}
+              onAdd={handleAddReference}
+              onRemove={handleRemoveReference}
+            />
           </div>
 
           {/* 버튼 */}

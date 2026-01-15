@@ -18,6 +18,7 @@ import {
   type SidebarMenuItem,
   type SidebarSubItem,
 } from "@/constants/sidebarNavigation";
+import BoardDropdown from "./BoardDropdown";
 
 interface SidebarProps {
   isExpanded: boolean;
@@ -184,44 +185,74 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
               className="px-2 mb-1"
             >
               {/* Menu Header */}
-              <button
-                onClick={() => {
-                  if (menu.subItems) {
-                    toggleMenu(menu.id);
-                  }
-                }}
-                className={`
-                  w-full flex items-center rounded-md
-                  transition-colors duration-150
-                  ${isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center"}
-                  ${
-                    hasActiveItem
-                      ? "bg-indigo-50 text-indigo-600"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  }
-                `}
-                title={!isExpanded ? menu.title : undefined}
-              >
-                <Icon
-                  className={`w-5 h-5 flex-shrink-0 ${
-                    hasActiveItem ? "text-indigo-600" : "text-gray-500"
-                  }`}
-                />
-                {isExpanded && (
-                  <>
+              {menu.path && !menu.subItems ? (
+                // Direct link menu (no sub-items)
+                <Link
+                  href={menu.path}
+                  className={`
+                    w-full flex items-center rounded-md
+                    transition-colors duration-150
+                    ${isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center"}
+                    ${
+                      hasActiveItem
+                        ? "bg-indigo-50 text-indigo-600"
+                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    }
+                  `}
+                  title={!isExpanded ? menu.title : undefined}
+                >
+                  <Icon
+                    className={`w-5 h-5 flex-shrink-0 ${
+                      hasActiveItem ? "text-indigo-600" : "text-gray-500"
+                    }`}
+                  />
+                  {isExpanded && (
                     <span className="ml-3 text-sm font-medium truncate flex-1 text-left">
                       {menu.title}
                     </span>
-                    {menu.subItems && (
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform duration-200 ${
-                          isMenuExpanded ? "rotate-180" : ""
-                        }`}
-                      />
-                    )}
-                  </>
-                )}
-              </button>
+                  )}
+                </Link>
+              ) : (
+                // Expandable menu with subItems
+                <button
+                  onClick={() => {
+                    if (menu.subItems) {
+                      toggleMenu(menu.id);
+                    }
+                  }}
+                  className={`
+                    w-full flex items-center rounded-md
+                    transition-colors duration-150
+                    ${isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center"}
+                    ${
+                      hasActiveItem
+                        ? "bg-indigo-50 text-indigo-600"
+                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    }
+                  `}
+                  title={!isExpanded ? menu.title : undefined}
+                >
+                  <Icon
+                    className={`w-5 h-5 flex-shrink-0 ${
+                      hasActiveItem ? "text-indigo-600" : "text-gray-500"
+                    }`}
+                  />
+                  {isExpanded && (
+                    <>
+                      <span className="ml-3 text-sm font-medium truncate flex-1 text-left">
+                        {menu.title}
+                      </span>
+                      {menu.subItems && (
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            isMenuExpanded ? "rotate-180" : ""
+                          }`}
+                        />
+                      )}
+                    </>
+                  )}
+                </button>
+              )}
 
               {/* Sub Items */}
               {isExpanded && menu.subItems && (
@@ -234,43 +265,47 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="ml-5 mt-1 space-y-0.5 border-l border-gray-200 pl-3">
-                        {menu.subItems.map((sub) => {
-                          const isActive = isActivePath(sub.path);
-                          const isWorksLink = sub.id === "works";
+                      {menu.id === "board" ? (
+                        <BoardDropdown isExpanded={isMenuExpanded} />
+                      ) : (
+                        <div className="ml-5 mt-1 space-y-0.5 border-l border-gray-200 pl-3">
+                          {menu.subItems.map((sub) => {
+                            const isActive = isActivePath(sub.path);
+                            const isWorksLink = sub.id === "works";
 
-                          if (isWorksLink) {
+                            if (isWorksLink) {
+                              return (
+                                <button
+                                  key={sub.id}
+                                  onClick={openWorksWindow}
+                                  className="w-full flex items-center px-2 py-1.5 text-sm rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                                >
+                                  <span className="truncate">{sub.title}</span>
+                                  <ExternalLink className="w-3 h-3 ml-1 flex-shrink-0" />
+                                </button>
+                              );
+                            }
+
                             return (
-                              <button
+                              <Link
                                 key={sub.id}
-                                onClick={openWorksWindow}
-                                className="w-full flex items-center px-2 py-1.5 text-sm rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                                href={sub.path}
+                                className={`
+                                  block px-2 py-1.5 text-sm rounded-md
+                                  transition-colors duration-150
+                                  ${
+                                    isActive
+                                      ? "bg-indigo-100 text-indigo-700 font-medium"
+                                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                  }
+                                `}
                               >
                                 <span className="truncate">{sub.title}</span>
-                                <ExternalLink className="w-3 h-3 ml-1 flex-shrink-0" />
-                              </button>
+                              </Link>
                             );
-                          }
-
-                          return (
-                            <Link
-                              key={sub.id}
-                              href={sub.path}
-                              className={`
-                                block px-2 py-1.5 text-sm rounded-md
-                                transition-colors duration-150
-                                ${
-                                  isActive
-                                    ? "bg-indigo-100 text-indigo-700 font-medium"
-                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                }
-                              `}
-                            >
-                              <span className="truncate">{sub.title}</span>
-                            </Link>
-                          );
-                        })}
-                      </div>
+                          })}
+                        </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>

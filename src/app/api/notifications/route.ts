@@ -48,7 +48,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const validTypes = ["document_expiry", "consultation_followup", "todo_reminder", "system"];
+    const validTypes = [
+      "document_expiry",
+      "consultation_followup",
+      "todo_reminder",
+      "system",
+      "post_comment",    // 게시글에 댓글 달림
+      "post_mention",    // @멘션됨
+    ];
     if (!validTypes.includes(type)) {
       return NextResponse.json(
         { error: `유효하지 않은 type입니다. 허용: ${validTypes.join(", ")}` },

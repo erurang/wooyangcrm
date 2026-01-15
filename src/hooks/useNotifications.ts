@@ -5,11 +5,11 @@ import useSWR from "swr";
 export interface Notification {
   id: number;
   user_id: string;
-  type: "document_expiry" | "consultation_followup" | "todo_reminder" | "system";
+  type: "document_expiry" | "consultation_followup" | "todo_reminder" | "system" | "post_comment" | "post_mention";
   title: string;
   message: string;
   related_id: string | null;
-  related_type: "document" | "consultation" | "todo" | null;
+  related_type: "document" | "consultation" | "todo" | "post" | null;
   read: boolean;
   created_at: string;
 }
@@ -28,6 +28,8 @@ const fetcher = async (url: string): Promise<Notification[]> => {
 };
 
 export function useNotifications(userId: string | undefined) {
+  console.log("useNotifications called with userId:", userId);
+
   const { data, error, isLoading, mutate } = useSWR<Notification[]>(
     userId ? `/api/notifications?userId=${userId}` : null,
     fetcher,
@@ -36,6 +38,8 @@ export function useNotifications(userId: string | undefined) {
       revalidateOnFocus: true,
     }
   );
+
+  console.log("useNotifications data:", { data, error, isLoading });
 
   const unreadCount = data?.filter((n) => !n.read).length || 0;
 

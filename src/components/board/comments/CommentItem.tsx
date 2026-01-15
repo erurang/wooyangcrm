@@ -1,9 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import { Reply, User } from "lucide-react";
+import Link from "next/link";
+import { Reply, User, FileText, Download, Building2, MessageSquare, ExternalLink } from "lucide-react";
 import dayjs from "dayjs";
-import type { PostComment } from "@/types/post";
+import type { PostComment, ReferenceType } from "@/types/post";
+
+const refTypeLabels: Record<ReferenceType, string> = {
+  company: "거래처",
+  consultation: "상담",
+  document: "문서",
+};
+
+const refTypeIcons: Record<ReferenceType, React.ReactNode> = {
+  company: <Building2 className="w-3 h-3" />,
+  consultation: <MessageSquare className="w-3 h-3" />,
+  document: <FileText className="w-3 h-3" />,
+};
+
+const refTypeColors: Record<ReferenceType, string> = {
+  company: "bg-blue-50 text-blue-600 border-blue-200",
+  consultation: "bg-green-50 text-green-600 border-green-200",
+  document: "bg-purple-50 text-purple-600 border-purple-200",
+};
+
+const getRefLink = (type: ReferenceType, id: string): string => {
+  switch (type) {
+    case "company":
+      return `/companies/${id}`;
+    case "consultation":
+      return `/consultations/${id}`;
+    case "document":
+      return `/documents/estimate?search=${id}`;
+    default:
+      return "#";
+  }
+};
 
 interface CommentItemProps {
   comment: PostComment;
@@ -55,6 +87,43 @@ export default function CommentItem({
 
       {/* 댓글 내용 */}
       <p className="text-gray-700 whitespace-pre-wrap">{comment.content}</p>
+
+      {/* 첨부파일 */}
+      {comment.files && comment.files.length > 0 && (
+        <div className="mt-2 space-y-1">
+          {comment.files.map((file) => (
+            <a
+              key={file.id}
+              href={file.url}
+              download={file.name}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-2 py-1 bg-gray-50 hover:bg-blue-50 rounded text-sm cursor-pointer transition-colors group"
+            >
+              <FileText className="w-3 h-3 text-gray-400 group-hover:text-blue-500" />
+              <span className="truncate flex-1 text-gray-600 group-hover:text-blue-600">{file.name}</span>
+              <Download className="w-3 h-3 text-gray-400 group-hover:text-blue-600" />
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* 참조 연결 */}
+      {comment.references && comment.references.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {comment.references.map((ref) => (
+            <Link
+              key={ref.id}
+              href={getRefLink(ref.reference_type, ref.reference_id)}
+              className={`flex items-center gap-1 px-2 py-0.5 rounded border text-xs transition-colors hover:opacity-80 ${refTypeColors[ref.reference_type]}`}
+            >
+              {refTypeIcons[ref.reference_type]}
+              <span>{ref.reference_name || refTypeLabels[ref.reference_type]}</span>
+              <ExternalLink className="w-2.5 h-2.5 opacity-50" />
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* 답글 작성 폼 */}
       {isReplying && (

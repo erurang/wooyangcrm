@@ -119,7 +119,11 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     id: "board",
     title: "게시판",
     icon: Newspaper,
-    path: "/board",
+    subItems: [
+      { id: "notice", title: "공지사항", path: "/board?category=공지사항" },
+      { id: "free", title: "자유게시판", path: "/board?category=자유게시판" },
+      { id: "files", title: "자료실", path: "/board?category=자료실" },
+    ],
   },
 ];
 
