@@ -7,10 +7,18 @@
   --foreground: #171717;
 }
 
+html {
+  font-size: 16px; /* 기본 폰트 크기 고정 */
+  -webkit-text-size-adjust: 100%; /* iOS에서 폰트 크기 자동 조절 방지 */
+  text-size-adjust: 100%;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: "NanumSquareNeo", sans-serif;
+  font-family: "NanumSquareNeo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px; /* 본문 기본 크기 */
+  line-height: 1.5;
 }
 
 @media print {
@@ -31,6 +39,7 @@ body {
     url("/fonts/NanumSquareNeoTTF-aLt.woff") format("woff");
   font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -39,6 +48,7 @@ body {
     url("/fonts/NanumSquareNeoTTF-bRg.woff") format("woff");
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -47,6 +57,7 @@ body {
     url("/fonts/NanumSquareNeoTTF-cBd.woff") format("woff");
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -55,4 +66,5 @@ body {
     url("/fonts/NanumSquareNeoTTF-eHv.woff") format("woff");
   font-weight: 900;
   font-style: normal;
+  font-display: swap;
 }

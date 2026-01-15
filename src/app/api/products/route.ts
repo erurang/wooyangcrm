@@ -17,7 +17,6 @@ interface DocumentRecord {
   };
   created_at: string;
   status: string;
-  company_name?: string;
 }
 
 // GET 요청: /api/products
@@ -39,11 +38,15 @@ export async function GET(request: Request) {
   const startDate = searchParams.get("start_date");
   const endDate = searchParams.get("end_date");
 
+  // 페이지네이션 파라미터
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const limit = parseInt(searchParams.get("limit") || "10", 10);
+
   try {
-    // Query 생성 (company_name은 별도 컬럼으로 분리됨, 폴백 위해 content도 조회)
+    // Query 생성 (company_name은 content JSONB 내에 있음)
     let query = supabase
       .from("documents")
-      .select("id, content, created_at, status, company_name")
+      .select("id, content, created_at, status")
       .eq("type", searchType)
       .ilike("content->>company_name", `%${searchCompany}%`);
 
@@ -100,7 +103,7 @@ export async function GET(request: Request) {
         .map((item) => ({
           id: doc.id,
           estimate_date: doc.created_at,
-          company_name: doc.company_name || "",
+          company_name: doc.content.company_name || "",
           name: item.name,
           spec: item.spec,
           unit_price: Number(item.unit_price),
@@ -109,11 +112,20 @@ export async function GET(request: Request) {
         }))
     );
 
-    // 전체 데이터 반환
+    // 페이지네이션 적용
+    const total = filteredProducts.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+    // 페이지네이션된 데이터 반환
     return NextResponse.json(
       {
-        products: filteredProducts,
-        total: filteredProducts.length,
+        products: paginatedProducts,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
       { status: 200 }
     );
