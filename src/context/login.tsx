@@ -32,10 +32,6 @@ export function LoginUserProvider({ children }: { children: React.ReactNode }) {
         const supabase = createSupabaseClient();
         const { data, error } = await supabase.auth.getSession();
 
-        console.log("error", error);
-
-        console.log("🔹 Supabase 세션 데이터:", data);
-
         if (error || !data.session) {
           console.error("❌ 세션을 가져올 수 없음:", error);
           return;

@@ -47,8 +47,6 @@ export const supabaseUploadFile = async (
     return null;
   }
 
-  console.log("id", insertData);
-
   return {
     id: insertData.id, // ✅ id 반환
     name: insertData.file_name, // ✅ 저장된 파일명 반환

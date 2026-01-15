@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   try {
     const { data, error } = await supabase
       .from("documents")
-      .select("*")
+      .select("*, companies(name, phone, fax)")
       .eq("type", type)
       .eq("status", status);
 
@@ -24,7 +24,13 @@ export async function GET(req: NextRequest) {
       throw error;
     }
 
-    return NextResponse.json({ documents: data }, { status: 200 });
+    // company_name 추가
+    const transformedDocuments = data?.map((doc) => ({
+      ...doc,
+      company_name: doc.companies?.name || "",
+    }));
+
+    return NextResponse.json({ documents: transformedDocuments }, { status: 200 });
   } catch (error) {
     console.error("Error fetching documents:", error);
     return NextResponse.json(

@@ -9,7 +9,7 @@ export function useUserDocumentsCount(
 ) {
   const { data, error } = useSWR(
     userIds.length > 0
-      ? `/api/tests/users/documentsCount?userIds=${userIds.join(
+      ? `/api/users/documentsCount?userIds=${userIds.join(
           ","
         )}&startDate=${startDate}&endDate=${endDate}`
       : null,

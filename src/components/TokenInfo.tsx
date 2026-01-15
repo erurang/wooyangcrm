@@ -45,7 +45,6 @@ export default function TokenInfo() {
 
       // ✅ 사용자 `access_token` 가져오기
       const { data, error } = await supabase.auth.getSession();
-      console.log("logount getsession data", data);
       if (error || !data?.session?.provider_token) {
         console.error("카카오 로그아웃 실패: 액세스 토큰 없음", error);
         return;
@@ -69,7 +68,6 @@ export default function TokenInfo() {
         return;
       }
 
-      console.log("✅ 카카오 로그아웃 성공!");
       setUserData(null);
       setLoginUser(undefined);
       setRemainingTime(null);

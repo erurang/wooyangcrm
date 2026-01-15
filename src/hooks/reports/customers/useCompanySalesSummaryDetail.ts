@@ -8,7 +8,7 @@ export function useCompanySalesSummaryDetail(
 ) {
   const { data, error, isLoading } = useSWR(
     companyId
-      ? `/api/tests/companies/sales-summary/${companyId}?startDate=${startDate}&endDate=${endDate}`
+      ? `/api/companies/sales-summary/${companyId}?startDate=${startDate}&endDate=${endDate}`
       : null,
     fetcher
   );

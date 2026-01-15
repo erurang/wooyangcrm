@@ -9,7 +9,7 @@ export function useUserSalesSummary(
 ) {
   const { data, error, isLoading } = useSWR(
     userIds.length
-      ? `/api/tests/users/salesSummary?${userIds
+      ? `/api/users/salesSummary?${userIds
           .map((id) => `userIds[]=${id}`)
           .join("&")}` +
           (startDate ? `&startDate=${startDate}` : "") +

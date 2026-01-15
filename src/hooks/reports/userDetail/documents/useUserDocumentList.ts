@@ -9,7 +9,7 @@ export function useUserDocumentList(
 ) {
   const { data, error, isLoading } = useSWR(
     userId && startDate && endDate
-      ? `/api/tests/users/${userId}/documents?startDate=${startDate}&endDate=${endDate}`
+      ? `/api/users/${userId}/documents?startDate=${startDate}&endDate=${endDate}`
       : null,
     fetcher
   );

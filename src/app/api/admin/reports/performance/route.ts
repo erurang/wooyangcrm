@@ -47,7 +47,6 @@ export async function GET(req: NextRequest) {
 
       const userData = userStats.get(userId)!;
 
-      console.log("doc", doc);
       // 🔹 매출 (견적서 기준)
       if (doc.type === "estimate") {
         userData.totalSales += doc.content?.total_amount || 0;
@@ -59,8 +58,6 @@ export async function GET(req: NextRequest) {
 
       userStats.set(userId, userData);
     });
-
-    console.log(userStats);
 
     // 🔹 3️⃣ 직원 정보 가져오기 (userId 기반)
     const userIds = Array.from(userStats.keys());

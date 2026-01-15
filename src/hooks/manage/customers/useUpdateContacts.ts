@@ -4,11 +4,11 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useUpdateContacts() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/contacts/update`,
+    `/api/contacts/update`,
     fetcher
   );
 
-  const { mutate } = useSWR(`/api/tests/contacts/list`);
+  const { mutate } = useSWR(`/api/contacts/list`);
 
   const updateContacts = async (contact: any, companyId: any) => {
     try {

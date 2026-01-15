@@ -1,31 +1,19 @@
 "use client";
 
-import type React from "react";
-
 import { useMemo, useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Package,
-  Ruler,
-  DollarSign,
-  Users,
-  Filter,
-  ChevronDown,
-  ChevronUp,
-  ChevronLeft,
-  ChevronRight,
-  Building,
-  FileText,
-  CheckCircle,
-  XCircle,
-  Clock,
-} from "lucide-react";
+import { Filter } from "lucide-react";
 import { useProductsList } from "@/hooks/products/useProductsList";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUsersList } from "@/hooks/useUserList";
 import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
 import { useLoginUser } from "@/context/login";
+import {
+  ProductSearchFilter,
+  ProductTable,
+  ProductPagination,
+} from "@/components/products/unit";
 
 interface User {
   id: string;
@@ -39,18 +27,22 @@ export default function ProductPage() {
   const user = useLoginUser();
   const type = searchParams.get("type") as "estimate" | "order";
 
+  // 검색 필터 상태
   const [searchCompany, setSearchCompany] = useState("");
   const [searchProduct, setSearchProduct] = useState("");
   const [searchSpec, setSearchSpec] = useState("");
   const [minPrice, setMinPrice] = useState<number | "">("");
   const [maxPrice, setMaxPrice] = useState<number | "">("");
-
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
   const [status, setStatus] = useState("all");
+
+  // 페이징 및 정렬 상태
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage, setProductsPerPage] = useState(10);
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
+  // 디바운스
   const debounceSearchCompany = useDebounce(searchCompany, 300);
   const debounceSearchProduct = useDebounce(searchProduct, 300);
   const debounceSearchSpec = useDebounce(searchSpec, 300);
@@ -61,9 +53,9 @@ export default function ProductPage() {
   const companyIds = companies.map((company: any) => company.id);
   const debounceCompanyIds = useDebounce(companyIds, 300);
 
-  // swr
+  // SWR hooks
   const { users } = useUsersList();
-  const { products, total, isLoading, mutate } = useProductsList({
+  const { products, total, isLoading } = useProductsList({
     type,
     userId:
       user?.role === "admin" || user?.role === "managementSupport"
@@ -81,31 +73,9 @@ export default function ProductPage() {
 
   const totalPages = Math.ceil(total / productsPerPage);
 
-  const paginationNumbers = () => {
-    const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
-      if (
-        i === 1 ||
-        i === totalPages ||
-        (i >= currentPage - 2 && i <= currentPage + 2)
-      ) {
-        pageNumbers.push(i);
-      } else if (i === currentPage - 3 || i === currentPage + 3) {
-        pageNumbers.push("...");
-      }
-    }
-    return pageNumbers;
-  };
-
-  // 정렬 상태
-  const [sortField, setSortField] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
-  // First, add a function to update URL parameters at the top of the component function
+  // URL 파라미터 관리
   const updateUrlParams = (params: Record<string, string | null>) => {
     const url = new URL(window.location.href);
-
-    // Update or add each parameter
     Object.entries(params).forEach(([key, value]) => {
       if (value === null || value === "") {
         url.searchParams.delete(key);
@@ -113,17 +83,13 @@ export default function ProductPage() {
         url.searchParams.set(key, value);
       }
     });
-
-    // Keep the type parameter
     if (!url.searchParams.has("type") && type) {
       url.searchParams.set("type", type);
     }
-
-    // Replace the URL without reloading the page
     router.replace(url.pathname + url.search, { scroll: false });
   };
 
-  // Add an effect to initialize state from URL parameters
+  // URL에서 상태 초기화
   useEffect(() => {
     const searchCompanyParam = searchParams.get("company") || "";
     const searchProductParam = searchParams.get("product") || "";
@@ -134,9 +100,7 @@ export default function ProductPage() {
     const pageParam = searchParams.get("page");
     const perPageParam = searchParams.get("perPage");
     const sortFieldParam = searchParams.get("sortField") || null;
-    const sortDirParam =
-      (searchParams.get("sortDir") as "asc" | "desc") || "asc";
-    const userIdParam = searchParams.get("userId") || "";
+    const sortDirParam = (searchParams.get("sortDir") as "asc" | "desc") || "asc";
 
     if (searchCompanyParam) setSearchCompany(searchCompanyParam);
     if (searchProductParam) setSearchProduct(searchProductParam);
@@ -150,36 +114,14 @@ export default function ProductPage() {
     if (sortDirParam) setSortDirection(sortDirParam);
   }, [searchParams]);
 
-  // Add an effect to update selected user when users data is loaded
+  // 사용자 데이터 로드 후 selectedUser 설정
   useEffect(() => {
     const userIdParam = searchParams.get("userId");
     if (userIdParam && users && users.length > 0) {
       const foundUser = users.find((u: User) => u.id === userIdParam);
-      if (foundUser) {
-        setSelectedUser(foundUser);
-      }
+      if (foundUser) setSelectedUser(foundUser);
     }
   }, [users, searchParams]);
-
-  function handleSort(field: string) {
-    let direction: "asc" | "desc";
-
-    if (sortField === field) {
-      direction = sortDirection === "asc" ? "desc" : "asc";
-      setSortDirection(direction);
-    } else {
-      setSortField(field);
-      direction = "asc";
-      setSortDirection("asc");
-    }
-
-    setCurrentPage(1);
-    updateUrlParams({
-      sortField: field,
-      sortDir: direction,
-      page: "1",
-    });
-  }
 
   // 정렬된 products
   const sortedProducts = useMemo(() => {
@@ -208,7 +150,21 @@ export default function ProductPage() {
     });
   }, [products, sortField, sortDirection]);
 
-  // 필터 초기화 함수
+  // 핸들러 함수들
+  const handleSort = (field: string) => {
+    let direction: "asc" | "desc";
+    if (sortField === field) {
+      direction = sortDirection === "asc" ? "desc" : "asc";
+      setSortDirection(direction);
+    } else {
+      setSortField(field);
+      direction = "asc";
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+    updateUrlParams({ sortField: field, sortDir: direction, page: "1" });
+  };
+
   const resetFilters = () => {
     setSearchCompany("");
     setSearchProduct("");
@@ -221,269 +177,90 @@ export default function ProductPage() {
     setSortField(null);
     setSortDirection("asc");
 
-    // Reset URL to only keep the type parameter
     const url = new URL(window.location.href);
     Array.from(url.searchParams.keys()).forEach((key) => {
-      if (key !== "type") {
-        url.searchParams.delete(key);
-      }
+      if (key !== "type") url.searchParams.delete(key);
     });
     router.replace(url.pathname + url.search, { scroll: false });
   };
 
-  // Modify the setSearchCompany handler
-  const handleSearchCompanyChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    setSearchCompany(value);
+  const handleSearchCompanyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchCompany(e.target.value);
     setCurrentPage(1);
-    updateUrlParams({
-      company: value || null,
-      page: "1",
-    });
+    updateUrlParams({ company: e.target.value || null, page: "1" });
   };
 
-  // Modify the setSearchProduct handler
-  const handleSearchProductChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    setSearchProduct(value);
+  const handleSearchProductChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchProduct(e.target.value);
     setCurrentPage(1);
-    updateUrlParams({
-      product: value || null,
-      page: "1",
-    });
+    updateUrlParams({ product: e.target.value || null, page: "1" });
   };
 
-  // Modify the setSearchSpec handler
   const handleSearchSpecChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchSpec(value);
+    setSearchSpec(e.target.value);
     setCurrentPage(1);
-    updateUrlParams({
-      spec: value || null,
-      page: "1",
-    });
+    updateUrlParams({ spec: e.target.value || null, page: "1" });
   };
 
-  // Modify the setMinPrice handler
   const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value) || "";
     setMinPrice(value);
     setCurrentPage(1);
-    updateUrlParams({
-      minPrice: value ? String(value) : null,
-      page: "1",
-    });
+    updateUrlParams({ minPrice: value ? String(value) : null, page: "1" });
   };
 
-  // Modify the setMaxPrice handler
   const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value) || "";
     setMaxPrice(value);
     setCurrentPage(1);
-    updateUrlParams({
-      maxPrice: value ? String(value) : null,
-      page: "1",
-    });
+    updateUrlParams({ maxPrice: value ? String(value) : null, page: "1" });
   };
 
-  // Modify the setStatus handler
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setStatus(value);
+    setStatus(e.target.value);
     setCurrentPage(1);
-    updateUrlParams({
-      status: value === "all" ? null : value,
-      page: "1",
-    });
+    updateUrlParams({ status: e.target.value === "all" ? null : e.target.value, page: "1" });
   };
 
-  // Modify the setSelectedUser handler
   const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const userId = e.target.value;
-    const user = users.find((user: User) => user.id === userId) || null;
-    setSelectedUser(user);
+    const foundUser = users.find((u: User) => u.id === userId) || null;
+    setSelectedUser(foundUser);
     setCurrentPage(1);
-    updateUrlParams({
-      userId: userId || null,
-      page: "1",
-    });
+    updateUrlParams({ userId: userId || null, page: "1" });
   };
 
-  // Modify the setCurrentPage handler
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     updateUrlParams({ page: String(page) });
   };
 
-  // Modify the setProductsPerPage handler
   const handlePerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = Number(e.target.value);
-    setProductsPerPage(value);
+    setProductsPerPage(Number(e.target.value));
     setCurrentPage(1);
-    updateUrlParams({
-      perPage: String(value),
-      page: "1",
-    });
+    updateUrlParams({ perPage: e.target.value, page: "1" });
   };
 
   return (
     <div className="">
-      {/* 검색 필터 */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-6">
-        <div className="space-y-4">
-          {/* 상단 필터 그룹: 거래처, 물품명, 규격 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {/* 거래처 */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                거래처
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Building className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  value={searchCompany}
-                  onChange={handleSearchCompanyChange}
-                  placeholder="거래처명"
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-            </div>
-
-            {/* 물품명 */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                물품명
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Package className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  value={searchProduct}
-                  onChange={handleSearchProductChange}
-                  placeholder="물품명"
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-            </div>
-
-            {/* 규격 */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                규격
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Ruler className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  value={searchSpec}
-                  onChange={handleSearchSpecChange}
-                  placeholder="규격"
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 하단 필터 그룹: 단가 범위, 상태, 상담자 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {/* 단가 범위 */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                단가 범위
-              </label>
-              <div className="flex space-x-2">
-                <div className="relative flex-1">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <DollarSign className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <input
-                    type="number"
-                    value={minPrice}
-                    onChange={handleMinPriceChange}
-                    placeholder="최소"
-                    className="pl-10 pr-2 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  />
-                </div>
-                <span className="self-center text-gray-500">~</span>
-                <div className="relative flex-1">
-                  <input
-                    type="number"
-                    value={maxPrice}
-                    onChange={handleMaxPriceChange}
-                    placeholder="최대"
-                    className="pl-3 pr-2 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 상태 */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                상태
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Filter className="h-4 w-4 text-gray-400" />
-                </div>
-                <select
-                  value={status}
-                  onChange={handleStatusChange}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
-                >
-                  <option value="all">모든 상태</option>
-                  <option value="pending">진행 중</option>
-                  <option value="completed">완료됨</option>
-                  <option value="canceled">취소됨</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-            </div>
-
-            {/* 상담자 (관리자 또는 관리지원 역할만 표시) */}
-            {(user?.role === "admin" || user?.role === "managementSupport") && (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  상담자
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <Users className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <select
-                    value={selectedUser?.id || ""}
-                    onChange={handleUserChange}
-                    className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
-                  >
-                    <option value="">모든 상담자</option>
-                    {users.map((u: any) => (
-                      <option key={u.id} value={u.id}>
-                        {u.name} {u.level}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <ProductSearchFilter
+        searchCompany={searchCompany}
+        searchProduct={searchProduct}
+        searchSpec={searchSpec}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        status={status}
+        selectedUser={selectedUser}
+        users={users || []}
+        userRole={user?.role}
+        onSearchCompanyChange={handleSearchCompanyChange}
+        onSearchProductChange={handleSearchProductChange}
+        onSearchSpecChange={handleSearchSpecChange}
+        onMinPriceChange={handleMinPriceChange}
+        onMaxPriceChange={handleMaxPriceChange}
+        onStatusChange={handleStatusChange}
+        onUserChange={handleUserChange}
+      />
 
       {/* 테이블 컨트롤 */}
       <div className="flex justify-between items-center mb-4">
@@ -514,310 +291,21 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* 물품 목록 테이블 */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-        {isLoading ? (
-          <div className="flex justify-center items-center p-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : sortedProducts.length === 0 ? (
-          <div className="text-center p-12 text-gray-500">
-            <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-lg font-medium">검색 결과가 없습니다</p>
-            <p className="mt-1">
-              검색 조건을 변경하거나 필터를 초기화해 보세요.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  {/* 날짜 */}
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hidden md:table-cell"
-                    onClick={() => handleSort("estimate_date")}
-                  >
-                    <div className="flex items-center">
-                      <span>{type === "estimate" ? "견적" : "발주"} 날짜</span>
-                      {sortField === "estimate_date" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
+      <ProductTable
+        products={sortedProducts}
+        isLoading={isLoading}
+        type={type}
+        sortField={sortField}
+        sortDirection={sortDirection}
+        onSort={handleSort}
+      />
 
-                  {/* 거래처명 */}
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hidden md:table-cell"
-                    onClick={() => handleSort("company_name")}
-                  >
-                    <div className="flex items-center">
-                      <span>거래처명</span>
-                      {sortField === "company_name" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-
-                  {/* 물품명 */}
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSort("name")}
-                  >
-                    <div className="flex items-center">
-                      <span>물품명</span>
-                      {sortField === "name" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-
-                  {/* 규격 */}
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSort("spec")}
-                  >
-                    <div className="flex items-center">
-                      <span>규격</span>
-                      {sortField === "spec" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-
-                  {/* 수량 */}
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSort("quantity")}
-                  >
-                    <div className="flex items-center">
-                      <span>수량</span>
-                      {sortField === "quantity" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-
-                  {/* 단가 */}
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSort("unit_price")}
-                  >
-                    <div className="flex items-center">
-                      <span>단가</span>
-                      {sortField === "unit_price" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-
-                  {/* 담당자 */}
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hidden md:table-cell"
-                    onClick={() => handleSort("user_name")}
-                  >
-                    <div className="flex items-center">
-                      <span>담당</span>
-                      {sortField === "user_name" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-
-                  {/* 상태 */}
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hidden md:table-cell"
-                    onClick={() => handleSort("status")}
-                  >
-                    <div className="flex items-center">
-                      <span>상태</span>
-                      {sortField === "status" && (
-                        <span className="ml-1">
-                          {sortDirection === "asc" ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {sortedProducts.map((product: any, index: number) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    {/* 날짜 */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
-                      {dayjs(product.estimate_date).format("YYYY-MM-DD")}
-                    </td>
-
-                    {/* 거래처명 */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm hidden md:table-cell">
-                      <button
-                        onClick={() =>
-                          router.push(`/consultations/${product.company_id}`)
-                        }
-                        className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
-                      >
-                        {product.company_name}
-                      </button>
-                    </td>
-
-                    {/* 물품명 */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {product.name}
-                    </td>
-
-                    {/* 규격 */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {product.spec}
-                    </td>
-
-                    {/* 수량 */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {product.quantity}
-                    </td>
-
-                    {/* 단가 */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                      {product.unit_price.toLocaleString()} 원
-                    </td>
-
-                    {/* 담당자 */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
-                      {product.user_name} {product.user_level}
-                    </td>
-
-                    {/* 상태 */}
-                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      <div className="flex items-center">
-                        {product.status === "pending" && (
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            <Clock className="h-3.5 w-3.5 mr-1" />
-                            진행중
-                          </span>
-                        )}
-                        {product.status === "completed" && (
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                            완료
-                          </span>
-                        )}
-                        {product.status === "canceled" && (
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                            <XCircle className="h-3.5 w-3.5 mr-1" />
-                            취소
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* 페이지네이션 */}
       {!isLoading && sortedProducts.length > 0 && (
-        <div className="flex justify-center mt-6">
-          <nav className="flex items-center space-x-1">
-            <button
-              onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              이전
-            </button>
-
-            {paginationNumbers().map((page, index) =>
-              typeof page === "number" ? (
-                <button
-                  key={index}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === page
-                      ? "bg-blue-600 text-white font-medium"
-                      : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {page}
-                </button>
-              ) : (
-                <span key={index} className="px-2 text-gray-500">
-                  ...
-                </span>
-              )
-            )}
-
-            <button
-              onClick={() =>
-                handlePageChange(Math.min(currentPage + 1, totalPages))
-              }
-              disabled={currentPage === totalPages || totalPages === 0}
-              className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-            >
-              다음
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </button>
-          </nav>
-        </div>
+        <ProductPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       )}
     </div>
   );

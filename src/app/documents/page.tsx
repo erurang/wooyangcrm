@@ -13,11 +13,13 @@ interface Document {
   type: "estimate" | "order" | "requestQuote";
   document_number: string;
   content: {
-    company_name: string;
-    valid_until?: string;
+    items?: any[];
   };
   created_at: string;
-  status: "pending" | "completed" | "canceled";
+  status: "pending" | "completed" | "canceled" | "expired";
+  // 분리된 컬럼들
+  company_name?: string;
+  valid_until?: string | null;
 }
 
 interface DashboardData {
@@ -66,6 +68,7 @@ export default function DocumentsDashboard() {
       pending: documents.filter((doc) => doc.status === "pending").length,
       completed: documents.filter((doc) => doc.status === "completed").length,
       canceled: documents.filter((doc) => doc.status === "canceled").length,
+      expired: documents.filter((doc) => doc.status === "expired").length,
     };
   });
 
@@ -82,11 +85,12 @@ export default function DocumentsDashboard() {
                 <h2 className="font-semibold mb-2">
                   {tabs.find((t) => t.type === doc.type)?.name} 상태 요약
                 </h2>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-4">
                   {[
                     { label: "진행 중", key: "pending" },
                     { label: "완료됨", key: "completed" },
                     { label: "취소됨", key: "canceled" },
+                    { label: "만료됨", key: "expired" },
                   ].map(({ label, key }) => (
                     <div
                       key={key}
@@ -130,25 +134,30 @@ export default function DocumentsDashboard() {
                         </tr>
                       </thead>
                       <tbody className="text-center">
-                        {documents.slice(0, 3).map((doc) => (
-                          <tr
-                            key={doc.document_number}
-                            className="hover:bg-gray-50"
-                          >
-                            <td className="px-4 py-2 border-b">
-                              {doc.document_number}
-                            </td>
-                            <td className="px-4 py-2 border-b">
-                              {doc.content.company_name}
-                            </td>
-                            <td className="px-4 py-2 border-b">
-                              {doc.created_at.slice(0, 10)}
-                            </td>
-                            <td className="px-4 py-2 border-b">
-                              {doc.content.valid_until?.slice(0, 10) || "없음"}
-                            </td>
-                          </tr>
-                        ))}
+                        {documents.slice(0, 3).map((doc) => {
+                          const companyName = doc.company_name || "";
+                          const validUntil = doc.valid_until || "";
+
+                          return (
+                            <tr
+                              key={doc.document_number}
+                              className="hover:bg-gray-50"
+                            >
+                              <td className="px-4 py-2 border-b">
+                                {doc.document_number}
+                              </td>
+                              <td className="px-4 py-2 border-b">
+                                {companyName}
+                              </td>
+                              <td className="px-4 py-2 border-b">
+                                {doc.created_at.slice(0, 10)}
+                              </td>
+                              <td className="px-4 py-2 border-b">
+                                {validUntil?.slice(0, 10) || "없음"}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -196,6 +205,11 @@ export default function DocumentsDashboard() {
                     name: "취소됨",
                     data: documentSummary.map((doc) => doc.canceled),
                     color: "#8E24AA",
+                  },
+                  {
+                    name: "만료됨",
+                    data: documentSummary.map((doc) => doc.expired),
+                    color: "#9E9E9E",
                   },
                 ]}
                 type="bar"

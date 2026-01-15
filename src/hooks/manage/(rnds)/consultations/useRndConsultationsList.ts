@@ -8,7 +8,7 @@ export function useRndConsultationsList(
 ) {
   const { data, error, mutate } = useSWR(
     rndId
-      ? `/api/tests/manage/consultations/list?rndId=${rndId}&page=${currentPage}&search=${searchTerm}`
+      ? `/api/manage/consultations/list?rndId=${rndId}&page=${currentPage}&search=${searchTerm}`
       : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {

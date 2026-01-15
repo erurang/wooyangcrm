@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useUpdateRnDs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/manage/rnds/update`,
+    `/api/manage/rnds/update`,
     fetcher
   );
 

@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   try {
     const { data, error } = await supabase
       .from("documents")
-      .select("id, type, status, content, created_at")
+      .select("id, type, status, content, created_at, total_amount")
       .eq("company_id", companyId)
       .gte("created_at", startDate);
 
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       id: doc.id,
       type: doc.type,
       status: doc.status,
-      totalAmount: doc.content.total_amount || 0,
+      totalAmount: doc.total_amount ?? 0,
       createdAt: doc.created_at,
     }));
 

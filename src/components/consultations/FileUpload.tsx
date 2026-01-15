@@ -105,7 +105,6 @@ export default function FileUpload({
     handleUpload(e.dataTransfer.files);
   };
 
-  console.log(files);
   return (
     <div
       className="flex flex-col space-y-2 text-sm"

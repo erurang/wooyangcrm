@@ -3,7 +3,7 @@ import useSWRMutation from "swr/mutation";
 
 export function useDeleteDocument() {
   const { trigger, isMutating } = useSWRMutation(
-    "/api/tests/documents/type/delete",
+    "/api/documents/type/delete",
     fetcher
   );
   return {

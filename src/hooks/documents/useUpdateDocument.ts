@@ -3,7 +3,7 @@ import useSWRMutation from "swr/mutation";
 
 export function useUpdateDocument() {
   const { trigger, isMutating } = useSWRMutation(
-    "/api/tests/documents/type/update",
+    "/api/documents/type/update",
     fetcher
   );
   return {

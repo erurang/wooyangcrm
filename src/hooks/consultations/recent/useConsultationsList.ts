@@ -36,7 +36,7 @@ export function useConsultationsList({
   companyIds.forEach((id) => queryParams.append("companyIds", id));
 
   const { data, error } = useSWR(
-    `/api/tests/consultations/recent?${queryParams.toString()}`,
+    `/api/consultations/recent?${queryParams.toString()}`,
     fetcher
   );
 

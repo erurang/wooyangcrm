@@ -36,7 +36,7 @@ export function useFollowUpList({
   companyIds.forEach((id) => queryParams.append("companyIds", id));
 
   const { data, error } = useSWR(
-    `/api/tests/consultations/follow?${queryParams.toString()}`,
+    `/api/consultations/follow?${queryParams.toString()}`,
     fetcher
   );
 

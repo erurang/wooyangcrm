@@ -7,7 +7,7 @@ export function useUserSalesSummary(
   filter: "year" | "quarter" | "month"
 ) {
   const { data, error } = useSWR(
-    userId ? `/api/tests/users/${userId}?filter=${filter}` : null,
+    userId ? `/api/users/${userId}?filter=${filter}` : null,
     fetcher
   );
 

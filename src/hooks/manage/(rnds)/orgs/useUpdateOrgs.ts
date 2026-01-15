@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useUpdateOrgs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/manage/orgs/update`,
+    `/api/manage/orgs/update`,
     fetcher
   );
 

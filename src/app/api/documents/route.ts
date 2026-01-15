@@ -14,11 +14,11 @@ export async function GET(request: Request) {
     thirtyDaysAgo.setDate(currentDate.getDate() - 30);
     // const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
 
-    // 🔹 `documents` 테이블에서 데이터 가져오기
+    // 🔹 `documents` 테이블에서 데이터 가져오기 (분리된 컬럼 포함)
     let documentsQuery = supabase
       .from("documents")
       .select(
-        "id, type, status, content, user_id, document_number, created_at"
+        "id, type, status, content, user_id, document_number, created_at, notes, valid_until, delivery_date, total_amount, delivery_term, delivery_place"
       );
     // .gte("created_at", thirtyDaysAgoISO);
 

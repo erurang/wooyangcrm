@@ -8,7 +8,7 @@ const fetcher = async (url: string) => {
 
 // 📌 고객 요약 정보 가져오기 훅
 export function useLoginLogs(email: string) {
-  const { data } = useSWR(`/api/tests/login_logs?email=${email}`, fetcher);
+  const { data } = useSWR(`/api/login_logs?email=${email}`, fetcher);
 
   return {
     loginLogs: data,

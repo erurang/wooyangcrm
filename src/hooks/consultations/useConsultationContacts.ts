@@ -4,7 +4,7 @@ import useSWR from "swr";
 export function useConsultationContacts(consultationIds: string[]) {
   const { data, error, mutate } = useSWR(
     consultationIds.length
-      ? `/api/tests/consultations/contacts?consultationIds=${consultationIds}`
+      ? `/api/consultations/contacts?consultationIds=${consultationIds}`
       : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {

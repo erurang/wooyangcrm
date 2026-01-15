@@ -8,7 +8,7 @@ export function useConsultationsList(
 ) {
   const { data, error, mutate } = useSWR(
     companyId
-      ? `/api/tests/consultations/list?companyId=${companyId}&page=${currentPage}&search=${searchTerm}`
+      ? `/api/consultations/list?companyId=${companyId}&page=${currentPage}&search=${searchTerm}`
       : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {

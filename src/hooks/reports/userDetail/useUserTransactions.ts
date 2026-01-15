@@ -9,7 +9,7 @@ export function useUserTransactions(
 ) {
   const { data, error } = useSWR(
     userId && startDate && endDate
-      ? `/api/tests/users/${userId}/transactions?startDate=${startDate}&endDate=${endDate}`
+      ? `/api/users/${userId}/transactions?startDate=${startDate}&endDate=${endDate}`
       : null,
     fetcher
   );

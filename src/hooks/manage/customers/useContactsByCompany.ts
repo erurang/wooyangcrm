@@ -7,7 +7,7 @@ export function useContactsByCompany(companyIds: string[]) {
     : null;
 
   const { data, error, isLoading, mutate } = useSWR(
-    companyIdString ? `/api/tests/contacts/list${companyIdString}` : null,
+    companyIdString ? `/api/contacts/list${companyIdString}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시,
     {
       revalidateOnFocus: false,

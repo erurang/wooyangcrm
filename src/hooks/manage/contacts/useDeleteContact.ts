@@ -17,7 +17,7 @@ const deleteContactFetcher = async (url: string, { arg }: { arg: string }) => {
 
 export function useDeleteContact() {
   const { trigger, isMutating } = useSWRMutation(
-    "/api/tests/contacts/delete",
+    "/api/contacts/delete",
     deleteContactFetcher
   );
 

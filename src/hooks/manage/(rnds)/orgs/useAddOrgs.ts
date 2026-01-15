@@ -4,11 +4,11 @@ import useSWR from "swr";
 
 export function useAddOrgs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/manage/orgs/add`,
+    `/api/manage/orgs/add`,
     fetcher
   );
 
-  const { mutate } = useSWR(`/api/tests/manage/orgs/list/page`); // 🔹 SWR의 mutate 가져오기
+  const { mutate } = useSWR(`/api/manage/orgs/list/page`); // 🔹 SWR의 mutate 가져오기
 
   const addOrgs = async (orgsData: any) => {
     try {

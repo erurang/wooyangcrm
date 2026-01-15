@@ -15,7 +15,7 @@ export function useContactDetails(
 ) {
   const { data, error, isLoading } = useSWR(
     contactId
-      ? `/api/tests/manage/contacts/detail?contactId=${contactId}&startDate=${startDate}&endDate=${endDate}`
+      ? `/api/manage/contacts/detail?contactId=${contactId}&startDate=${startDate}&endDate=${endDate}`
       : null,
     fetcher,
     { revalidateOnFocus: false, dedupingInterval: 60000 }

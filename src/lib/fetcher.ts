@@ -15,6 +15,5 @@ export const fetcher = async (
   }
 
   const data = await res.json();
-  console.log("🌍 fetcher 응답 데이터:", data);
   return data;
 };

@@ -36,13 +36,9 @@ const fetchReports = async (type: "estimate" | "order", date: string) => {
 
   const { startDate, endDate } = getKSTDateRange(date); // ✅ 한국 시간 변환
 
-  console.log(
-    `[${type.toUpperCase()}] startDate: ${startDate}, endDate: ${endDate}`
-  );
-
   const { data, error } = await supabase
     .from("documents")
-    .select("id, content, created_at, company_id, type, users(name,level)")
+    .select("id, content, created_at, company_id, type, users(name,level), total_amount, company_name")
     .eq("type", type)
     .eq("status", "completed") // ✅ 완료된 문서만 조회
     .gte("created_at", startDate) // ✅ 한국 시간 기준 시작

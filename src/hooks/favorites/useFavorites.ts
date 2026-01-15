@@ -9,14 +9,14 @@ interface Favorite {
 
 export function useFavorites(userId: string | undefined) {
   const { data, error, mutate } = useSWR(
-    userId ? `/api/tests/favorite?userId=${userId}&type=company` : null,
+    userId ? `/api/favorite?userId=${userId}&type=company` : null,
     fetcher
   );
 
   const addFavorite = async (userId: any, companyId: any, companyName: any) => {
     try {
       const res = await fetch(
-        `/api/tests/favorite?userId=${userId}&type=company&name=${companyName}&itemId=${companyId}`,
+        `/api/favorite?userId=${userId}&type=company&name=${companyName}&itemId=${companyId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -41,7 +41,7 @@ export function useFavorites(userId: string | undefined) {
   const removeFavorite = async (id: string) => {
     try {
       const res = await fetch(
-        `/api/tests/favorite?userId=${userId}&companyId=${id}`,
+        `/api/favorite?userId=${userId}&companyId=${id}`,
         {
           method: "DELETE",
         }

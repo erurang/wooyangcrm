@@ -4,7 +4,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useUserDetail(userId: string) {
   const { data, error } = useSWR(
-    userId ? `/api/tests/users/${userId}/detail` : null,
+    userId ? `/api/users/${userId}/detail` : null,
     fetcher
   );
 

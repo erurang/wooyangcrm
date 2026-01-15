@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useUpdateCompany() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/companies/update`,
+    `/api/companies/update`,
     fetcher
   );
 

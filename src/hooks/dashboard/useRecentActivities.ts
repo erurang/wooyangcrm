@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useRecentActivities(userId: string) {
   const { data, error, isLoading, mutate } = useSWR(
-    userId ? `/api/tests/dashboard/recent-activities?userId=${userId}` : null,
+    userId ? `/api/dashboard/recent-activities?userId=${userId}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,

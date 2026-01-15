@@ -4,11 +4,11 @@ import useSWR from "swr";
 
 export function useAddbRnDs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/manage/brnds/add`,
+    `/api/manage/brnds/add`,
     fetcher
   );
 
-  const { mutate } = useSWR(`/api/tests/manage/brnds/list`); // 🔹 SWR의 mutate 가져오기
+  const { mutate } = useSWR(`/api/manage/brnds/list`); // 🔹 SWR의 mutate 가져오기
 
   const addbRnds = async (rndsData: any) => {
     try {

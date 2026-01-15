@@ -4,11 +4,11 @@ import useSWR from "swr";
 
 export function useAddCompany() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/companies/add`,
+    `/api/companies/add`,
     fetcher
   );
 
-  const { mutate } = useSWR(`/api/tests/companies/list`); // 🔹 SWR의 mutate 가져오기
+  const { mutate } = useSWR(`/api/companies/list`); // 🔹 SWR의 mutate 가져오기
 
   const addCompany = async (companyData: any) => {
     try {

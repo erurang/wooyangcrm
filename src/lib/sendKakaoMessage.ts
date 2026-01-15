@@ -71,11 +71,8 @@ export async function sendKakaoMessage(providerToken: string) {
   );
 
   const result = await res.json();
-  console.log("📩 카카오 메시지 응답:", result);
 
   if (!res.ok) {
     console.error("❌ 카카오 메시지 전송 실패:", result);
-  } else {
-    console.log("✅ 카카오 메시지 전송 성공!");
   }
 }

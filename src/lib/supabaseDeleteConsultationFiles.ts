@@ -26,7 +26,6 @@ export const supabaseDeleteConsultationFiles = async (
       return false;
     }
 
-    console.log("파일 삭제 성공 (스토리지 & DB):", filePath);
     return true;
   } catch (error) {
     console.error("파일 삭제 중 오류 발생:", error);

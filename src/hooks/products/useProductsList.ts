@@ -47,7 +47,7 @@ export const useProductsList = ({
   companyIds.forEach((id) => queryParams.append("companyIds", id));
 
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/tests/products?${queryParams.toString()}`,
+    `/api/products?${queryParams.toString()}`,
     fetcher,
     { revalidateOnFocus: false }
   );

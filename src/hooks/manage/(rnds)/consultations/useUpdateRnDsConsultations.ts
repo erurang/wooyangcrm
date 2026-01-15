@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useUpdateRnDsConsultations() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/manage/consultations/update`,
+    `/api/manage/consultations/update`,
     fetcher
   );
 

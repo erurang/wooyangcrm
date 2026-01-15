@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useRnDsDetails(rndsId: string | undefined) {
   const { data, error, mutate, isLoading } = useSWR(
-    rndsId ? `/api/tests/manage/rnds/details?rndsId=${rndsId}` : null,
+    rndsId ? `/api/manage/rnds/details?rndsId=${rndsId}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {
       revalidateOnFocus: false,

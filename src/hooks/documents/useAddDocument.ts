@@ -3,7 +3,7 @@ import useSWRMutation from "swr/mutation";
 
 export function useAddDocument() {
   const { trigger, isMutating } = useSWRMutation(
-    "/api/tests/documents/type/add",
+    "/api/documents/type/add",
     fetcher
   );
   return {

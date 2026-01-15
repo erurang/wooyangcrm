@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function usebRnDsList(page: number, limit: number, searchTerm: string) {
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/tests/manage/brnds/list?page=${page}&limit=${limit}&name=${searchTerm}`,
+    `/api/manage/brnds/list?page=${page}&limit=${limit}&name=${searchTerm}`,
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,

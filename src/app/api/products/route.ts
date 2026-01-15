@@ -1,6 +1,25 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
+interface DocumentItem {
+  name: string;
+  spec: string;
+  unit_price: number | string;
+  quantity: number;
+  amount?: number;
+}
+
+interface DocumentRecord {
+  id: string;
+  content: {
+    items: DocumentItem[];
+    company_name?: string;
+  };
+  created_at: string;
+  status: string;
+  company_name?: string;
+}
+
 // GET 요청: /api/products
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -21,10 +40,10 @@ export async function GET(request: Request) {
   const endDate = searchParams.get("end_date");
 
   try {
-    // Query 생성
+    // Query 생성 (company_name은 별도 컬럼으로 분리됨, 폴백 위해 content도 조회)
     let query = supabase
       .from("documents")
-      .select("content, created_at, status")
+      .select("id, content, created_at, status, company_name")
       .eq("type", searchType)
       .ilike("content->>company_name", `%${searchCompany}%`);
 
@@ -43,15 +62,14 @@ export async function GET(request: Request) {
 
     const { data, error } = await query;
 
-    console.log(data);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     // 데이터 변환 및 필터링
-    const filteredProducts = data.flatMap((doc: any) =>
+    const filteredProducts = (data as DocumentRecord[]).flatMap((doc) =>
       doc.content.items
-        .filter((item: any) => {
+        .filter((item) => {
           // 물품명 필터
           if (
             searchProduct &&
@@ -69,23 +87,24 @@ export async function GET(request: Request) {
           }
 
           // 단가 필터
-          if (minPrice && parseFloat(item.unit_price) < parseFloat(minPrice)) {
+          const unitPrice = Number(item.unit_price);
+          if (minPrice && unitPrice < parseFloat(minPrice)) {
             return false;
           }
-          if (maxPrice && parseFloat(item.unit_price) > parseFloat(maxPrice)) {
+          if (maxPrice && unitPrice > parseFloat(maxPrice)) {
             return false;
           }
 
           return true;
         })
-        .map((item: any) => ({
+        .map((item) => ({
           id: doc.id,
           estimate_date: doc.created_at,
-          company_name: doc.content.company_name,
+          company_name: doc.company_name || "",
           name: item.name,
           spec: item.spec,
-          unit_price: parseFloat(item.unit_price),
-          quantity: item.quantity, // quantity를 문자열로 유지
+          unit_price: Number(item.unit_price),
+          quantity: item.quantity,
           status: doc.status,
         }))
     );
@@ -98,7 +117,8 @@ export async function GET(request: Request) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

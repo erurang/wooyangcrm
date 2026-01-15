@@ -1,7 +1,27 @@
+interface SalesDocument {
+  id: string;
+  company_id: string;
+  type: string;
+  status: string;
+  content?: {
+    total_amount?: number;
+  };
+}
+
+interface Company {
+  id: string;
+  created_at: string;
+}
+
+interface Consultation {
+  id: string;
+  company_id: string;
+}
+
 export function calculateNewSales(
-  documents: any[],
-  companies: any[],
-  consultations: any[]
+  documents: SalesDocument[],
+  companies: Company[],
+  consultations: Consultation[]
 ) {
   if (!documents || !companies || !consultations) {
     return { newSales: null, current_month_performance: null };
@@ -26,7 +46,7 @@ export function calculateNewSales(
     .map((company) => company.id);
 
   /** 📌 금액 합산 함수 */
-  const extractTotalAmount = (docs: any[]) =>
+  const extractTotalAmount = (docs: SalesDocument[]) =>
     docs.reduce((acc, doc) => acc + (doc.content?.total_amount || 0), 0);
 
   /** 📌 신규 영업 기회 */

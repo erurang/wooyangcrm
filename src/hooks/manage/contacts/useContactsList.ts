@@ -11,12 +11,10 @@ export function useContactsList(
   resign: string
 ) {
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/tests/manage/contacts?page=${page}&limit=${limit}&contact=${contactName}&email=${email}&mobile=${mobile}&company=${companyName}&resign=${resign}`,
+    `/api/manage/contacts?page=${page}&limit=${limit}&contact=${contactName}&email=${email}&mobile=${mobile}&company=${companyName}&resign=${resign}`,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     { revalidateOnFocus: false }
   );
-
-  console.log("data", data);
 
   return {
     contacts: data?.contacts || [],

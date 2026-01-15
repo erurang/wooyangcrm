@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     // 데이터 가져오기: 2024년 이전은 status 무시, 이후는 status 필터 적용
     const { data: documents, error } = await supabase
       .from("documents")
-      .select("status, type, content, created_at")
+      .select("status, type, content, created_at, total_amount")
       .eq("user_id", userId)
       .gte("created_at", `${year}-01-01T00:00:00`) // 해당 연도의 시작
       .lte("created_at", `${year}-12-31T23:59:59`); // 해당 연도의 끝
@@ -56,10 +56,7 @@ export async function GET(req: NextRequest) {
       const month = createdMonth;
       const typeKey = doc.type as DocumentType;
 
-      const totalAmount =
-        typeof doc.content.total_amount === "number"
-          ? doc.content.total_amount
-          : parseFloat(doc.content.total_amount || "0");
+      const totalAmount = doc.total_amount ?? 0;
 
       // 2024년 이전데이터를 무시하거나 2024년 12월이전까지의 데이터를 무시하거나
       if (createdYear < 2024 || (createdYear === 2024 && createdMonth < 12)) {

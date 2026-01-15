@@ -1,0 +1,9 @@
+export { default as UserDashboardTab } from "./UserDashboardTab";
+export { default as UserConsultationTab } from "./UserConsultationTab";
+export { default as UserItemsTab } from "./UserItemsTab";
+export { default as UserSalesTab } from "./UserSalesTab";
+export { default as UserPurchaseTab } from "./UserPurchaseTab";
+export { default as UserTrendsTab } from "./UserTrendsTab";
+export { default as UserPerformanceTab } from "./UserPerformanceTab";
+export { default as UserClientsTab } from "./UserClientsTab";
+export { default as UserTodoTab } from "./UserTodoTab";

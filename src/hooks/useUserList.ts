@@ -3,7 +3,7 @@ import useSWR from "swr";
 
 export function useUsersList() {
   const { data, error, isValidating, mutate } = useSWR(
-    "/api/tests/users/list",
+    "/api/users/list",
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,

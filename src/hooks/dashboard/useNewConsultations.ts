@@ -3,7 +3,7 @@ import useSWR from "swr";
 
 export function useNewConsultations(userId: string) {
   const { data, error, isLoading, mutate } = useSWR(
-    userId ? `/api/tests/consultations/new?userId=${userId}` : null,
+    userId ? `/api/consultations/new?userId=${userId}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,

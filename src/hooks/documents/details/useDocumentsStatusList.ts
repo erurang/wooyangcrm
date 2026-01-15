@@ -45,7 +45,7 @@ export const useDocumentsStatusList = ({
   companyIds.forEach((id) => queryParams.append("companyIds", id));
 
   // ✅ userId 없어도 요청 가능
-  const key = `/api/tests/documents/status/list?${queryParams.toString()}`;
+  const key = `/api/documents/status/list?${queryParams.toString()}`;
 
   const { data, error, isLoading, mutate } = useSWR(key, fetchDocuments, {
     revalidateOnFocus: false,

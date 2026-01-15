@@ -31,7 +31,7 @@ export function useConsultationSearch({
   });
 
   const { data, error } = useSWR(
-    `/api/tests/consultations/search?${queryParams.toString()}`,
+    `/api/consultations/search?${queryParams.toString()}`,
     fetcher
   );
 

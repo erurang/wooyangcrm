@@ -19,7 +19,7 @@ const updateDocumentStatus = async (
 
 export const useUpdateDocumentStatus = () => {
   return useSWRMutation(
-    "/api/tests/documents/status/update",
+    "/api/documents/status/update",
     updateDocumentStatus
   );
 };

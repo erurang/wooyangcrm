@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useCompanyDetails(companyId: string | undefined) {
   const { data, error, mutate } = useSWR(
-    companyId ? `/api/tests/companies/details?companyId=${companyId}` : null,
+    companyId ? `/api/companies/details?companyId=${companyId}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {
       revalidateOnFocus: false,

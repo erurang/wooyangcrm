@@ -4,7 +4,7 @@ import useSWR from "swr";
 // 📌 고객 요약 정보 가져오기 훅
 export function useClientSummary(userId: string) {
   const { data, error, isLoading, mutate } = useSWR(
-    userId ? `/api/tests/clients/summary?userId=${userId}` : null,
+    userId ? `/api/clients/summary?userId=${userId}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,

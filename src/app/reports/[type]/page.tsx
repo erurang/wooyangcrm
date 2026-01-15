@@ -6,6 +6,19 @@ import {
   usePurchaseReports,
 } from "@/hooks/reports/useReports";
 
+interface ReportItem {
+  name: string;
+  spec?: string;
+  quantity?: string | number;
+  unit_price?: number;
+  amount?: number;
+}
+
+interface ReportUser {
+  name: string;
+  level: string;
+}
+
 const ReportsPage = () => {
   const { type } = useParams(); // 🔥 URL에서 type(estimate, order) 가져오기
   const params = useSearchParams();
@@ -33,7 +46,7 @@ const ReportsPage = () => {
 
   // ✅ 총 매출액/총 매입액 계산
   const totalAmount = reports.reduce(
-    (sum, report) => sum + (report.content.total_amount || 0),
+    (sum, report) => sum + (report.total_amount ?? 0),
     0
   );
 
@@ -65,59 +78,64 @@ const ReportsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {reports.map((report, index) => (
+            {reports.map((report, index) => {
+              const companyName = report.company_name || "";
+              const totalAmt = report.total_amount ?? 0;
+
+              return (
               <tr key={report.id}>
                 <td className="border-b border-r-[1px] px-4 py-2">
                   {index + 1}
                 </td>
                 <td className="border-b border-r-[1px] px-4 py-2">
-                  {report.content.company_name}
+                  {companyName}
                 </td>
                 <td className="border-b border-r-[1px] px-4 py-2">
-                  {report.content.items?.map((item: any, idx: number) => (
+                  {(report.content.items as ReportItem[] | undefined)?.map((item, idx) => (
                     <div key={idx} className="border-b last:border-b-0 py-1">
                       {item.name}
                     </div>
                   ))}
                 </td>
                 <td className="border-b border-r-[1px] px-4 py-2">
-                  {report.content.items?.map((item: any, idx: number) => (
+                  {(report.content.items as ReportItem[] | undefined)?.map((item, idx) => (
                     <div key={idx} className="border-b last:border-b-0 py-1">
                       {item.spec}
                     </div>
                   ))}
                 </td>
                 <td className="border-b border-r-[1px] px-4 py-2">
-                  {report.content.items?.map((item: any, idx: number) => (
+                  {(report.content.items as ReportItem[] | undefined)?.map((item, idx) => (
                     <div key={idx} className="border-b last:border-b-0 py-1">
                       {item.quantity}
                     </div>
                   ))}
                 </td>
                 <td className="border-b border-r-[1px] px-4 py-2">
-                  {report.content.items?.map((item: any, idx: number) => (
+                  {(report.content.items as ReportItem[] | undefined)?.map((item, idx) => (
                     <div key={idx} className="border-b last:border-b-0 py-1">
                       {item.unit_price?.toLocaleString()}
                     </div>
                   ))}
                 </td>
                 <td className="border-b border-r-[1px] px-4 py-2">
-                  {report.content.items?.map((item: any, idx: number) => (
+                  {(report.content.items as ReportItem[] | undefined)?.map((item, idx) => (
                     <div key={idx} className="border-b last:border-b-0 py-1">
                       {item.amount?.toLocaleString()}
                     </div>
                   ))}
                 </td>
                 <td className="border-b border-r-[1px] px-4 py-2">
-                  <p>{report.content.total_amount?.toLocaleString()}</p>
+                  <p>{totalAmt?.toLocaleString()}</p>
                 </td>
                 <td className="border-b  px-4 py-2">
                   <p>
-                    {(report.users as any).name} {(report.users as any).level}
+                    {(report.users as unknown as ReportUser)?.name} {(report.users as unknown as ReportUser)?.level}
                   </p>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

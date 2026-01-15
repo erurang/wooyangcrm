@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useUpdatebRnDs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/manage/brnds/update`,
+    `/api/manage/brnds/update`,
     fetcher
   );
 

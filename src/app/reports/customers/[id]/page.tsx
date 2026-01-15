@@ -4,10 +4,21 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 
-import { CircularProgress } from "@mui/material";
-import Link from "next/link";
 import { useCompanySalesSummaryDetail } from "@/hooks/reports/customers/useCompanySalesSummaryDetail";
 import { useCompanyDetails } from "@/hooks/consultations/useCompanyDetails";
+
+interface SalesItem {
+  name: string;
+  spec?: string;
+  quantity: number;
+  total: number;
+}
+
+interface UserSales {
+  user_name: string;
+  total_sales: number;
+  total_purchases: number;
+}
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -55,7 +66,7 @@ export default function CompanyDetailPage() {
     useCompanySalesSummaryDetail(companyId, startDate, endDate);
 
   // ✅ 차트 데이터 정리
-  const getChartData = (items: any[]) => {
+  const getChartData = (items: SalesItem[]) => {
     const sorted = [...items].sort((a, b) => b.total - a.total);
     const top5 = sorted.slice(0, 5);
     const otherTotal = sorted.slice(5).reduce((sum, c) => sum + c.total, 0);
@@ -77,7 +88,7 @@ export default function CompanyDetailPage() {
 
   // ✅ 영업사원별 매출/매입 차트 데이터 변환 함수
   const getUserChartData = (
-    users: any[],
+    users: UserSales[],
     key: "total_sales" | "total_purchases"
   ) => {
     return {
@@ -293,7 +304,7 @@ export default function CompanyDetailPage() {
         <div className="bg-[#FBFBFB] rounded-md border px-6 py-4">
           <p className="text-lg font-semibold mb-2">📦 매출 품목</p>
           {companySalesSummary?.sales_items?.length > 0 ? (
-            companySalesSummary?.sales_items.map((item: any, idx: number) => (
+            companySalesSummary?.sales_items.map((item: SalesItem, idx: number) => (
               <p key={idx} className="border-b py-2">
                 {item.name} ({item.spec}): {item.quantity}개 -{" "}
                 {item.total.toLocaleString()}원
@@ -307,7 +318,7 @@ export default function CompanyDetailPage() {
           <p className="text-lg font-semibold mb-2">📦 매입 품목</p>
           {companySalesSummary?.purchase_items?.length > 0 ? (
             companySalesSummary?.purchase_items.map(
-              (item: any, idx: number) => (
+              (item: SalesItem, idx: number) => (
                 <p key={idx} className="border-b py-2">
                   {item.name} ({item.spec}): {item.quantity}개 -{" "}
                   {item.total.toLocaleString()}원

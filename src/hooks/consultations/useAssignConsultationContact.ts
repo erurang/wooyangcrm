@@ -3,7 +3,7 @@ import useSWRMutation from "swr/mutation";
 
 export function useAssignConsultationContact() {
   const { trigger, isMutating, error } = useSWRMutation(
-    "/api/tests/consultations/assign/contact",
+    "/api/consultations/assign/contact",
     fetcher
   );
 

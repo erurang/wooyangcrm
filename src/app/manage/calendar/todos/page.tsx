@@ -109,7 +109,6 @@ export default function CalendarPage() {
     if (typeof window === "undefined") return;
     try {
       const mod = require("@toast-ui/calendar");
-      console.log("Loaded calendar mod:", mod);
       setCalendarClass(() => mod);
     } catch (err) {
       console.error("Calendar module load error:", err);
@@ -164,7 +163,6 @@ export default function CalendarPage() {
           },
         },
       });
-      console.log("Created cal instance with user:", user.id);
       setCalendar(cal);
       fetchTodosForMonth(new Date());
     } catch (err) {

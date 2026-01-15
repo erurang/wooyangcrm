@@ -26,8 +26,6 @@ export async function POST(req: NextRequest) {
     .maybeSingle(); // ✅ 조회 결과가 없으면 null 반환
 
   if (!verificationData) {
-    console.log("veriyfy-code api error", verificationError);
-
     return NextResponse.json(
       { error: "잘못된 인증번호입니다." },
       { status: 400 }
@@ -94,7 +92,6 @@ export async function POST(req: NextRequest) {
 
   try {
     await sendEmail(adminEmail, emailSubject, emailContent);
-    console.log("관리자에게 로그인 알림 이메일이 전송되었습니다.");
   } catch (err) {
     console.error("관리자 이메일 전송 오류:", err);
   }

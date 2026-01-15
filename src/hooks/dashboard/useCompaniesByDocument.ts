@@ -9,7 +9,7 @@ export function useCompaniesByDocument(documents: any[]) {
 
   const { data, error, isLoading, mutate } = useSWR(
     companyIds.length > 0
-      ? `/api/tests/companies/byDocument?companyIds=${companyIds.join(",")}`
+      ? `/api/companies/byDocument?companyIds=${companyIds.join(",")}`
       : null,
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {

@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useOrgsList() {
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/tests/manage/orgs/list`,
+    `/api/manage/orgs/list`,
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,

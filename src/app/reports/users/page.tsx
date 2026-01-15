@@ -7,6 +7,13 @@ import { useUserSalesSummary } from "@/hooks/reports/useUserSalesSummary";
 import { useUserDocumentsCount } from "@/hooks/reports/useUserDocumentsCount";
 import { useLoginUser } from "@/context/login";
 
+interface User {
+  id: string;
+  name: string;
+  position?: string;
+  level?: string;
+}
+
 export default function UsersListPage() {
   const router = useRouter();
   const loginUser = useLoginUser();
@@ -23,7 +30,7 @@ export default function UsersListPage() {
 
   // ✅ 직원 목록 가져오기
   const { users, isLoading } = useUsersList();
-  const userIds = users.map((user: any) => user.id);
+  const userIds = (users as User[]).map((user) => user.id);
 
   // ✅ 날짜 필터링 설정
   const today = new Date();
@@ -64,7 +71,7 @@ export default function UsersListPage() {
     useUserDocumentsCount(userIds, startDate, endDate);
 
   // 🔹 검색 필터 적용
-  const filteredUsers = users.filter((user: any) =>
+  const filteredUsers = (users as User[]).filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -96,7 +103,7 @@ export default function UsersListPage() {
         <p className="text-gray-500 text-center">데이터 로딩 중...</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredUsers.map((user: any) => {
+          {filteredUsers.map((user) => {
             const userSales = salesSummary?.[user.id] || {
               estimates: { pending: 0, completed: 0, canceled: 0, total: 0 },
               orders: { pending: 0, completed: 0, canceled: 0, total: 0 },

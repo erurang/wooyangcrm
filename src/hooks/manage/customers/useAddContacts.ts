@@ -3,7 +3,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export function useAddContacts() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/tests/contacts/add`,
+    `/api/contacts/add`,
     fetcher
   );
 
