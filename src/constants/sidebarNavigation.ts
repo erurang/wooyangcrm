@@ -116,6 +116,15 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     ],
   },
   {
+    id: "inventory",
+    title: "재고",
+    icon: Package,
+    subItems: [
+      { id: "inbound", title: "입고", path: "/inventory/inbound" },
+      { id: "outbound", title: "출고", path: "/inventory/outbound" },
+    ],
+  },
+  {
     id: "board",
     title: "게시판",
     icon: Newspaper,
@@ -203,6 +212,7 @@ export const MENU_ICONS: Record<string, LucideIcon> = {
   consultations: MessageSquare,
   documents: FileText,
   pricing: DollarSign,
+  inventory: Package,
   board: Newspaper,
   research: Beaker,
   management: ChartBar,
