@@ -41,23 +41,18 @@ export default function CommentList({
   };
 
   if (comments.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        <p>아직 댓글이 없습니다.</p>
-        <p className="text-sm mt-1">첫 번째 댓글을 남겨보세요!</p>
-      </div>
-    );
+    return null; // 댓글 입력창의 placeholder로 대체
   }
 
   return (
-    <div className="mt-6 space-y-4">
+    <div className="mt-6 divide-y divide-gray-100">
       {rootComments.map((comment) => {
         const isHighlighted = highlightCommentId === comment.id;
         return (
         <div
           key={comment.id}
           ref={isHighlighted ? highlightRef : null}
-          className={isHighlighted ? "bg-indigo-50 ring-2 ring-indigo-200 ring-inset rounded-lg p-2 -m-2" : ""}
+          className={`py-4 first:pt-0 ${isHighlighted ? "bg-indigo-50 ring-2 ring-indigo-200 ring-inset rounded-lg p-2 -mx-2" : ""}`}
         >
           <CommentItem
             comment={comment}
@@ -68,7 +63,7 @@ export default function CommentList({
           />
           {/* 대댓글 */}
           {getReplies(comment.id).length > 0 && (
-            <div className="ml-8 mt-2 space-y-2 border-l-2 border-gray-100 pl-4">
+            <div className="ml-8 mt-3 space-y-3 border-l-2 border-gray-100 pl-4">
               {getReplies(comment.id).map((reply) => {
                 const isReplyHighlighted = highlightCommentId === reply.id;
                 return (

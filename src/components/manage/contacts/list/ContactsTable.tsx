@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Search, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface Contact {
   id: string;
@@ -19,25 +20,43 @@ interface Contact {
 
 interface ContactsTableProps {
   contacts: Contact[];
+  isLoading?: boolean;
   onEdit: (contact: Contact) => void;
   onDelete: (contact: Contact) => void;
+  onAdd?: () => void;
+  hasSearchQuery?: boolean;
 }
 
 export default function ContactsTable({
   contacts,
+  isLoading = false,
   onEdit,
   onDelete,
+  onAdd,
+  hasSearchQuery = false,
 }: ContactsTableProps) {
   const router = useRouter();
 
-  if (!contacts || contacts.length === 0) {
+  // 로딩 상태
+  if (isLoading) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div className="flex flex-col items-center justify-center py-16">
-          <Search size={48} className="text-gray-300 mb-4" />
-          <p className="text-gray-500 text-lg">검색 결과가 없습니다</p>
-          <p className="text-gray-400 text-sm mt-2">다른 검색어로 시도해보세요</p>
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-500 mt-3">담당자 목록을 불러오는 중...</p>
         </div>
+      </div>
+    );
+  }
+
+  // 빈 상태
+  if (!contacts || contacts.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <EmptyState
+          type={hasSearchQuery ? "search" : "contact"}
+          onAction={!hasSearchQuery && onAdd ? onAdd : undefined}
+        />
       </div>
     );
   }
@@ -82,13 +101,7 @@ export default function ContactsTable({
                 scope="col"
                 className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                수정
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                삭제
+                관리
               </th>
             </tr>
           </thead>
@@ -120,23 +133,23 @@ export default function ContactsTable({
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{contact.mobile || "-"}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <button
-                    onClick={() => onEdit(contact)}
-                    className="p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
-                    title="수정"
-                  >
-                    <Edit size={16} />
-                  </button>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <button
-                    onClick={() => onDelete(contact)}
-                    className="p-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
-                    title="삭제"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center justify-center gap-1">
+                    <button
+                      onClick={() => onEdit(contact)}
+                      className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                    >
+                      <Edit size={14} />
+                      수정
+                    </button>
+                    <button
+                      onClick={() => onDelete(contact)}
+                      className="flex items-center gap-1 px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors"
+                    >
+                      <Trash2 size={14} />
+                      삭제
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

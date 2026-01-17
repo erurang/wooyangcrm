@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import {
   ChevronDown,
   ChevronUp,
-  FileText,
   CheckCircle,
   XCircle,
   Clock,
 } from "lucide-react";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface Product {
   id: string;
@@ -120,13 +120,7 @@ export default function ProductTable({
   if (products.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <div className="text-center p-12 text-gray-500">
-          <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-          <p className="text-lg font-medium">검색 결과가 없습니다</p>
-          <p className="mt-1">
-            검색 조건을 변경하거나 필터를 초기화해 보세요.
-          </p>
-        </div>
+        <EmptyState type="product" />
       </div>
     );
   }

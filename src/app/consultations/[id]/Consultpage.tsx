@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { MessageSquare, Paperclip, FileText } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "@/components/Snackbar";
 
@@ -15,6 +16,7 @@ import { useAddConsultation } from "@/hooks/consultations/useAddConsultation";
 import { useAssignConsultationContact } from "@/hooks/consultations/useAssignConsultationContact";
 import { useUpdateConsultation } from "@/hooks/consultations/useUpdateConsultation";
 import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
+import { useUpdateCompany } from "@/hooks/manage/customers/useUpdateCompany";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   useConsultPageModals,
@@ -29,13 +31,17 @@ import {
   DeleteConfirmModal,
   NotesEditModal,
   ContactsEditModal,
+  CompanyEditModal,
 } from "@/components/consultations";
+import { CompanyFilesTab, CompanyPostsTab } from "@/components/consultations/tabs";
 import type {
   BaseConsultation,
   ConsultationContactRelation,
   ProcessedConsultation,
   ContactMethod,
 } from "@/types/consultation";
+
+type TabType = "consultations" | "files" | "posts";
 
 interface Contact {
   id: string;
@@ -58,6 +64,9 @@ export default function ConsultationPage() {
 
   // URL 파라미터 (highlight)
   const highlightId = searchParams.get("highlight");
+
+  // 탭 상태
+  const [activeTab, setActiveTab] = useState<TabType>("consultations");
 
   // 검색 및 페이지네이션
   const [searchTerm, setSearchTerm] = useState("");
@@ -87,7 +96,7 @@ export default function ConsultationPage() {
   const { users } = useUsersList();
   const { favorites, removeFavorite, refetchFavorites, addFavorite } =
     useFavorites(loginUser?.id);
-  const { consultations, totalPages, actualPage, refreshConsultations } =
+  const { consultations, totalPages, actualPage, refreshConsultations, isLoading: isConsultationsLoading } =
     useConsultationsList(id as string, currentPage, debouncedSearchTerm, highlightId);
 
   // 실제 페이지가 요청한 페이지와 다르면 (highlightId로 인해) 상태 동기화
@@ -110,6 +119,7 @@ export default function ConsultationPage() {
   const { assignConsultationContact } = useAssignConsultationContact();
   const { updateConsultation, isUpdating } = useUpdateConsultation();
   const { updateContacts } = useUpdateContacts();
+  const { updateCompany, isLoading: isCompanyUpdating } = useUpdateCompany();
 
   // 커스텀 훅 - 모달 관리
   const {
@@ -161,6 +171,8 @@ export default function ConsultationPage() {
   // 로컬 상태
   const [notes, setNotes] = useState(companyDetail?.notes || "");
   const [contactsUi, setContactsUi] = useState<Contact[]>(contacts ?? []);
+  const [openEditCompanyModal, setOpenEditCompanyModal] = useState(false);
+  const [companySaving, setCompanySaving] = useState(false);
 
   // 처리된 상담 데이터
   const processedConsultations: ProcessedConsultation[] = useMemo(() => {
@@ -190,6 +202,7 @@ export default function ConsultationPage() {
         contact_mobile: firstContact.mobile || "",
         contact_id: firstContact.id || "",
         documents: documentTypes,
+        rawDocuments: consultation.documents || [],
       };
     });
   }, [consultations, contactsConsultations]);
@@ -268,6 +281,45 @@ export default function ConsultationPage() {
     if (pageParam) setCurrentPage(Number(pageParam));
   }, [searchParams]);
 
+  // 비고 수정 모달 열릴 때 기존값으로 초기화
+  useEffect(() => {
+    if (openEditNotesModal && companyDetail?.notes !== undefined) {
+      setNotes(companyDetail.notes || "");
+    }
+  }, [openEditNotesModal, companyDetail?.notes]);
+
+  // 거래처 정보 수정 핸들러
+  const handleSaveCompany = async (data: {
+    id: string;
+    name: string;
+    address: string;
+    phone: string;
+    fax: string;
+    parcel?: string;
+    email?: string;
+  }) => {
+    setCompanySaving(true);
+    try {
+      await updateCompany({
+        id: data.id,
+        name: data.name,
+        address: data.address,
+        phone: data.phone,
+        fax: data.fax,
+        parcel: data.parcel,
+        email: data.email,
+      });
+      await refreshCompany();
+      setOpenEditCompanyModal(false);
+      setSnackbarMessage("거래처 정보가 수정되었습니다.");
+    } catch (error) {
+      console.error("Error updating company:", error);
+      setSnackbarMessage("거래처 정보 수정에 실패했습니다.");
+    } finally {
+      setCompanySaving(false);
+    }
+  };
+
   return (
     <div className="bg-white text-gray-800 min-h-screen">
       <ConsultPageHeader
@@ -288,22 +340,74 @@ export default function ConsultationPage() {
           isLoading={isCompanyDetailLoading}
           onEditNotes={() => setOpenEditNotesModal(true)}
           onEditContacts={() => setOpenEditContactsModal(true)}
+          onEditCompany={() => setOpenEditCompanyModal(true)}
         />
 
-        <ConsultationTable
-          consultations={processedConsultations || []}
-          users={users}
-          companyId={companyDetail?.id || ""}
-          loginUserId={loginUser?.id || ""}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          searchTerm={debouncedSearchTerm}
-          highlightId={highlightId}
-          onContactClick={handleContactClick}
-          onEditConsultation={handleEditConsultation}
-          onDeleteConsultation={openDeleteWithConsultation}
-          onPageChange={handlePageChange}
-        />
+        {/* 탭 네비게이션 */}
+        <div className="mb-4 border-b border-gray-200">
+          <nav className="flex space-x-1">
+            <button
+              onClick={() => setActiveTab("consultations")}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "consultations"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <MessageSquare size={16} />
+              상담
+            </button>
+            <button
+              onClick={() => setActiveTab("files")}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "files"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <Paperclip size={16} />
+              파일
+            </button>
+            <button
+              onClick={() => setActiveTab("posts")}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "posts"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <FileText size={16} />
+              게시글
+            </button>
+          </nav>
+        </div>
+
+        {/* 탭 콘텐츠 */}
+        {activeTab === "consultations" && (
+          <ConsultationTable
+            consultations={processedConsultations || []}
+            users={users}
+            companyId={companyDetail?.id || ""}
+            loginUserId={loginUser?.id || ""}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            searchTerm={debouncedSearchTerm}
+            highlightId={highlightId}
+            isLoading={isConsultationsLoading}
+            onContactClick={handleContactClick}
+            onEditConsultation={handleEditConsultation}
+            onDeleteConsultation={openDeleteWithConsultation}
+            onPageChange={handlePageChange}
+          />
+        )}
+
+        {activeTab === "files" && companyDetail?.id && (
+          <CompanyFilesTab companyId={companyDetail.id} />
+        )}
+
+        {activeTab === "posts" && companyDetail?.id && (
+          <CompanyPostsTab companyId={companyDetail.id} />
+        )}
       </div>
 
       <ConsultationFormModal
@@ -356,6 +460,22 @@ export default function ConsultationPage() {
         originalContacts={contacts}
         onSave={() => handleUpdateContacts(contactsUi, contacts[0]?.company_id, () => setOpenEditContactsModal(false))}
         saving={saving}
+      />
+
+      <CompanyEditModal
+        isOpen={openEditCompanyModal}
+        onClose={() => setOpenEditCompanyModal(false)}
+        companyData={companyDetail ? {
+          id: companyDetail.id,
+          name: companyDetail.name,
+          address: companyDetail.address || "",
+          phone: companyDetail.phone || "",
+          fax: companyDetail.fax || "",
+          parcel: companyDetail.parcel || "",
+          email: companyDetail.email || "",
+        } : null}
+        onSave={handleSaveCompany}
+        saving={companySaving}
       />
 
       <SnackbarComponent

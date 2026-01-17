@@ -1,9 +1,9 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Search, FileText, Users, Building2, MessageSquare, Plus } from "lucide-react";
+import { Search, FileText, Users, Building2, MessageSquare, Plus, UserX, Package } from "lucide-react";
 
-type EmptyStateType = "search" | "data" | "document" | "contact" | "company" | "consultation";
+type EmptyStateType = "search" | "data" | "document" | "contact" | "company" | "consultation" | "resign" | "product";
 
 interface EmptyStateProps {
   type?: EmptyStateType;
@@ -49,6 +49,16 @@ const defaultConfig: Record<EmptyStateType, { icon: ReactNode; title: string; de
     title: "상담 내역이 없습니다",
     description: "첫 번째 상담을 기록해보세요.",
     actionLabel: "상담 추가",
+  },
+  resign: {
+    icon: <UserX className="h-12 w-12 text-gray-300" />,
+    title: "퇴사자가 없습니다",
+    description: "퇴사자 검색 결과가 없습니다.",
+  },
+  product: {
+    icon: <Package className="h-12 w-12 text-gray-300" />,
+    title: "단가 정보가 없습니다",
+    description: "검색 조건을 변경해보세요.",
   },
 };
 

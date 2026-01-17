@@ -1,7 +1,18 @@
 "use client";
 
-import { Skeleton } from "@mui/material";
 import { useRouter } from "next/navigation";
+import {
+  Building2,
+  MapPin,
+  Phone,
+  Printer,
+  Truck,
+  FileText,
+  Users,
+  Edit3,
+  Settings,
+  Mail,
+} from "lucide-react";
 
 interface Contact {
   id: string;
@@ -33,6 +44,7 @@ interface CompanyInfoCardProps {
   isLoading: boolean;
   onEditNotes: () => void;
   onEditContacts: () => void;
+  onEditCompany?: () => void;
 }
 
 export default function CompanyInfoCard({
@@ -41,6 +53,7 @@ export default function CompanyInfoCard({
   isLoading,
   onEditNotes,
   onEditContacts,
+  onEditCompany,
 }: CompanyInfoCardProps) {
   const router = useRouter();
 
@@ -48,156 +61,207 @@ export default function CompanyInfoCard({
     return content.split("\n").map((line, index) => (
       <span key={index}>
         {line}
-        <br />
+        {index < content.split("\n").length - 1 && <br />}
       </span>
     ));
   };
 
+  const activeContacts = contacts.filter((c) => !c.resign);
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg border shadow-sm mb-4 p-4">
+        <div className="animate-pulse space-y-3">
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-lg border shadow-sm mb-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x">
-        {/* 거래처 기본 정보 */}
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-base font-semibold text-gray-900">
-              거래처 정보
-            </h2>
+    <div className="bg-white rounded-lg border shadow-sm mb-4 overflow-hidden">
+      {/* 통합 레이아웃 */}
+      <div className="flex flex-col lg:flex-row">
+        {/* 좌측: 거래처 기본 정보 */}
+        <div className="flex-1 p-4 lg:border-r border-gray-100">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Building2 size={16} className="text-gray-400" />
+              <h3 className="text-sm font-semibold text-gray-700">거래처 정보</h3>
+            </div>
+            {onEditCompany && (
+              <button
+                onClick={onEditCompany}
+                className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+              >
+                <Edit3 size={12} />
+                수정
+              </button>
+            )}
           </div>
 
-          {isLoading ? (
-            <div className="space-y-2">
-              <Skeleton variant="text" width="100%" height={20} />
-              <Skeleton variant="text" width="100%" height={20} />
-              <Skeleton variant="text" width="100%" height={20} />
-            </div>
-          ) : (
-            <div className="space-y-1 text-sm">
-              <div className="flex items-start">
-                <span className="w-16 text-xs font-medium text-gray-500">
-                  회사명
-                </span>
-                <span className="flex-1 text-gray-900">
-                  {companyDetail?.name}
-                </span>
-              </div>
-              <div className="flex items-start">
-                <span className="w-16 text-xs font-medium text-gray-500">
-                  주소
-                </span>
-                <span className="flex-1 text-gray-900">
-                  {companyDetail?.address || "정보 없음"}
-                </span>
-              </div>
-              <div className="flex items-start">
-                <span className="w-16 text-xs font-medium text-gray-500">
-                  배송
-                </span>
-                <span className="flex-1 text-gray-900">
-                  {companyDetail?.parcel || "정보 없음"}
-                </span>
-              </div>
-              <div className="flex items-start">
-                <span className="w-16 text-xs font-medium text-gray-500">
-                  전화
-                </span>
-                <span className="flex-1 text-gray-900">
-                  {companyDetail?.phone || "정보 없음"}
-                </span>
-              </div>
-              <div className="flex items-start">
-                <span className="w-16 text-xs font-medium text-gray-500">
-                  팩스
-                </span>
-                <span className="flex-1 text-gray-900">
-                  {companyDetail?.fax || "정보 없음"}
-                </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+            <div className="flex items-start gap-2">
+              <MapPin size={14} className="text-gray-400 mt-0.5 shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs text-gray-500">주소</div>
+                <div className="text-sm text-gray-900 truncate max-w-[11rem]" title={companyDetail?.address || ""}>
+                  {companyDetail?.address || "-"}
+                </div>
               </div>
             </div>
-          )}
+
+            <div className="flex items-start gap-2">
+              <Truck size={14} className="text-gray-400 mt-0.5 shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs text-gray-500">배송</div>
+                <div className="text-sm text-gray-900 truncate max-w-[11rem]" title={companyDetail?.parcel || ""}>
+                  {companyDetail?.parcel || "-"}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <Phone size={14} className="text-gray-400 mt-0.5 shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs text-gray-500">전화</div>
+                <div className="text-sm text-gray-900 max-w-[11rem]">
+                  {companyDetail?.phone || "-"}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <Printer size={14} className="text-gray-400 mt-0.5 shrink-0" />
+              <div className="min-w-0">
+                <div className="text-xs text-gray-500">팩스</div>
+                <div className="text-sm text-gray-900 max-w-[11rem]">
+                  {companyDetail?.fax || "-"}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2 col-span-2">
+              <Mail size={14} className="text-gray-400 mt-0.5 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <div className="text-xs text-gray-500">대표메일</div>
+                <div className="text-sm text-gray-900 truncate max-w-[11rem]">
+                  {companyDetail?.email ? (
+                    <a
+                      href={`mailto:${companyDetail.email}`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {companyDetail.email}
+                    </a>
+                  ) : (
+                    "-"
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* 비고 정보 */}
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-base font-semibold text-gray-900">비고</h2>
+        {/* 중앙: 비고 */}
+        <div className="flex-1 p-4 lg:border-r border-gray-100 border-t lg:border-t-0">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <FileText size={16} className="text-gray-400" />
+              <h3 className="text-sm font-semibold text-gray-700">비고</h3>
+            </div>
             <button
               onClick={onEditNotes}
-              className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
             >
+              <Edit3 size={12} />
               수정
             </button>
           </div>
 
-          {isLoading ? (
-            <Skeleton variant="rectangular" width="100%" height={80} />
-          ) : (
-            <div className="text-sm text-gray-700 max-h-24 overflow-y-auto">
-              {companyDetail?.notes ? (
-                formatContentWithLineBreaks(companyDetail.notes)
-              ) : (
-                <p className="text-gray-500 italic text-xs">
-                  비고 정보가 없습니다. '수정' 버튼을 클릭하여 추가하세요.
-                </p>
-              )}
-            </div>
-          )}
+          <div className="text-sm text-gray-700 max-h-20 overflow-y-auto leading-relaxed">
+            {companyDetail?.notes ? (
+              formatContentWithLineBreaks(companyDetail.notes)
+            ) : (
+              <span className="text-gray-400 text-xs">비고 없음</span>
+            )}
+          </div>
         </div>
 
-        {/* 담당자 정보 */}
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-base font-semibold text-gray-900">담당자</h2>
+        {/* 우측: 담당자 */}
+        <div className="w-full lg:w-80 p-4 border-t lg:border-t-0">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Users size={16} className="text-gray-400" />
+              <h3 className="text-sm font-semibold text-gray-700">
+                담당자
+                {activeContacts.length > 0 && (
+                  <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
+                    {activeContacts.length}
+                  </span>
+                )}
+              </h3>
+            </div>
             <button
               onClick={onEditContacts}
-              className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
             >
+              <Settings size={12} />
               관리
             </button>
           </div>
 
-          {isLoading ? (
-            <Skeleton variant="rectangular" width="100%" height={80} />
-          ) : (
-            <div className="max-h-24 overflow-y-auto">
-              {contacts && contacts.length > 0 ? (
-                <div className="space-y-2">
-                  {contacts.map((contact: Contact, index: number) => {
-                    if (!contact.resign) {
-                      return (
-                        <div key={contact.id || index} className="text-sm">
-                          <div className="flex items-center">
-                            <div
-                              className="font-medium text-blue-600 cursor-pointer hover:underline"
-                              onClick={() =>
-                                router.push(`/manage/contacts/${contact.id}`)
-                              }
-                            >
-                              {contact.contact_name}{" "}
-                              {contact.level && `(${contact.level})`}
-                            </div>
-                          </div>
-                          <div className="mt-0.5 text-xs text-gray-500">
-                            {contact.email && (
-                              <div className="mt-0.5 text-xs text-gray-500">
-                                {contact.email}
-                              </div>
-                            )}
-                            {contact.department && `${contact.department} · `}
-                            {contact.mobile || "-"}
-                          </div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              ) : (
-                <p className="text-gray-500 italic text-xs">
-                  담당자 정보가 없습니다. '관리' 버튼을 클릭하여 추가하세요.
-                </p>
-              )}
-            </div>
-          )}
+          <div className="overflow-y-auto">
+            {activeContacts.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2">
+                {activeContacts.slice(0, 4).map((contact) => (
+                  <div
+                    key={contact.id}
+                    className="flex items-center justify-between gap-1 group p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <div
+                      className="min-w-0 cursor-pointer flex-1"
+                      onClick={() => router.push(`/manage/contacts/${contact.id}`)}
+                    >
+                      <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 truncate">
+                        {contact.contact_name}
+                        {contact.level && (
+                          <span className="text-gray-500 font-normal ml-1 text-xs">
+                            {contact.level}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500 truncate">
+                        {contact.mobile || contact.email || "-"}
+                      </div>
+                    </div>
+                    {contact.email && (
+                      <a
+                        href={`mailto:${contact.email}`}
+                        className="p-1 text-gray-400 hover:text-blue-600 shrink-0"
+                        title="이메일 보내기"
+                      >
+                        <Mail size={14} />
+                      </a>
+                    )}
+                  </div>
+                ))}
+                {activeContacts.length > 4 && (
+                  <button
+                    onClick={onEditContacts}
+                    className="col-span-2 text-xs text-gray-500 hover:text-blue-600 text-center py-1"
+                  >
+                    +{activeContacts.length - 4}명 더보기
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-2">
+                <span className="text-gray-400 text-xs">담당자 없음</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

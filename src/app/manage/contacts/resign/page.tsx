@@ -62,7 +62,7 @@ export default function ContactsResignPage() {
   const debouncedMobileTerm = useDebounce(mobile, 300);
 
   // SWR hooks
-  const { contacts, total, refreshContacts } = useContactsList(
+  const { contacts, total, refreshContacts, isLoading: isContactsLoading } = useContactsList(
     currentPage,
     contactsPerPage,
     debouncedContactNameTerm,
@@ -233,8 +233,10 @@ export default function ContactsResignPage() {
 
       <ResignTable
         contacts={contacts || []}
+        isLoading={isContactsLoading}
         onChangeStatus={handleChangeResignStatus}
         onDelete={handleDeleteContact}
+        hasSearchQuery={!!(companyName || contactName || email || mobile)}
       />
 
       <ResignPagination

@@ -141,13 +141,7 @@ export default function CompaniesTable({
                     scope="col"
                     className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    수정
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    삭제
+                    관리
                   </th>
                 </tr>
               </thead>
@@ -187,23 +181,23 @@ export default function CompaniesTable({
                         {company.fax || "-"}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <button
-                        onClick={() => onEdit(company)}
-                        className="p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
-                        title="수정"
-                      >
-                        <Edit size={16} />
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <button
-                        onClick={() => onDelete(company)}
-                        className="p-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
-                        title="삭제"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => onEdit(company)}
+                          className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                        >
+                          <Edit size={14} />
+                          수정
+                        </button>
+                        <button
+                          onClick={() => onDelete(company)}
+                          className="flex items-center gap-1 px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors"
+                        >
+                          <Trash2 size={14} />
+                          삭제
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

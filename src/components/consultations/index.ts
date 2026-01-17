@@ -6,4 +6,5 @@ export {
   NotesEditModal,
   ContactsEditModal,
   FileAttachmentModal,
+  CompanyEditModal,
 } from "./modals";

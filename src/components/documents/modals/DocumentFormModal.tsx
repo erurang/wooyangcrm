@@ -128,6 +128,7 @@ export default function DocumentFormModal({
               }
               iconColor={colorConfig.iconColor}
               focusClass={colorConfig.focus}
+              userId={user?.id}
             />
 
             {showAmountInfo && (

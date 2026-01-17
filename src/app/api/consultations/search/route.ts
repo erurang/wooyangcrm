@@ -63,7 +63,22 @@ export async function GET(request: Request) {
       );
     }
 
-    // 🔹 상담 데이터에 `contact_name`, `contact_level` 추가
+    // 🔹 파일 개수 조회
+    const consultationIds = consultations?.map((c: { id: string }) => c.id) || [];
+    let fileCounts: Record<string, number> = {};
+
+    if (consultationIds.length > 0) {
+      const { data: fileData } = await supabase
+        .from("consultation_files")
+        .select("consultation_id")
+        .in("consultation_id", consultationIds);
+
+      fileData?.forEach((file: { consultation_id: string }) => {
+        fileCounts[file.consultation_id] = (fileCounts[file.consultation_id] || 0) + 1;
+      });
+    }
+
+    // 🔹 상담 데이터에 `contact_name`, `contact_level`, `file_count` 추가
     const updatedConsultations = consultations?.map((consultation: any) => {
       const firstContact =
         consultation.contacts_consultations?.[0]?.contacts || {};
@@ -71,6 +86,7 @@ export async function GET(request: Request) {
         ...consultation,
         contact_name: firstContact.contact_name || "", // 기본값 빈 문자열
         contact_level: firstContact.level || "", // 기본값 빈 문자열
+        file_count: fileCounts[consultation.id] || 0, // 파일 개수
       };
     });
 

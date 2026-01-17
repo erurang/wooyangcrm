@@ -75,7 +75,7 @@ export default function ContactsPage() {
 
   // SWR hooks
   const { companies } = useCompanySearch(contactData.companyName);
-  const { contacts, total, refreshContacts } = useContactsList(
+  const { contacts, total, refreshContacts, isLoading: isContactsLoading } = useContactsList(
     currentPage,
     contactsPerPage,
     debouncedContactName,
@@ -315,8 +315,11 @@ export default function ContactsPage() {
       {/* Contacts Table */}
       <ContactsTable
         contacts={contacts}
+        isLoading={isContactsLoading}
         onEdit={handleEditContact}
         onDelete={handleDeleteContact}
+        onAdd={handleOpenAddModal}
+        hasSearchQuery={!!(companyName || contactName || email || mobile)}
       />
 
       {/* Pagination */}

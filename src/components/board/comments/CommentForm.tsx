@@ -323,7 +323,7 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             onScroll={syncScroll}
-            placeholder="댓글을 입력하세요... (@로 멘션 가능)"
+            placeholder="첫 번째 댓글을 남겨보세요! (@로 멘션 가능)"
             rows={3}
             className="w-full px-3 py-2 text-sm resize-none focus:outline-none bg-transparent relative"
             style={{

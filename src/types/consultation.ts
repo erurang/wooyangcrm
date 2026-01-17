@@ -26,12 +26,14 @@ export interface BaseConsultation {
   user_name?: string;
   contact_name?: string;
   documents?: ConsultationDocument[];
+  created_at?: string; // 실제 등록 시간 (정렬 및 표시용)
 }
 
 // 상담에 연결된 문서
 export interface ConsultationDocument {
   type: string;
   id?: string;
+  document_number?: string;
   status?: string;
 }
 
@@ -65,11 +67,13 @@ export interface ProcessedConsultation {
   contact_email?: string;
   contact_mobile?: string;
   contact_id?: string;
+  created_at?: string; // 실제 등록 시간
   documents: {
     estimate: boolean;
     order: boolean;
     requestQuote: boolean;
   };
+  rawDocuments?: ConsultationDocument[];
 }
 
 // 상담 폼 데이터

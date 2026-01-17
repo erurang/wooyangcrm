@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, FileText } from "lucide-react";
+import { Search, FileText, Building2, Calendar } from "lucide-react";
 import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 
@@ -67,109 +67,109 @@ export default function FollowTable({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                거래처
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                상담 기간
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                담당자
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                상담자
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider table-cell">
-                내용
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                문서
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {consultations.map((consultation) => (
-              <tr key={consultation.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div
-                    className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
-                    onClick={() => router.push(`/consultations/${consultation.companies?.id}`)}
-                  >
-                    {consultation.companies?.name}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                  <div className="text-sm text-gray-900">
-                    <div>{consultation.date}</div>
-                    <div className="text-blue-500 font-medium">
-                      ~{consultation.follow_up_date}
+    <div className="mb-6">
+      <div className="space-y-4">
+        {consultations.map((consultation) => (
+          <div
+            key={consultation.id}
+            className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-all"
+          >
+            {/* 카드 본문: a | b 레이아웃 */}
+            <div className="flex">
+              {/* 좌측 (a): 회사명, 상담기간, 담당자, 상담자 */}
+              <div className="w-44 shrink-0 bg-gray-50 p-4 border-r flex flex-col">
+                <div className="space-y-3">
+                  {/* 회사명 */}
+                  <div>
+                    <div className="text-xs text-gray-500 mb-0.5">거래처</div>
+                    <div
+                      className="text-sm font-semibold text-blue-600 cursor-pointer hover:text-blue-800 hover:underline flex items-center gap-1"
+                      onClick={() => router.push(`/consultations/${consultation.companies?.id}`)}
+                    >
+                      <Building2 size={14} />
+                      {consultation.companies?.name}
                     </div>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                  <div className="text-sm text-gray-900">
-                    {consultation?.contact_name} {consultation?.contact_level}
+
+                  {/* 상담 기간 */}
+                  <div>
+                    <div className="text-xs text-gray-500 mb-0.5">상담 기간</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {consultation.date}
+                    </div>
+                    {consultation.follow_up_date && (
+                      <div className="text-sm font-medium text-blue-600 flex items-center gap-1 mt-0.5">
+                        <Calendar size={12} />
+                        ~{consultation.follow_up_date}
+                      </div>
+                    )}
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                  <div className="text-sm text-gray-900">
-                    {consultation.users?.name} {consultation.users?.level}
+
+                  {/* 담당자 */}
+                  <div>
+                    <div className="text-xs text-gray-500 mb-0.5">담당자</div>
+                    <div className="text-sm text-gray-900">
+                      {consultation.contact_name} {consultation.contact_level}
+                    </div>
                   </div>
-                </td>
-                <td className="px-6 py-4 table-cell">
-                  <div
-                    className="text-sm text-gray-900 overflow-y-auto pr-2"
-                    style={{ maxHeight: "80px", fontSize: "0.8rem" }}
-                  >
-                    {formatContentWithLineBreaks(consultation.content)}
+
+                  {/* 상담자 */}
+                  <div>
+                    <div className="text-xs text-gray-500 mb-0.5">상담자</div>
+                    <div className="text-sm text-gray-900">
+                      {consultation.users?.name} {consultation.users?.level}
+                    </div>
                   </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-col gap-2">
-                    {["estimate", "order", "requestQuote"].map((type) => {
-                      const filteredDocs = consultation.documents.filter(
-                        (doc) => doc.type === type
-                      );
-                      if (filteredDocs?.length > 0) {
-                        return (
-                          <div key={type} className="flex items-start">
-                            <FileText className="w-4 h-4 mt-1 mr-2 text-gray-500 flex-shrink-0" />
-                            <div>
-                              <span className="text-xs font-medium text-gray-700">
-                                {type === "estimate"
-                                  ? "견적서"
-                                  : type === "order"
-                                  ? "발주서"
-                                  : "의뢰서"}
+                </div>
+              </div>
+
+              {/* 우측 (b): 내용 + 문서 */}
+              <div className="flex-1 p-4 flex flex-col">
+                {/* 내용 */}
+                <div className="text-sm text-gray-700 leading-relaxed flex-1 overflow-y-auto max-h-32">
+                  {formatContentWithLineBreaks(consultation.content)}
+                </div>
+
+                {/* 문서 버튼들 (content 아래) */}
+                <div className="flex items-center gap-2 flex-wrap mt-4 pt-3 border-t border-gray-100">
+                  {["estimate", "order", "requestQuote"].map((type) => {
+                    const filteredDocs = consultation.documents.filter(
+                      (doc) => doc.type === type
+                    );
+                    if (filteredDocs.length > 0) {
+                      return (
+                        <div key={type} className="flex items-center gap-1">
+                          <button
+                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-md border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                          >
+                            <FileText size={14} />
+                            {type === "estimate"
+                              ? "견적서"
+                              : type === "order"
+                              ? "발주서"
+                              : "의뢰서"}
+                          </button>
+                          <div className="flex flex-wrap gap-1">
+                            {filteredDocs.map((doc) => (
+                              <span
+                                key={doc.id}
+                                onClick={() => onDocumentClick(doc)}
+                                className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md cursor-pointer hover:bg-blue-100 transition-colors"
+                              >
+                                {doc.document_number}
                               </span>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {filteredDocs?.map((doc) => (
-                                  <span
-                                    key={doc.id}
-                                    onClick={() => onDocumentClick(doc)}
-                                    className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md cursor-pointer hover:bg-blue-100 transition-colors"
-                                  >
-                                    {doc.document_number}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
+                            ))}
                           </div>
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
-import { FileText } from "lucide-react";
+import { Search, FileText, Building2, Paperclip } from "lucide-react";
+import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 
 interface Document {
@@ -18,6 +19,7 @@ interface Consultation {
   companies?: { id: string; name: string };
   users?: { name: string; level: string };
   documents: Document[];
+  file_count?: number;
 }
 
 interface RecentTableProps {
@@ -42,148 +44,138 @@ export default function RecentTable({
     ));
   };
 
-  const LoadingSpinner = () => (
-    <tr>
-      <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-        <div className="flex justify-center items-center py-10">
-          <svg
-            className="animate-spin h-8 w-8 text-blue-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <span className="ml-3">데이터를 불러오는 중입니다...</span>
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <div className="flex justify-center items-center py-20">
+          <CircularProgress size={40} />
         </div>
-      </td>
-    </tr>
-  );
+      </div>
+    );
+  }
 
-  const EmptyRow = () => (
-    <tr>
-      <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-        검색 결과가 없습니다
-      </td>
-    </tr>
-  );
+  if (!consultations || consultations.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <div className="flex flex-col items-center justify-center py-16">
+          <Search size={48} className="text-gray-300 mb-4" />
+          <p className="text-gray-500 text-lg">검색 결과가 없습니다</p>
+          <p className="text-gray-400 text-sm mt-2">다른 검색어로 시도해보세요</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              거래처
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-              상담일
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-              담당자
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-              상담자
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              내용
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              문서
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : !consultations || consultations.length === 0 ? (
-            <EmptyRow />
-          ) : (
-            consultations.map((consultation) => (
-              <tr key={consultation.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div
-                    className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
-                    onClick={() => router.push(`/consultations/${consultation.companies?.id}`)}
-                  >
-                    {consultation.companies?.name}
+    <div className="mb-6">
+      <div className="space-y-4">
+        {consultations.map((consultation) => (
+          <div
+            key={consultation.id}
+            className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-all"
+          >
+            {/* 카드 본문: a | b 레이아웃 */}
+            <div className="flex">
+              {/* 좌측 (a): 회사명, 날짜, 담당자, 상담자 */}
+              <div className="w-44 shrink-0 bg-gray-50 p-4 border-r flex flex-col">
+                <div className="space-y-3">
+                  {/* 회사명 */}
+                  <div>
+                    <div className="text-xs text-gray-500 mb-0.5">거래처</div>
+                    <div
+                      className="text-sm font-semibold text-blue-600 cursor-pointer hover:text-blue-800 hover:underline flex items-center gap-1"
+                      onClick={() => router.push(`/consultations/${consultation.companies?.id}`)}
+                    >
+                      <Building2 size={14} />
+                      {consultation.companies?.name}
+                    </div>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                  <div className="text-sm text-gray-900">{consultation.date}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                  <div className="text-sm text-gray-900">
-                    {consultation?.contact_name} {consultation?.contact_level}
+
+                  {/* 날짜 */}
+                  <div>
+                    <div className="text-xs text-gray-500 mb-0.5">상담일</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {consultation.date}
+                    </div>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                  <div className="text-sm text-gray-900">
-                    {consultation.users?.name} {consultation.users?.level}
+
+                  {/* 담당자 */}
+                  <div>
+                    <div className="text-xs text-gray-500 mb-0.5">담당자</div>
+                    <div className="text-sm text-gray-900">
+                      {consultation.contact_name} {consultation.contact_level}
+                    </div>
                   </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div
-                    className="text-sm text-gray-900 overflow-y-auto pr-2"
-                    style={{ maxHeight: "80px" }}
-                  >
-                    {formatContentWithLineBreaks(consultation.content)}
+
+                  {/* 상담자 */}
+                  <div>
+                    <div className="text-xs text-gray-500 mb-0.5">상담자</div>
+                    <div className="text-sm text-gray-900">
+                      {consultation.users?.name} {consultation.users?.level}
+                    </div>
                   </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-col gap-2">
-                    {["estimate", "order", "requestQuote"].map((type) => {
-                      const filteredDocs = consultation.documents.filter(
-                        (doc) => doc.type === type
-                      );
-                      if (filteredDocs?.length > 0) {
-                        return (
-                          <div key={type} className="flex items-start">
-                            <FileText className="w-4 h-4 mt-1 mr-2 text-gray-500 flex-shrink-0" />
-                            <div>
-                              <span className="text-xs font-medium text-gray-700">
-                                {type === "estimate"
-                                  ? "견적서"
-                                  : type === "order"
-                                  ? "발주서"
-                                  : "의뢰서"}
+                </div>
+              </div>
+
+              {/* 우측 (b): 내용 + 문서 */}
+              <div className="flex-1 p-4 flex flex-col">
+                {/* 내용 */}
+                <div className="text-sm text-gray-700 leading-relaxed flex-1">
+                  {formatContentWithLineBreaks(consultation.content)}
+                </div>
+
+                {/* 문서 버튼들 (content 아래) */}
+                <div className="flex items-center gap-2 flex-wrap mt-4 pt-3 border-t border-gray-100">
+                  {["estimate", "order", "requestQuote"].map((type) => {
+                    const filteredDocs = consultation.documents.filter(
+                      (doc) => doc.type === type
+                    );
+                    if (filteredDocs.length > 0) {
+                      return (
+                        <div key={type} className="flex items-center gap-1">
+                          <button
+                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-md border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                          >
+                            <FileText size={14} />
+                            {type === "estimate"
+                              ? "견적서"
+                              : type === "order"
+                              ? "발주서"
+                              : "의뢰서"}
+                          </button>
+                          <div className="flex flex-wrap gap-1">
+                            {filteredDocs.map((doc) => (
+                              <span
+                                key={doc.id}
+                                onClick={() => onDocumentClick(doc)}
+                                className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md cursor-pointer hover:bg-blue-100 transition-colors"
+                              >
+                                {doc.document_number}
                               </span>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {filteredDocs?.map((doc) => (
-                                  <span
-                                    key={doc.id}
-                                    onClick={() => onDocumentClick(doc)}
-                                    className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md cursor-pointer hover:bg-blue-100 transition-colors"
-                                  >
-                                    {doc.document_number}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
+                            ))}
                           </div>
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  {/* 첨부파일 */}
+                  {(consultation.file_count ?? 0) > 0 && (
+                    <div className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-md border border-gray-200 bg-white text-gray-600">
+                      <Paperclip size={14} />
+                      첨부파일
+                      <span className="ml-0.5 bg-gray-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                        {consultation.file_count}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
