@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { Pin, MessageCircle, Eye, Pencil, Trash2, FileText } from "lucide-react";
 import dayjs from "dayjs";
 import type { PostWithAuthor } from "@/types/post";
@@ -8,19 +10,32 @@ interface PostListProps {
   posts: PostWithAuthor[];
   isLoading: boolean;
   currentUserId: string;
+  highlightId?: string | null;
   onPostClick: (post: PostWithAuthor) => void;
-  onEditClick: (post: PostWithAuthor) => void;
-  onDeleteClick: (post: PostWithAuthor) => void;
+  onEditClick?: (post: PostWithAuthor) => void;
+  onDeleteClick?: (post: PostWithAuthor) => void;
 }
 
 export default function PostList({
   posts,
   isLoading,
   currentUserId,
+  highlightId,
   onPostClick,
   onEditClick,
   onDeleteClick,
 }: PostListProps) {
+  const highlightRef = useRef<HTMLTableRowElement>(null);
+
+  // 하이라이트된 행으로 스크롤
+  useEffect(() => {
+    if (highlightId && highlightRef.current) {
+      highlightRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [highlightId]);
   if (isLoading) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
@@ -69,11 +84,18 @@ export default function PostList({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {posts.map((post) => (
+          {posts.map((post) => {
+            const isHighlighted = highlightId === post.id;
+            return (
             <tr
               key={post.id}
+              ref={isHighlighted ? highlightRef : null}
               className={`hover:bg-gray-50 transition-colors ${
                 post.is_pinned ? "bg-yellow-50" : ""
+              } ${
+                isHighlighted
+                  ? "bg-indigo-50 ring-2 ring-indigo-200 ring-inset"
+                  : ""
               }`}
             >
               <td className="px-6 py-4 whitespace-nowrap">
@@ -101,7 +123,13 @@ export default function PostList({
                 </button>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
-                {post.user?.name} {post.user?.level && `${post.user.level}`}
+                <Link
+                  href={`/profile/${post.user_id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="hover:text-blue-600 hover:underline transition-colors"
+                >
+                  {post.user?.name} {post.user?.level && `${post.user.level}`}
+                </Link>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
                 {dayjs(post.created_at).format("YYYY-MM-DD")}
@@ -113,33 +141,38 @@ export default function PostList({
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right">
-                {post.user_id === currentUserId && (
+                {post.user_id === currentUserId && (onEditClick || onDeleteClick) && (
                   <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEditClick(post);
-                      }}
-                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                      title="수정"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteClick(post);
-                      }}
-                      className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                      title="삭제"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {onEditClick && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditClick(post);
+                        }}
+                        className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                        title="수정"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    )}
+                    {onDeleteClick && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteClick(post);
+                        }}
+                        className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                        title="삭제"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 )}
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>

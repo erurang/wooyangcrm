@@ -203,8 +203,8 @@ export const NAV_ROUTES = {
   ADMIN_USERS: "/admin/manage/users",
   ADMIN_LOGS: "/admin/manage/logs",
 
-  // My
-  MY_TODOS: "/my/todos",
+  // Profile
+  MY_TODOS: "/profile/todos",
 } as const;
 
 // ================================

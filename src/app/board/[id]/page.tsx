@@ -1,42 +1,53 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Pin, Eye, Calendar, User, Pencil, Trash2, Paperclip, Link2 } from "lucide-react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Pin, Eye, Calendar, User, Pencil, Trash2, Paperclip, Link2, History } from "lucide-react";
 import dayjs from "dayjs";
 import { useLoginUser } from "@/context/login";
-import { usePost, useUpdatePost, useDeletePost, useComments, useAddComment } from "@/hooks/posts";
+import { usePost, useUpdatePost, useComments, useAddComment } from "@/hooks/posts";
+import { supabase } from "@/lib/supabaseClient";
 import { useCategories } from "@/hooks/posts";
 import CommentList from "@/components/board/comments/CommentList";
 import CommentForm from "@/components/board/comments/CommentForm";
 import PostFormModal from "@/components/board/modals/PostFormModal";
 import DeletePostModal from "@/components/board/modals/DeletePostModal";
+import ViewersModal from "@/components/board/modals/ViewersModal";
+import VersionHistoryModal from "@/components/board/modals/VersionHistoryModal";
 import PostFileList from "@/components/board/PostFileList";
 import ReferenceDisplay from "@/components/board/ReferenceDisplay";
+import UserTagsDisplay from "@/components/board/UserTagsDisplay";
 import { uploadPostFile } from "@/lib/postFiles";
 import { uploadCommentFile } from "@/lib/commentFiles";
-import type { UpdatePostData, PostReference, CreateReferenceData } from "@/types/post";
+import type { UpdatePostData, PostReference, CreateReferenceData, PostUserTag, CreateUserTagData } from "@/types/post";
 
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const user = useLoginUser();
   const postId = typeof params.id === "string" ? params.id : params.id?.[0] ?? "";
+  const highlightCommentId = searchParams.get("commentId");
 
-  // 데이터 훅
-  const { post, isLoading, mutate: mutatePost } = usePost(postId);
+  // 데이터 훅 (userId 전달하여 조회수 증가)
+  const { post, isLoading, mutate: mutatePost } = usePost(postId, user?.id);
   const { comments, mutate: mutateComments } = useComments(postId);
   const { categories } = useCategories();
   const { updatePost, isLoading: isUpdating } = useUpdatePost();
-  const { deletePost, isLoading: isDeleting } = useDeletePost();
   const { addComment, isLoading: isAddingComment } = useAddComment();
+  const [isRequestingDelete, setIsRequestingDelete] = useState(false);
 
   // 모달 상태
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isViewersModalOpen, setIsViewersModalOpen] = useState(false);
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
 
   // 참조 상태
   const [references, setReferences] = useState<PostReference[]>([]);
+
+  // 유저 태그 상태
+  const [userTags, setUserTags] = useState<PostUserTag[]>([]);
 
   // 참조 로드
   useEffect(() => {
@@ -53,6 +64,23 @@ export default function PostDetailPage() {
       }
     };
     loadReferences();
+  }, [postId]);
+
+  // 유저 태그 로드
+  useEffect(() => {
+    if (!postId) return;
+    const loadUserTags = async () => {
+      try {
+        const response = await fetch(`/api/posts/${postId}/tags`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserTags(data.tags || []);
+        }
+      } catch (error) {
+        console.error("Failed to load user tags:", error);
+      }
+    };
+    loadUserTags();
   }, [postId]);
 
   // 핸들러
@@ -101,7 +129,38 @@ export default function PostDetailPage() {
     }
   };
 
-  const handleUpdateSubmit = async (data: UpdatePostData, pendingFiles?: File[]) => {
+  // 유저 태그 저장/삭제 헬퍼 함수
+  const saveUserTags = async (targetPostId: string, tags: CreateUserTagData[]) => {
+    if (!tags || tags.length === 0) return;
+    for (const tag of tags) {
+      try {
+        await fetch(`/api/posts/${targetPostId}/tags`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: tag.user_id,
+            tag_type: tag.tag_type,
+          }),
+        });
+      } catch (error) {
+        console.error("Failed to save user tag:", error);
+      }
+    }
+  };
+
+  const clearUserTags = async (targetPostId: string) => {
+    try {
+      const response = await fetch(`/api/posts/${targetPostId}/tags`);
+      const { tags: existingTags } = await response.json();
+      for (const tag of existingTags || []) {
+        await fetch(`/api/posts/${targetPostId}/tags?userId=${tag.user_id}`, { method: "DELETE" });
+      }
+    } catch (error) {
+      console.error("Failed to clear user tags:", error);
+    }
+  };
+
+  const handleUpdateSubmit = async (data: UpdatePostData, pendingFiles?: File[], submittedUserTags?: CreateUserTagData[]) => {
     try {
       await updatePost({ id: postId, data });
       // 새 파일 업로드
@@ -121,6 +180,17 @@ export default function PostDetailPage() {
           setReferences(refData.references || []);
         }
       }
+      // 유저 태그 업데이트
+      if (submittedUserTags !== undefined) {
+        await clearUserTags(postId);
+        await saveUserTags(postId, submittedUserTags);
+        // 유저 태그 다시 로드
+        const tagsResponse = await fetch(`/api/posts/${postId}/tags`);
+        if (tagsResponse.ok) {
+          const tagsData = await tagsResponse.json();
+          setUserTags(tagsData.tags || []);
+        }
+      }
       setIsFormModalOpen(false);
       mutatePost();
     } catch (error) {
@@ -128,12 +198,32 @@ export default function PostDetailPage() {
     }
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = async (reason: string) => {
+    if (!user?.id || !post) return;
+    setIsRequestingDelete(true);
     try {
-      await deletePost({ id: postId });
-      router.push("/board");
+      // 삭제 요청 생성
+      const { error } = await supabase.from("deletion_requests").insert({
+        user_id: user.id,
+        type: "posts",
+        related_id: postId,
+        content: { posts: post.title },
+        delete_reason: reason,
+      });
+
+      if (error) {
+        console.error("Failed to create delete request:", error);
+        alert("삭제 요청에 실패했습니다.");
+        return;
+      }
+
+      alert("삭제 요청이 완료되었습니다. 관리자의 승인을 기다려주세요.");
+      setIsDeleteModalOpen(false);
     } catch (error) {
-      console.error("Failed to delete post:", error);
+      console.error("Failed to create delete request:", error);
+      alert("삭제 요청에 실패했습니다.");
+    } finally {
+      setIsRequestingDelete(false);
     }
   };
 
@@ -202,6 +292,47 @@ export default function PostDetailPage() {
     }
   };
 
+  // 댓글 수정
+  const handleCommentEdit = async (commentId: string, content: string) => {
+    if (!user?.id) return;
+    try {
+      const response = await fetch(`/api/posts/comments/${commentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content,
+          user_id: user.id,
+        }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "댓글 수정 실패");
+      }
+      mutateComments();
+    } catch (error) {
+      console.error("Failed to edit comment:", error);
+      throw error;
+    }
+  };
+
+  // 댓글 삭제 (블라인드 처리)
+  const handleCommentDelete = async (commentId: string) => {
+    if (!user?.id) return;
+    try {
+      const response = await fetch(`/api/posts/comments/${commentId}?userId=${user.id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "댓글 삭제 실패");
+      }
+      mutateComments();
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      throw error;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
@@ -227,7 +358,7 @@ export default function PostDetailPage() {
   const isAuthor = user?.id === post.user_id;
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="text-sm text-[#37352F]">
       {/* 상단 네비게이션 */}
       <div className="flex items-center justify-between mb-6">
         <button
@@ -280,32 +411,44 @@ export default function PostDetailPage() {
                   <Calendar className="w-4 h-4" />
                   {dayjs(post.created_at).format("YYYY-MM-DD HH:mm")}
                 </span>
-                <span className="flex items-center gap-1">
+                <button
+                  onClick={() => setIsViewersModalOpen(true)}
+                  className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                >
                   <Eye className="w-4 h-4" />
                   조회 {post.view_count}
-                </span>
+                </button>
               </div>
             </div>
 
-            {/* 수정/삭제 버튼 */}
-            {isAuthor && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleEdit}
-                  className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                >
-                  <Pencil className="w-4 h-4" />
-                  수정
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  삭제
-                </button>
-              </div>
-            )}
+            {/* 버전 기록 / 수정 / 삭제 버튼 */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsVersionModalOpen(true)}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
+              >
+                <History className="w-4 h-4" />
+                버전 기록
+              </button>
+              {isAuthor && (
+                <>
+                  <button
+                    onClick={handleEdit}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    수정
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    삭제
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -323,10 +466,13 @@ export default function PostDetailPage() {
             <Paperclip className="w-4 h-4" />
             첨부파일
           </div>
-          <PostFileList postId={postId} />
+          <PostFileList postId={postId} currentUserId={user?.id} />
 
           {/* 참조 연결 */}
           <ReferenceDisplay references={references} />
+
+          {/* 유저 태그 */}
+          <UserTagsDisplay tags={userTags} />
         </div>
       </article>
 
@@ -347,7 +493,10 @@ export default function PostDetailPage() {
           <CommentList
             comments={comments}
             currentUserId={user?.id || ""}
+            highlightCommentId={highlightCommentId}
             onReply={handleReplySubmit}
+            onEdit={handleCommentEdit}
+            onDelete={handleCommentDelete}
           />
         </div>
       </div>
@@ -374,13 +523,28 @@ export default function PostDetailPage() {
         onSubmit={handleUpdateSubmit}
       />
 
-      {/* 삭제 모달 */}
+      {/* 삭제 요청 모달 */}
       <DeletePostModal
         isOpen={isDeleteModalOpen}
         post={post}
-        isLoading={isDeleting}
+        isLoading={isRequestingDelete}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
+      />
+
+      {/* 조회자 모달 */}
+      <ViewersModal
+        isOpen={isViewersModalOpen}
+        postId={postId}
+        onClose={() => setIsViewersModalOpen(false)}
+      />
+
+      {/* 버전 기록 모달 */}
+      <VersionHistoryModal
+        isOpen={isVersionModalOpen}
+        postId={postId}
+        currentTitle={post.title}
+        onClose={() => setIsVersionModalOpen(false)}
       />
     </div>
   );

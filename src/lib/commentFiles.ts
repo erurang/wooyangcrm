@@ -9,9 +9,9 @@ const sanitizeFileName = (fileName: string) => {
     .toLowerCase();
 };
 
-// 댓글 파일 업로드
+// 댓글 파일 업로드 (description 지원)
 export const uploadCommentFile = async (
-  file: File,
+  file: File & { description?: string },
   commentId: string,
   userId: string
 ) => {
@@ -29,7 +29,7 @@ export const uploadCommentFile = async (
     return null;
   }
 
-  // DB에 파일 정보 저장
+  // DB에 파일 정보 저장 (description 포함)
   const { data: insertData, error: dbError } = await supabase
     .from("post_comment_files")
     .insert([
@@ -38,6 +38,7 @@ export const uploadCommentFile = async (
         user_id: userId,
         file_url: filePath,
         file_name: file.name,
+        description: file.description || null,
       },
     ])
     .select("id, file_name, file_url")

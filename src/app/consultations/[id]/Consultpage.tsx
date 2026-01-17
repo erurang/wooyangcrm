@@ -34,6 +34,7 @@ import type {
   BaseConsultation,
   ConsultationContactRelation,
   ProcessedConsultation,
+  ContactMethod,
 } from "@/types/consultation";
 
 interface Contact {
@@ -55,26 +56,47 @@ export default function ConsultationPage() {
   const loginUser = useLoginUser();
   const searchParams = useSearchParams();
 
+  // URL 파라미터 (highlight)
+  const highlightId = searchParams.get("highlight");
+
   // 검색 및 페이지네이션
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [currentPage, setCurrentPage] = useState(1);
 
   // 폼 상태
-  const [newConsultation, setNewConsultation] = useState({
+  const [newConsultation, setNewConsultation] = useState<{
+    date: string;
+    follow_up_date: string;
+    contact_name: string;
+    user_id: string;
+    title: string;
+    content: string;
+    contact_method: ContactMethod;
+  }>({
     date: new Date().toISOString().split("T")[0],
     follow_up_date: "",
     contact_name: "",
     user_id: "",
+    title: "",
     content: "",
+    contact_method: "email",
   });
 
   // SWR Hooks
   const { users } = useUsersList();
   const { favorites, removeFavorite, refetchFavorites, addFavorite } =
     useFavorites(loginUser?.id);
-  const { consultations, totalPages, refreshConsultations } =
-    useConsultationsList(id as string, currentPage, debouncedSearchTerm);
+  const { consultations, totalPages, actualPage, refreshConsultations } =
+    useConsultationsList(id as string, currentPage, debouncedSearchTerm, highlightId);
+
+  // 실제 페이지가 요청한 페이지와 다르면 (highlightId로 인해) 상태 동기화
+  useEffect(() => {
+    if (actualPage && actualPage !== currentPage && highlightId) {
+      setCurrentPage(actualPage);
+      router.replace(`/consultations/${id}?page=${actualPage}&highlight=${highlightId}`, { scroll: false });
+    }
+  }, [actualPage, currentPage, highlightId, id, router]);
   const {
     companyDetail,
     isLoading: isCompanyDetailLoading,
@@ -179,8 +201,10 @@ export default function ConsultationPage() {
       date: consultation.date,
       follow_up_date: consultation.follow_up_date ?? "",
       user_id: consultation.user_id,
+      title: consultation.title ?? "",
       content: consultation.content,
       contact_name: consultation.contact_name ?? "",
+      contact_method: consultation.contact_method ?? "phone",
     });
     setOpenEditModal(true);
   };
@@ -238,6 +262,7 @@ export default function ConsultationPage() {
     }
   }, [contacts, loginUser]);
 
+  // URL 파라미터 처리 (page)
   useEffect(() => {
     const pageParam = searchParams.get("page");
     if (pageParam) setCurrentPage(Number(pageParam));
@@ -273,6 +298,7 @@ export default function ConsultationPage() {
           currentPage={currentPage}
           totalPages={totalPages}
           searchTerm={debouncedSearchTerm}
+          highlightId={highlightId}
           onContactClick={handleContactClick}
           onEditConsultation={handleEditConsultation}
           onDeleteConsultation={openDeleteWithConsultation}

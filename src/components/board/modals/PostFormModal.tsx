@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Paperclip, Upload, FileText, Loader2, Link2 } from "lucide-react";
+import { X, Paperclip, Upload, FileText, Loader2, Link2, Users } from "lucide-react";
 import TiptapEditor from "@/components/board/TiptapEditor";
 import ReferenceSelector from "@/components/board/ReferenceSelector";
+import UserTagSelector from "@/components/board/UserTagSelector";
 import { uploadPostFile, fetchPostFiles, deletePostFile } from "@/lib/postFiles";
-import type { PostWithAuthor, PostCategory, CreatePostData, UpdatePostData, CreateReferenceData, PostReference } from "@/types/post";
+import type { PostWithAuthor, PostCategory, CreatePostData, UpdatePostData, CreateReferenceData, PostReference, CreateUserTagData, PostUserTag } from "@/types/post";
 
 interface PostFile {
   id: string;
@@ -23,7 +24,7 @@ interface PostFormModalProps {
   userId: string;
   isLoading: boolean;
   onClose: () => void;
-  onSubmit: (data: CreatePostData | UpdatePostData, pendingFiles?: File[]) => void;
+  onSubmit: (data: CreatePostData | UpdatePostData, pendingFiles?: File[], userTags?: CreateUserTagData[]) => void;
 }
 
 export default function PostFormModal({
@@ -52,6 +53,9 @@ export default function PostFormModal({
   // 참조 관련 상태
   const [references, setReferences] = useState<CreateReferenceData[]>([]);
 
+  // 유저 태그 관련 상태
+  const [userTags, setUserTags] = useState<CreateUserTagData[]>([]);
+
   // 모달이 열릴 때만 초기화 (categories 변경 시 리셋 방지)
   useEffect(() => {
     if (!isOpen) return;
@@ -65,12 +69,15 @@ export default function PostFormModal({
       loadExistingFiles(post.id);
       // 기존 참조 로드
       loadExistingReferences(post.id);
+      // 기존 유저 태그 로드
+      loadExistingUserTags(post.id);
     } else {
       setTitle("");
       setContent("");
       setIsPinned(false);
       setExistingFiles([]);
       setReferences([]);
+      setUserTags([]);
     }
     setPendingFiles([]);
     setErrors({});
@@ -111,12 +118,36 @@ export default function PostFormModal({
     }
   };
 
+  const loadExistingUserTags = async (postId: string) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/tags`);
+      if (response.ok) {
+        const data = await response.json();
+        const tags: CreateUserTagData[] = (data.tags || []).map((t: PostUserTag) => ({
+          user_id: t.user_id,
+          tag_type: t.tag_type,
+        }));
+        setUserTags(tags);
+      }
+    } catch (error) {
+      console.error("Failed to load user tags:", error);
+    }
+  };
+
   const handleAddReference = (ref: CreateReferenceData) => {
     setReferences((prev) => [...prev, ref]);
   };
 
   const handleRemoveReference = (index: number) => {
     setReferences((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAddUserTag = (tag: CreateUserTagData) => {
+    setUserTags((prev) => [...prev, tag]);
+  };
+
+  const handleRemoveUserTag = (userId: string) => {
+    setUserTags((prev) => prev.filter((t) => t.user_id !== userId));
   };
 
   // 파일 선택
@@ -171,8 +202,12 @@ export default function PostFormModal({
       references: references.length > 0 ? references : undefined,
     };
 
-    console.log("PostFormModal handleSubmit:", { pendingFilesCount: pendingFiles.length, pendingFiles, references });
-    onSubmit(data, pendingFiles.length > 0 ? pendingFiles : undefined);
+    console.log("PostFormModal handleSubmit:", { pendingFilesCount: pendingFiles.length, pendingFiles, references, userTags });
+    onSubmit(
+      data,
+      pendingFiles.length > 0 ? pendingFiles : undefined,
+      userTags.length > 0 ? userTags : undefined
+    );
   };
 
   if (!isOpen) return null;
@@ -373,6 +408,23 @@ export default function PostFormModal({
               selectedReferences={references}
               onAdd={handleAddReference}
               onRemove={handleRemoveReference}
+            />
+          </div>
+
+          {/* 유저 태그 (참조/공동작성) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Users className="w-4 h-4 inline mr-1" />
+              유저 태그
+            </label>
+            <p className="text-xs text-gray-500 mb-2">
+              이 게시글에 참조하거나 공동작성한 유저를 태그할 수 있습니다
+            </p>
+            <UserTagSelector
+              selectedTags={userTags}
+              onAdd={handleAddUserTag}
+              onRemove={handleRemoveUserTag}
+              excludeUserId={userId}
             />
           </div>
 

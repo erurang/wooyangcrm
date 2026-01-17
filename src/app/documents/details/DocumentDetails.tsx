@@ -154,6 +154,7 @@ export default function DocumentsDetailsPage() {
         id: statusChangeDoc.id,
         status: changedStatus,
         status_reason: reason,
+        updated_by: loginUser?.id, // 알림 전송용
       });
 
       handlers.onPageChange(1);

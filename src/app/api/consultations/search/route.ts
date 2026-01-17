@@ -21,7 +21,9 @@ export async function GET(request: Request) {
         `
           id,
           date,
+          title,
           content,
+          contact_method,
           created_at,
           companies (id, name, fax, phone),
           users(id, name, level),

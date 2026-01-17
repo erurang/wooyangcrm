@@ -99,6 +99,14 @@ export default function DeletionRequestsPage() {
       await supabase.from("deletion_requests").delete().eq("id", req.id);
     } else if (req.type === "rnds") {
       await supabase.from("rnds").delete().eq("id", req.related_id);
+      await supabase.from("deletion_requests").delete().eq("id", req.id);
+    } else if (req.type === "posts") {
+      // 게시글 소프트 삭제 (deleted_at 설정)
+      await supabase
+        .from("posts")
+        .update({ deleted_at: new Date().toISOString() })
+        .eq("id", req.related_id);
+      await supabase.from("deletion_requests").delete().eq("id", req.id);
     }
 
     setRequests((prev) => prev.filter((reqs) => reqs.id !== req.id));
@@ -167,6 +175,8 @@ export default function DeletionRequestsPage() {
                       ? "거래처"
                       : type === "contacts"
                       ? "담당자"
+                      : type === "posts"
+                      ? "게시글"
                       : "문서"}
                   </td>
                   <td className="px-4 py-2 border-b border-r">{value}</td>

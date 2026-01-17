@@ -4,12 +4,20 @@ import { fetcher } from "@/lib/fetcher";
 export function useConsultationsList(
   companyId: string | undefined,
   currentPage: number,
-  searchTerm: string
+  searchTerm: string,
+  highlightId?: string | null
 ) {
+  const params = new URLSearchParams({
+    companyId: companyId || "",
+    page: currentPage.toString(),
+    search: searchTerm,
+  });
+  if (highlightId) {
+    params.set("highlightId", highlightId);
+  }
+
   const { data, error, mutate } = useSWR(
-    companyId
-      ? `/api/consultations/list?companyId=${companyId}&page=${currentPage}&search=${searchTerm}`
-      : null,
+    companyId ? `/api/consultations/list?${params.toString()}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {
       revalidateOnFocus: false,
@@ -20,6 +28,7 @@ export function useConsultationsList(
   return {
     consultations: data?.consultations || [],
     totalPages: data?.totalPages || 1,
+    actualPage: data?.currentPage || currentPage,
     isLoading: !data && !error,
     isError: !!error,
     refreshConsultations: mutate,

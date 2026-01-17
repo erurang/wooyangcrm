@@ -5,4 +5,5 @@ export {
   DeleteConfirmModal,
   NotesEditModal,
   ContactsEditModal,
+  FileAttachmentModal,
 } from "./modals";

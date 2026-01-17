@@ -362,15 +362,36 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
         })}
       </nav>
 
-      {/* User Info (Collapsed) */}
-      {!isExpanded && user && (
+      {/* User Info */}
+      {user && (
         <div className="border-t border-gray-200 p-2">
-          <div
-            className="w-10 h-10 mx-auto rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-sm"
-            title={`${user.name} ${user.level}`}
+          <Link
+            href="/profile"
+            className={`
+              flex items-center rounded-md transition-colors duration-150
+              hover:bg-indigo-50
+              ${isExpanded ? "px-3 py-2 gap-3" : "justify-center py-2"}
+              ${pathname.startsWith("/profile") ? "bg-indigo-50" : ""}
+            `}
+            title={!isExpanded ? `${user.name} ${user.level} - 마이페이지` : undefined}
           >
-            {user.name?.charAt(0) || "U"}
-          </div>
+            <div
+              className={`
+                rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-sm flex-shrink-0
+                ${isExpanded ? "w-8 h-8" : "w-10 h-10"}
+              `}
+            >
+              {user.name?.charAt(0) || "U"}
+            </div>
+            {isExpanded && (
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900 truncate">
+                  {user.name} {user.level}
+                </div>
+                <div className="text-xs text-gray-500">마이페이지</div>
+              </div>
+            )}
+          </Link>
         </div>
       )}
     </aside>

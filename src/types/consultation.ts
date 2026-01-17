@@ -1,12 +1,28 @@
 // 상담 관련 공유 타입 정의
 
+// 접수 경로 타입
+export type ContactMethod = "phone" | "online" | "email" | "meeting" | "exhibition" | "visit" | "other";
+
+// 접수 경로 라벨
+export const CONTACT_METHOD_LABELS: Record<ContactMethod, string> = {
+  phone: "전화",
+  online: "온라인문의",
+  email: "메일",
+  meeting: "미팅",
+  exhibition: "전시회",
+  visit: "방문",
+  other: "기타",
+};
+
 // 원본 상담 데이터 (API 응답)
 export interface BaseConsultation {
   id: string;
   date: string;
   follow_up_date: string | null;
   user_id: string;
+  title?: string;
   content: string;
+  contact_method?: ContactMethod;
   user_name?: string;
   contact_name?: string;
   documents?: ConsultationDocument[];
@@ -41,7 +57,9 @@ export interface ProcessedConsultation {
   date: string;
   follow_up_date: string | null;
   user_id: string;
+  title?: string;
   content: string;
+  contact_method?: ContactMethod;
   contact_name: string;
   contact_level: string;
   contact_email?: string;
@@ -60,5 +78,7 @@ export interface ConsultationFormData {
   follow_up_date: string;
   contact_name: string | undefined;
   user_id: string;
+  title: string;
   content: string;
+  contact_method: ContactMethod;
 }

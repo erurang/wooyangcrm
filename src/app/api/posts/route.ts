@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { logPostOperation } from "@/lib/postLogger";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -34,7 +35,8 @@ export async function GET(req: NextRequest) {
       category:post_categories!posts_category_id_fkey(id, name)
     `,
       { count: "exact" }
-    );
+    )
+    .is("deleted_at", null); // 삭제되지 않은 게시글만 조회
 
   if (resolvedCategoryId) {
     query = query.eq("category_id", resolvedCategoryId);
@@ -66,13 +68,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // 댓글 수 가져오기
+  // 댓글 수 가져오기 (삭제되지 않은 댓글만)
   const postsWithCommentCount = await Promise.all(
     (posts || []).map(async (post) => {
       const { count: commentsCount } = await supabase
         .from("post_comments")
         .select("*", { count: "exact", head: true })
-        .eq("post_id", post.id);
+        .eq("post_id", post.id)
+        .is("deleted_at", null);
 
       return {
         ...post,
@@ -133,6 +136,15 @@ export async function POST(req: NextRequest) {
       console.error("Error creating post:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    // 로깅
+    await logPostOperation(
+      "INSERT",
+      data.id,
+      null,
+      data as Record<string, unknown>,
+      user_id
+    );
 
     return NextResponse.json(data, { status: 201 });
   } catch {

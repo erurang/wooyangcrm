@@ -45,7 +45,7 @@ export default function ConsultPageHeader({
               </div>
               <input
                 type="text"
-                placeholder="상담 내용 검색"
+                placeholder="콤마(,)로 구분하여 중복검색"
                 value={searchTerm}
                 onChange={(e) => onSearchChange(e.target.value)}
                 className="w-full py-1.5 pl-10 pr-4 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"

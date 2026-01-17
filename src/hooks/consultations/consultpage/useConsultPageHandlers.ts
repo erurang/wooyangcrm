@@ -42,7 +42,9 @@ interface NewConsultation {
   follow_up_date: string;
   contact_name: string;
   user_id: string;
+  title: string;
   content: string;
+  contact_method: string;
 }
 
 interface UseConsultPageHandlersProps {
@@ -122,7 +124,7 @@ export function useConsultPageHandlers({
     onSuccess: () => void
   ) => {
     if (isAdding) return;
-    const { content, follow_up_date, user_id, contact_name } = newConsultation;
+    const { content, follow_up_date, user_id, contact_name, title, contact_method } = newConsultation;
 
     if (!content) {
       setSnackbarMessage("상담 내용을 입력하세요.");
@@ -143,6 +145,8 @@ export function useConsultPageHandlers({
           content,
           follow_up_date: follow_up_date || null,
           user_id,
+          title: title || null,
+          contact_method: contact_method || "email",
         },
       });
 
@@ -180,7 +184,7 @@ export function useConsultPageHandlers({
     onSuccess: () => void
   ) => {
     if (isUpdating) return;
-    const { content, follow_up_date, user_id, contact_name } = newConsultation;
+    const { content, follow_up_date, user_id, contact_name, title, contact_method } = newConsultation;
 
     if (!content || !user_id || !contact_name) {
       setSnackbarMessage("필수 항목을 모두 입력하세요.");
@@ -205,6 +209,9 @@ export function useConsultPageHandlers({
           follow_up_date,
           user_id,
           contact_id: selectedContact.id,
+          updated_by: loginUserId, // 알림 전송용
+          title: title || null,
+          contact_method: contact_method || "email",
         },
       });
 

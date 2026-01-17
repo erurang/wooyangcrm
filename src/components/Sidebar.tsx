@@ -173,7 +173,10 @@ export default function Header() {
             {/* Desktop User Info */}
             <div className="hidden lg:flex items-center space-x-3">
               <NotificationBell userId={user?.id} />
-              <div className="flex items-center bg-gray-100 rounded-full px-3 py-1">
+              <Link
+                href="/profile"
+                className="flex items-center bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1 cursor-pointer transition-colors"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4 text-gray-500 mr-2"
@@ -190,7 +193,7 @@ export default function Header() {
                 <span className="text-sm text-gray-700">
                   {user?.name} {user?.level}님
                 </span>
-              </div>
+              </Link>
               <TokenInfo />
             </div>
           </div>

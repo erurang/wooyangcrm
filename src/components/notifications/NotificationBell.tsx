@@ -53,7 +53,13 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
           router.push("/");
           break;
         case "post":
-          router.push(`/board/${notification.related_id}`);
+          // related_id가 "postId:commentId" 형식일 수 있음 (멘션 알림)
+          if (notification.related_id?.includes(":")) {
+            const [postId, commentId] = notification.related_id.split(":");
+            router.push(`/board/${postId}?commentId=${commentId}`);
+          } else {
+            router.push(`/board/${notification.related_id}`);
+          }
           break;
       }
     }

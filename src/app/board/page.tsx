@@ -13,7 +13,8 @@ import PostPagination from "@/components/board/PostPagination";
 import PostFormModal from "@/components/board/modals/PostFormModal";
 import DeletePostModal from "@/components/board/modals/DeletePostModal";
 import BoardDashboard from "@/components/board/BoardDashboard";
-import type { PostWithAuthor, CreatePostData, UpdatePostData } from "@/types/post";
+import type { PostWithAuthor, CreatePostData, UpdatePostData, CreateUserTagData } from "@/types/post";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function BoardPage() {
   const router = useRouter();
@@ -150,8 +151,41 @@ export default function BoardPage() {
     }
   };
 
-  const handleFormSubmit = async (data: CreatePostData | UpdatePostData, pendingFiles?: File[]) => {
-    console.log("handleFormSubmit called:", { data, pendingFiles, pendingFilesLength: pendingFiles?.length });
+  // 유저 태그 저장 헬퍼 함수
+  const saveUserTags = async (postId: string, tags: CreateUserTagData[]) => {
+    if (!tags || tags.length === 0) return;
+
+    for (const tag of tags) {
+      try {
+        await fetch(`/api/posts/${postId}/tags`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: tag.user_id,
+            tag_type: tag.tag_type,
+          }),
+        });
+      } catch (error) {
+        console.error("Failed to save user tag:", error);
+      }
+    }
+  };
+
+  // 기존 유저 태그 삭제 헬퍼 함수
+  const clearUserTags = async (postId: string) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/tags`);
+      const { tags } = await response.json();
+      for (const tag of tags || []) {
+        await fetch(`/api/posts/${postId}/tags?userId=${tag.user_id}`, { method: "DELETE" });
+      }
+    } catch (error) {
+      console.error("Failed to clear user tags:", error);
+    }
+  };
+
+  const handleFormSubmit = async (data: CreatePostData | UpdatePostData, pendingFiles?: File[], userTags?: CreateUserTagData[]) => {
+    console.log("handleFormSubmit called:", { data, pendingFiles, pendingFilesLength: pendingFiles?.length, userTags });
     try {
       if (editingPost) {
         await updatePost({ id: editingPost.id, data: data as UpdatePostData });
@@ -167,6 +201,11 @@ export default function BoardPage() {
         if (data.references !== undefined) {
           await clearReferences(editingPost.id);
           await saveReferences(editingPost.id, data.references);
+        }
+        // 유저 태그 업데이트 (기존 삭제 후 새로 추가)
+        if (userTags !== undefined) {
+          await clearUserTags(editingPost.id);
+          await saveUserTags(editingPost.id, userTags);
         }
         setIsFormModalOpen(false);
         setEditingPost(null);
@@ -188,6 +227,10 @@ export default function BoardPage() {
         // 새 글 작성 시 참조 저장
         if (newPost?.id) {
           await saveReferences(newPost.id, data.references);
+        }
+        // 새 글 작성 시 유저 태그 저장
+        if (newPost?.id && userTags) {
+          await saveUserTags(newPost.id, userTags);
         }
         setIsFormModalOpen(false);
         setEditingPost(null);

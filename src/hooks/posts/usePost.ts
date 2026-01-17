@@ -23,9 +23,15 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
-export function usePost(postId: string | null) {
+export function usePost(postId: string | null, userId?: string | null) {
+  const url = postId
+    ? userId
+      ? `/api/posts/${postId}?userId=${userId}`
+      : `/api/posts/${postId}`
+    : null;
+
   const { data, error, isLoading, mutate } = useSWR<PostDetail>(
-    postId ? `/api/posts/${postId}` : null,
+    url,
     fetcher,
     { revalidateOnFocus: false }
   );

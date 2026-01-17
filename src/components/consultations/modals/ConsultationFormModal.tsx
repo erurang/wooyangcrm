@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { CircularProgress } from "@mui/material";
 import { X, AlertCircle } from "lucide-react";
 import { useState, useCallback } from "react";
+import type { ContactMethod } from "@/types/consultation";
+import { CONTACT_METHOD_LABELS } from "@/types/consultation";
 
 interface Contact {
   id: string;
@@ -23,7 +25,9 @@ interface ConsultationFormData {
   follow_up_date: string;
   contact_name: string;
   user_id: string;
+  title: string;
   content: string;
+  contact_method: ContactMethod;
 }
 
 interface FormErrors {
@@ -31,6 +35,17 @@ interface FormErrors {
   content?: string;
   follow_up_date?: string;
 }
+
+// 접수 경로 옵션
+const CONTACT_METHOD_OPTIONS: { value: ContactMethod; label: string }[] = [
+  { value: "phone", label: "전화" },
+  { value: "online", label: "온라인문의" },
+  { value: "email", label: "메일" },
+  { value: "meeting", label: "미팅" },
+  { value: "exhibition", label: "전시회" },
+  { value: "visit", label: "방문" },
+  { value: "other", label: "기타" },
+];
 
 interface ConsultationFormModalProps {
   mode: "add" | "edit";
@@ -56,7 +71,7 @@ export default function ConsultationFormModal({
   saving,
 }: ConsultationFormModalProps) {
   const isAddMode = mode === "add";
-  const title = isAddMode ? "상담 내역 추가" : "상담 내역 수정";
+  const modalTitle = isAddMode ? "상담 내역 추가" : "상담 내역 수정";
   const [errors, setErrors] = useState<FormErrors>({});
 
   // 필드별 검증
@@ -141,7 +156,7 @@ export default function ConsultationFormModal({
             className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden"
           >
             <div className="flex items-center justify-between p-5 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{modalTitle}</h3>
               <button
                 onClick={onClose}
                 className="text-gray-400 hover:text-gray-500"
@@ -229,6 +244,44 @@ export default function ConsultationFormModal({
                 </div>
               </div>
 
+              {/* 접수경로 */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  접수 경로
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {CONTACT_METHOD_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleFieldChange("contact_method", option.value)}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        formData.contact_method === option.value
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 제목 */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  제목
+                </label>
+                <input
+                  type="text"
+                  placeholder="상담 제목을 입력하세요 (선택사항)"
+                  value={formData.title || ""}
+                  onChange={(e) => handleFieldChange("title", e.target.value)}
+                  className={getInputClass(false)}
+                />
+              </div>
+
+              {/* 상담 내용 */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   상담 내용 <span className="text-red-500">*</span>
@@ -238,7 +291,7 @@ export default function ConsultationFormModal({
                   value={formData.content}
                   onChange={(e) => handleFieldChange("content", e.target.value)}
                   className={`${getInputClass(!!errors.content)} resize-none`}
-                  rows={10}
+                  rows={8}
                 />
                 {errors.content ? (
                   <p className="mt-1 text-xs text-red-600 flex items-center gap-1">

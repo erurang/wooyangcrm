@@ -16,9 +16,19 @@ export async function GET(request: Request) {
     /** 📌 1️⃣ 최근 상담한 고객 리스트 가져오기 */
     const { data: recentConsultations, error: consultationsError } =
       await supabase
-        .from("contacts_consultations")
-        .select("contacts(contact_name), created_at")
+        .from("consultations")
+        .select(`
+          id,
+          content,
+          date,
+          created_at,
+          companies (
+            id,
+            name
+          )
+        `)
         .eq("user_id", userId)
+        .is("deleted_at", null)
         .order("created_at", { ascending: false })
         .limit(10);
 
@@ -31,9 +41,13 @@ export async function GET(request: Request) {
       );
     }
 
-    const formattedConsultations = recentConsultations.map((rc) => ({
+    const formattedConsultations = (recentConsultations || []).map((rc: any) => ({
+      id: rc.id,
       created_at: rc.created_at,
-      contact_name: (rc as any).contacts?.contact_name,
+      date: rc.date,
+      content: rc.content,
+      company_id: rc.companies?.id,
+      company_name: rc.companies?.name,
     }));
 
     /** 📌 2️⃣ 최근 문서를 진행한 고객 리스트 가져오기 */

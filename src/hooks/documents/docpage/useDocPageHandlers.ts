@@ -78,6 +78,7 @@ interface UpdateStatusParams {
   id: string;
   status: string;
   status_reason: Record<string, { reason: string }>;
+  updated_by?: string;
 }
 
 interface DocumentResponse {
@@ -393,6 +394,7 @@ export function useDocPageHandlers({
           id: statusChangeDoc.id,
           status: selectedStatus,
           status_reason: reason,
+          updated_by: userId, // 알림 전송용
         });
 
         setSnackbarMessage("문서 상태가 변경되었습니다.");

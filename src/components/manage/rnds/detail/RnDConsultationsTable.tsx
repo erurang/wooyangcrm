@@ -170,7 +170,7 @@ export default function RnDConsultationsTable({
                   <td className="px-4 py-2 border-x-[1px]">
                     <FileUpload
                       consultationId={consultation.id}
-                      userId={loginUserId}
+                      userId={loginUserId || ""}
                     />
                   </td>
                   <td className="py-2 border-x-[1px]">

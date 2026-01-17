@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function POST(request: Request) {
   try {
-    const { company_id, content, follow_up_date, user_id, date } =
+    const { company_id, content, follow_up_date, user_id, date, title, contact_method } =
       await request.json();
 
     if (!company_id || !content || !user_id) {
@@ -23,6 +23,8 @@ export async function POST(request: Request) {
           content,
           follow_up_date: follow_up_date || null,
           user_id,
+          title: title || null,
+          contact_method: contact_method || "email",
         },
       ])
       .select("id")

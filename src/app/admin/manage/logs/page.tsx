@@ -185,6 +185,8 @@ const LogsPage = () => {
           <option value="">전체 테이블</option>
           <option value="documents">Documents</option>
           <option value="consultations">Consultations</option>
+          <option value="posts">Posts (게시판)</option>
+          <option value="post_comments">Post Comments (댓글)</option>
         </select>
         <select
           className="p-2 border rounded-md"

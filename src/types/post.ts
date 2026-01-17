@@ -22,6 +22,7 @@ export interface Post {
   id: string;
   created_at: string;
   updated_at: string;
+  deleted_at?: string; // 소프트 삭제 시간
   user_id: string;
   category_id?: string;
   consultation_id?: string;
@@ -69,6 +70,7 @@ export interface PostComment {
   id: string;
   created_at: string;
   updated_at?: string;
+  deleted_at?: string; // 블라인드 처리 시간 (삭제된 댓글)
   post_id: string;
   user_id: string;
   content: string;
@@ -206,4 +208,49 @@ export interface CommentReference {
  */
 export interface PostCommentWithReferences extends PostComment {
   references?: CommentReference[];
+}
+
+/**
+ * 게시글 버전 히스토리
+ */
+export interface PostVersion {
+  id: string;
+  post_id: string;
+  version_number: number;
+  title: string;
+  content: string;
+  category_id?: string;
+  edited_by: string;
+  edited_at: string;
+  user?: { id: string; name: string; level?: string };
+}
+
+/**
+ * 게시글 조회자
+ */
+export interface PostViewer {
+  id: string;
+  user_id: string;
+  viewed_at: string;
+  user: { id: string; name: string; level?: string };
+}
+
+/**
+ * 게시글 유저 태그 (참조/공동작성)
+ */
+export interface PostUserTag {
+  id: string;
+  created_at: string;
+  post_id: string;
+  user_id: string;
+  tag_type: "reference" | "coauthor"; // 참조 or 공동작성
+  user?: { id: string; name: string; level?: string };
+}
+
+/**
+ * 유저 태그 생성 데이터
+ */
+export interface CreateUserTagData {
+  user_id: string;
+  tag_type: "reference" | "coauthor";
 }
