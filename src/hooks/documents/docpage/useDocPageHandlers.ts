@@ -1,5 +1,10 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import {
+  notifyDocumentCreated,
+  notifyDocumentUpdated,
+  notifyDocumentStatusChanged,
+} from "@/lib/broadcastChannel";
 
 interface DocumentItem {
   number?: number;
@@ -259,6 +264,14 @@ export function useDocPageHandlers({
         setSnackbarMessage("문서가 생성되었습니다");
         onSuccess();
         await refreshDocuments();
+
+        // 다른 탭/창에 문서 생성 알림
+        notifyDocumentCreated(
+          consultationId,
+          companyId,
+          addedDocument.document.id,
+          type
+        );
       } catch (error) {
         setSnackbarMessage("문서 추가 중 오류 발생");
       } finally {
@@ -351,6 +364,14 @@ export function useDocPageHandlers({
         setSnackbarMessage("문서가 수정되었습니다");
         onSuccess();
         await refreshDocuments();
+
+        // 다른 탭/창에 문서 수정 알림
+        notifyDocumentUpdated(
+          consultationId,
+          companyId,
+          updatedDocument.document.id,
+          type
+        );
       } catch (error) {
         setSnackbarMessage("문서 수정 중 오류 발생");
       } finally {
@@ -359,6 +380,8 @@ export function useDocPageHandlers({
     },
     [
       type,
+      consultationId,
+      companyId,
       contacts,
       items,
       totalAmount,
@@ -400,11 +423,14 @@ export function useDocPageHandlers({
         setSnackbarMessage("문서 상태가 변경되었습니다.");
         onSuccess();
         await refreshDocuments();
+
+        // 다른 탭/창에 상태 변경 알림
+        notifyDocumentStatusChanged(consultationId, statusChangeDoc.id);
       } catch (error) {
         setSnackbarMessage("상태 변경 중 오류 발생");
       }
     },
-    [updateStatus, refreshDocuments]
+    [updateStatus, refreshDocuments, consultationId]
   );
 
   return {

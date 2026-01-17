@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Pin, MessageCircle, Eye, Pencil, Trash2, FileText } from "lucide-react";
 import dayjs from "dayjs";
@@ -26,14 +26,22 @@ export default function PostList({
   onDeleteClick,
 }: PostListProps) {
   const highlightRef = useRef<HTMLTableRowElement>(null);
+  const [activeHighlightId, setActiveHighlightId] = useState<string | null>(null);
 
-  // 하이라이트된 행으로 스크롤
+  // 하이라이트된 행으로 스크롤 + 3초 후 제거
   useEffect(() => {
-    if (highlightId && highlightRef.current) {
-      highlightRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+    if (highlightId) {
+      setActiveHighlightId(highlightId);
+      setTimeout(() => {
+        highlightRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
+      const timer = setTimeout(() => {
+        setActiveHighlightId(null);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [highlightId]);
   if (isLoading) {
@@ -85,16 +93,16 @@ export default function PostList({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {posts.map((post) => {
-            const isHighlighted = highlightId === post.id;
+            const isHighlighted = activeHighlightId === post.id;
             return (
             <tr
               key={post.id}
               ref={isHighlighted ? highlightRef : null}
-              className={`hover:bg-gray-50 transition-colors ${
-                post.is_pinned ? "bg-yellow-50" : ""
+              className={`hover:bg-gray-50 transition-all duration-300 ${
+                post.is_pinned && !isHighlighted ? "bg-yellow-50" : ""
               } ${
                 isHighlighted
-                  ? "bg-indigo-50 ring-2 ring-indigo-200 ring-inset"
+                  ? "bg-yellow-100 ring-2 ring-yellow-400 ring-inset animate-pulse"
                   : ""
               }`}
             >

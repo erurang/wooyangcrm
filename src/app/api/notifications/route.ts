@@ -55,6 +55,9 @@ export async function POST(request: Request) {
       "system",
       "post_comment",    // 게시글에 댓글 달림
       "post_mention",    // @멘션됨
+      "inventory_assignment",  // 재고 작업 배정
+      "inventory_update",      // 재고 작업 변경
+      "inventory_complete",    // 재고 작업 완료
     ];
     if (!validTypes.includes(type)) {
       return NextResponse.json(

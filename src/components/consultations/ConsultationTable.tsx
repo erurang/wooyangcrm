@@ -82,6 +82,7 @@ export default function ConsultationTable({
   onAddConsultation,
 }: ConsultationTableProps) {
   const highlightRef = useRef<HTMLDivElement>(null);
+  const [activeHighlightId, setActiveHighlightId] = useState<string | null>(null);
   const [fileModalOpen, setFileModalOpen] = useState(false);
   const [selectedConsultationForFile, setSelectedConsultationForFile] = useState<{
     id: string;
@@ -139,13 +140,20 @@ export default function ConsultationTable({
     }
   };
 
-  // 하이라이트된 카드로 스크롤
+  // 하이라이트된 카드로 스크롤 + 3초 후 제거
   useEffect(() => {
-    if (highlightId && highlightRef.current) {
-      highlightRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+    if (highlightId) {
+      setActiveHighlightId(highlightId);
+      setTimeout(() => {
+        highlightRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
+      const timer = setTimeout(() => {
+        setActiveHighlightId(null);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [highlightId]);
 
@@ -262,7 +270,7 @@ export default function ConsultationTable({
       {consultations && consultations.length > 0 ? (
         <div className="space-y-4">
           {consultations.map((consultation) => {
-            const isHighlighted = highlightId === consultation.id;
+            const isHighlighted = activeHighlightId === consultation.id;
             const consultUser = users.find((u) => u.id === consultation.user_id);
             const userLink = consultation.user_id === loginUserId
               ? "/profile"
@@ -273,9 +281,9 @@ export default function ConsultationTable({
               <div
                 key={consultation.id}
                 ref={isHighlighted ? highlightRef : null}
-                className={`bg-white rounded-lg border shadow-sm overflow-hidden transition-all ${
+                className={`bg-white rounded-lg border shadow-sm overflow-hidden transition-all duration-300 ${
                   isHighlighted
-                    ? "ring-2 ring-indigo-400 bg-indigo-50/30"
+                    ? "ring-2 ring-yellow-400 bg-yellow-100 animate-pulse"
                     : "hover:shadow-md"
                 }`}
               >

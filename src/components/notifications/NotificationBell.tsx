@@ -61,6 +61,15 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
             router.push(`/board/${notification.related_id}`);
           }
           break;
+        case "inventory_task":
+          // 재고 작업 알림 - task_type에 따라 입고/출고 페이지로 이동
+          if (notification.type === "inventory_assignment" || notification.type === "inventory_update" || notification.type === "inventory_complete") {
+            // 알림 메시지에서 입고/출고 판단 (메시지에 "입고" 또는 "출고" 포함)
+            const isInbound = notification.message?.includes("입고") || notification.title?.includes("입고");
+            const targetPage = isInbound ? "/inventory/inbound" : "/inventory/outbound";
+            router.push(`${targetPage}?highlight=${notification.related_id}`);
+          }
+          break;
       }
     }
     setIsOpen(false);
@@ -79,6 +88,12 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         return "💬";
       case "post_mention":
         return "@";
+      case "inventory_assignment":
+        return "📦";
+      case "inventory_update":
+        return "📝";
+      case "inventory_complete":
+        return "✅";
       default:
         return "🔔";
     }
@@ -97,6 +112,12 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         return "bg-green-50 border-green-200";
       case "post_mention":
         return "bg-purple-50 border-purple-200";
+      case "inventory_assignment":
+        return "bg-green-50 border-green-200";
+      case "inventory_update":
+        return "bg-blue-50 border-blue-200";
+      case "inventory_complete":
+        return "bg-emerald-50 border-emerald-200";
       default:
         return "bg-gray-50 border-gray-200";
     }

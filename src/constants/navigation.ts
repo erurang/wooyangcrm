@@ -59,6 +59,14 @@ export const BASE_MENU_SECTIONS: NavMenuSection[] = [
       { id: "estimate-unit", title: "매출 단가 관리", path: "/products/unit?type=estimate" },
     ],
   },
+  {
+    title: "재고 관리",
+    items: [
+      { id: "inventory-calendar", title: "캘린더", path: "/inventory/calendar" },
+      { id: "inventory-inbound", title: "입고 관리", path: "/inventory/inbound" },
+      { id: "inventory-outbound", title: "출고 관리", path: "/inventory/outbound" },
+    ],
+  },
 ];
 
 // Research role menu section

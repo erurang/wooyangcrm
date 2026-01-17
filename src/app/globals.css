@@ -35,6 +35,7 @@ body {
   font-family: "NanumSquareNeo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 0.875rem !important; /* 14px = 0.875rem */
   line-height: 1.5;
+  zoom: 0.8; /* 100% 화면에서 80% 크기로 표시 */
 }
 
 /* Tailwind base 폰트 크기 오버라이드 */
@@ -50,6 +51,7 @@ body {
 
   body {
     font-size: 12px; /* 프린트용 폰트 크기 */
+    zoom: 1; /* 프린트 시 원래 크기로 */
   }
 
   /* 필요한 경우 다른 스타일 추가 */

@@ -44,6 +44,11 @@ const ROUTE_LABELS: Record<string, string> = {
   unit: "단가",
   stocks: "재고",
 
+  // Inventory
+  inventory: "재고 관리",
+  inbound: "입고",
+  outbound: "출고",
+
   // Reports
   reports: "리포트",
   users: "직원",

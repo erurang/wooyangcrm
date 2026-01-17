@@ -120,6 +120,7 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     title: "재고",
     icon: Package,
     subItems: [
+      { id: "calendar", title: "캘린더", path: "/inventory/calendar" },
       { id: "inbound", title: "입고", path: "/inventory/inbound" },
       { id: "outbound", title: "출고", path: "/inventory/outbound" },
     ],

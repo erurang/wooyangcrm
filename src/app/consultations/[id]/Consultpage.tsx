@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { MessageSquare, Paperclip, FileText } from "lucide-react";
 import { useLoginUser } from "@/context/login";
@@ -18,6 +18,7 @@ import { useUpdateConsultation } from "@/hooks/consultations/useUpdateConsultati
 import { useUpdateContacts } from "@/hooks/manage/customers/useUpdateContacts";
 import { useUpdateCompany } from "@/hooks/manage/customers/useUpdateCompany";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useBroadcastChannel } from "@/hooks/useBroadcastChannel";
 import {
   useConsultPageModals,
   useConsultPageHandlers,
@@ -98,6 +99,15 @@ export default function ConsultationPage() {
     useFavorites(loginUser?.id);
   const { consultations, totalPages, actualPage, refreshConsultations, isLoading: isConsultationsLoading } =
     useConsultationsList(id as string, currentPage, debouncedSearchTerm, highlightId);
+
+  // 다른 탭/창에서 문서가 생성/수정/상태변경되면 상담 목록 새로고침
+  useBroadcastChannel({
+    companyId: id,
+    messageTypes: ["DOCUMENT_CREATED", "DOCUMENT_UPDATED", "DOCUMENT_STATUS_CHANGED"],
+    onMessage: useCallback(() => {
+      refreshConsultations();
+    }, [refreshConsultations]),
+  });
 
   // 실제 페이지가 요청한 페이지와 다르면 (highlightId로 인해) 상태 동기화
   useEffect(() => {

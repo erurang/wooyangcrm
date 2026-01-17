@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import CommentItem from "./CommentItem";
 import type { PostComment } from "@/types/post";
 
@@ -22,14 +22,25 @@ export default function CommentList({
   onDelete,
 }: CommentListProps) {
   const highlightRef = useRef<HTMLDivElement>(null);
+  const [activeHighlightId, setActiveHighlightId] = useState<string | null>(null);
 
-  // 하이라이트된 댓글로 스크롤
+  // 하이라이트된 댓글로 스크롤 + 3초 후 제거
   useEffect(() => {
-    if (highlightCommentId && highlightRef.current) {
-      highlightRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+    if (highlightCommentId) {
+      setActiveHighlightId(highlightCommentId);
+      if (highlightRef.current) {
+        setTimeout(() => {
+          highlightRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }, 100);
+      }
+      // 3초 후 하이라이트 제거
+      const timer = setTimeout(() => {
+        setActiveHighlightId(null);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [highlightCommentId, comments]);
   // 최상위 댓글만 필터링
@@ -47,12 +58,12 @@ export default function CommentList({
   return (
     <div className="mt-6 divide-y divide-gray-100">
       {rootComments.map((comment) => {
-        const isHighlighted = highlightCommentId === comment.id;
+        const isHighlighted = activeHighlightId === comment.id;
         return (
         <div
           key={comment.id}
           ref={isHighlighted ? highlightRef : null}
-          className={`py-4 first:pt-0 ${isHighlighted ? "bg-indigo-50 ring-2 ring-indigo-200 ring-inset rounded-lg p-2 -mx-2" : ""}`}
+          className={`py-4 first:pt-0 transition-all duration-300 ${isHighlighted ? "bg-yellow-100 ring-2 ring-yellow-400 ring-inset rounded-lg p-2 -mx-2 animate-pulse" : ""}`}
         >
           <CommentItem
             comment={comment}
@@ -65,12 +76,12 @@ export default function CommentList({
           {getReplies(comment.id).length > 0 && (
             <div className="ml-8 mt-3 space-y-3 border-l-2 border-gray-100 pl-4">
               {getReplies(comment.id).map((reply) => {
-                const isReplyHighlighted = highlightCommentId === reply.id;
+                const isReplyHighlighted = activeHighlightId === reply.id;
                 return (
                 <div
                   key={reply.id}
                   ref={isReplyHighlighted ? highlightRef : null}
-                  className={isReplyHighlighted ? "bg-indigo-50 ring-2 ring-indigo-200 ring-inset rounded-lg p-2 -m-2" : ""}
+                  className={`transition-all duration-300 ${isReplyHighlighted ? "bg-yellow-100 ring-2 ring-yellow-400 ring-inset rounded-lg p-2 -m-2 animate-pulse" : ""}`}
                 >
                   <CommentItem
                     comment={reply}
