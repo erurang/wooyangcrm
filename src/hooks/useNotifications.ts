@@ -5,11 +5,11 @@ import useSWR from "swr";
 export interface Notification {
   id: number;
   user_id: string;
-  type: "document_expiry" | "consultation_followup" | "todo_reminder" | "system" | "post_comment" | "post_mention";
+  type: "document_expiry" | "consultation_followup" | "todo_reminder" | "system" | "post_comment" | "post_mention" | "inventory_assignment" | "inventory_update" | "inventory_complete";
   title: string;
   message: string;
   related_id: string | null;
-  related_type: "document" | "consultation" | "todo" | "post" | null;
+  related_type: "document" | "consultation" | "todo" | "post" | "inventory_task" | null;
   read: boolean;
   created_at: string;
 }
