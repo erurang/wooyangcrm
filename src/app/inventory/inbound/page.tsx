@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useSearchParams } from "next/navigation";
 import {
   Package,
@@ -89,14 +90,18 @@ export default function InboundPage() {
   const [dateFrom, setDateFrom] = useState(() => getKSTDate(-30));
   const [dateTo, setDateTo] = useState(() => getKSTDate(0));
 
-  // 통계 데이터 조회 (기간 필터 적용)
+  // 디바운스 적용 (300ms) - 날짜 입력 시 깜빡임 방지
+  const debouncedDateFrom = useDebounce(dateFrom, 300);
+  const debouncedDateTo = useDebounce(dateTo, 300);
+
+  // 통계 데이터 조회 (디바운스된 기간 필터 적용)
   const { stats, mutate: refreshStats } = useInventoryStats({
     taskType: "inbound",
-    date_from: dateFrom || undefined,
-    date_to: dateTo || undefined,
+    date_from: debouncedDateFrom || undefined,
+    date_to: debouncedDateTo || undefined,
   });
 
-  // API로 데이터 가져오기
+  // API로 데이터 가져오기 (디바운스된 기간 필터 적용)
   const {
     tasks: rawTasks,
     total,
@@ -107,8 +112,8 @@ export default function InboundPage() {
   } = useInventoryTasks({
     task_type: "inbound",
     status: filter === "all" ? undefined : filter,
-    date_from: dateFrom || undefined,
-    date_to: dateTo || undefined,
+    date_from: debouncedDateFrom || undefined,
+    date_to: debouncedDateTo || undefined,
     page,
     limit: 10,
   });
@@ -577,7 +582,7 @@ export default function InboundPage() {
   // 초기 로딩 상태 (데이터가 아예 없을 때만)
   if (isLoading && rawTasks.length === 0) {
     return (
-      <div className="p-4 md:p-6">
+      <div className="min-h-screen bg-gray-50 p-4 md:p-6">
         <div className="flex items-center justify-center h-64">
           <CircularProgress size={40} />
         </div>
@@ -588,7 +593,7 @@ export default function InboundPage() {
   // 에러 상태
   if (isError) {
     return (
-      <div className="p-4 md:p-6">
+      <div className="min-h-screen bg-gray-50 p-4 md:p-6">
         <div className="flex flex-col items-center justify-center h-64 text-red-600">
           <AlertCircle className="h-12 w-12 mb-2" />
           <p>데이터를 불러오는데 실패했습니다</p>
@@ -604,7 +609,7 @@ export default function InboundPage() {
   }
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
       {/* 헤더 */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>

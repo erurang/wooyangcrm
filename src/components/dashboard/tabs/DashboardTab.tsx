@@ -1,144 +1,263 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Clock, AlertCircle, ChevronRight } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  ChevronRight,
+  CheckCircle,
+  ListTodo,
+  MessageSquare,
+} from "lucide-react";
+import DateFilterCard from "../DateFilterCard";
 import KPISummaryCards from "../KPISummaryCards";
+import SalesComparisonChart from "../SalesComparisonChart";
+import TopCompaniesCard from "../TopCompaniesCard";
+import RecentDocumentsCard from "../RecentDocumentsCard";
+import QuickMemoCard from "../QuickMemoCard";
 import { useKPISummary } from "@/hooks/dashboard/useKPISummary";
+import { useYearlyComparison } from "@/hooks/dashboard/useYearlyComparison";
+import { useRecentDocuments } from "@/hooks/dashboard/useRecentDocuments";
+import { useQuickMemo } from "@/hooks/dashboard/useQuickMemo";
 import { useLoginUser } from "@/context/login";
-import { formatDateKST } from "@/utils/dateUtils";
+import { useDashboard } from "@/context/dashboard";
+import { useTodos } from "@/hooks/dashboard/useTodos";
+import { HomeTodoCard } from "../HomeTodoCard";
+import { ConsultationCard } from "../ConsultationCard";
+import type {
+  DashboardUserData,
+  DashboardConsultation,
+} from "@/types/dashboard";
 
-interface FollowUpClient {
+interface Todo {
   id: string;
-  company_id: string;
-  company_name: string;
-  follow_date: string;
-  last_consultation?: string;
-}
-
-interface ExpiringDocument {
-  id: string;
-  company_name: string;
-  valid_until: string;
-  total_amount: number;
+  user_id: string;
+  content: string;
+  is_completed: boolean;
+  due_date: string | null;
+  start_date: string | null;
+  sort_order: number;
 }
 
 interface DashboardTabProps {
-  followUpClients: FollowUpClient[];
-  expiringDocuments: ExpiringDocument[];
+  documentsDetails: DashboardUserData[] | null;
 }
 
-export default function DashboardTab({
-  followUpClients,
-  expiringDocuments,
-}: DashboardTabProps) {
+export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const highlightDocId = searchParams.get("highlight");
   const loginUser = useLoginUser();
   const { kpiData, isLoading: kpiLoading } = useKPISummary(loginUser?.id);
+  const {
+    todos,
+    isLoading: todosLoading,
+    toggleComplete,
+  } = useTodos(loginUser?.id || "");
+  const { data: yearlyData, isLoading: yearlyLoading } = useYearlyComparison(
+    loginUser?.id
+  );
+  const { documents: recentDocuments, isLoading: documentsLoading } =
+    useRecentDocuments(loginUser?.id, 5);
+  const {
+    memo,
+    saveMemo,
+    isLoading: memoLoading,
+    isSaving: memoSaving,
+  } = useQuickMemo(loginUser?.id);
+  const {
+    dateFilter,
+    selectedYear,
+    selectedQuarter,
+    selectedMonth,
+    setDateFilter,
+    setSelectedYear,
+    setSelectedQuarter,
+    setSelectedMonth,
+    clientAnalysisData,
+  } = useDashboard();
+
+  // 미완료 할 일 (최대 4개)
+  const incompleteTodos =
+    (todos as Todo[] | undefined)
+      ?.filter((todo: Todo) => !todo.is_completed)
+      .slice(0, 4) || [];
+  const totalIncompleteTodos =
+    (todos as Todo[] | undefined)?.filter((todo: Todo) => !todo.is_completed)
+      .length || 0;
 
   return (
-    <div className="p-5">
-      {/* KPI 요약 카드 */}
-      <KPISummaryCards
-        todayConsultations={kpiData.todayConsultations}
-        pendingDocuments={kpiData.pendingDocuments}
-        monthSales={kpiData.monthSales}
-        previousMonthSales={kpiData.previousMonthSales}
-        followUpNeeded={kpiData.followUpNeeded}
-        expiringDocuments={kpiData.expiringDocuments}
-        isLoading={kpiLoading}
-      />
+    <div className="space-y-4">
+      {/* 첫 번째 줄: 기간 선택 + KPI 카드 */}
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-3">
+        <div className="flex flex-col md:flex-row md:items-center gap-3">
+          <DateFilterCard
+            dateFilter={dateFilter}
+            selectedYear={selectedYear}
+            selectedQuarter={selectedQuarter}
+            selectedMonth={selectedMonth}
+            onDateFilterChange={setDateFilter}
+            onYearChange={setSelectedYear}
+            onQuarterChange={setSelectedQuarter}
+            onMonthChange={setSelectedMonth}
+          />
+          <div className="hidden md:block w-px h-8 bg-slate-200" />
+          <KPISummaryCards
+            todayConsultations={kpiData.todayConsultations}
+            pendingDocuments={kpiData.pendingDocuments}
+            monthSales={kpiData.monthSales}
+            previousMonthSales={kpiData.previousMonthSales}
+            followUpNeeded={kpiData.followUpNeeded}
+            expiringDocuments={kpiData.expiringDocuments}
+            isLoading={kpiLoading}
+            compact
+          />
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* 후속 상담 필요 거래처 */}
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
-          <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <Clock className="h-5 w-5 text-indigo-600" />
-            </div>
-            <h2 className="text-lg font-semibold text-slate-800">
-              후속 상담 필요 거래처
-            </h2>
-          </div>
-
-          {followUpClients && followUpClients.length > 0 ? (
-            <ul className="space-y-3">
-              {followUpClients.map((client) => (
-                <li
-                  key={client.company_id}
-                  className="p-3 bg-white border border-slate-200 rounded-lg shadow-sm"
-                >
-                  <div
-                    className="text-slate-800 font-medium cursor-pointer hover:text-indigo-600 transition-colors flex items-center justify-between"
-                    onClick={() =>
-                      router.push(`/consultations/${client.company_id}`)
-                    }
-                  >
-                    <span>{client.company_name}</span>
-                    <ChevronRight className="h-4 w-4 text-slate-400" />
-                  </div>
-                  <div className="text-xs text-slate-500 mt-1">
-                    마지막 상담일:{" "}
-                    {formatDateKST(client.last_consultation)}
-                  </div>
-                </li>
-              ))}
-            </ul>
+      {/* 두 번째 줄: 매출 차트 + 주요 거래처 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          {yearlyData ? (
+            <SalesComparisonChart
+              months={yearlyData.months}
+              currentYear={yearlyData.currentYear}
+              previousYear={yearlyData.previousYear}
+              isLoading={yearlyLoading}
+            />
           ) : (
-            <div className="flex flex-col items-center justify-center h-32 text-slate-500">
-              <div className="bg-indigo-50 p-3 rounded-full mb-2">
-                <Clock className="h-6 w-6 text-indigo-400" />
-              </div>
-              <p>후속 상담이 필요한 고객이 없습니다</p>
-            </div>
+            <SalesComparisonChart
+              months={[]}
+              currentYear={{
+                year: new Date().getFullYear(),
+                sales: [],
+                purchases: [],
+              }}
+              previousYear={{
+                year: new Date().getFullYear() - 1,
+                sales: [],
+                purchases: [],
+              }}
+              isLoading={yearlyLoading}
+            />
           )}
         </div>
+        <div>
+          <TopCompaniesCard
+            clientAnalysisData={clientAnalysisData || []}
+            isLoading={!clientAnalysisData}
+          />
+        </div>
+      </div>
 
-        {/* 곧 만료되는 견적서 */}
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
-          <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <AlertCircle className="h-5 w-5 text-indigo-600" />
-            </div>
-            <h2 className="text-lg font-semibold text-slate-800">
-              곧 만료되는 견적서
-            </h2>
-          </div>
-
-          {expiringDocuments && expiringDocuments.length > 0 ? (
-            <ul className="space-y-3">
-              {expiringDocuments.map((doc) => {
-                const companyName = doc.company_name || "";
-                const validUntil = doc.valid_until || "";
-                const totalAmount = doc.total_amount ?? 0;
-
-                return (
-                  <li
-                    key={doc.id}
-                    className="p-3 bg-white border border-slate-200 rounded-lg shadow-sm"
-                  >
-                    <div className="font-medium text-slate-800">
-                      {companyName}
-                    </div>
-                    <div className="flex justify-between items-center mt-1">
-                      <span className="text-xs text-slate-500">
-                        만료일: {formatDateKST(validUntil)}
-                      </span>
-                      <span className="text-sm font-medium text-indigo-600">
-                        {totalAmount.toLocaleString()}원
-                      </span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-32 text-slate-500">
-              <div className="bg-indigo-50 p-3 rounded-full mb-2">
-                <AlertCircle className="h-6 w-6 text-indigo-400" />
+      {/* 세 번째 줄: 상담 현황 + 최근 문서 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-full">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center">
+                <MessageSquare className="h-4 w-4 text-indigo-600 mr-2" />
+                <h2 className="text-sm font-semibold text-slate-800">
+                  상담 현황
+                </h2>
               </div>
-              <p>유효기간 7일 내 만료 임박한 견적서가 없습니다</p>
+              <button
+                onClick={() => router.push("/dashboard/consultation")}
+                className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center"
+              >
+                전체보기
+                <ChevronRight className="h-3 w-3 ml-0.5" />
+              </button>
             </div>
-          )}
+
+            {documentsDetails && documentsDetails.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto">
+                {documentsDetails.flatMap((userObj: DashboardUserData) =>
+                  userObj.consultations
+                    .slice(0, 4)
+                    .map((consultation: DashboardConsultation) => (
+                      <ConsultationCard
+                        key={consultation.consultation_id}
+                        consultation={consultation}
+                        highlightDocId={highlightDocId}
+                      />
+                    ))
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-24 text-slate-500">
+                <MessageSquare className="h-5 w-5 text-indigo-300 mb-1" />
+                <p className="text-sm">상담 내역이 없습니다</p>
+              </div>
+            )}
+          </div>
+        </div>
+        <div>
+          <RecentDocumentsCard
+            documents={recentDocuments}
+            isLoading={documentsLoading}
+          />
+        </div>
+      </div>
+
+      {/* 네 번째 줄: 할 일 + 빠른 메모 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-full">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center">
+                <ListTodo className="h-4 w-4 text-violet-600 mr-2" />
+                <h2 className="text-sm font-semibold text-slate-800">할 일</h2>
+                {totalIncompleteTodos > 0 && (
+                  <span className="ml-2 px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700 rounded-full">
+                    {totalIncompleteTodos}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => router.push("/dashboard/todo")}
+                className="text-xs text-violet-600 hover:text-violet-800 font-medium flex items-center"
+              >
+                전체보기
+                <ChevronRight className="h-3 w-3 ml-0.5" />
+              </button>
+            </div>
+
+            {todosLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-slate-50 rounded-lg p-3 animate-pulse h-20"
+                  >
+                    <div className="h-3 bg-slate-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-2 bg-slate-200 rounded w-1/2"></div>
+                  </div>
+                ))}
+              </div>
+            ) : incompleteTodos.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {incompleteTodos.map((todo) => (
+                  <HomeTodoCard
+                    key={todo.id}
+                    todo={todo}
+                    onToggleComplete={toggleComplete}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-24 text-slate-500">
+                <CheckCircle className="h-4 w-4 text-violet-400 mr-2" />
+                <p className="text-sm">모든 할 일을 완료했습니다!</p>
+              </div>
+            )}
+          </div>
+        </div>
+        <div>
+          <QuickMemoCard
+            memo={memo}
+            onSave={saveMemo}
+            isLoading={memoLoading}
+            isSaving={memoSaving}
+          />
         </div>
       </div>
     </div>

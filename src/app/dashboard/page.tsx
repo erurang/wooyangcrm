@@ -1,15 +1,19 @@
 "use client";
 
+import { Suspense } from "react";
 import { useDashboard } from "@/context/dashboard";
 import DashboardTab from "@/components/dashboard/tabs/DashboardTab";
 
-export default function DashboardOverviewPage() {
-  const { followUpClients, expiringDocuments } = useDashboard();
+function DashboardContent() {
+  const { documentsDetails } = useDashboard();
 
+  return <DashboardTab documentsDetails={documentsDetails} />;
+}
+
+export default function DashboardOverviewPage() {
   return (
-    <DashboardTab
-      followUpClients={followUpClients}
-      expiringDocuments={expiringDocuments}
-    />
+    <Suspense fallback={<div className="p-5">로딩중...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

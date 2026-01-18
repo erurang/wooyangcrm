@@ -3,7 +3,10 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function GET(request: Request) {
   try {
-    const { data, error } = await supabase.from("companies").select("*");
+    const { data, error } = await supabase
+      .from("companies")
+      .select("*")
+      .or("is_overseas.is.null,is_overseas.eq.false"); // 해외거래처 제외
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

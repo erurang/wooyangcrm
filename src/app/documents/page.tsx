@@ -83,7 +83,7 @@ export default function DocumentsDashboard() {
   });
 
   return (
-    <div className="text-sm text-[#37352F]">
+    <div className="min-h-screen bg-gray-50 text-sm text-[#37352F]">
       {loading ? (
         <p>로딩 중...</p>
       ) : (

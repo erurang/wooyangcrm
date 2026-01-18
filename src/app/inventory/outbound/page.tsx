@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useSearchParams } from "next/navigation";
 import {
   Package,
@@ -90,14 +91,18 @@ export default function OutboundPage() {
   const [dateFrom, setDateFrom] = useState(() => getKSTDate(-30));
   const [dateTo, setDateTo] = useState(() => getKSTDate(0));
 
-  // 통계 데이터 가져오기 (기간 필터 적용)
+  // 디바운스 적용 (300ms) - 날짜 입력 시 깜빡임 방지
+  const debouncedDateFrom = useDebounce(dateFrom, 300);
+  const debouncedDateTo = useDebounce(dateTo, 300);
+
+  // 통계 데이터 가져오기 (디바운스된 기간 필터 적용)
   const { stats, mutate: refreshStats } = useInventoryStats({
     taskType: "outbound",
-    date_from: dateFrom || undefined,
-    date_to: dateTo || undefined,
+    date_from: debouncedDateFrom || undefined,
+    date_to: debouncedDateTo || undefined,
   });
 
-  // API로 데이터 가져오기
+  // API로 데이터 가져오기 (디바운스된 기간 필터 적용)
   const {
     tasks: rawTasks,
     total,
@@ -108,8 +113,8 @@ export default function OutboundPage() {
   } = useInventoryTasks({
     task_type: "outbound",
     status: filter === "all" ? undefined : filter,
-    date_from: dateFrom || undefined,
-    date_to: dateTo || undefined,
+    date_from: debouncedDateFrom || undefined,
+    date_to: debouncedDateTo || undefined,
     page,
     limit: 10,
   });

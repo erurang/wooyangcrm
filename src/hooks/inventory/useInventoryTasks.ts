@@ -41,6 +41,7 @@ export function useInventoryTasks(filters: InventoryTaskFilters = {}) {
     {
       revalidateOnFocus: false,
       dedupingInterval: 5000,
+      keepPreviousData: true, // 새 데이터 로드 중 이전 데이터 유지 (깜빡임 방지)
     }
   );
 
@@ -101,6 +102,7 @@ export function useInventoryStats(filters: InventoryStatsFilters) {
     {
       revalidateOnFocus: false,
       dedupingInterval: 5000,
+      keepPreviousData: true, // 새 데이터 로드 중 이전 데이터 유지 (깜빡임 방지)
     }
   );
 

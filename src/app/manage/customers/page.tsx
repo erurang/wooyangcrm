@@ -142,7 +142,7 @@ export default function CompanySearchPage() {
   };
 
   return (
-    <div className="text-sm text-gray-800">
+    <div className="min-h-screen bg-gray-50 text-sm text-gray-800">
       <SearchFilters
         searchTerm={searchTerm}
         addressTerm={addressTerm}

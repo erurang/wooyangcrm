@@ -274,7 +274,7 @@ export default function ContactsPage() {
   };
 
   return (
-    <div className="text-sm text-gray-800">
+    <div className="min-h-screen bg-gray-50 text-sm text-gray-800">
       {/* Search Filters */}
       <ContactsSearchFilters
         companyName={companyName}

@@ -270,7 +270,7 @@ export default function BoardPage() {
   const showDashboard = !selectedCategoryId && !searchTerm;
 
   return (
-    <div className="text-sm text-[#37352F]">
+    <div className="min-h-screen bg-gray-50 text-sm text-[#37352F]">
       {/* 헤더 */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-semibold">{currentCategoryName}</h1>

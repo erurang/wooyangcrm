@@ -36,6 +36,8 @@ import {
   Trash2,
   Star,
   Newspaper,
+  Globe,
+  Ship,
   LucideIcon,
 } from "lucide-react";
 
@@ -54,18 +56,9 @@ export interface SidebarMenuItem {
   roles?: string[]; // Required roles (empty = all users)
 }
 
-// Dashboard sub-items (previously tabs)
+// Dashboard - 홈만 유지
 export const DASHBOARD_SUB_ITEMS: SidebarSubItem[] = [
-  { id: "overview", title: "개요", path: "/dashboard" },
-  { id: "consultation", title: "상담 현황", path: "/dashboard/consultation" },
-  { id: "sales", title: "매출 분석", path: "/dashboard/sales" },
-  { id: "purchase", title: "매입 분석", path: "/dashboard/purchase" },
-  { id: "items", title: "품목 분석", path: "/dashboard/items" },
-  { id: "trends", title: "추이 분석", path: "/dashboard/trends" },
-  { id: "performance", title: "성과 지표", path: "/dashboard/performance" },
-  { id: "clients", title: "거래처 분석", path: "/dashboard/clients" },
-  { id: "documents", title: "문서 현황", path: "/dashboard/documents" },
-  { id: "todo", title: "할 일", path: "/dashboard/todo" },
+  { id: "home", title: "홈", path: "/dashboard" },
 ];
 
 // Base menu items (available to all users)
@@ -85,14 +78,17 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
       { id: "contacts", title: "담당자 검색", path: "/manage/contacts" },
       { id: "resignContacts", title: "퇴사자 검색", path: "/manage/contacts/resign" },
       { id: "recent", title: "상담내역 조회", path: "/consultations/recent" },
+      { id: "follow", title: "후속상담 검색", path: "/consultations/follow" },
     ],
   },
   {
-    id: "consultations",
-    title: "상담 관리",
-    icon: MessageSquare,
+    id: "overseas",
+    title: "해외거래처 관리",
+    icon: Globe,
     subItems: [
-      { id: "follow", title: "후속상담 검색", path: "/consultations/follow" },
+      { id: "overseas-customers", title: "거래처 검색", path: "/overseas" },
+      { id: "overseas-consultations", title: "상담내역 조회", path: "/overseas/consultations" },
+      { id: "customs-costs", title: "통관비용", path: "/overseas/customs-costs" },
     ],
   },
   {
@@ -209,7 +205,7 @@ export function buildSidebarMenu(
 export const MENU_ICONS: Record<string, LucideIcon> = {
   dashboard: LayoutDashboard,
   companies: Building,
-  consultations: MessageSquare,
+  overseas: Globe,
   documents: FileText,
   pricing: DollarSign,
   inventory: Package,

@@ -14,5 +14,9 @@ export default function LogoutPage() {
     logout();
   }, []);
 
-  return <div>🚪 로그아웃 중...</div>;
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-gray-600">로그아웃 중...</div>
+    </div>
+  );
 }

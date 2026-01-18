@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase
       .from("companies")
       .select("id, name")
+      .or("is_overseas.is.null,is_overseas.eq.false") // 해외거래처 제외
       .ilike("name", `%${searchTerm}%`)
       .limit(30);
 

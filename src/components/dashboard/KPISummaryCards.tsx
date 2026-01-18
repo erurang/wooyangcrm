@@ -11,6 +11,7 @@ interface KPISummaryCardsProps {
   followUpNeeded: number;
   expiringDocuments: number;
   isLoading?: boolean;
+  compact?: boolean;
 }
 
 // 전월 대비 변화율 계산
@@ -29,6 +30,7 @@ export default function KPISummaryCards({
   followUpNeeded,
   expiringDocuments,
   isLoading = false,
+  compact = false,
 }: KPISummaryCardsProps) {
   const router = useRouter();
 
@@ -107,6 +109,21 @@ export default function KPISummaryCards({
   };
 
   if (isLoading) {
+    if (compact) {
+      return (
+        <div className="flex flex-wrap gap-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="bg-slate-50 rounded-md px-3 py-1.5 animate-pulse flex items-center gap-2"
+            >
+              <div className="h-3 bg-slate-200 rounded w-12"></div>
+              <div className="h-4 bg-slate-200 rounded w-8"></div>
+            </div>
+          ))}
+        </div>
+      );
+    }
     return (
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
         {[1, 2, 3, 4, 5].map((i) => (
@@ -118,6 +135,45 @@ export default function KPISummaryCards({
             <div className="h-8 bg-slate-200 rounded w-16"></div>
           </div>
         ))}
+      </div>
+    );
+  }
+
+  // Compact mode: inline badges
+  if (compact) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {cards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.title}
+              onClick={() => card.href && router.push(card.href)}
+              className={`
+                flex items-center gap-1.5 px-2.5 py-1.5 rounded-md cursor-pointer
+                ${card.bgColor} border ${card.highlight ? "border-orange-300" : "border-transparent"}
+                transition-all hover:opacity-80
+              `}
+            >
+              <Icon className={`h-3.5 w-3.5 ${card.iconColor}`} />
+              <span className="text-xs font-medium text-slate-600">{card.title}</span>
+              <span className={`text-sm font-bold ${card.valueColor}`}>
+                {formatValue(card.value, card.format)}{card.suffix}
+              </span>
+              {card.showChange && card.change !== undefined && (
+                <span className={`text-xs ${
+                  card.change > 0 ? "text-green-600" : card.change < 0 ? "text-red-600" : "text-slate-400"
+                }`}>
+                  {card.change > 0 ? (
+                    <ArrowUpRight className="h-3 w-3 inline" />
+                  ) : card.change < 0 ? (
+                    <ArrowDownRight className="h-3 w-3 inline" />
+                  ) : null}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   }

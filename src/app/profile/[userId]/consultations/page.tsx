@@ -35,8 +35,10 @@ export default function UserConsultationsPage() {
   const [endDate, setEndDate] = useState(urlEndDate);
   const [itemsPerPage] = useState(20);
 
-  // 디바운스
+  // 디바운스 (300ms) - 입력 시 깜빡임 방지
   const debouncedSearch = useDebounce(searchTerm, 300);
+  const debouncedStartDate = useDebounce(startDate, 300);
+  const debouncedEndDate = useDebounce(endDate, 300);
 
   // URL 파라미터 변경 시 상태 동기화
   useEffect(() => {
@@ -51,8 +53,8 @@ export default function UserConsultationsPage() {
     page: currentPage,
     limit: itemsPerPage,
     selectedUser: targetUserId ? { id: targetUserId } : null,
-    startDate,
-    endDate,
+    startDate: debouncedStartDate,
+    endDate: debouncedEndDate,
     companyIds: [],
     content: debouncedSearch,
   });

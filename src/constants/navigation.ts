@@ -40,8 +40,16 @@ export const BASE_MENU_SECTIONS: NavMenuSection[] = [
       { id: "contacts", title: "담당자 검색", path: "/manage/contacts" },
       { id: "resignContacts", title: "퇴사자 검색", path: "/manage/contacts/resign" },
       { id: "search", title: "상담내용 검색", path: "/consultations/search" },
-      { id: "follow_search", title: "후속상담 검색", path: "/consultations/follow" },
       { id: "recent", title: "상담내역 조회", path: "/consultations/recent" },
+      { id: "follow_search", title: "후속상담 검색", path: "/consultations/follow" },
+    ],
+  },
+  {
+    title: "해외거래처 관리",
+    items: [
+      { id: "overseas-customers", title: "거래처 검색", path: "/overseas" },
+      { id: "overseas-consultations", title: "상담내역 조회", path: "/overseas/consultations" },
+      { id: "customs-costs", title: "통관비용", path: "/overseas/customs-costs" },
     ],
   },
   {

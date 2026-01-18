@@ -65,13 +65,19 @@ export async function DELETE(
     const consultationIds = consultations?.map((c) => c.id) || [];
 
     if (consultationIds.length > 0) {
-      // 2. 상담 관련 파일 삭제
+      // 2. 파일 다운로드 기록 삭제
+      await supabase
+        .from("file_downloads")
+        .delete()
+        .in("consultation_id", consultationIds);
+
+      // 3. 상담 관련 파일 삭제
       await supabase
         .from("consultation_files")
         .delete()
         .in("consultation_id", consultationIds);
 
-      // 3. 상담-담당자 연결 삭제
+      // 4. 상담-담당자 연결 삭제
       await supabase
         .from("contacts_consultations")
         .delete()
@@ -130,7 +136,13 @@ export async function DELETE(
       .delete()
       .eq("item_id", id);
 
-    // 12. 최종적으로 회사 삭제
+    // 12. 재고 작업(inventory_tasks) 삭제
+    await supabase
+      .from("inventory_tasks")
+      .delete()
+      .eq("company_id", id);
+
+    // 13. 최종적으로 회사 삭제
     const { error } = await supabase
       .from("companies")
       .delete()

@@ -1,29 +1,15 @@
 "use client";
 
 import {
-  BarChart3,
-  FileText,
-  PieChart,
-  Target,
+  Home,
   Users,
-  TrendingUp,
-  Building,
-  Package,
-  CheckCircle,
-  LayoutDashboard,
+  Target,
 } from "lucide-react";
 
 export type TabType =
-  | "dashboard"
+  | "home"
   | "consultation"
-  | "sales"
-  | "purchase"
-  | "trends"
-  | "performance"
-  | "clients"
-  | "items"
-  | "todo"
-  | "documents";
+  | "performance";
 
 interface Tab {
   id: TabType;
@@ -33,54 +19,19 @@ interface Tab {
 
 const tabs: Tab[] = [
   {
-    id: "dashboard",
-    label: "대시보드",
-    icon: <LayoutDashboard className="h-4 w-4 mr-2" />,
+    id: "home",
+    label: "홈",
+    icon: <Home className="h-4 w-4 mr-2" />,
   },
   {
     id: "consultation",
-    label: "상담 내역",
+    label: "상담 현황",
     icon: <Users className="h-4 w-4 mr-2" />,
-  },
-  {
-    id: "sales",
-    label: "매출 분석",
-    icon: <BarChart3 className="h-4 w-4 mr-2" />,
-  },
-  {
-    id: "purchase",
-    label: "매입 분석",
-    icon: <PieChart className="h-4 w-4 mr-2" />,
-  },
-  {
-    id: "items",
-    label: "품목 검색",
-    icon: <Package className="h-4 w-4 mr-2" />,
-  },
-  {
-    id: "trends",
-    label: "추이 분석",
-    icon: <TrendingUp className="h-4 w-4 mr-2" />,
   },
   {
     id: "performance",
     label: "성과 지표",
     icon: <Target className="h-4 w-4 mr-2" />,
-  },
-  {
-    id: "clients",
-    label: "거래처 분석",
-    icon: <Building className="h-4 w-4 mr-2" />,
-  },
-  {
-    id: "documents",
-    label: "문서 상태",
-    icon: <FileText className="h-4 w-4 mr-2" />,
-  },
-  {
-    id: "todo",
-    label: "할 일",
-    icon: <CheckCircle className="h-4 w-4 mr-2" />,
   },
 ];
 

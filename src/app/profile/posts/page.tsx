@@ -363,7 +363,7 @@ export default function MyPostsPage() {
   const currentLoading = activeTab === "my" ? isLoading : activeTab === "tagged" ? taggedLoading : mentionedLoading;
 
   return (
-    <div className="text-sm text-[#37352F]">
+    <div className="min-h-screen bg-gray-50 text-sm text-[#37352F]">
       {/* 헤더 */}
       <div className="flex justify-between items-center mb-6">
         <div>

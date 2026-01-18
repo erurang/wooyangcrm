@@ -65,8 +65,77 @@ export default function DeletionRequestsPage() {
     // const value = content[type];
 
     if (req.type === "companies") {
-      // cascade ?
-      await supabase.from("companies").delete().eq("id", req.related_id);
+      const companyId = req.related_id;
+
+      // 1. 상담 관련 데이터 삭제
+      const { data: consultations } = await supabase
+        .from("consultations")
+        .select("id")
+        .eq("company_id", companyId);
+
+      const consultationIds = consultations?.map((c) => c.id) || [];
+
+      if (consultationIds.length > 0) {
+        // 파일 다운로드 기록 삭제
+        await supabase
+          .from("file_downloads")
+          .delete()
+          .in("consultation_id", consultationIds);
+
+        await supabase
+          .from("consultation_files")
+          .delete()
+          .in("consultation_id", consultationIds);
+
+        await supabase
+          .from("contacts_consultations")
+          .delete()
+          .in("consultation_id", consultationIds);
+
+        await supabase
+          .from("documents")
+          .delete()
+          .in("consultation_id", consultationIds);
+
+        await supabase
+          .from("consultations")
+          .delete()
+          .eq("company_id", companyId);
+      }
+
+      // 2. 회사 직접 연결된 문서 삭제
+      await supabase.from("documents").delete().eq("company_id", companyId);
+
+      // 3. 담당자 관련 데이터 삭제
+      const { data: contacts } = await supabase
+        .from("contacts")
+        .select("id")
+        .eq("company_id", companyId);
+
+      const contactIds = contacts?.map((c) => c.id) || [];
+
+      if (contactIds.length > 0) {
+        await supabase
+          .from("contacts_documents")
+          .delete()
+          .in("contact_id", contactIds);
+
+        await supabase
+          .from("contacts_consultations")
+          .delete()
+          .in("contact_id", contactIds);
+
+        await supabase.from("contacts").delete().eq("company_id", companyId);
+      }
+
+      // 4. 즐겨찾기 삭제
+      await supabase.from("favorites").delete().eq("item_id", companyId);
+
+      // 5. 재고 작업 삭제
+      await supabase.from("inventory_tasks").delete().eq("company_id", companyId);
+
+      // 6. 최종 회사 삭제
+      await supabase.from("companies").delete().eq("id", companyId);
       await supabase.from("deletion_requests").delete().eq("id", req.id);
     } else if (req.type === "documents") {
       await supabase

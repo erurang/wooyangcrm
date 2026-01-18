@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { MessageSquare, Paperclip, FileText, TrendingUp } from "lucide-react";
+import { MessageSquare, Paperclip, FileText, TrendingUp, BarChart3 } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "@/components/Snackbar";
 
@@ -34,7 +34,7 @@ import {
   ContactsEditModal,
   CompanyEditModal,
 } from "@/components/consultations";
-import { CompanyFilesTab, CompanyPostsTab, CompanyPriceTab } from "@/components/consultations/tabs";
+import { CompanyFilesTab, CompanyPostsTab, CompanyPriceTab, CompanyStatsTab } from "@/components/consultations/tabs";
 import type {
   BaseConsultation,
   ConsultationContactRelation,
@@ -42,7 +42,7 @@ import type {
   ContactMethod,
 } from "@/types/consultation";
 
-type TabType = "consultations" | "files" | "posts" | "price";
+type TabType = "consultations" | "files" | "posts" | "price" | "stats";
 
 interface Contact {
   id: string;
@@ -72,7 +72,7 @@ export default function ConsultationPage() {
 
   // URL의 tab 파라미터가 변경되면 탭 상태 업데이트
   useEffect(() => {
-    if (tabParam && ["consultations", "files", "posts", "price"].includes(tabParam)) {
+    if (tabParam && ["consultations", "files", "posts", "price", "stats"].includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, [tabParam]);
@@ -408,6 +408,17 @@ export default function ConsultationPage() {
               <FileText size={16} />
               게시글
             </button>
+            <button
+              onClick={() => setActiveTab("stats")}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "stats"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <BarChart3 size={16} />
+              통계
+            </button>
           </nav>
         </div>
 
@@ -440,6 +451,10 @@ export default function ConsultationPage() {
 
         {activeTab === "price" && companyDetail?.id && (
           <CompanyPriceTab companyId={companyDetail.id} />
+        )}
+
+        {activeTab === "stats" && companyDetail?.id && (
+          <CompanyStatsTab companyId={companyDetail.id} />
         )}
       </div>
 

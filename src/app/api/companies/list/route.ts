@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("companies")
       .select("*", { count: "exact" })
+      .or("is_overseas.is.null,is_overseas.eq.false") // 해외거래처 제외
       .range((page - 1) * limit, page * limit - 1)
       .order("created_at", { ascending: false });
 

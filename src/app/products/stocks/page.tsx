@@ -56,7 +56,7 @@ export default function FakeInventoryPage() {
   );
 
   return (
-    <div className="text-sm text-[#37352F] p-4">
+    <div className="min-h-screen bg-gray-50 text-sm text-[#37352F] p-4">
       {/* 검색 및 필터 영역 */}
       <div className="bg-[#FBFBFB] rounded-md border px-4 py-4 mb-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
