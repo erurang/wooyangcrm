@@ -70,6 +70,9 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
             router.push(`${targetPage}?highlight=${notification.related_id}`);
           }
           break;
+        case "work_order":
+          router.push(`/production/work-orders/${notification.related_id}`);
+          break;
       }
     }
     setIsOpen(false);
@@ -94,6 +97,24 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         return "📝";
       case "inventory_complete":
         return "✅";
+      case "work_order_assignment":
+        return "📋";
+      case "work_order_unassignment":
+        return "🚫";
+      case "work_order_comment":
+        return "💬";
+      case "work_order_update":
+        return "✏️";
+      case "work_order_status":
+        return "🔄";
+      case "work_order_deadline":
+        return "⏰";
+      case "work_order_progress":
+        return "📊";
+      case "work_order_completed":
+        return "✅";
+      case "work_order_file":
+        return "📎";
       default:
         return "🔔";
     }
@@ -118,6 +139,24 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         return "bg-blue-50 border-blue-200";
       case "inventory_complete":
         return "bg-emerald-50 border-emerald-200";
+      case "work_order_assignment":
+        return "bg-purple-50 border-purple-200";
+      case "work_order_unassignment":
+        return "bg-gray-50 border-gray-200";
+      case "work_order_comment":
+        return "bg-blue-50 border-blue-200";
+      case "work_order_update":
+        return "bg-indigo-50 border-indigo-200";
+      case "work_order_status":
+        return "bg-orange-50 border-orange-200";
+      case "work_order_deadline":
+        return "bg-yellow-50 border-yellow-200";
+      case "work_order_progress":
+        return "bg-cyan-50 border-cyan-200";
+      case "work_order_completed":
+        return "bg-green-50 border-green-200";
+      case "work_order_file":
+        return "bg-slate-50 border-slate-200";
       default:
         return "bg-gray-50 border-gray-200";
     }

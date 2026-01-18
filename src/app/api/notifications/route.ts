@@ -58,6 +58,16 @@ export async function POST(request: Request) {
       "inventory_assignment",  // 재고 작업 배정
       "inventory_update",      // 재고 작업 변경
       "inventory_complete",    // 재고 작업 완료
+      // 작업지시 관련
+      "work_order_assignment",   // 작업지시 배정
+      "work_order_unassignment", // 작업지시 배정 해제
+      "work_order_comment",      // 작업지시 댓글
+      "work_order_update",       // 작업지시 수정
+      "work_order_status",       // 작업지시 상태 변경
+      "work_order_deadline",     // 작업지시 기한 변경
+      "work_order_progress",     // 작업지시 진행 상황
+      "work_order_completed",    // 작업지시 완료
+      "work_order_file",         // 작업지시 파일
     ];
     if (!validTypes.includes(type)) {
       return NextResponse.json(

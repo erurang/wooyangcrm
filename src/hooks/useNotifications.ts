@@ -5,11 +5,29 @@ import useSWR from "swr";
 export interface Notification {
   id: number;
   user_id: string;
-  type: "document_expiry" | "consultation_followup" | "todo_reminder" | "system" | "post_comment" | "post_mention" | "inventory_assignment" | "inventory_update" | "inventory_complete";
+  type:
+    | "document_expiry"
+    | "consultation_followup"
+    | "todo_reminder"
+    | "system"
+    | "post_comment"
+    | "post_mention"
+    | "inventory_assignment"
+    | "inventory_update"
+    | "inventory_complete"
+    | "work_order_assignment"
+    | "work_order_unassignment"
+    | "work_order_comment"
+    | "work_order_update"
+    | "work_order_status"
+    | "work_order_deadline"
+    | "work_order_progress"
+    | "work_order_completed"
+    | "work_order_file";
   title: string;
   message: string;
   related_id: string | null;
-  related_type: "document" | "consultation" | "todo" | "post" | "inventory_task" | null;
+  related_type: "document" | "consultation" | "todo" | "post" | "inventory_task" | "work_order" | null;
   read: boolean;
   created_at: string;
 }
@@ -34,8 +52,9 @@ export function useNotifications(userId: string | undefined) {
     userId ? `/api/notifications?userId=${userId}` : null,
     fetcher,
     {
-      refreshInterval: 60000, // 1분마다 자동 새로고침
+      refreshInterval: 30000, // 30초마다 자동 새로고침
       revalidateOnFocus: true,
+      revalidateOnReconnect: true,
     }
   );
 

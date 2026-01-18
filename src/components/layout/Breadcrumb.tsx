@@ -49,6 +49,11 @@ const ROUTE_LABELS: Record<string, string> = {
   inbound: "입고",
   outbound: "출고",
 
+  // Production
+  production: "생산관리",
+  "work-orders": "작업지시",
+  records: "생산 기록",
+
   // Reports
   reports: "리포트",
   users: "직원",

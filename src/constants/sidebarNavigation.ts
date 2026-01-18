@@ -54,6 +54,7 @@ import {
   Eye,
   UserCog,
   Gauge,
+  Factory,
 } from "lucide-react";
 
 export interface SidebarSubItem {
@@ -125,6 +126,18 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     subItems: [
       { id: "order-unit", title: "매입 단가", path: "/products/unit?type=order" },
       { id: "estimate-unit", title: "매출 단가", path: "/products/unit?type=estimate" },
+    ],
+  },
+  {
+    id: "production",
+    title: "생산관리",
+    icon: Factory,
+    subItems: [
+      { id: "production-calendar", title: "생산 일정 캘린더", path: "/production/calendar" },
+      { id: "work-orders", title: "작업지시", path: "/production/work-orders" },
+      { id: "production-inventory", title: "원자재 재고", path: "/production/inventory" },
+      { id: "products", title: "제품 관리", path: "/production/products" },
+      { id: "records", title: "생산 기록", path: "/production/records" },
     ],
   },
   {
@@ -287,6 +300,7 @@ export const MENU_ICONS: Record<string, LucideIcon> = {
   documents: FileText,
   pricing: DollarSign,
   inventory: Package,
+  production: Factory,
   board: Newspaper,
   research: Beaker,
   management: ChartBar,

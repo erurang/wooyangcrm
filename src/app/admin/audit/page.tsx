@@ -480,11 +480,20 @@ export default function AuditLogPage() {
                           {getOperationIcon(log.operation)}
                         </div>
                         <div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-medium text-slate-800">
                               {getUserName(log)}
                             </span>
                             <span className="text-slate-400">님이</span>
+                            {/* 삭제 요청자가 있는 경우 표시 */}
+                            {log.operation === "DELETE" && (log.old_data as any)?._deletion_request?.requested_by_name && (
+                              <>
+                                <span className="font-medium text-orange-600">
+                                  {(log.old_data as any)._deletion_request.requested_by_name}
+                                </span>
+                                <span className="text-slate-400">님의 요청으로</span>
+                              </>
+                            )}
                             <span
                               className={`text-xs px-2 py-0.5 rounded-full ${operationInfo.color}`}
                             >
