@@ -48,56 +48,54 @@ export default function DataStatisticsPage() {
     }
   }, [loginUser, router]);
 
+  const [monthlyData, setMonthlyData] = useState<{ month: string; value: number }[]>([]);
+
   useEffect(() => {
     const loadStats = async () => {
       setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      try {
+        const res = await fetch("/api/admin/statistics");
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
 
-      setOverviewStats([
-        {
-          label: "총 레코드 수",
-          value: 125840,
-          change: 12.5,
-          icon: Database,
-          color: "blue",
-        },
-        {
-          label: "사용자",
-          value: 25,
-          change: 8.3,
-          icon: Users,
-          color: "emerald",
-        },
-        {
-          label: "거래처",
-          value: 1250,
-          change: 3.6,
-          icon: Building,
-          color: "violet",
-        },
-        {
-          label: "문서",
-          value: 8500,
-          change: 15.2,
-          icon: FileText,
-          color: "amber",
-        },
-      ]);
+        setOverviewStats([
+          {
+            label: "총 레코드 수",
+            value: data.overview.totalRecords,
+            change: data.overview.consultationChange,
+            icon: Database,
+            color: "blue",
+          },
+          {
+            label: "사용자",
+            value: data.overview.users,
+            change: 0,
+            icon: Users,
+            color: "emerald",
+          },
+          {
+            label: "거래처",
+            value: data.overview.companies,
+            change: 0,
+            icon: Building,
+            color: "violet",
+          },
+          {
+            label: "문서",
+            value: data.overview.documents,
+            change: data.overview.documentChange,
+            icon: FileText,
+            color: "amber",
+          },
+        ]);
 
-      setTableStats([
-        { name: "users", value: 25 },
-        { name: "companies", value: 1250 },
-        { name: "contacts", value: 3500 },
-        { name: "consultations", value: 15000 },
-        { name: "documents", value: 8500 },
-        { name: "products", value: 450 },
-        { name: "inventory", value: 2800 },
-        { name: "notifications", value: 12500 },
-        { name: "board_posts", value: 320 },
-        { name: "attachments", value: 4500 },
-      ]);
-
-      setIsLoading(false);
+        setTableStats(data.tableStats);
+        setMonthlyData(data.monthlyData);
+      } catch (error) {
+        console.error("통계 로드 실패:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadStats();
@@ -349,15 +347,8 @@ export default function DataStatisticsPage() {
           </div>
           <div className="p-6">
             <div className="flex items-end gap-4 h-48">
-              {[
-                { month: "8월", value: 85000 },
-                { month: "9월", value: 92000 },
-                { month: "10월", value: 98000 },
-                { month: "11월", value: 110000 },
-                { month: "12월", value: 118000 },
-                { month: "1월", value: 125840 },
-              ].map((data, index) => {
-                const maxValue = 130000;
+              {monthlyData.map((data, index) => {
+                const maxValue = Math.max(...monthlyData.map(d => d.value), 1);
                 const height = (data.value / maxValue) * 100;
                 return (
                   <div key={data.month} className="flex-1 flex flex-col items-center gap-2">
@@ -367,7 +358,7 @@ export default function DataStatisticsPage() {
                         animate={{ height: `${height}%` }}
                         transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
                         className={`w-8 rounded-t-lg ${
-                          index === 5 ? "bg-violet-500" : "bg-violet-200"
+                          index === monthlyData.length - 1 ? "bg-violet-500" : "bg-violet-200"
                         }`}
                         style={{ height: `${height}%` }}
                       />

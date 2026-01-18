@@ -35,13 +35,14 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, content, priority, is_active, start_date, end_date } = body;
+    const { title, content, priority, is_active, is_pinned, start_date, end_date } = body;
 
     const updateData: Record<string, unknown> = {};
     if (title !== undefined) updateData.title = title;
     if (content !== undefined) updateData.content = content;
     if (priority !== undefined) updateData.priority = priority;
     if (is_active !== undefined) updateData.is_active = is_active;
+    if (is_pinned !== undefined) updateData.is_pinned = is_pinned;
     if (start_date !== undefined) updateData.start_date = start_date;
     if (end_date !== undefined) updateData.end_date = end_date;
 

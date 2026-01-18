@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { FileText, Edit, Trash2, Check, X, Clock, AlertTriangle } from "lucide-react";
 import type { Document, AppUser } from "@/types/document";
 
@@ -13,6 +14,7 @@ interface DocumentTableProps {
   setStatusChangeDoc: (doc: Document | null) => void;
   setOpenAddModal: (open: boolean) => void;
   getDocumentTypeText: () => string;
+  highlightId?: string | null;
 }
 
 export default function DocumentTable({
@@ -25,7 +27,25 @@ export default function DocumentTable({
   setStatusChangeDoc,
   setOpenAddModal,
   getDocumentTypeText,
+  highlightId,
 }: DocumentTableProps) {
+  const highlightRef = useRef<HTMLTableRowElement>(null);
+  const [hasAutoOpenedModal, setHasAutoOpenedModal] = useState(false);
+
+  // 하이라이트된 문서로 스크롤 및 자동 수정 모달 열기 (한 번만)
+  useEffect(() => {
+    if (highlightId && highlightRef.current && !hasAutoOpenedModal) {
+      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      // 하이라이트된 문서 찾아서 수정 모달 열기
+      const highlightedDoc = documents.find(doc => doc.id === highlightId);
+      if (highlightedDoc && highlightedDoc.user_id === user?.id) {
+        setTimeout(() => {
+          handleEditModal(highlightedDoc);
+          setHasAutoOpenedModal(true);
+        }, 500);
+      }
+    }
+  }, [highlightId, documents, user?.id, handleEditModal, hasAutoOpenedModal]);
   // 유효기간까지 남은 일수 계산
   const getDaysUntilExpiry = (validUntil: string): number => {
     const today = new Date();
@@ -247,10 +267,12 @@ export default function DocumentTable({
                 ? getExpiryStyle(validUntil, document.status)
                 : { className: "", label: null };
 
+              const isHighlighted = highlightId === document.id;
               return (
               <tr
                 key={document.id}
-                className={`${getRowClassName(document)} transition-colors`}
+                ref={isHighlighted ? highlightRef : null}
+                className={`${isHighlighted ? "bg-amber-50 ring-2 ring-amber-300 ring-inset" : getRowClassName(document)} transition-colors`}
               >
                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
                   {document.date}

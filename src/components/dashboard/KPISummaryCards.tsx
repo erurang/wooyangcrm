@@ -61,7 +61,7 @@ export default function KPISummaryCards({
       bgColor: "bg-indigo-50",
       iconColor: "text-indigo-600",
       valueColor: "text-indigo-700",
-      href: "/documents",
+      href: "/documents/review?reviewStatus=pending",
     },
     {
       title: "이번달 매출",
@@ -110,7 +110,7 @@ export default function KPISummaryCards({
       iconColor: expiringDocuments > 0 ? "text-red-600" : "text-slate-400",
       valueColor: expiringDocuments > 0 ? "text-red-700" : "text-slate-600",
       highlight: expiringDocuments > 0,
-      href: "/documents?filter=expiring",
+      href: "/documents/review?reviewStatus=expired",
     },
   ];
 

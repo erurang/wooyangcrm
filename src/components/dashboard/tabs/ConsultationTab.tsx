@@ -190,11 +190,7 @@ export default function ConsultationTab({
                           key={doc.document_id}
                           className="mb-2 p-3 border border-slate-200 rounded-lg bg-white shadow-sm cursor-pointer hover:bg-slate-50 transition-colors"
                           onClick={() =>
-                            window.open(
-                              `/documents/${doc.type}?consultId=${consultation.consultation_id}&compId=${consultation.company_id}&fullscreen=true`,
-                              "_blank",
-                              "width=1200,height=800,top=100,left=100"
-                            )
+                            router.push(`/documents/review?highlight=${doc.document_id}`)
                           }
                         >
                           <div className="flex justify-between items-center mb-1">

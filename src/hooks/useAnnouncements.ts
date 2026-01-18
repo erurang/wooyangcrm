@@ -8,10 +8,15 @@ export interface Announcement {
   content: string;
   priority: "urgent" | "high" | "normal" | "low";
   is_active: boolean;
+  is_pinned?: boolean;
+  category?: string;
+  view_count?: number;
   start_date: string | null;
   end_date: string | null;
   created_by: string | null;
+  author_name?: string;
   created_at: string;
+  updated_at?: string;
   is_read?: boolean;
 }
 
@@ -74,10 +79,24 @@ export function useAnnouncements(userId: string | undefined, activeOnly: boolean
   };
 }
 
-// 관리자용: 모든 공지사항 조회 (비활성 포함)
-export function useAllAnnouncements() {
+interface UseAllAnnouncementsOptions {
+  search?: string;
+  authorId?: string;
+}
+
+// 관리자용: 모든 공지사항 조회 (비활성 포함, 검색/필터 지원)
+export function useAllAnnouncements(options?: UseAllAnnouncementsOptions) {
+  const { search, authorId } = options || {};
+
+  const buildUrl = () => {
+    const params = new URLSearchParams({ activeOnly: "false" });
+    if (search) params.set("search", search);
+    if (authorId) params.set("authorId", authorId);
+    return `/api/announcements?${params.toString()}`;
+  };
+
   const { data, error, isLoading, mutate } = useSWR<Announcement[]>(
-    `/api/announcements?activeOnly=false`,
+    buildUrl(),
     fetcher
   );
 
@@ -87,9 +106,11 @@ export function useAllAnnouncements() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(announcement),
     });
-    if (response.ok) {
-      mutate();
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "공지사항 생성에 실패했습니다");
     }
+    await mutate();
     return response;
   };
 
@@ -99,9 +120,11 @@ export function useAllAnnouncements() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });
-    if (response.ok) {
-      mutate();
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "공지사항 수정에 실패했습니다");
     }
+    await mutate();
     return response;
   };
 
@@ -109,10 +132,20 @@ export function useAllAnnouncements() {
     const response = await fetch(`/api/announcements/${id}`, {
       method: "DELETE",
     });
-    if (response.ok) {
-      mutate();
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "공지사항 삭제에 실패했습니다");
     }
+    await mutate();
     return response;
+  };
+
+  const togglePin = async (id: string, isPinned: boolean) => {
+    return updateAnnouncement(id, { is_pinned: !isPinned });
+  };
+
+  const toggleActive = async (id: string, isActive: boolean) => {
+    return updateAnnouncement(id, { is_active: !isActive });
   };
 
   return {
@@ -122,6 +155,8 @@ export function useAllAnnouncements() {
     createAnnouncement,
     updateAnnouncement,
     deleteAnnouncement,
+    togglePin,
+    toggleActive,
     refresh: mutate,
   };
 }

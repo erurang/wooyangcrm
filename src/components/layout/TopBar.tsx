@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Menu, User, ZoomIn, ZoomOut } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -68,9 +69,12 @@ export default function TopBar({ sidebarExpanded, onMobileMenuOpen }: TopBarProp
         >
           <Menu className="w-5 h-5" />
         </button>
-        <span className="lg:hidden font-bold text-gray-800 tracking-tight">
+        <Link
+          href="/dashboard"
+          className="lg:hidden font-bold text-gray-800 tracking-tight hover:text-indigo-600 transition-colors"
+        >
           WOOYANG CRM
-        </span>
+        </Link>
       </div>
 
       {/* Right Side - User Info */}

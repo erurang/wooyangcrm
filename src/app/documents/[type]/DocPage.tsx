@@ -53,6 +53,7 @@ const DocPage = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("consultId") || "";
   const companyId = searchParams.get("compId") || "";
+  const highlightId = searchParams.get("highlight");
 
   // 문서 상태
   const [newDocument, setNewDocument] = useState(getInitialDocument(id));
@@ -250,6 +251,7 @@ const DocPage = () => {
         setSelectedStatus={setSelectedStatus}
         statusReason={statusReason}
         setStatusReason={setStatusReason}
+        highlightId={highlightId}
       />
 
       <DocDeleteModal

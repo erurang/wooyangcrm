@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { logApiCall, getIpFromRequest, getUserAgentFromRequest } from "@/lib/apiLogger";
 
 interface DocumentRecord {
   id: string;
@@ -9,14 +10,10 @@ interface DocumentRecord {
   content: {
     items?: Array<{ amount?: number }>;
   } | null;
-  consultations: Array<{
-    id: string;
-    user_id: string;
-    date: string;
-  }>;
 }
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   const searchParams = request.nextUrl.searchParams;
   const userId = searchParams.get("userId");
   const currentYear = parseInt(searchParams.get("year") || new Date().getFullYear().toString());
@@ -27,22 +24,33 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch documents for both years
+    // 1. 먼저 해당 사용자의 상담 ID들을 가져옴 (최근 2년)
+    const { data: consultationIds, error: consultationError } = await supabase
+      .from("consultations")
+      .select("id")
+      .eq("user_id", userId)
+      .gte("date", `${previousYear}-01-01`)
+      .lt("date", `${currentYear + 1}-01-01`);
+
+    if (consultationError) throw consultationError;
+
+    // 상담이 없으면 빈 데이터 반환
+    if (!consultationIds || consultationIds.length === 0) {
+      const emptyMonthlyData = Array(12).fill(0);
+      return NextResponse.json({
+        months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+        currentYear: { year: currentYear, sales: emptyMonthlyData, purchases: emptyMonthlyData },
+        previousYear: { year: previousYear, sales: emptyMonthlyData, purchases: emptyMonthlyData },
+      });
+    }
+
+    const ids = consultationIds.map(c => c.id);
+
+    // 2. 해당 상담에 연결된 문서들 가져옴
     const { data: documents, error } = await supabase
       .from("documents")
-      .select(`
-        id,
-        type,
-        status,
-        created_at,
-        content,
-        consultations!inner(
-          id,
-          user_id,
-          date
-        )
-      `)
-      .eq("consultations.user_id", userId)
+      .select("id, type, status, created_at, content, consultation_id")
+      .in("consultation_id", ids)
       .in("type", ["estimate", "order"])
       .eq("status", "completed")
       .gte("created_at", `${previousYear}-01-01`)
@@ -63,7 +71,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Process documents
-    (documents as DocumentRecord[] | null)?.forEach((doc) => {
+    (documents as (DocumentRecord & { consultation_id: string })[] | null)?.forEach((doc) => {
       const createdAt = new Date(doc.created_at);
       const year = createdAt.getFullYear();
       const month = createdAt.getMonth() + 1;
@@ -97,9 +105,33 @@ export async function GET(request: NextRequest) {
       },
     };
 
+    // API 호출 로깅
+    logApiCall({
+      userId,
+      endpoint: "/api/dashboard/yearly-comparison",
+      method: "GET",
+      statusCode: 200,
+      responseTimeMs: Date.now() - startTime,
+      ipAddress: getIpFromRequest(request),
+      userAgent: getUserAgentFromRequest(request),
+    });
+
     return NextResponse.json(result);
   } catch (error) {
     console.error("Yearly comparison error:", error);
+
+    // 에러 로깅
+    logApiCall({
+      userId,
+      endpoint: "/api/dashboard/yearly-comparison",
+      method: "GET",
+      statusCode: 500,
+      responseTimeMs: Date.now() - startTime,
+      ipAddress: getIpFromRequest(request),
+      userAgent: getUserAgentFromRequest(request),
+      errorMessage: error instanceof Error ? error.message : "Unknown error",
+    });
+
     return NextResponse.json({ error: "Failed to fetch yearly comparison data" }, { status: 500 });
   }
 }

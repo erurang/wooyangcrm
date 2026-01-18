@@ -12,7 +12,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   ChevronDown,
-  ChevronLeft,
   Calendar,
   Building2,
   Package,
@@ -256,12 +255,6 @@ export default function PerformanceDetailClient() {
         <div className="px-4 py-3">
           {/* 사용자 정보 */}
           <div className="flex items-center gap-3 mb-3">
-            <button
-              onClick={() => router.push("/reports/users")}
-              className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-slate-600" />
-            </button>
             <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
               {user?.name?.charAt(0) || "U"}
             </div>

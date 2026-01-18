@@ -142,9 +142,12 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
     >
       {/* Logo & Toggle */}
       <div className="flex items-center justify-between h-14 px-3 border-b border-gray-200">
-        <span className="font-bold text-gray-800 tracking-tight whitespace-nowrap">
+        <Link
+          href="/dashboard"
+          className="font-bold text-gray-800 tracking-tight whitespace-nowrap hover:text-indigo-600 transition-colors"
+        >
           WOOYANG CRM
-        </span>
+        </Link>
         {/* {isExpanded ? (
           <span className="font-bold text-gray-800 tracking-tight whitespace-nowrap">
             WOOYANG CRM

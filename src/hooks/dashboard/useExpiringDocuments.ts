@@ -99,7 +99,7 @@ const fetchExpiringDocuments = async (userId: string): Promise<ExpiringDocuments
         days_remaining: daysRemaining,
       };
     })
-    .filter((doc: ExpiringDocument) => doc.days_remaining >= 0 && doc.days_remaining <= 7)
+    .filter((doc: ExpiringDocument) => doc.days_remaining <= 7) // 기한 지난 것(음수) + 7일 이내
     .sort((a: ExpiringDocument, b: ExpiringDocument) => a.days_remaining - b.days_remaining);
 
   // 발주서 필터링 및 남은 일수 계산 (납기일 기준)
@@ -122,7 +122,7 @@ const fetchExpiringDocuments = async (userId: string): Promise<ExpiringDocuments
         days_remaining: daysRemaining,
       };
     })
-    .filter((doc: ExpiringDocument) => doc.days_remaining >= 0 && doc.days_remaining <= 7)
+    .filter((doc: ExpiringDocument) => doc.days_remaining <= 7) // 기한 지난 것(음수) + 7일 이내
     .sort((a: ExpiringDocument, b: ExpiringDocument) => a.days_remaining - b.days_remaining);
 
   return {

@@ -44,7 +44,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
     if (notification.related_id && notification.related_type) {
       switch (notification.related_type) {
         case "document":
-          router.push(`/documents/estimate?search=${notification.related_id}`);
+          router.push(`/documents/review?highlight=${notification.related_id}`);
           break;
         case "consultation":
           router.push(`/consultations/${notification.related_id}`);

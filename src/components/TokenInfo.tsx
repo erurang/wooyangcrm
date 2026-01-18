@@ -41,42 +41,33 @@ export default function TokenInfo() {
 
   async function handleLogout() {
     try {
-      // Supabase 로그아웃
-
-      // ✅ 사용자 `access_token` 가져오기
-      const { data, error } = await supabase.auth.getSession();
-      if (error || !data?.session?.provider_token) {
-        console.error("카카오 로그아웃 실패: 액세스 토큰 없음", error);
-        return;
+      // 카카오 로그아웃 시도 (선택적)
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.provider_token) {
+        try {
+          await fetch("https://kapi.kakao.com/v1/user/logout", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${data.session.provider_token}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          });
+        } catch (kakaoError) {
+          console.warn("카카오 로그아웃 실패 (무시됨):", kakaoError);
+        }
       }
 
-      const ACCESS_TOKEN = data.session.provider_token; // ✅ 카카오 OAuth 액세스 토큰
-
-      // ✅ 카카오 로그아웃 API 호출 (access_token 이용)
-      const res = await fetch("https://kapi.kakao.com/v1/user/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${ACCESS_TOKEN}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
-
+      // Supabase 로그아웃 (항상 수행)
       await supabase.auth.signOut();
-
-      if (!res.ok) {
-        console.error("카카오 로그아웃 실패:", await res.json());
-        return;
-      }
 
       setUserData(null);
       setLoginUser(undefined);
       setRemainingTime(null);
       router.push("/login");
-      // ✅ 로그아웃 후 리디렉트
-      // window.location.href = `https://kauth.kakao.com/oauth/logout?client_id=${process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID}&logout_redirect_uri=http://localhost:3000/login
-      // `;
     } catch (error) {
       console.error("로그아웃 처리 중 오류:", error);
+      // 에러가 발생해도 로그인 페이지로 이동
+      router.push("/login");
     }
   }
 

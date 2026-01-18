@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { logApiCall, getIpFromRequest, getUserAgentFromRequest } from "@/lib/apiLogger";
 
 export async function GET(req: NextRequest) {
+  const startTime = Date.now();
   const { searchParams } = new URL(req.url);
 
   // 페이지네이션 관련 파라미터
@@ -45,11 +47,29 @@ export async function GET(req: NextRequest) {
   const { data, count, error } = await query;
 
   if (error) {
+    logApiCall({
+      endpoint: "/api/consultations",
+      method: "GET",
+      statusCode: 500,
+      responseTimeMs: Date.now() - startTime,
+      ipAddress: getIpFromRequest(req),
+      userAgent: getUserAgentFromRequest(req),
+      errorMessage: error.message,
+    });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   const totalCount = count ?? 0;
   const totalPages = Math.ceil(totalCount / limit);
+
+  logApiCall({
+    endpoint: "/api/consultations",
+    method: "GET",
+    statusCode: 200,
+    responseTimeMs: Date.now() - startTime,
+    ipAddress: getIpFromRequest(req),
+    userAgent: getUserAgentFromRequest(req),
+  });
 
   return NextResponse.json(
     {
@@ -64,6 +84,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const startTime = Date.now();
   try {
     const body = await req.json();
     const { company_id, contact_id, user_id, date, content, status, priority } =
@@ -71,6 +92,16 @@ export async function POST(req: NextRequest) {
 
     // 필수 필드 검증
     if (!company_id || !contact_id || !user_id || !date || !content) {
+      logApiCall({
+        userId: user_id || null,
+        endpoint: "/api/consultations",
+        method: "POST",
+        statusCode: 400,
+        responseTimeMs: Date.now() - startTime,
+        ipAddress: getIpFromRequest(req),
+        userAgent: getUserAgentFromRequest(req),
+        errorMessage: "필수 필드 누락",
+      });
       return NextResponse.json(
         {
           error:
@@ -87,11 +118,40 @@ export async function POST(req: NextRequest) {
       ]);
 
     if (error) {
+      logApiCall({
+        userId: user_id,
+        endpoint: "/api/consultations",
+        method: "POST",
+        statusCode: 500,
+        responseTimeMs: Date.now() - startTime,
+        ipAddress: getIpFromRequest(req),
+        userAgent: getUserAgentFromRequest(req),
+        errorMessage: error.message,
+      });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    logApiCall({
+      userId: user_id,
+      endpoint: "/api/consultations",
+      method: "POST",
+      statusCode: 201,
+      responseTimeMs: Date.now() - startTime,
+      ipAddress: getIpFromRequest(req),
+      userAgent: getUserAgentFromRequest(req),
+    });
+
     return NextResponse.json(data, { status: 201 });
   } catch (err) {
+    logApiCall({
+      endpoint: "/api/consultations",
+      method: "POST",
+      statusCode: 400,
+      responseTimeMs: Date.now() - startTime,
+      ipAddress: getIpFromRequest(req),
+      userAgent: getUserAgentFromRequest(req),
+      errorMessage: "Invalid request body",
+    });
     return NextResponse.json(
       { error: "Invalid request body." },
       { status: 400 }

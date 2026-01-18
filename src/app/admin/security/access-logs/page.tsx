@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   History,
@@ -16,6 +16,8 @@ import {
   Globe,
   User,
   MapPin,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import { useRouter } from "next/navigation";
@@ -23,14 +25,22 @@ import { useRouter } from "next/navigation";
 interface AccessLog {
   id: string;
   timestamp: string;
-  userId: string;
+  email: string;
   userName: string;
   action: "login" | "logout" | "failed_login" | "password_reset";
   ip: string;
-  location: string;
   userAgent: string;
   success: boolean;
-  reason?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface Stats {
+  todayLogins: number;
+  weeklyLogins: number;
+  uniqueUsers: number;
+  failedLogins: number;
+  suspiciousAccess: number;
 }
 
 export default function AccessLogsPage() {
@@ -41,6 +51,16 @@ export default function AccessLogsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterAction, setFilterAction] = useState<string>("all");
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState<Stats>({
+    todayLogins: 0,
+    weeklyLogins: 0,
+    uniqueUsers: 0,
+    failedLogins: 0,
+    suspiciousAccess: 0,
+  });
 
   useEffect(() => {
     if (loginUser && loginUser.role !== "admin") {
@@ -48,98 +68,95 @@ export default function AccessLogsPage() {
     }
   }, [loginUser, router]);
 
-  useEffect(() => {
-    const loadLogs = async () => {
-      setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setLogs([
-        {
-          id: "1",
-          timestamp: "2025-01-18 14:32:15",
-          userId: "u1",
-          userName: "관리자",
-          action: "login",
-          ip: "192.168.1.100",
-          location: "서울, 대한민국",
-          userAgent: "Chrome 120 / Windows",
-          success: true,
-        },
-        {
-          id: "2",
-          timestamp: "2025-01-18 14:30:00",
-          userId: "u2",
-          userName: "김영업",
-          action: "login",
-          ip: "192.168.1.101",
-          location: "서울, 대한민국",
-          userAgent: "Chrome 120 / macOS",
-          success: true,
-        },
-        {
-          id: "3",
-          timestamp: "2025-01-18 14:28:45",
-          userId: "unknown",
-          userName: "알 수 없음",
-          action: "failed_login",
-          ip: "203.0.113.50",
-          location: "해외",
-          userAgent: "Unknown",
-          success: false,
-          reason: "잘못된 비밀번호 (3회 시도)",
-        },
-        {
-          id: "4",
-          timestamp: "2025-01-18 14:15:30",
-          userId: "u3",
-          userName: "이기술",
-          action: "logout",
-          ip: "192.168.1.102",
-          location: "부산, 대한민국",
-          userAgent: "Safari / iOS",
-          success: true,
-        },
-        {
-          id: "5",
-          timestamp: "2025-01-18 13:45:00",
-          userId: "u4",
-          userName: "박관리",
-          action: "password_reset",
-          ip: "192.168.1.103",
-          location: "인천, 대한민국",
-          userAgent: "Firefox 122 / Windows",
-          success: true,
-        },
-        {
-          id: "6",
-          timestamp: "2025-01-18 12:00:00",
-          userId: "unknown",
-          userName: "test@example.com",
-          action: "failed_login",
-          ip: "185.199.110.1",
-          location: "해외 (미국)",
-          userAgent: "Bot",
-          success: false,
-          reason: "존재하지 않는 계정",
-        },
-        {
-          id: "7",
-          timestamp: "2025-01-18 10:30:15",
-          userId: "u5",
-          userName: "최지원",
-          action: "login",
-          ip: "192.168.1.104",
-          location: "대전, 대한민국",
-          userAgent: "Safari / macOS",
-          success: true,
-        },
-      ]);
-
-      setIsLoading(false);
-    };
-
-    loadLogs();
+  const loadStats = useCallback(async () => {
+    try {
+      const response = await fetch("/api/admin/login-logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "stats" }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      }
+    } catch (error) {
+      console.error("통계 로드 실패:", error);
+    }
   }, []);
+
+  const loadLogs = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: "50",
+      });
+
+      if (searchQuery) params.set("search", searchQuery);
+      if (dateRange.start) params.set("startDate", dateRange.start);
+      if (dateRange.end) params.set("endDate", dateRange.end);
+
+      const response = await fetch(`/api/admin/login-logs?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setLogs(data.logs || []);
+        setTotalPages(data.totalPages || 1);
+        setTotal(data.total || 0);
+      }
+    } catch (error) {
+      console.error("로그 로드 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, searchQuery, dateRange]);
+
+  useEffect(() => {
+    loadLogs();
+    loadStats();
+  }, [loadLogs, loadStats]);
+
+  const handleSearch = () => {
+    setPage(1);
+    loadLogs();
+  };
+
+  const handleRefresh = () => {
+    loadLogs();
+    loadStats();
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    if (!timestamp) return "-";
+    const date = new Date(timestamp);
+    return date.toLocaleString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
+  const parseUserAgent = (ua: string) => {
+    if (!ua || ua === "unknown") return "Unknown";
+
+    let browser = "Unknown";
+    let os = "Unknown";
+
+    if (ua.includes("Chrome") && !ua.includes("Edge")) browser = "Chrome";
+    else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+    else if (ua.includes("Firefox")) browser = "Firefox";
+    else if (ua.includes("Edge")) browser = "Edge";
+
+    if (ua.includes("Windows")) os = "Windows";
+    else if (ua.includes("Mac")) os = "macOS";
+    else if (ua.includes("Linux")) os = "Linux";
+    else if (ua.includes("Android")) os = "Android";
+    else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS";
+
+    return `${browser} / ${os}`;
+  };
 
   const getActionIcon = (action: string, success: boolean) => {
     if (!success) {
@@ -170,15 +187,9 @@ export default function AccessLogsPage() {
     return labels[action] || { label: action, color: "bg-slate-100 text-slate-700" };
   };
 
-  const filteredLogs = logs.filter((log) => {
-    if (searchQuery && !log.userName.toLowerCase().includes(searchQuery.toLowerCase()) && !log.ip.includes(searchQuery)) {
-      return false;
-    }
-    if (filterAction !== "all" && log.action !== filterAction) {
-      return false;
-    }
-    return true;
-  });
+  const filteredLogs = filterAction === "all"
+    ? logs
+    : logs.filter((log) => log.action === filterAction);
 
   if (isLoading || !loginUser) {
     return (
@@ -229,7 +240,7 @@ export default function AccessLogsPage() {
               <span className="text-slate-500">오늘 로그인</span>
             </div>
             <p className="text-2xl font-bold text-slate-800">
-              {logs.filter((l) => l.action === "login" && l.success).length}회
+              {stats.todayLogins}회
             </p>
           </motion.div>
 
@@ -240,11 +251,11 @@ export default function AccessLogsPage() {
             className="bg-white rounded-xl p-5 shadow-sm border border-slate-200"
           >
             <div className="flex items-center gap-2 mb-2">
-              <XCircle className="w-5 h-5 text-red-500" />
-              <span className="text-slate-500">로그인 실패</span>
+              <Globe className="w-5 h-5 text-blue-500" />
+              <span className="text-slate-500">주간 로그인</span>
             </div>
             <p className="text-2xl font-bold text-slate-800">
-              {logs.filter((l) => l.action === "failed_login").length}회
+              {stats.weeklyLogins}회
             </p>
           </motion.div>
 
@@ -255,11 +266,11 @@ export default function AccessLogsPage() {
             className="bg-white rounded-xl p-5 shadow-sm border border-slate-200"
           >
             <div className="flex items-center gap-2 mb-2">
-              <User className="w-5 h-5 text-blue-500" />
-              <span className="text-slate-500">고유 사용자</span>
+              <User className="w-5 h-5 text-violet-500" />
+              <span className="text-slate-500">오늘 고유 사용자</span>
             </div>
             <p className="text-2xl font-bold text-slate-800">
-              {new Set(logs.filter((l) => l.userId !== "unknown").map((l) => l.userId)).size}명
+              {stats.uniqueUsers}명
             </p>
           </motion.div>
 
@@ -270,11 +281,11 @@ export default function AccessLogsPage() {
             className="bg-white rounded-xl p-5 shadow-sm border border-slate-200"
           >
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-5 h-5 text-amber-500" />
-              <span className="text-slate-500">의심 접근</span>
+              <History className="w-5 h-5 text-slate-500" />
+              <span className="text-slate-500">전체 기록</span>
             </div>
             <p className="text-2xl font-bold text-slate-800">
-              {logs.filter((l) => l.location.includes("해외")).length}회
+              {total.toLocaleString()}건
             </p>
           </motion.div>
         </div>
@@ -291,26 +302,42 @@ export default function AccessLogsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="사용자 또는 IP로 검색..."
+                placeholder="이메일 또는 IP로 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-slate-400" />
-              <select
-                value={filterAction}
-                onChange={(e) => setFilterAction(e.target.value)}
-                className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">전체</option>
-                <option value="login">로그인</option>
-                <option value="logout">로그아웃</option>
-                <option value="failed_login">로그인 실패</option>
-                <option value="password_reset">비밀번호 재설정</option>
-              </select>
+              <Calendar className="w-4 h-4 text-slate-400" />
+              <input
+                type="date"
+                value={dateRange.start}
+                onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
+                className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+              <span className="text-slate-400">~</span>
+              <input
+                type="date"
+                value={dateRange.end}
+                onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))}
+                className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
             </div>
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              검색
+            </button>
+            <button
+              onClick={handleRefresh}
+              className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors"
+              title="새로고침"
+            >
+              <RefreshCw className={`w-5 h-5 ${isLoading ? "animate-spin" : ""}`} />
+            </button>
           </div>
         </motion.div>
 
@@ -338,54 +365,84 @@ export default function AccessLogsPage() {
                     IP
                   </th>
                   <th className="text-left px-4 py-3 text-sm font-medium text-slate-600">
-                    위치
-                  </th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-slate-600">
-                    상세
+                    브라우저/OS
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredLogs.map((log) => {
-                  const actionInfo = getActionLabel(log.action);
-                  return (
-                    <tr key={log.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 text-sm text-slate-500 font-mono">
-                        {log.timestamp}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          {getActionIcon(log.action, log.success)}
-                          <span className="text-sm text-slate-700">
-                            {log.userName}
+                {filteredLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+                      {isLoading ? "로딩 중..." : "로그인 기록이 없습니다"}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredLogs.map((log) => {
+                    const actionInfo = getActionLabel(log.action);
+                    return (
+                      <tr key={log.id} className="hover:bg-slate-50">
+                        <td className="px-4 py-3 text-sm text-slate-500 font-mono whitespace-nowrap">
+                          {formatTimestamp(log.timestamp)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {getActionIcon(log.action, log.success)}
+                            <div>
+                              <p className="text-sm font-medium text-slate-700">
+                                {log.userName}
+                              </p>
+                              <p className="text-xs text-slate-400">{log.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${actionInfo.color}`}
+                          >
+                            {actionInfo.label}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`text-xs px-2 py-0.5 rounded-full ${actionInfo.color}`}
-                        >
-                          {actionInfo.label}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-slate-600 font-mono">
-                        {log.ip}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1 text-sm text-slate-600">
-                          <MapPin className="w-3 h-3" />
-                          {log.location}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-slate-500">
-                        {log.reason || log.userAgent}
-                      </td>
-                    </tr>
-                  );
-                })}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-600 font-mono">
+                          {log.ip}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-500">
+                          {parseUserAgent(log.userAgent)}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+              <p className="text-sm text-slate-500">
+                총 {total.toLocaleString()}건 중 {((page - 1) * 50) + 1} - {Math.min(page * 50, total)}건
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-sm text-slate-600">
+                  {page} / {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>

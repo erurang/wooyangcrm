@@ -8,6 +8,10 @@ import {
   ListTodo,
   MessageSquare,
   BarChart3,
+  AlertTriangle,
+  Clock,
+  Package,
+  X,
 } from "lucide-react";
 import DateFilterCard from "../DateFilterCard";
 import KPISummaryCards from "../KPISummaryCards";
@@ -52,7 +56,12 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
   const loginUser = useLoginUser();
   const [isTodoModalOpen, setIsTodoModalOpen] = useState(false);
   const [isExpiringModalOpen, setIsExpiringModalOpen] = useState(false);
-  const { kpiData, isLoading: kpiLoading } = useKPISummary(loginUser?.id);
+  const [dismissedOrderAlert, setDismissedOrderAlert] = useState(false);
+
+  // loginUser가 로드될 때까지 안정적으로 userId 사용
+  const userId = loginUser?.id;
+
+  const { kpiData, isLoading: kpiLoading } = useKPISummary(userId);
   const {
     todos,
     isLoading: todosLoading,
@@ -63,18 +72,18 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
     toggleComplete,
     deleteTodo,
     updateTodoOrder,
-  } = useTodos(loginUser?.id || "");
+  } = useTodos(userId || "");
   const { data: yearlyData, isLoading: yearlyLoading } = useYearlyComparison(
-    loginUser?.id
+    userId
   );
   const { estimates: expiringEstimates, orders: expiringOrders, isLoading: expiringLoading } =
-    useExpiringDocuments(loginUser?.id);
+    useExpiringDocuments(userId);
   const {
     memo,
     saveMemo,
     isLoading: memoLoading,
     isSaving: memoSaving,
-  } = useQuickMemo(loginUser?.id);
+  } = useQuickMemo(userId);
   const {
     dateFilter,
     selectedYear,
@@ -87,6 +96,33 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
     clientAnalysisData,
   } = useDashboard();
 
+  // loginUser가 아직 로드되지 않았으면 로딩 표시
+  if (!loginUser) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-3">
+          <div className="h-12 bg-slate-100 rounded animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-64 animate-pulse">
+            <div className="h-full bg-slate-100 rounded"></div>
+          </div>
+          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-64 animate-pulse">
+            <div className="h-full bg-slate-100 rounded"></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-48 animate-pulse">
+            <div className="h-full bg-slate-100 rounded"></div>
+          </div>
+          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-48 animate-pulse">
+            <div className="h-full bg-slate-100 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // 미완료 할 일 (최대 4개)
   const incompleteTodos =
     (todos as Todo[] | undefined)
@@ -96,8 +132,90 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
     (todos as Todo[] | undefined)?.filter((todo: Todo) => !todo.is_completed)
       .length || 0;
 
+  // 긴급 문서 (3일 이내 + 기한 초과) - 견적서 + 발주서 통합
+  const allUrgentDocs = [
+    ...expiringEstimates.filter(doc => doc.days_remaining <= 3),
+    ...expiringOrders.filter(doc => doc.days_remaining <= 3),
+  ].sort((a, b) => a.days_remaining - b.days_remaining);
+  const overdueDocs = allUrgentDocs.filter(doc => doc.days_remaining < 0);
+  const upcomingDocs = allUrgentDocs.filter(doc => doc.days_remaining >= 0);
+
   return (
     <div className="space-y-4">
+      {/* 긴급 문서 알림 배너 (견적서 + 발주서) */}
+      {!dismissedOrderAlert && allUrgentDocs.length > 0 && (
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-4 shadow-sm">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-red-800 flex items-center gap-2">
+                  <Package className="h-4 w-4" />
+                  {overdueDocs.length > 0 && upcomingDocs.length > 0
+                    ? `기한 초과 ${overdueDocs.length}건 / 임박 ${upcomingDocs.length}건`
+                    : overdueDocs.length > 0
+                    ? `기한 초과 문서 ${overdueDocs.length}건`
+                    : `기한 임박 문서 ${upcomingDocs.length}건`}
+                </h3>
+                <p className="text-xs text-red-600 mt-0.5">
+                  {overdueDocs.length > 0
+                    ? "기한이 지났거나 3일 이내인 문서입니다. 확인이 필요합니다."
+                    : "아래 문서의 기한이 3일 이내입니다. 확인이 필요합니다."}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {allUrgentDocs.slice(0, 5).map((doc) => (
+                    <button
+                      key={doc.id}
+                      onClick={() => router.push(`/documents/review?highlight=${doc.id}`)}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        doc.days_remaining < 0
+                          ? "bg-red-600 text-white hover:bg-red-700"
+                          : "bg-white border border-red-200 text-red-700 hover:bg-red-50"
+                      }`}
+                    >
+                      <Clock className="h-3 w-3" />
+                      <span className="font-semibold">
+                        {doc.days_remaining < 0
+                          ? `${Math.abs(doc.days_remaining)}일 초과`
+                          : doc.days_remaining === 0
+                          ? "오늘"
+                          : doc.days_remaining === 1
+                          ? "내일"
+                          : `${doc.days_remaining}일 후`}
+                      </span>
+                      <span className={doc.days_remaining < 0 ? "text-red-200" : "text-red-500"}>|</span>
+                      <span className={doc.days_remaining < 0 ? "" : "text-blue-600"}>
+                        {doc.type === "estimate" ? "[견적]" : "[발주]"}
+                      </span>
+                      <span>{doc.company_name}</span>
+                      <span className={doc.days_remaining < 0 ? "text-red-200" : "text-red-400"}>({doc.document_number})</span>
+                    </button>
+                  ))}
+                  {allUrgentDocs.length > 5 && (
+                    <button
+                      onClick={() => setIsExpiringModalOpen(true)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-100 rounded-lg text-xs font-medium text-red-700 hover:bg-red-200 transition-colors"
+                    >
+                      +{allUrgentDocs.length - 5}건 더보기
+                      <ChevronRight className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setDismissedOrderAlert(true)}
+              className="p-1 text-red-400 hover:text-red-600 hover:bg-red-100 rounded transition-colors"
+              title="알림 닫기"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 첫 번째 줄: 기간 선택 + KPI 카드 */}
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-3">
         <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -113,7 +231,7 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
           />
           {/* 나의 성과지표 버튼 */}
           <button
-            onClick={() => router.push(`/reports/performance/${loginUser?.id}`)}
+            onClick={() => router.push(`/reports/performance/${userId}`)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
           >
             <BarChart3 className="h-4 w-4" />

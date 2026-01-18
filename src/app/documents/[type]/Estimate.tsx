@@ -57,6 +57,7 @@ interface EsitmateProps {
   setSelectedStatus: (status: string) => void;
   statusReason: StatusReason;
   setStatusReason: React.Dispatch<React.SetStateAction<StatusReason>>;
+  highlightId?: string | null;
 }
 
 export default function Estimate({
@@ -92,6 +93,7 @@ export default function Estimate({
   setSelectedStatus,
   statusReason,
   setStatusReason,
+  highlightId,
 }: EsitmateProps) {
   const getDocumentTypeText = () => {
     switch (type) {
@@ -147,6 +149,7 @@ export default function Estimate({
         setStatusChangeDoc={setStatusChangeDoc}
         setOpenAddModal={setOpenAddModal}
         getDocumentTypeText={getDocumentTypeText}
+        highlightId={highlightId}
       />
 
       {/* 추가 모달 */}

@@ -141,9 +141,9 @@ export async function GET(
       const totalPrice = group.priceHistory.reduce((sum, h) => sum + h.price, 0);
       group.avgPrice = Math.round(totalPrice / group.recordCount);
 
-      // priceHistory 정렬 (최신순)
+      // priceHistory 정렬 (과거→최신, 차트 표시용)
       group.priceHistory.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       );
 
       // minPrice가 Infinity인 경우 0으로 보정

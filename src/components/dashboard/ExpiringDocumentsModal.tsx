@@ -9,7 +9,7 @@ import {
   TrendingUp,
   ExternalLink,
   Calendar,
-  FileText,
+  Clock,
 } from "lucide-react";
 import type { ExpiringDocument } from "@/hooks/dashboard/useExpiringDocuments";
 
@@ -22,7 +22,9 @@ interface ExpiringDocumentsModalProps {
 }
 
 function getDaysLabel(days: number): { text: string; color: string; bgColor: string } {
-  if (days === 0) {
+  if (days < 0) {
+    return { text: `+${Math.abs(days)}일`, color: "text-gray-600", bgColor: "bg-gray-100" };
+  } else if (days === 0) {
     return { text: "D-Day", color: "text-red-700", bgColor: "bg-red-100" };
   } else if (days === 1) {
     return { text: "D-1", color: "text-red-600", bgColor: "bg-red-50" };
@@ -41,23 +43,22 @@ function formatAmount(amount: number) {
 
 function DocumentList({
   documents,
-  type,
+  showTypeLabel = false,
   onNavigate,
   onOpenDocument,
+  emptyMessage,
 }: {
   documents: ExpiringDocument[];
-  type: "estimate" | "order";
+  showTypeLabel?: boolean;
   onNavigate: (doc: ExpiringDocument) => void;
   onOpenDocument: (doc: ExpiringDocument) => void;
+  emptyMessage: string;
 }) {
-  const dateLabel = type === "estimate" ? "유효기간" : "납기일";
-  const typeLabel = type === "estimate" ? "견적서" : "발주서";
-
   if (documents.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-48 text-slate-400">
         <Calendar className="h-8 w-8 mb-2" />
-        <p className="text-sm">임박한 {typeLabel}가 없습니다</p>
+        <p className="text-sm">{emptyMessage}</p>
       </div>
     );
   }
@@ -66,34 +67,45 @@ function DocumentList({
     <div className="space-y-2">
       {documents.map((doc) => {
         const daysInfo = getDaysLabel(doc.days_remaining);
+        const isOrder = doc.type === "order";
+        const typeLabel = isOrder ? "발주" : "견적";
+        const typeBgColor = isOrder ? "bg-purple-100 text-purple-700" : "bg-green-100 text-green-700";
+        const dateLabel = doc.type === "estimate" ? "유효기간" : "납기일";
+        const dateValue = doc.type === "estimate" ? doc.valid_until : doc.delivery_date;
+
         return (
           <div
             key={doc.id}
-            className="group flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer"
+            className="group flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer"
             onClick={() => onNavigate(doc)}
           >
+            {/* Type label - only show in mixed list */}
+            {showTypeLabel && (
+              <span className={`px-1.5 py-0.5 text-xs font-medium rounded ${typeBgColor}`}>
+                {typeLabel}
+              </span>
+            )}
+
             {/* D-day badge */}
-            <span className={`px-2 py-1 text-xs font-bold rounded ${daysInfo.bgColor} ${daysInfo.color} min-w-[48px] text-center`}>
+            <span className={`px-1.5 py-0.5 text-xs font-bold rounded ${daysInfo.bgColor} ${daysInfo.color} min-w-[42px] text-center`}>
               {daysInfo.text}
             </span>
 
             {/* Document info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-slate-700 text-sm truncate">
-                  {doc.company_name}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-500">
+              <span className="font-medium text-slate-700 text-sm truncate block">
+                {doc.company_name}
+              </span>
+              <div className="flex items-center gap-1 text-xs text-slate-500">
                 <span className="truncate">{doc.document_number}</span>
                 <span className="text-slate-300">|</span>
-                <span>{dateLabel}: {type === "estimate" ? doc.valid_until : doc.delivery_date}</span>
+                <span>{dateValue}</span>
               </div>
             </div>
 
             {/* Amount */}
             {doc.total_amount > 0 && (
-              <span className="text-sm font-medium text-blue-600">
+              <span className="text-xs font-medium text-blue-600">
                 {formatAmount(doc.total_amount)}
               </span>
             )}
@@ -104,10 +116,10 @@ function DocumentList({
                 e.stopPropagation();
                 onOpenDocument(doc);
               }}
-              className="p-1.5 rounded-md hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors opacity-0 group-hover:opacity-100"
+              className="p-1 rounded-md hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors opacity-0 group-hover:opacity-100"
               title="새 창에서 열기"
             >
-              <ExternalLink className="h-4 w-4" />
+              <ExternalLink className="h-3.5 w-3.5" />
             </button>
           </div>
         );
@@ -125,20 +137,40 @@ export default function ExpiringDocumentsModal({
 }: ExpiringDocumentsModalProps) {
   const router = useRouter();
 
+  // 임박 문서 (days_remaining >= 0)
+  const upcomingEstimates = estimates.filter(doc => doc.days_remaining >= 0);
+  const upcomingOrders = orders.filter(doc => doc.days_remaining >= 0);
+  const upcomingAll = [...upcomingEstimates, ...upcomingOrders].sort((a, b) => a.days_remaining - b.days_remaining);
+
+  // 만료 문서 (days_remaining < 0)
+  const expiredEstimates = estimates.filter(doc => doc.days_remaining < 0).sort((a, b) => a.days_remaining - b.days_remaining);
+  const expiredOrders = orders.filter(doc => doc.days_remaining < 0).sort((a, b) => a.days_remaining - b.days_remaining);
+
   const navigateToDocument = (doc: ExpiringDocument) => {
-    router.push(`/documents/details?type=${doc.type}&status=pending&highlight=${doc.id}`);
+    router.push(`/documents/review?highlight=${doc.id}`);
     onClose();
   };
 
   const openDocument = (doc: ExpiringDocument) => {
-    window.open(
-      `/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&fullscreen=true`,
-      "_blank",
-      "width=1200,height=800,top=100,left=100"
-    );
+    router.push(`/documents/review?highlight=${doc.id}`);
+    onClose();
   };
 
   if (!isOpen) return null;
+
+  const LoadingState = () => (
+    <div className="space-y-2">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="animate-pulse flex items-center gap-2 p-2.5 rounded-lg border border-slate-200">
+          <div className="h-5 w-10 bg-slate-200 rounded"></div>
+          <div className="flex-1">
+            <div className="h-3 bg-slate-200 rounded w-20 mb-1"></div>
+            <div className="h-2 bg-slate-200 rounded w-16"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <AnimatePresence>
@@ -156,7 +188,7 @@ export default function ExpiringDocumentsModal({
 
         {/* Modal */}
         <motion.div
-          className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 max-h-[85vh] flex flex-col"
+          className="relative bg-white rounded-xl shadow-2xl w-full max-w-6xl mx-4 max-h-[85vh] flex flex-col"
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
@@ -165,7 +197,7 @@ export default function ExpiringDocumentsModal({
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <h2 className="text-lg font-semibold text-slate-800">임박 문서 현황</h2>
+              <h2 className="text-lg font-semibold text-slate-800">문서 현황</h2>
               <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded-full">
                 총 {estimates.length + orders.length}건
               </span>
@@ -178,69 +210,73 @@ export default function ExpiringDocumentsModal({
             </button>
           </div>
 
-          {/* Content - Split View */}
-          <div className="flex-1 overflow-hidden grid grid-cols-2 divide-x divide-slate-200">
-            {/* Left: Orders (매입) */}
+          {/* Content - 3 Column Split View */}
+          <div className="flex-1 overflow-hidden grid grid-cols-3 divide-x divide-slate-200">
+            {/* Left: 임박 (매출+매입) */}
             <div className="flex flex-col h-full">
-              <div className="flex items-center gap-2 px-4 py-3 bg-purple-50 border-b border-slate-200">
-                <TrendingDown className="h-4 w-4 text-purple-600" />
-                <h3 className="text-sm font-semibold text-purple-800">매입 (납기 임박)</h3>
-                <span className="px-1.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">
-                  {orders.length}
+              <div className="flex items-center gap-2 px-4 py-3 bg-amber-50 border-b border-slate-200">
+                <Clock className="h-4 w-4 text-amber-600" />
+                <h3 className="text-sm font-semibold text-amber-800">임박</h3>
+                <span className="px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded-full">
+                  {upcomingAll.length}
                 </span>
               </div>
-              <div className="flex-1 overflow-y-auto p-4">
+              <div className="flex-1 overflow-y-auto p-3">
                 {isLoading ? (
-                  <div className="space-y-2">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="animate-pulse flex items-center gap-3 p-3 rounded-lg border border-slate-200">
-                        <div className="h-6 w-12 bg-slate-200 rounded"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-slate-200 rounded w-24 mb-1"></div>
-                          <div className="h-3 bg-slate-200 rounded w-32"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <LoadingState />
                 ) : (
                   <DocumentList
-                    documents={orders}
-                    type="order"
+                    documents={upcomingAll}
+                    showTypeLabel={true}
                     onNavigate={navigateToDocument}
                     onOpenDocument={openDocument}
+                    emptyMessage="임박한 문서가 없습니다"
                   />
                 )}
               </div>
             </div>
 
-            {/* Right: Estimates (매출) */}
+            {/* Center: 만료 매출 (견적서) */}
             <div className="flex flex-col h-full">
               <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border-b border-slate-200">
                 <TrendingUp className="h-4 w-4 text-green-600" />
-                <h3 className="text-sm font-semibold text-green-800">매출 (유효기간 임박)</h3>
+                <h3 className="text-sm font-semibold text-green-800">만료 (매출)</h3>
                 <span className="px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-                  {estimates.length}
+                  {expiredEstimates.length}
                 </span>
               </div>
-              <div className="flex-1 overflow-y-auto p-4">
+              <div className="flex-1 overflow-y-auto p-3">
                 {isLoading ? (
-                  <div className="space-y-2">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="animate-pulse flex items-center gap-3 p-3 rounded-lg border border-slate-200">
-                        <div className="h-6 w-12 bg-slate-200 rounded"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-slate-200 rounded w-24 mb-1"></div>
-                          <div className="h-3 bg-slate-200 rounded w-32"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <LoadingState />
                 ) : (
                   <DocumentList
-                    documents={estimates}
-                    type="estimate"
+                    documents={expiredEstimates}
                     onNavigate={navigateToDocument}
                     onOpenDocument={openDocument}
+                    emptyMessage="만료된 견적서가 없습니다"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Right: 만료 매입 (발주서) */}
+            <div className="flex flex-col h-full">
+              <div className="flex items-center gap-2 px-4 py-3 bg-purple-50 border-b border-slate-200">
+                <TrendingDown className="h-4 w-4 text-purple-600" />
+                <h3 className="text-sm font-semibold text-purple-800">만료 (매입)</h3>
+                <span className="px-1.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">
+                  {expiredOrders.length}
+                </span>
+              </div>
+              <div className="flex-1 overflow-y-auto p-3">
+                {isLoading ? (
+                  <LoadingState />
+                ) : (
+                  <DocumentList
+                    documents={expiredOrders}
+                    onNavigate={navigateToDocument}
+                    onOpenDocument={openDocument}
+                    emptyMessage="만료된 발주서가 없습니다"
                   />
                 )}
               </div>
@@ -249,7 +285,7 @@ export default function ExpiringDocumentsModal({
 
           {/* Footer */}
           <div className="px-6 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 text-center">
-            클릭하면 해당 문서로 이동합니다 • 7일 이내 임박 문서만 표시됩니다
+            클릭하면 해당 문서로 이동합니다
           </div>
         </motion.div>
       </motion.div>

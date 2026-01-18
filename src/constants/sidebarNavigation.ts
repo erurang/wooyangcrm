@@ -112,9 +112,10 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     title: "문서 관리",
     icon: FileText,
     subItems: [
-      { id: "estimate", title: "견적서", path: "/documents/details?type=estimate&status=all" },
-      { id: "order", title: "발주서", path: "/documents/details?type=order&status=all" },
-      { id: "requestQuote", title: "의뢰서", path: "/documents/details?type=requestQuote&status=all" },
+      { id: "all", title: "전체 문서", path: "/documents/review" },
+      { id: "estimate", title: "견적서", path: "/documents/review?type=estimate" },
+      { id: "order", title: "발주서", path: "/documents/review?type=order" },
+      { id: "requestQuote", title: "의뢰서", path: "/documents/review?type=requestQuote" },
     ],
   },
   {
@@ -184,8 +185,7 @@ export const ADMIN_USERS_SIDEBAR_ITEM: SidebarMenuItem = {
   icon: UserCog,
   roles: ["admin"],
   subItems: [
-    { id: "users", title: "직원 관리", path: "/admin/manage/users" },
-    { id: "roles", title: "권한 관리", path: "/admin/manage/roles" },
+    { id: "roles", title: "직원/권한 관리", path: "/admin/manage/roles" },
     { id: "sessions", title: "접속 현황", path: "/admin/manage/sessions" },
   ],
 };
@@ -197,8 +197,6 @@ export const ADMIN_SYSTEM_SIDEBAR_ITEM: SidebarMenuItem = {
   icon: ServerCog,
   roles: ["admin"],
   subItems: [
-    { id: "dashboard", title: "관리자 대시보드", path: "/admin/dashboard" },
-    { id: "settings", title: "시스템 설정", path: "/admin/settings" },
     { id: "notifications", title: "알림 트리거", path: "/admin/notifications" },
     { id: "api-monitor", title: "API 모니터링", path: "/admin/api-monitor" },
   ],
@@ -226,7 +224,6 @@ export const ADMIN_DATA_SIDEBAR_ITEM: SidebarMenuItem = {
   subItems: [
     { id: "backup", title: "백업/복원", path: "/admin/backup" },
     { id: "statistics", title: "데이터 통계", path: "/admin/statistics" },
-    { id: "logs", title: "시스템 로그", path: "/admin/manage/logs" },
     { id: "audit", title: "감사 로그", path: "/admin/audit" },
   ],
 };

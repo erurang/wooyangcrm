@@ -113,7 +113,7 @@ export default function DocumentsDashboard() {
                       }`}
                       onClick={() =>
                         router.push(
-                          `/documents/details?type=${doc.type}&status=${key}`
+                          `/documents/review?type=${doc.type}&reviewStatus=${key === "expiring_soon" ? "expired" : key}`
                         )
                       }
                     >

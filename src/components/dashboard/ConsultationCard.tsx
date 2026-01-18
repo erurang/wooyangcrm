@@ -69,11 +69,7 @@ export function ConsultationCard({ consultation, highlightDocId }: ConsultationC
   const router = useRouter();
 
   const openDocument = (doc: DashboardDocument) => {
-    window.open(
-      `/documents/${doc.type}?consultId=${consultation.consultation_id}&compId=${consultation.company_id}&fullscreen=true`,
-      "_blank",
-      "width=1200,height=800,top=100,left=100"
-    );
+    router.push(`/documents/review?highlight=${doc.document_id}`);
   };
 
   return (

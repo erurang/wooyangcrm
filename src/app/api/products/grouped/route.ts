@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { logApiCall, getIpFromRequest, getUserAgentFromRequest } from "@/lib/apiLogger";
 
 interface DocumentItem {
   name: string;
@@ -59,7 +60,8 @@ interface GroupedProduct {
 }
 
 // GET 요청: /api/products/grouped
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   const { searchParams } = new URL(request.url);
 
   const searchCompany =
@@ -235,10 +237,10 @@ export async function GET(request: Request) {
       group.avgPrice = Math.round(totalPrice / group.recordCount);
       group.companyCount = group.priceByCompany.length;
 
-      // priceHistory 정렬 (최신순)
+      // priceHistory 정렬 (과거→최신, 차트 표시용)
       group.priceByCompany.forEach((c) => {
         c.priceHistory.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
         );
       });
 
@@ -260,6 +262,17 @@ export async function GET(request: Request) {
     const endIndex = startIndex + limit;
     const paginatedProducts = groupedProducts.slice(startIndex, endIndex);
 
+    // API 호출 로깅
+    logApiCall({
+      userId: userId || null,
+      endpoint: "/api/products/grouped",
+      method: "GET",
+      statusCode: 200,
+      responseTimeMs: Date.now() - startTime,
+      ipAddress: getIpFromRequest(request),
+      userAgent: getUserAgentFromRequest(request),
+    });
+
     return NextResponse.json(
       {
         products: paginatedProducts,
@@ -272,6 +285,19 @@ export async function GET(request: Request) {
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
+
+    // 에러 로깅
+    logApiCall({
+      userId: userId || null,
+      endpoint: "/api/products/grouped",
+      method: "GET",
+      statusCode: 500,
+      responseTimeMs: Date.now() - startTime,
+      ipAddress: getIpFromRequest(request),
+      userAgent: getUserAgentFromRequest(request),
+      errorMessage: message,
+    });
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

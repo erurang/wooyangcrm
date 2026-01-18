@@ -12,7 +12,9 @@ interface ExpiringDocumentsCardProps {
 }
 
 function getDaysLabel(days: number): { text: string; color: string; bgColor: string } {
-  if (days === 0) {
+  if (days < 0) {
+    return { text: `+${Math.abs(days)}일`, color: "text-gray-600", bgColor: "bg-gray-100" };
+  } else if (days === 0) {
     return { text: "D-Day", color: "text-red-700", bgColor: "bg-red-100" };
   } else if (days === 1) {
     return { text: "D-1", color: "text-red-600", bgColor: "bg-red-50" };
@@ -44,15 +46,13 @@ export default function ExpiringDocumentsCard({
     .slice(0, 5);
 
   const openDocument = (doc: ExpiringDocument) => {
-    window.open(
-      `/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&fullscreen=true`,
-      "_blank",
-      "width=1200,height=800,top=100,left=100"
-    );
+    // 문서 상세 보기 (모달로)
+    router.push(`/documents/review?highlight=${doc.id}`);
   };
 
   const goToDocumentsList = (doc: ExpiringDocument) => {
-    router.push(`/documents/details?type=${doc.type}&status=pending&highlight=${doc.id}`);
+    // 문서 상세 보기 (모달로)
+    router.push(`/documents/review?highlight=${doc.id}`);
   };
 
   if (isLoading) {

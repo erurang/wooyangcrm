@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Clock, CheckCircle, XCircle, AlertTriangle, FileText } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
 
@@ -87,6 +88,7 @@ export default function DocumentsTable({
   onCompanyClick,
   onStatusChange,
 }: DocumentsTableProps) {
+  const router = useRouter();
   const highlightRef = useRef<HTMLTableRowElement>(null);
 
   // 하이라이트된 문서로 스크롤
@@ -261,10 +263,19 @@ export default function DocumentsTable({
 
                   {/* 액션 */}
                   <td className="px-4 py-3 hidden md:table-cell">
-                    <div className="text-sm">
+                    <div className="text-sm flex items-center gap-1">
+                      {/* 수정 버튼 - 본인 문서만 */}
+                      {doc.user_id === loginUserId && (
+                        <button
+                          className="px-2 py-1 text-xs rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                          onClick={() => router.push(`/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&highlight=${doc.id}`)}
+                        >
+                          수정
+                        </button>
+                      )}
                       {doc.status === "pending" ? (
                         doc.user_id === loginUserId ? (
-                          <div className="flex space-x-1">
+                          <>
                             <button
                               className="px-2 py-1 text-xs rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
                               onClick={() => onStatusChange(doc, "completed")}
@@ -277,7 +288,7 @@ export default function DocumentsTable({
                             >
                               취소
                             </button>
-                          </div>
+                          </>
                         ) : (
                           <span className="text-xs text-slate-400">-</span>
                         )

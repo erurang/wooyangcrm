@@ -82,11 +82,7 @@ export default function RecentDocumentsCard({
   const router = useRouter();
 
   const openDocument = (doc: RecentDocument) => {
-    window.open(
-      `/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&fullscreen=true`,
-      "_blank",
-      "width=1200,height=800,top=100,left=100"
-    );
+    router.push(`/documents/review?highlight=${doc.id}`);
   };
 
   const formatAmount = (amount: number) => {
@@ -140,7 +136,7 @@ export default function RecentDocumentsCard({
           <h2 className="text-sm font-semibold text-slate-800">최근 문서</h2>
         </div>
         <button
-          onClick={() => router.push("/documents")}
+          onClick={() => router.push("/documents/review")}
           className="text-xs text-cyan-600 hover:text-cyan-800 font-medium flex items-center"
         >
           전체보기

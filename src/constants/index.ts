@@ -181,7 +181,7 @@ export const NAV_ROUTES = {
 
   // Documents
   DOCUMENTS: "/documents",
-  DOCUMENTS_DETAILS: "/documents/details",
+  DOCUMENTS_REVIEW: "/documents/review",
 
   // Management
   MANAGE_CUSTOMERS: "/manage/customers",
