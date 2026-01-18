@@ -10,11 +10,8 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useFollowUpList } from "@/hooks/consultations/follow/useFollowUpList";
 
 import { FollowSearchFilter, FollowTable } from "@/components/consultations/follow";
-import {
-  ConsultationTableControls,
-  ConsultationPagination,
-  ConsultationDocumentModal,
-} from "@/components/consultations/search";
+import { RecentTableControls, RecentDocumentModal } from "@/components/consultations/recent";
+import { ConsultationPagination } from "@/components/consultations/search";
 
 interface Document {
   id: string;
@@ -241,11 +238,12 @@ export default function FollowUpConsultations() {
         onReset={resetFilters}
       />
 
-      <ConsultationTableControls
+      <RecentTableControls
         isLoading={isConsultationsLoading}
+        currentPage={currentPage}
         totalPages={totalPages}
         perPage={consultationsPerPage}
-        onPerPageChange={(val) => {
+        onPerPageChange={(val: number) => {
           setConsultationsPerPage(val);
           setCurrentPage(1);
         }}
@@ -263,7 +261,7 @@ export default function FollowUpConsultations() {
         onPageChange={setCurrentPage}
       />
 
-      <ConsultationDocumentModal
+      <RecentDocumentModal
         isOpen={openModal}
         document={selectedDocument}
         onClose={() => {

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+
 interface RnDNotesModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,10 +17,13 @@ export default function RnDNotesModal({
   notes,
   onNotesChange,
 }: RnDNotesModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
       <div className="bg-white p-6 rounded-md w-1/3">
         <h2 className="text-xl font-bold mb-4">비고 추가/수정</h2>
         <textarea
@@ -34,7 +39,7 @@ export default function RnDNotesModal({
             취소
           </button>
           <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
             onClick={onSave}
           >
             저장

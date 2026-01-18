@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface Document {
   id: string;
@@ -24,6 +25,9 @@ export default function DocDeleteModal({
   onConfirm,
   onCancel,
 }: DocDeleteModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen && !!document, onCancel);
+
   if (!isOpen || !document) return null;
 
   return (
@@ -33,7 +37,7 @@ export default function DocDeleteModal({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1 }}
         transition={{ duration: 0.3 }}
-        className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50"
+        className="fixed inset-0 flex justify-center items-center bg-black/50 z-50"
       >
         <div className="bg-white p-6 rounded-md w-1/3">
           <h3 className="text-xl font-semibold mb-4">삭제 요청</h3>

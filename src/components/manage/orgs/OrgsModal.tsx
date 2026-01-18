@@ -2,6 +2,8 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { CircularProgress } from "@mui/material";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { formatPhoneNumber } from "@/lib/formatPhoneNumber";
 
 interface Contact {
   id?: string;
@@ -48,6 +50,9 @@ export default function OrgsModal({
   onContactChange,
   onRemoveContact,
 }: OrgsModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const title = mode === "add" ? "지원기관 추가" : "지원기관 수정";
@@ -55,7 +60,7 @@ export default function OrgsModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2"
+        className="fixed inset-0 flex justify-center items-center bg-black/50 z-50 px-2"
         initial={{ opacity: 0, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1 }}
@@ -103,8 +108,10 @@ export default function OrgsModal({
                 }}
                 value={orgData.phone || ""}
                 type="text"
-                onChange={(e) => onOrgDataChange({ phone: e.target.value })}
+                onChange={(e) => onOrgDataChange({ phone: formatPhoneNumber(e.target.value) })}
                 className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="02-1234-5678"
+                maxLength={13}
               />
             </div>
             <div className="mb-2">
@@ -116,8 +123,10 @@ export default function OrgsModal({
                 }}
                 type="text"
                 value={orgData.fax || ""}
-                onChange={(e) => onOrgDataChange({ fax: e.target.value })}
+                onChange={(e) => onOrgDataChange({ fax: formatPhoneNumber(e.target.value) })}
                 className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="02-1234-5678"
+                maxLength={13}
               />
             </div>
             <div className="mb-2">
@@ -159,10 +168,11 @@ export default function OrgsModal({
                   />
                   <motion.input
                     type="text"
-                    placeholder="휴대폰"
+                    placeholder="010-1234-5678"
                     value={contact.phone || ""}
-                    onChange={(e) => onContactChange(index, "phone", e.target.value)}
+                    onChange={(e) => onContactChange(index, "phone", formatPhoneNumber(e.target.value))}
                     className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                    maxLength={13}
                   />
                   <motion.input
                     type="text"
@@ -219,7 +229,7 @@ export default function OrgsModal({
             </button>
             <button
               onClick={onSave}
-              className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+              className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
                 isSaving ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={isSaving}

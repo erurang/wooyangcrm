@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Building2, MapPin, Phone, Printer, Truck, Mail } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface CompanyData {
   id: string;
@@ -29,6 +30,9 @@ export default function CompanyEditModal({
   onSave,
   saving,
 }: CompanyEditModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   const [formData, setFormData] = useState<CompanyData>({
     id: "",
     name: "",

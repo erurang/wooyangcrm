@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import type { PostWithAuthor } from "@/types/post";
 
 interface DeletePostModalProps {
@@ -20,6 +21,9 @@ export default function DeletePostModal({
   onConfirm,
 }: DeletePostModalProps) {
   const [reason, setReason] = useState("");
+
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen && !!post, onClose);
 
   if (!isOpen || !post) return null;
 

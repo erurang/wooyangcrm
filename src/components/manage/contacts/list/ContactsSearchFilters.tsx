@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Plus, Building, User, Mail, Phone } from "lucide-react";
+import { RefreshCw, Plus, Building, User, Mail, Phone } from "lucide-react";
 
 interface ContactsSearchFiltersProps {
   companyName: string;
@@ -27,116 +27,90 @@ export default function ContactsSearchFilters({
   onReset,
   onAddClick,
 }: ContactsSearchFiltersProps) {
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      // trigger search on enter
-    }
-  };
-
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
         {/* 거래처명 */}
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <Building className="w-3 h-3 mr-1 text-gray-400" />
             거래처명
           </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={companyName}
-              onChange={(e) => onCompanyNameChange(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder="거래처명 검색..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-            <Building
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-          </div>
+          <input
+            type="text"
+            value={companyName}
+            onChange={(e) => onCompanyNameChange(e.target.value)}
+            placeholder="거래처명"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
         </div>
 
         {/* 담당자명 */}
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <User className="w-3 h-3 mr-1 text-gray-400" />
             담당자명
           </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={contactName}
-              onChange={(e) => onContactNameChange(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder="담당자명 검색..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-            <User
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-          </div>
+          <input
+            type="text"
+            value={contactName}
+            onChange={(e) => onContactNameChange(e.target.value)}
+            placeholder="담당자명"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
         </div>
 
         {/* 이메일 */}
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <Mail className="w-3 h-3 mr-1 text-gray-400" />
             이메일
           </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={email}
-              onChange={(e) => onEmailChange(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder="이메일 검색..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-            <Mail
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-          </div>
+          <input
+            type="text"
+            value={email}
+            onChange={(e) => onEmailChange(e.target.value)}
+            placeholder="이메일"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
         </div>
 
         {/* 연락처 */}
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <Phone className="w-3 h-3 mr-1 text-gray-400" />
             연락처
           </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={mobile}
-              onChange={(e) => onMobileChange(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder="연락처 검색..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-            <Phone
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-          </div>
+          <input
+            type="text"
+            value={mobile}
+            onChange={(e) => onMobileChange(e.target.value)}
+            placeholder="연락처"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
         </div>
-      </div>
 
-      {/* 필터 액션 */}
-      <div className="flex justify-end mt-4 gap-4">
-        <button
-          onClick={onReset}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-        >
-          <X size={16} />
-          <span>필터 초기화</span>
-        </button>
-        <button
-          onClick={onAddClick}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          <Plus size={16} />
-          <span>담당자 추가</span>
-        </button>
+        {/* 필터 초기화 */}
+        <div>
+          <button
+            onClick={onReset}
+            className="w-full px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 rounded transition-colors flex items-center justify-center"
+          >
+            <RefreshCw className="w-3 h-3 mr-1" />
+            초기화
+          </button>
+        </div>
+
+        {/* 담당자 추가 */}
+        <div>
+          <button
+            onClick={onAddClick}
+            className="w-full px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors flex items-center justify-center"
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            담당자 추가
+          </button>
+        </div>
       </div>
     </div>
   );

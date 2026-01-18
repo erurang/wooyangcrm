@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Package,
-  Ruler,
-  DollarSign,
-  Users,
-  Filter,
-  ChevronDown,
-  Building,
-} from "lucide-react";
+import { Package, Ruler, DollarSign, Users, Filter, Building } from "lucide-react";
 
 interface User {
   id: string;
@@ -56,155 +48,117 @@ export default function ProductSearchFilter({
   const showUserFilter = userRole === "admin" || userRole === "managementSupport";
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-6">
-      <div className="space-y-4">
-        {/* 상단 필터 그룹: 거래처, 물품명, 규격 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {/* 거래처 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              거래처
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Building className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                value={searchCompany}
-                onChange={onSearchCompanyChange}
-                placeholder="거래처명"
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </div>
-          </div>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 items-end">
+        {/* 거래처 */}
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <Building className="w-3 h-3 mr-1 text-gray-400" />
+            거래처
+          </label>
+          <input
+            type="text"
+            value={searchCompany}
+            onChange={onSearchCompanyChange}
+            placeholder="거래처명"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
+        </div>
 
-          {/* 물품명 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              물품명
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Package className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                value={searchProduct}
-                onChange={onSearchProductChange}
-                placeholder="물품명"
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </div>
-          </div>
+        {/* 물품명 */}
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <Package className="w-3 h-3 mr-1 text-gray-400" />
+            물품명
+          </label>
+          <input
+            type="text"
+            value={searchProduct}
+            onChange={onSearchProductChange}
+            placeholder="물품명"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
+        </div>
 
-          {/* 규격 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              규격
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Ruler className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                value={searchSpec}
-                onChange={onSearchSpecChange}
-                placeholder="규격"
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </div>
+        {/* 규격 */}
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <Ruler className="w-3 h-3 mr-1 text-gray-400" />
+            규격
+          </label>
+          <input
+            type="text"
+            value={searchSpec}
+            onChange={onSearchSpecChange}
+            placeholder="규격"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
+        </div>
+
+        {/* 단가 범위 */}
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <DollarSign className="w-3 h-3 mr-1 text-gray-400" />
+            단가 범위
+          </label>
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              value={minPrice}
+              onChange={onMinPriceChange}
+              placeholder="최소"
+              className="flex-1 w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
+            <span className="text-gray-400 text-xs">~</span>
+            <input
+              type="number"
+              value={maxPrice}
+              onChange={onMaxPriceChange}
+              placeholder="최대"
+              className="flex-1 w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
           </div>
         </div>
 
-        {/* 하단 필터 그룹: 단가 범위, 상태, 상담자 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {/* 단가 범위 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              단가 범위
-            </label>
-            <div className="flex space-x-2">
-              <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <DollarSign className="h-4 w-4 text-gray-400" />
-                </div>
-                <input
-                  type="number"
-                  value={minPrice}
-                  onChange={onMinPriceChange}
-                  placeholder="최소"
-                  className="pl-10 pr-2 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-              <span className="self-center text-gray-500">~</span>
-              <div className="relative flex-1">
-                <input
-                  type="number"
-                  value={maxPrice}
-                  onChange={onMaxPriceChange}
-                  placeholder="최대"
-                  className="pl-3 pr-2 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 상태 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              상태
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Filter className="h-4 w-4 text-gray-400" />
-              </div>
-              <select
-                value={status}
-                onChange={onStatusChange}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
-              >
-                <option value="all">모든 상태</option>
-                <option value="pending">진행 중</option>
-                <option value="completed">완료됨</option>
-                <option value="canceled">취소됨</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <ChevronDown className="h-4 w-4 text-gray-400" />
-              </div>
-            </div>
-          </div>
-
-          {/* 상담자 (관리자 또는 관리지원 역할만 표시) */}
-          {showUserFilter && (
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                상담자
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Users className="h-4 w-4 text-gray-400" />
-                </div>
-                <select
-                  value={selectedUser?.id || ""}
-                  onChange={onUserChange}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
-                >
-                  <option value="">모든 상담자</option>
-                  {users.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name} {u.level}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
-                </div>
-              </div>
-            </div>
-          )}
+        {/* 상태 */}
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <Filter className="w-3 h-3 mr-1 text-gray-400" />
+            상태
+          </label>
+          <select
+            value={status}
+            onChange={onStatusChange}
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          >
+            <option value="all">모든 상태</option>
+            <option value="pending">진행 중</option>
+            <option value="completed">완료됨</option>
+            <option value="canceled">취소됨</option>
+          </select>
         </div>
+
+        {/* 상담자 (관리자 또는 관리지원 역할만 표시) */}
+        {showUserFilter && (
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-gray-600 flex items-center">
+              <Users className="w-3 h-3 mr-1 text-gray-400" />
+              상담자
+            </label>
+            <select
+              value={selectedUser?.id || ""}
+              onChange={onUserChange}
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            >
+              <option value="">전체</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name} {u.level}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
     </div>
   );

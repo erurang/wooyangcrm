@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Plus, Edit2, Trash2, FileText, Check, Search, User } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useNotesTemplates } from "@/hooks/documents/useNotesTemplates";
 
 interface Template {
@@ -28,6 +29,9 @@ export default function NotesTemplateModal({
   onSelect,
   userId,
 }: NotesTemplateModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   const { templates, isLoading, addTemplate, updateTemplate, deleteTemplate } =
     useNotesTemplates();
 

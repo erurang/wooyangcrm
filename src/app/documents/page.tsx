@@ -22,6 +22,15 @@ interface Document {
   valid_until?: string | null;
 }
 
+// 만료임박 여부 확인 (7일 이내)
+function isExpiringSoon(doc: Document): boolean {
+  if (doc.status !== "pending" || !doc.valid_until) return false;
+  const today = new Date();
+  const expiryDate = new Date(doc.valid_until);
+  const diffDays = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return diffDays >= 0 && diffDays <= 7;
+}
+
 interface DashboardData {
   documentDetails: Document[];
 }
@@ -66,6 +75,7 @@ export default function DocumentsDashboard() {
     return {
       type,
       pending: documents.filter((doc) => doc.status === "pending").length,
+      expiring_soon: documents.filter((doc) => isExpiringSoon(doc)).length,
       completed: documents.filter((doc) => doc.status === "completed").length,
       canceled: documents.filter((doc) => doc.status === "canceled").length,
       expired: documents.filter((doc) => doc.status === "expired").length,
@@ -85,24 +95,27 @@ export default function DocumentsDashboard() {
                 <h2 className="font-semibold mb-2">
                   {tabs.find((t) => t.type === doc.type)?.name} 상태 요약
                 </h2>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-5 gap-3">
                   {[
-                    { label: "진행 중", key: "pending" },
-                    { label: "완료됨", key: "completed" },
-                    { label: "취소됨", key: "canceled" },
-                    { label: "만료됨", key: "expired" },
-                  ].map(({ label, key }) => (
+                    { label: "진행 중", key: "pending", color: "bg-gray-100" },
+                    { label: "만료임박", key: "expiring_soon", color: "bg-orange-50" },
+                    { label: "완료됨", key: "completed", color: "bg-gray-100" },
+                    { label: "취소됨", key: "canceled", color: "bg-gray-100" },
+                    { label: "만료됨", key: "expired", color: "bg-gray-100" },
+                  ].map(({ label, key, color }) => (
                     <div
                       key={key}
-                      className="bg-gray-100 p-4 rounded-md text-center cursor-pointer hover:bg-gray-200"
+                      className={`${color} p-3 rounded-md text-center cursor-pointer hover:bg-gray-200 ${
+                        key === "expiring_soon" && doc.expiring_soon > 0 ? "ring-2 ring-orange-400" : ""
+                      }`}
                       onClick={() =>
                         router.push(
                           `/documents/details?type=${doc.type}&status=${key}`
                         )
                       }
                     >
-                      <p className="font-semibold text-gray-700">{label}</p>
-                      <h3 className="text-xl font-bold">
+                      <p className={`font-semibold text-xs ${key === "expiring_soon" ? "text-orange-700" : "text-gray-700"}`}>{label}</p>
+                      <h3 className={`text-lg font-bold ${key === "expiring_soon" && doc.expiring_soon > 0 ? "text-orange-600" : ""}`}>
                         {doc[key as keyof typeof doc]}
                       </h3>
                     </div>

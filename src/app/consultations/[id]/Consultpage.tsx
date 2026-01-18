@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { MessageSquare, Paperclip, FileText } from "lucide-react";
+import { MessageSquare, Paperclip, FileText, TrendingUp } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "@/components/Snackbar";
 
@@ -34,7 +34,7 @@ import {
   ContactsEditModal,
   CompanyEditModal,
 } from "@/components/consultations";
-import { CompanyFilesTab, CompanyPostsTab } from "@/components/consultations/tabs";
+import { CompanyFilesTab, CompanyPostsTab, CompanyPriceTab } from "@/components/consultations/tabs";
 import type {
   BaseConsultation,
   ConsultationContactRelation,
@@ -42,7 +42,7 @@ import type {
   ContactMethod,
 } from "@/types/consultation";
 
-type TabType = "consultations" | "files" | "posts";
+type TabType = "consultations" | "files" | "posts" | "price";
 
 interface Contact {
   id: string;
@@ -63,11 +63,19 @@ export default function ConsultationPage() {
   const loginUser = useLoginUser();
   const searchParams = useSearchParams();
 
-  // URL 파라미터 (highlight)
+  // URL 파라미터 (highlight, tab)
   const highlightId = searchParams.get("highlight");
+  const tabParam = searchParams.get("tab") as TabType | null;
 
   // 탭 상태
-  const [activeTab, setActiveTab] = useState<TabType>("consultations");
+  const [activeTab, setActiveTab] = useState<TabType>(tabParam || "consultations");
+
+  // URL의 tab 파라미터가 변경되면 탭 상태 업데이트
+  useEffect(() => {
+    if (tabParam && ["consultations", "files", "posts", "price"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   // 검색 및 페이지네이션
   const [searchTerm, setSearchTerm] = useState("");
@@ -368,6 +376,17 @@ export default function ConsultationPage() {
               상담
             </button>
             <button
+              onClick={() => setActiveTab("price")}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "price"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              <TrendingUp size={16} />
+              단가추이
+            </button>
+            <button
               onClick={() => setActiveTab("files")}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "files"
@@ -417,6 +436,10 @@ export default function ConsultationPage() {
 
         {activeTab === "posts" && companyDetail?.id && (
           <CompanyPostsTab companyId={companyDetail.id} />
+        )}
+
+        {activeTab === "price" && companyDetail?.id && (
+          <CompanyPriceTab companyId={companyDetail.id} />
         )}
       </div>
 

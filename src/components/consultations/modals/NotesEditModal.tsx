@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { X, FileText } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface NotesEditModalProps {
   isOpen: boolean;
@@ -20,6 +21,9 @@ export default function NotesEditModal({
   onSave,
   saving,
 }: NotesEditModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   return (
     <AnimatePresence>
       {isOpen && (

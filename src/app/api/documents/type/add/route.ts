@@ -59,6 +59,7 @@ export async function POST(request: Request) {
 
     const document_id = data.id;
 
+    // 담당자 연결
     if (contact_id) {
       await supabase.from("contacts_documents").insert({
         document_id,
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ document: data }, { status: 201 });
   } catch (error) {
+    console.error("Error adding document:", error);
     return NextResponse.json(
       { error: "문서 추가 중 오류 발생" },
       { status: 500 }

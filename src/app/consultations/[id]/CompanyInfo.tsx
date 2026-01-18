@@ -168,13 +168,13 @@ export default function CompanyInfo(id: any) {
           )}
         </div>
 
-        <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3">
+        <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 h-[11.25rem]">
           {companyLoading ? (
             <Skeleton variant="rectangular" width="100%" height="100%" />
           ) : (
             <>
               <h2 className="font-semibold text-md mb-1">비고</h2>
-              <div className="text-sm min-h-[80px] max-h-28 overflow-y-auto pl-1">
+              <div className="text-sm h-[9rem] overflow-y-auto pl-1">
                 <span>{companyMemo?.notes || "내용 없음"}</span>
               </div>
             </>

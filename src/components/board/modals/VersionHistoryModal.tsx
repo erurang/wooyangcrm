@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, History, User, ChevronRight, FileText } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import dayjs from "dayjs";
 import type { PostVersion } from "@/types/post";
 
@@ -20,6 +21,9 @@ export default function VersionHistoryModal({
 }: VersionHistoryModalProps) {
   const [versions, setVersions] = useState<PostVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<PostVersion | null>(null);
+
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 

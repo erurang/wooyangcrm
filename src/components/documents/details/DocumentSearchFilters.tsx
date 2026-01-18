@@ -111,6 +111,7 @@ export default function DocumentSearchFilters({
             >
               <option value="all">전체</option>
               <option value="pending">진행</option>
+              <option value="expiring_soon">만료임박 (7일 이내)</option>
               <option value="completed">완료</option>
               <option value="canceled">취소</option>
               <option value="expired">만료</option>

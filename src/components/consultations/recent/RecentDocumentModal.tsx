@@ -2,6 +2,7 @@
 
 import DocumentModal from "@/components/documents/preview/DocumentModal";
 import { numberToKorean } from "@/lib/numberToKorean";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface Document {
   id: string;
@@ -47,6 +48,9 @@ export default function RecentDocumentModal({
   document,
   onClose,
 }: RecentDocumentModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen && !!document, onClose);
+
   if (!isOpen || !document) return null;
 
   return (

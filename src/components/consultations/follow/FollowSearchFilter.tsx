@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, User, X, Building } from "lucide-react";
+import { Calendar, User, RefreshCw, Building } from "lucide-react";
 
 interface UserType {
   id: string;
@@ -34,98 +34,77 @@ export default function FollowSearchFilter({
   onReset,
 }: FollowSearchFilterProps) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end">
         {/* 거래처 */}
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <Building className="w-3 h-3 mr-1 text-gray-400" />
             거래처
           </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => onSearchTermChange(e.target.value)}
-              placeholder="거래처명 입력"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-            <Building
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-          </div>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => onSearchTermChange(e.target.value)}
+            placeholder="거래처명"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
         </div>
 
-        {/* 상담 기간 */}
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            상담 기간
+        {/* 후속상담 기간 */}
+        <div className="space-y-1 col-span-2 md:col-span-1 lg:col-span-2">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <Calendar className="w-3 h-3 mr-1 text-gray-400" />
+            후속상담 기간
           </label>
-          <div className="flex items-center space-x-2">
-            <div className="relative flex-1">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => onStartDateChange(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              <Calendar
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                size={18}
-              />
-            </div>
-            <span className="text-gray-500">~</span>
-            <div className="relative flex-1">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => onEndDateChange(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              <Calendar
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                size={18}
-              />
-            </div>
+          <div className="flex items-center gap-1">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => onStartDateChange(e.target.value)}
+              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
+            <span className="text-gray-400 text-sm">~</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => onEndDateChange(e.target.value)}
+              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
           </div>
         </div>
 
         {/* 상담자 */}
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-600 flex items-center">
+            <User className="w-3 h-3 mr-1 text-gray-400" />
             상담자
           </label>
-          <div className="relative">
-            <select
-              value={selectedUser?.id || ""}
-              onChange={(e) => {
-                const user = users.find((u) => u.id === e.target.value) || null;
-                onUserChange(user);
-              }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none"
-            >
-              <option value="">전체 상담자</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} {user.level}
-                </option>
-              ))}
-            </select>
-            <User
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-          </div>
+          <select
+            value={selectedUser?.id || ""}
+            onChange={(e) => {
+              const user = users.find((u) => u.id === e.target.value) || null;
+              onUserChange(user);
+            }}
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          >
+            <option value="">전체</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name} {user.level}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* 필터 액션 */}
-        <div className="flex items-end">
+        {/* 필터 초기화 */}
+        <div>
           <button
             onClick={onReset}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors w-full justify-center"
+            className="w-full px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 rounded transition-colors flex items-center justify-center"
           >
-            <X size={16} />
-            <span>필터 초기화</span>
+            <RefreshCw className="w-3 h-3 mr-1" />
+            초기화
           </button>
         </div>
       </div>

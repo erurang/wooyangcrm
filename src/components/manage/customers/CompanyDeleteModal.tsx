@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface CompanyDeleteModalProps {
   isOpen: boolean;
@@ -20,6 +21,9 @@ export default function CompanyDeleteModal({
   onClose,
   onConfirm,
 }: CompanyDeleteModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -35,7 +39,7 @@ export default function CompanyDeleteModal({
               className="fixed inset-0 transition-opacity"
               aria-hidden="true"
             >
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+              <div className="absolute inset-0 bg-black/50"></div>
             </div>
 
             <motion.div

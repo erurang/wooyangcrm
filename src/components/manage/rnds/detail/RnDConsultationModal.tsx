@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CircularProgress } from "@mui/material";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface ConsultationData {
   date: string;
@@ -49,12 +50,15 @@ export default function RnDConsultationModal({
   users,
   participationTypes,
 }: RnDConsultationModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const title = mode === "add" ? "R&D 내역 추가" : "R&D 내역 수정";
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
       <div className="bg-white p-6 rounded-md w-1/2">
         <h3 className="text-xl font-semibold mb-4">{title}</h3>
 
@@ -196,7 +200,7 @@ export default function RnDConsultationModal({
           </button>
           <button
             onClick={onSave}
-            className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+            className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
               isSaving ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={isSaving}

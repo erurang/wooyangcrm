@@ -7,6 +7,7 @@ import {
   CompanyBasicInfoForm,
   ContactsSection,
 } from "./form";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface Contact {
   contact_name: string;
@@ -66,6 +67,9 @@ export default function CompanyFormModal({
 }: CompanyFormModalProps) {
   const title = mode === "add" ? "거래처 추가" : "거래처 수정";
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
 
   // 폼 검증
   const validateForm = useCallback((): boolean => {
@@ -156,7 +160,7 @@ export default function CompanyFormModal({
               className="fixed inset-0 transition-opacity"
               aria-hidden="true"
             >
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+              <div className="absolute inset-0 bg-black/50"></div>
             </div>
 
             <motion.div

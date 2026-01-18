@@ -3,14 +3,16 @@
 import { useMemo, useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Filter } from "lucide-react";
+import { Filter, List, LayoutGrid } from "lucide-react";
 import { useProductsList } from "@/hooks/products/useProductsList";
+import { useProductsGrouped } from "@/hooks/products/useProductsGrouped";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUsersList } from "@/hooks/useUserList";
 import { useLoginUser } from "@/context/login";
 import {
   ProductSearchFilter,
   ProductTable,
+  ProductGroupedTable,
   ProductPagination,
   ProductDocumentModal,
 } from "@/components/products/unit";
@@ -26,6 +28,9 @@ export default function ProductPage() {
   const router = useRouter();
   const user = useLoginUser();
   const type = searchParams.get("type") as "estimate" | "order";
+
+  // 뷰 모드 상태 (list: 목록, grouped: 그룹핑) - 기본값: 그룹핑
+  const [viewMode, setViewMode] = useState<"list" | "grouped">("grouped");
 
   // 검색 필터 상태
   const [searchCompany, setSearchCompany] = useState("");
@@ -54,6 +59,8 @@ export default function ProductPage() {
 
   // SWR hooks
   const { users } = useUsersList();
+
+  // 목록 뷰 데이터
   const { products, total, isLoading } = useProductsList({
     type,
     userId:
@@ -70,7 +77,30 @@ export default function ProductPage() {
     limit: productsPerPage,
   });
 
-  const totalPages = Math.ceil(total / productsPerPage);
+  // 그룹핑 뷰 데이터
+  const {
+    products: groupedProducts,
+    total: groupedTotal,
+    isLoading: isGroupedLoading,
+  } = useProductsGrouped({
+    type,
+    userId:
+      user?.role === "admin" || user?.role === "managementSupport"
+        ? selectedUser?.id || ""
+        : (user?.id as string),
+    companyName: debounceSearchCompany,
+    searchProduct: debounceSearchProduct,
+    searchSpec: debounceSearchSpec,
+    minPrice: debounceMinPrice,
+    maxPrice: debounceMaxPrice,
+    status,
+    page: currentPage,
+    limit: 5,
+  });
+
+  const totalPages = viewMode === "list"
+    ? Math.ceil(total / productsPerPage)
+    : Math.ceil(groupedTotal / 5);
 
   // URL 파라미터 관리
   const updateUrlParams = (params: Record<string, string | null>) => {
@@ -264,9 +294,43 @@ export default function ProductPage() {
       {/* 테이블 컨트롤 */}
       <div className="flex justify-between items-center mb-4">
         <div className="text-sm text-gray-600">
-          총 <span className="font-semibold">{total}</span>개의 물품
+          총 <span className="font-semibold">{viewMode === "list" ? total : groupedTotal}</span>
+          {viewMode === "list" ? "개의 물품" : "개의 품목 그룹"}
         </div>
         <div className="flex items-center space-x-3">
+          {/* 뷰 모드 토글 */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => {
+                setViewMode("list");
+                setCurrentPage(1);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                viewMode === "list"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <List size={14} />
+              목록
+            </button>
+            <button
+              onClick={() => {
+                setViewMode("grouped");
+                setCurrentPage(1);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                viewMode === "grouped"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+              title="동일 품목별 단가 비교 및 추이 분석"
+            >
+              <LayoutGrid size={14} />
+              그룹핑
+            </button>
+          </div>
+
           <button
             onClick={resetFilters}
             className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm flex items-center transition-colors"
@@ -274,38 +338,65 @@ export default function ProductPage() {
             <Filter className="h-3.5 w-3.5 mr-1.5" />
             필터 초기화
           </button>
-          <div className="flex items-center">
-            <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
-            <select
-              value={productsPerPage}
-              onChange={handlePerPageChange}
-              className="border border-gray-300 p-1.5 rounded-md text-sm"
-            >
-              <option value="10">10개</option>
-              <option value="20">20개</option>
-              <option value="30">30개</option>
-              <option value="50">50개</option>
-            </select>
-          </div>
+          {viewMode === "list" && (
+            <div className="flex items-center">
+              <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+              <select
+                value={productsPerPage}
+                onChange={handlePerPageChange}
+                className="border border-gray-300 p-1.5 rounded-md text-sm"
+              >
+                <option value="10">10개</option>
+                <option value="20">20개</option>
+                <option value="30">30개</option>
+                <option value="50">50개</option>
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
-      <ProductTable
-        products={sortedProducts}
-        isLoading={isLoading}
-        type={type}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        onSort={handleSort}
-        onDocumentClick={setSelectedDocumentId}
-      />
+      {/* 목록 뷰 */}
+      {viewMode === "list" && (
+        <>
+          <ProductTable
+            products={sortedProducts}
+            isLoading={isLoading}
+            type={type}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+            onDocumentClick={setSelectedDocumentId}
+          />
 
-      {!isLoading && sortedProducts.length > 0 && (
-        <ProductPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+          {!isLoading && sortedProducts.length > 0 && (
+            <ProductPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
+      )}
+
+      {/* 그룹핑 뷰 */}
+      {viewMode === "grouped" && (
+        <>
+          <ProductGroupedTable
+            products={groupedProducts}
+            isLoading={isGroupedLoading}
+            type={type}
+            onDocumentClick={setSelectedDocumentId}
+          />
+
+          {!isGroupedLoading && groupedProducts.length > 0 && (
+            <ProductPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
       )}
 
       {/* 문서 상세 모달 */}

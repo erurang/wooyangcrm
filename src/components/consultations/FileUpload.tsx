@@ -61,10 +61,19 @@ export default function FileUpload({
 
   // 파일 목록 로드
   useEffect(() => {
-    loadFiles();
+    if (consultationId) {
+      loadFiles();
+    }
   }, [consultationId]);
 
   const loadFiles = async () => {
+    // consultationId가 없으면 API 호출하지 않음
+    if (!consultationId) {
+      setLoading(false);
+      setFiles([]);
+      return;
+    }
+
     setLoading(true);
 
     const { data, error } = await supabase

@@ -92,7 +92,6 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     title: "상담 관리",
     icon: MessageSquare,
     subItems: [
-      { id: "search", title: "상담내용 검색", path: "/consultations/search" },
       { id: "follow", title: "후속상담 검색", path: "/consultations/follow" },
     ],
   },

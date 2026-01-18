@@ -27,7 +27,19 @@ export async function GET(request: Request) {
       .range(start, end);
 
     // 🔹 상태 필터 추가 (✅ "all"이 아닐 때만 적용)
-    if (status !== "all") {
+    if (status === "expiring_soon") {
+      // 만료임박: 진행 중이면서 유효기간이 7일 이내인 문서
+      const today = new Date();
+      const sevenDaysLater = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const todayStr = today.toISOString().split("T")[0];
+      const sevenDaysLaterStr = sevenDaysLater.toISOString().split("T")[0];
+
+      query = query
+        .eq("status", "pending")
+        .not("valid_until", "is", null)
+        .gte("valid_until", todayStr)
+        .lte("valid_until", sevenDaysLaterStr);
+    } else if (status !== "all") {
       query = query.eq("status", status);
     }
 

@@ -2,6 +2,7 @@
 
 import { X, FileText, Building2, Calendar, Package } from "lucide-react";
 import type { InventoryTaskWithDetails, InventoryItem } from "@/types/inventory";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import dayjs from "dayjs";
 
 interface DocumentDetailModalProps {
@@ -15,6 +16,9 @@ export default function DocumentDetailModal({
   isOpen,
   onClose,
 }: DocumentDetailModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen && !!task, onClose);
+
   if (!isOpen || !task) return null;
 
   const items = (task.document?.content?.items || []) as InventoryItem[];

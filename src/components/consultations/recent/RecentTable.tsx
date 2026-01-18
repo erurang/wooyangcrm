@@ -26,12 +26,14 @@ interface RecentTableProps {
   consultations: Consultation[] | null;
   isLoading: boolean;
   onDocumentClick: (doc: Document) => void;
+  onAttachmentClick?: (consultationId: string, companyId: string) => void;
 }
 
 export default function RecentTable({
   consultations,
   isLoading,
   onDocumentClick,
+  onAttachmentClick,
 }: RecentTableProps) {
   const router = useRouter();
 
@@ -162,7 +164,17 @@ export default function RecentTable({
 
                   {/* 첨부파일 */}
                   {(consultation.file_count ?? 0) > 0 && (
-                    <div className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-md border border-gray-200 bg-white text-gray-600">
+                    <div
+                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-md border border-gray-200 bg-white text-gray-600 cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onAttachmentClick && consultation.companies?.id) {
+                          onAttachmentClick(consultation.id, consultation.companies.id);
+                        } else if (consultation.companies?.id) {
+                          router.push(`/consultations/${consultation.companies.id}?tab=files`);
+                        }
+                      }}
+                    >
                       <Paperclip size={14} />
                       첨부파일
                       <span className="ml-0.5 bg-gray-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">

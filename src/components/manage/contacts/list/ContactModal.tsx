@@ -6,6 +6,8 @@ import { CircularProgress } from "@mui/material";
 import { User, Building, Briefcase, Mail, Phone, Edit } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { formatPhoneNumber } from "@/lib/formatPhoneNumber";
 
 interface ContactData {
   contactName: string;
@@ -48,6 +50,9 @@ export default function ContactModal({
     return companies.filter((c: any) => c.name.includes(debouncedInputCompanyName));
   }, [debouncedInputCompanyName, companies]);
 
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   useEffect(() => {
     setIsDropdownOpen(filteredCompanies.length > 0 && mode === "add");
   }, [filteredCompanies, mode]);
@@ -85,7 +90,7 @@ export default function ContactModal({
       >
         <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
           <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-            <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            <div className="absolute inset-0 bg-black/50"></div>
           </div>
 
           <motion.div
@@ -250,10 +255,11 @@ export default function ContactModal({
                           type="text"
                           value={contactData.mobile}
                           onChange={(e) =>
-                            onContactDataChange({ mobile: e.target.value })
+                            onContactDataChange({ mobile: formatPhoneNumber(e.target.value) })
                           }
                           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="000-0000-0000"
+                          placeholder="010-1234-5678"
+                          maxLength={13}
                         />
                         <Phone
                           className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"

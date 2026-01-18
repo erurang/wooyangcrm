@@ -92,13 +92,21 @@ export async function GET(request: Request) {
     }
 
     // 데이터 변환 및 필터링
-    const filteredProducts = (data as DocumentRecord[]).flatMap((doc) =>
-      doc.content.items
+    const filteredProducts = (data as DocumentRecord[]).flatMap((doc) => {
+      // items가 없거나 배열이 아닌 경우 빈 배열 반환
+      if (!doc.content?.items || !Array.isArray(doc.content.items)) {
+        return [];
+      }
+
+      return doc.content.items
         .filter((item) => {
+          const itemName = item.name || "";
+          const itemSpec = item.spec || "";
+
           // 물품명 필터
           if (
             searchProduct &&
-            !item.name.toLowerCase().trim().includes(searchProduct)
+            !itemName.toLowerCase().trim().includes(searchProduct)
           ) {
             return false;
           }
@@ -106,7 +114,7 @@ export async function GET(request: Request) {
           // 규격 필터
           if (
             searchSpec &&
-            !item.spec.toLowerCase().trim().includes(searchSpec)
+            !itemSpec.toLowerCase().trim().includes(searchSpec)
           ) {
             return false;
           }
@@ -139,8 +147,8 @@ export async function GET(request: Request) {
             user_name: userData?.name || "",
             user_level: userData?.level || "",
           };
-        })
-    );
+        });
+    });
 
     // 날짜 최신순 정렬 (프론트엔드에서 정렬하지 않은 경우 기본값)
     filteredProducts.sort((a, b) =>

@@ -19,6 +19,7 @@ import {
   RnDsDeleteModal,
   RnDsPagination,
 } from "@/components/manage/rnds/list";
+import { formatNumber, parseFormattedNumber } from "@/lib/formatNumber";
 
 interface RnDs {
   id: string;
@@ -98,13 +99,8 @@ export default function Page() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isModalOpen]);
 
-  // Utility functions
-  const formatNumber = (value: string) => {
-    const cleanedValue = value.replace(/[^0-9]/g, "");
-    return cleanedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
-
-  const removeComma = (value: string) => value.replace(/,/g, "");
+  // Utility function for removing commas (parseFormattedNumber is used from lib)
+  const removeComma = (value: string) => parseFormattedNumber(value);
 
   // Search handlers
   const handleSearchChange = (value: string) => {

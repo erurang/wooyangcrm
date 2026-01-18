@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Plus, GripVertical, Users } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import {
   DndContext,
   closestCenter,
@@ -181,6 +182,9 @@ export default function ContactsEditModal({
   onSave,
   saving,
 }: ContactsEditModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {

@@ -40,6 +40,7 @@ interface DocumentPreviewProps {
   koreanAmount: (amount: number) => string;
   onClose: () => void;
   onPrint: () => void;
+  hideActions?: boolean;
 }
 
 const formatContentWithLineBreaks = (content: string) => {
@@ -275,6 +276,7 @@ export default function DocumentPreview({
   koreanAmount,
   onClose,
   onPrint,
+  hideActions = false,
 }: DocumentPreviewProps) {
   // 날짜가 없으면 현재 날짜 사용 (ISO timestamp에서 날짜 부분만 추출)
   const rawDate = document?.date || new Date().toISOString();
@@ -324,7 +326,7 @@ export default function DocumentPreview({
           notes={document.notes || ""}
         />
       </div>
-      <ActionButtons onClose={onClose} onPrint={onPrint} />
+      {!hideActions && <ActionButtons onClose={onClose} onPrint={onPrint} />}
     </>
   );
 
@@ -367,7 +369,7 @@ export default function DocumentPreview({
           notes={document.notes || ""}
         />
       </div>
-      <ActionButtons onClose={onClose} onPrint={onPrint} />
+      {!hideActions && <ActionButtons onClose={onClose} onPrint={onPrint} />}
     </>
   );
 
@@ -401,7 +403,7 @@ export default function DocumentPreview({
         <ItemsTable items={document.content?.items || []} showPrice={false} />
         <SummarySection notes={document.notes || ""} showTotal={false} />
       </div>
-      <ActionButtons onClose={onClose} onPrint={onPrint} />
+      {!hideActions && <ActionButtons onClose={onClose} onPrint={onPrint} />}
     </>
   );
 

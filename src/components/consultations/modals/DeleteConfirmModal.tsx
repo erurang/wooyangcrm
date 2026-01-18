@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CircularProgress } from "@mui/material";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -20,6 +21,9 @@ export default function DeleteConfirmModal({
   setDeleteReason,
   saving,
 }: DeleteConfirmModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   return (
     <AnimatePresence>
       {isOpen && (

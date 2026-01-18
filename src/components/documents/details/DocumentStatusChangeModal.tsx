@@ -1,7 +1,26 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Zap } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+
+// 자주 사용하는 사유 프리셋
+const QUICK_REASONS = {
+  completed: [
+    "발주처리",
+    "계약 완료",
+    "납품 완료",
+    "결제 완료",
+    "수주",
+  ],
+  canceled: [
+    "단가 조율 중",
+    "경쟁사 선정",
+    "프로젝트 취소",
+    "고객 사정",
+    "견적 재발행",
+  ],
+};
 
 interface StatusReason {
   canceled: { reason: string; amount: number };
@@ -38,6 +57,9 @@ export default function DocumentStatusChangeModal({
   onConfirm,
   onClose,
 }: DocumentStatusChangeModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen && !!document, onClose);
+
   if (!isOpen || !document) return null;
 
   const currentReason =
@@ -57,7 +79,7 @@ export default function DocumentStatusChangeModal({
           aria-hidden="true"
           onClick={onClose}
         >
-          <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+          <div className="absolute inset-0 bg-black/50"></div>
         </div>
 
         <div className="relative z-[1001] flex items-center justify-center min-h-screen p-4">
@@ -127,14 +149,46 @@ export default function DocumentStatusChangeModal({
                 >
                   {changedStatus === "completed" ? "완료 사유" : "취소 사유"}
                 </label>
+
+                {/* 빠른 선택 버튼 */}
+                <div className="mb-3">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Zap size={14} className="text-blue-500" />
+                    <span className="text-xs text-gray-500">빠른 선택</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {QUICK_REASONS[changedStatus as "canceled" | "completed"]?.map((reason) => (
+                      <button
+                        key={reason}
+                        type="button"
+                        className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                          currentReason === reason
+                            ? changedStatus === "completed"
+                              ? "bg-green-100 border-green-400 text-green-700"
+                              : "bg-red-100 border-red-400 text-red-700"
+                            : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
+                        }`}
+                        onClick={() =>
+                          onStatusReasonChange(
+                            changedStatus as "canceled" | "completed",
+                            reason
+                          )
+                        }
+                      >
+                        {reason}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <textarea
                   id="status-reason"
                   placeholder={
                     changedStatus === "completed"
-                      ? "발주처리, 계약 완료 등 완료 사유를 입력하세요"
-                      : "단가 문제, 프로젝트 취소 등 취소 사유를 입력하세요"
+                      ? "위 버튼을 클릭하거나 직접 입력하세요"
+                      : "위 버튼을 클릭하거나 직접 입력하세요"
                   }
-                  className="w-full min-h-[120px] p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full min-h-[80px] p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   value={currentReason}
                   onChange={(e) =>
                     onStatusReasonChange(

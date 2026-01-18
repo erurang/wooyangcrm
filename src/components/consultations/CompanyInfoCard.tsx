@@ -89,7 +89,9 @@ export default function CompanyInfoCard({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Building2 size={16} className="text-gray-400" />
-              <h3 className="text-sm font-semibold text-gray-700">거래처 정보</h3>
+              <h3 className="text-sm font-semibold text-gray-700">
+                거래처 정보
+              </h3>
             </div>
             {onEditCompany && (
               <button
@@ -107,7 +109,10 @@ export default function CompanyInfoCard({
               <MapPin size={14} className="text-gray-400 mt-0.5 shrink-0" />
               <div className="min-w-0">
                 <div className="text-xs text-gray-500">주소</div>
-                <div className="text-sm text-gray-900 truncate max-w-[11rem]" title={companyDetail?.address || ""}>
+                <div
+                  className="text-sm text-gray-900 truncate max-w-[11rem]"
+                  title={companyDetail?.address || ""}
+                >
                   {companyDetail?.address || "-"}
                 </div>
               </div>
@@ -117,7 +122,10 @@ export default function CompanyInfoCard({
               <Truck size={14} className="text-gray-400 mt-0.5 shrink-0" />
               <div className="min-w-0">
                 <div className="text-xs text-gray-500">배송</div>
-                <div className="text-sm text-gray-900 truncate max-w-[11rem]" title={companyDetail?.parcel || ""}>
+                <div
+                  className="text-sm text-gray-900 truncate max-w-[11rem]"
+                  title={companyDetail?.parcel || ""}
+                >
                   {companyDetail?.parcel || "-"}
                 </div>
               </div>
@@ -180,7 +188,7 @@ export default function CompanyInfoCard({
             </button>
           </div>
 
-          <div className="text-sm text-gray-700 max-h-20 overflow-y-auto leading-relaxed">
+          <div className="text-sm text-gray-700 h-[9rem] overflow-y-auto leading-relaxed">
             {companyDetail?.notes ? (
               formatContentWithLineBreaks(companyDetail.notes)
             ) : (
@@ -222,7 +230,9 @@ export default function CompanyInfoCard({
                   >
                     <div
                       className="min-w-0 cursor-pointer flex-1"
-                      onClick={() => router.push(`/manage/contacts/${contact.id}`)}
+                      onClick={() =>
+                        router.push(`/manage/contacts/${contact.id}`)
+                      }
                     >
                       <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 truncate">
                         {contact.contact_name}

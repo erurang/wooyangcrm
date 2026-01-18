@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { X, Paperclip, Upload, FileText, Loader2, Link2, Users } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import TiptapEditor from "@/components/board/TiptapEditor";
 import ReferenceSelector from "@/components/board/ReferenceSelector";
 import UserTagSelector from "@/components/board/UserTagSelector";
@@ -55,6 +56,9 @@ export default function PostFormModal({
 
   // 유저 태그 관련 상태
   const [userTags, setUserTags] = useState<CreateUserTagData[]>([]);
+
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
 
   // 모달이 열릴 때만 초기화 (categories 변경 시 리셋 방지)
   useEffect(() => {

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+
 interface Item {
   name: string;
   spec: string;
@@ -57,10 +59,13 @@ export default function EstimateModal({
   onUpload,
   isUploading,
 }: EstimateModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen && !!document, onClose);
+
   if (!isOpen || !document) return null;
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
       <div className="bg-white p-6 rounded-md w-2/3 max-w-6xl">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold">견적서 보기</h3>

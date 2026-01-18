@@ -14,11 +14,17 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from("documents")
       .select("*, companies(name, phone, fax)")
-      .eq("type", type)
-      .eq("status", status);
+      .eq("type", type);
+
+    // status가 "all"이 아니면 status 필터 적용
+    if (status !== "all") {
+      query = query.eq("status", status);
+    }
+
+    const { data, error } = await query.order("created_at", { ascending: false });
 
     if (error) {
       throw error;

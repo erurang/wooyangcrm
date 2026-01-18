@@ -291,7 +291,7 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                                 key={sub.id}
                                 href={sub.path}
                                 className={`
-                                  block px-2 py-1.5 text-sm rounded-md
+                                  flex items-center justify-between px-2 py-1.5 text-sm rounded-md
                                   transition-colors duration-150
                                   ${
                                     isActive
@@ -341,7 +341,7 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                             key={sub.id}
                             href={sub.path}
                             className={`
-                              block px-3 py-1.5 text-sm
+                              flex items-center justify-between px-3 py-1.5 text-sm
                               ${
                                 isActive
                                   ? "bg-indigo-50 text-indigo-700 font-medium"
@@ -349,7 +349,7 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                               }
                             `}
                           >
-                            {sub.title}
+                            <span>{sub.title}</span>
                           </Link>
                         );
                       })}

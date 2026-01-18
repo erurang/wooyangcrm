@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import { useLoginUser } from "@/context/login";
-import { useConsultationSearch } from "@/hooks/consultations/search/useConsultationSearch";
+import { useConsultationsList } from "@/hooks/consultations/recent/useConsultationsList";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export default function MyConsultationsPage() {
@@ -50,12 +50,13 @@ export default function MyConsultationsPage() {
   }, [urlPage, urlSearch, urlStartDate, urlEndDate]);
 
   // 상담 조회
-  const { consultations, totalPages, isLoading } = useConsultationSearch({
+  const { consultations, totalPages, isLoading } = useConsultationsList({
     page: currentPage,
     limit: itemsPerPage,
     selectedUser: user ? { id: user.id } : null,
     startDate,
     endDate,
+    companyIds: [],
     content: debouncedSearch,
   });
 

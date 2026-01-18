@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { CircularProgress } from "@mui/material";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface Brnds {
   id: string;
@@ -43,6 +44,9 @@ export default function BrndsModal({
   orgs,
   formatNumber,
 }: BrndsModalProps) {
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const title = mode === "add" ? "비R&D 사업 추가" : "비R&D 사업 수정";
@@ -58,7 +62,7 @@ export default function BrndsModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50 px-2"
+        className="fixed inset-0 flex justify-center items-center bg-black/50 z-50 px-2"
         initial={{ opacity: 0, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1 }}
@@ -184,7 +188,7 @@ export default function BrndsModal({
             </button>
             <button
               onClick={onSave}
-              className={`bg-blue-500 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+              className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
                 isSaving ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={isSaving}

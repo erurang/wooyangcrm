@@ -1,6 +1,8 @@
 // components/DocumentModal.tsx
 import React from "react";
+import { Printer } from "lucide-react";
 import { printDocument } from "@/utils/document-print-templates";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import DocumentPreview from "./DocumentPreview";
 
 // Flexible document interface for modal display
@@ -59,6 +61,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   koreanAmount,
   company_phone,
 }) => {
+  // ESC 키로 모달 닫기
+  useEscapeKey(!!document, onClose);
+
   if (!document) return null;
 
   const handlePrint = () => {
@@ -104,22 +109,55 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
       <div
         className={`
-        bg-white p-6 rounded-md max-h-screen overflow-y-scroll
-        w-full md:w-2/3 md:max-w-6xl
-      `}
+          bg-white rounded-lg shadow-xl max-h-[90vh] overflow-hidden flex flex-col
+          w-full md:w-11/12 lg:w-4/5 xl:w-3/4 md:max-w-7xl
+        `}
       >
-        <DocumentPreview
-          document={document}
-          type={type}
-          company_phone={company_phone}
-          company_fax={company_fax}
-          koreanAmount={koreanAmount}
-          onClose={onClose}
-          onPrint={handlePrint}
-        />
+        {/* 상단 액션 바 */}
+        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b">
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-900">
+              {document.document_number}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* 프린트 버튼 */}
+            <button
+              onClick={handlePrint}
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              <Printer size={16} />
+              프린트
+            </button>
+            {/* 닫기 버튼 */}
+            <button
+              onClick={onClose}
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+
+        {/* 메인 컨텐츠 영역 */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* 문서 프리뷰 */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <DocumentPreview
+              document={document}
+              type={type}
+              company_phone={company_phone}
+              company_fax={company_fax}
+              koreanAmount={koreanAmount}
+              onClose={onClose}
+              onPrint={handlePrint}
+              hideActions={true}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { X, AlertCircle } from "lucide-react";
 import { useState, useCallback } from "react";
 import type { ContactMethod } from "@/types/consultation";
 import { CONTACT_METHOD_LABELS } from "@/types/consultation";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface Contact {
   id: string;
@@ -73,6 +74,9 @@ export default function ConsultationFormModal({
   const isAddMode = mode === "add";
   const modalTitle = isAddMode ? "상담 내역 추가" : "상담 내역 수정";
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
 
   // 필드별 검증
   const validateField = useCallback((field: keyof FormErrors, value: string): string | undefined => {

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useUsersList } from "@/hooks/useUserList";
+import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "@/components/Snackbar";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
@@ -16,6 +17,7 @@ import {
   RecentDocumentModal,
 } from "@/components/consultations/recent";
 import { ConsultationPagination } from "@/components/consultations/search";
+import FileAttachmentModal from "@/components/consultations/modals/FileAttachmentModal";
 
 interface Document {
   id: string;
@@ -128,21 +130,25 @@ interface RecentConsultation {
   documents: RecentDocument[];
   contacts_consultations?: ContactConsultation[];
   payment_method?: string;
+  file_count?: number;
 }
 
 export default function RecentConsultationsList() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const loginUser = useLoginUser();
   const today = new Date().toISOString().split("T")[0];
 
   const initialPage = Number(searchParams.get("page") || "1");
   const initialSearchTerm = searchParams.get("search") || "";
+  const initialContentSearch = searchParams.get("content") || "";
   const initialStartDate = searchParams.get("startDate") || today;
   const initialEndDate = searchParams.get("endDate") || today;
   const initialUserId = searchParams.get("user") || "";
-  const initialPerPage = Number(searchParams.get("perPage") || "5");
+  const initialPerPage = Number(searchParams.get("perPage") || "10");
 
   const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
+  const [contentSearch, setContentSearch] = useState<string>(initialContentSearch);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [startDate, setStartDate] = useState<string>(initialStartDate);
   const [endDate, setEndDate] = useState<string>(initialEndDate);
@@ -153,16 +159,22 @@ export default function RecentConsultationsList() {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
 
+  // 첨부파일 모달 상태
+  const [attachmentModalOpen, setAttachmentModalOpen] = useState(false);
+  const [selectedConsultationId, setSelectedConsultationId] = useState<string>("");
+  const [selectedConsultationDate, setSelectedConsultationDate] = useState<string>("");
+
   const { users } = useUsersList();
 
   const updateUrl = () => {
     const params = new URLSearchParams();
     if (currentPage > 1) params.set("page", currentPage.toString());
     if (searchTerm) params.set("search", searchTerm);
+    if (contentSearch) params.set("content", contentSearch);
     if (startDate !== today) params.set("startDate", startDate);
     if (endDate !== today) params.set("endDate", endDate);
     if (selectedUser?.id) params.set("user", selectedUser.id);
-    if (consultationsPerPage !== 5) params.set("perPage", consultationsPerPage.toString());
+    if (consultationsPerPage !== 10) params.set("perPage", consultationsPerPage.toString());
 
     const newUrl = `/consultations/recent${params.toString() ? `?${params.toString()}` : ""}`;
     router.push(newUrl, { scroll: false });
@@ -170,7 +182,7 @@ export default function RecentConsultationsList() {
 
   useEffect(() => {
     updateUrl();
-  }, [currentPage, searchTerm, startDate, endDate, selectedUser, consultationsPerPage]);
+  }, [currentPage, searchTerm, contentSearch, startDate, endDate, selectedUser, consultationsPerPage]);
 
   useEffect(() => {
     if (initialUserId && users.length > 0) {
@@ -180,6 +192,7 @@ export default function RecentConsultationsList() {
   }, [initialUserId, users]);
 
   const debounceSearchTerm = useDebounce(searchTerm, 300);
+  const debounceContentSearch = useDebounce(contentSearch, 300);
   const { companies } = useCompanySearch(debounceSearchTerm);
 
   const companyIds = companies.map((company: Company) => company.id);
@@ -187,13 +200,14 @@ export default function RecentConsultationsList() {
   const debounceStartDate = useDebounce(startDate, 300);
   const debounceEndDate = useDebounce(endDate, 300);
 
-  const { consultations, totalPages, isLoading: isConsultationsLoading } = useConsultationsList({
+  const { consultations, totalPages, isLoading: isConsultationsLoading, mutate } = useConsultationsList({
     page: currentPage,
     limit: consultationsPerPage,
     selectedUser,
     startDate: debounceStartDate,
     endDate: debounceEndDate,
     companyIds: debounceCompanyIds,
+    content: debounceContentSearch,
   });
 
   const handleDocumentClick = (document: SimpleDocument) => {
@@ -232,12 +246,28 @@ export default function RecentConsultationsList() {
     };
 
     setSelectedDocument(baseDocument);
-
     setOpenModal(true);
+  };
+
+  // 첨부파일 클릭 핸들러
+  const handleAttachmentClick = (consultationId: string) => {
+    const consultation = (consultations as RecentConsultation[])?.find((c) => c.id === consultationId);
+    if (!consultation) return;
+
+    setSelectedConsultationId(consultationId);
+    setSelectedConsultationDate(consultation.date);
+    setAttachmentModalOpen(true);
+  };
+
+  // 파일 개수 변경 핸들러
+  const handleFileCountChange = () => {
+    // 데이터 새로고침
+    mutate();
   };
 
   const resetFilters = () => {
     setSearchTerm("");
+    setContentSearch("");
     setStartDate(today);
     setEndDate(today);
     setSelectedUser(null);
@@ -246,7 +276,10 @@ export default function RecentConsultationsList() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpenModal(false);
+      if (event.key === "Escape") {
+        setOpenModal(false);
+        setAttachmentModalOpen(false);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -258,6 +291,11 @@ export default function RecentConsultationsList() {
         searchTerm={searchTerm}
         onSearchTermChange={(val) => {
           setSearchTerm(val);
+          setCurrentPage(1);
+        }}
+        contentSearch={contentSearch}
+        onContentSearchChange={(val) => {
+          setContentSearch(val);
           setCurrentPage(1);
         }}
         startDate={startDate}
@@ -288,6 +326,7 @@ export default function RecentConsultationsList() {
         consultations={consultations}
         isLoading={isConsultationsLoading}
         onDocumentClick={handleDocumentClick}
+        onAttachmentClick={handleAttachmentClick}
       />
 
       <ConsultationPagination
@@ -305,6 +344,20 @@ export default function RecentConsultationsList() {
           setOpenModal(false);
           setSelectedDocument(null);
         }}
+      />
+
+      {/* 첨부파일 모달 */}
+      <FileAttachmentModal
+        isOpen={attachmentModalOpen}
+        onClose={() => {
+          setAttachmentModalOpen(false);
+          setSelectedConsultationId("");
+          setSelectedConsultationDate("");
+        }}
+        consultationId={selectedConsultationId}
+        userId={loginUser?.id || ""}
+        consultationDate={selectedConsultationDate}
+        onFileCountChange={handleFileCountChange}
       />
     </div>
   );

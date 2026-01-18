@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Eye, User } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import dayjs from "dayjs";
 import type { PostViewer } from "@/types/post";
 
@@ -18,6 +19,9 @@ export default function ViewersModal({
 }: ViewersModalProps) {
   const [viewers, setViewers] = useState<PostViewer[]>([]);
   const [total, setTotal] = useState(0);
+
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);

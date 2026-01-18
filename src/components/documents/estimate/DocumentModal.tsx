@@ -1,6 +1,7 @@
 // components/DocumentModal.tsx
 import Image from "next/image";
 import React from "react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface DocumentModalProps {
   document: any; // 문서 전체를 prop으로 받음
@@ -19,6 +20,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   koreanAmount,
   company_phone,
 }) => {
+  // ESC 키로 모달 닫기
+  useEscapeKey(true, onClose);
+
   console.log("document", document);
   const [year, month, day] = document?.date.split("-").map(Number);
 
@@ -964,7 +968,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
       <div
         className={`
         bg-white p-6 rounded-md max-h-screen overflow-y-scroll
