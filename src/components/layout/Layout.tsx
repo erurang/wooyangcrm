@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import MobileSidebar from "./MobileSidebar";
 import Breadcrumb from "./Breadcrumb";
+import AnnouncementModal from "@/components/announcements/AnnouncementModal";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -37,6 +38,9 @@ export default function Layout({ children }: LayoutProps) {
           {children}
         </div>
       </main>
+
+      {/* 공지사항 모달 (로그인 시 자동 표시) */}
+      <AnnouncementModal />
     </div>
   );
 }

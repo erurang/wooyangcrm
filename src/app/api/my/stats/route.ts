@@ -21,8 +21,7 @@ export async function GET(request: NextRequest) {
       supabase
         .from("consultations")
         .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .is("deleted_at", null),
+        .eq("user_id", userId),
       supabase
         .from("documents")
         .select("id", { count: "exact", head: true })

@@ -39,6 +39,21 @@ import {
   Globe,
   Ship,
   LucideIcon,
+  Shield,
+  Database,
+  Bell,
+  Activity,
+  FileBarChart,
+  Megaphone,
+  History,
+  KeyRound,
+  ServerCog,
+  HardDrive,
+  AlertTriangle,
+  Lock,
+  Eye,
+  UserCog,
+  Gauge,
 } from "lucide-react";
 
 export interface SidebarSubItem {
@@ -56,9 +71,10 @@ export interface SidebarMenuItem {
   roles?: string[]; // Required roles (empty = all users)
 }
 
-// Dashboard - 홈만 유지
+// Dashboard - 홈 + 성과지표
 export const DASHBOARD_SUB_ITEMS: SidebarSubItem[] = [
   { id: "home", title: "홈", path: "/dashboard" },
+  { id: "performance", title: "성과지표", path: "/reports/performance/__USER_ID__" },
 ];
 
 // Base menu items (available to all users)
@@ -161,15 +177,70 @@ export const MANAGEMENT_SIDEBAR_ITEM: SidebarMenuItem = {
   ],
 };
 
-// Admin role menu
-export const ADMIN_SIDEBAR_ITEM: SidebarMenuItem = {
-  id: "admin",
-  title: "관리자",
-  icon: Settings,
+// Admin role menu - 사용자 관리
+export const ADMIN_USERS_SIDEBAR_ITEM: SidebarMenuItem = {
+  id: "admin-users",
+  title: "사용자 관리",
+  icon: UserCog,
   roles: ["admin"],
   subItems: [
-    { id: "logs", title: "로그", path: "/admin/manage/logs" },
+    { id: "users", title: "직원 관리", path: "/admin/manage/users" },
+    { id: "roles", title: "권한 관리", path: "/admin/manage/roles" },
+    { id: "sessions", title: "접속 현황", path: "/admin/manage/sessions" },
+  ],
+};
+
+// Admin role menu - 시스템 관리
+export const ADMIN_SYSTEM_SIDEBAR_ITEM: SidebarMenuItem = {
+  id: "admin-system",
+  title: "시스템 관리",
+  icon: ServerCog,
+  roles: ["admin"],
+  subItems: [
+    { id: "dashboard", title: "관리자 대시보드", path: "/admin/dashboard" },
+    { id: "settings", title: "시스템 설정", path: "/admin/settings" },
+    { id: "notifications", title: "알림 트리거", path: "/admin/notifications" },
+    { id: "api-monitor", title: "API 모니터링", path: "/admin/api-monitor" },
+  ],
+};
+
+// Admin role menu - 콘텐츠 관리
+export const ADMIN_CONTENT_SIDEBAR_ITEM: SidebarMenuItem = {
+  id: "admin-content",
+  title: "콘텐츠 관리",
+  icon: Megaphone,
+  roles: ["admin"],
+  subItems: [
+    { id: "announcements", title: "공지사항 관리", path: "/admin/announcements" },
     { id: "deleteRequest", title: "삭제 요청", path: "/admin/delete_request" },
+    { id: "board-manage", title: "게시판 관리", path: "/admin/board" },
+  ],
+};
+
+// Admin role menu - 데이터 관리
+export const ADMIN_DATA_SIDEBAR_ITEM: SidebarMenuItem = {
+  id: "admin-data",
+  title: "데이터 관리",
+  icon: Database,
+  roles: ["admin"],
+  subItems: [
+    { id: "backup", title: "백업/복원", path: "/admin/backup" },
+    { id: "statistics", title: "데이터 통계", path: "/admin/statistics" },
+    { id: "logs", title: "시스템 로그", path: "/admin/manage/logs" },
+    { id: "audit", title: "감사 로그", path: "/admin/audit" },
+  ],
+};
+
+// Admin role menu - 보안 관리
+export const ADMIN_SECURITY_SIDEBAR_ITEM: SidebarMenuItem = {
+  id: "admin-security",
+  title: "보안 관리",
+  icon: Shield,
+  roles: ["admin"],
+  subItems: [
+    { id: "access-logs", title: "접속 이력", path: "/admin/security/access-logs" },
+    { id: "ip-block", title: "IP 차단", path: "/admin/security/ip-block" },
+    { id: "security-settings", title: "보안 설정", path: "/admin/security/settings" },
   ],
 };
 
@@ -178,10 +249,15 @@ export function buildSidebarMenu(
   userId: string | undefined,
   userRole: string | undefined
 ): SidebarMenuItem[] {
-  // Deep copy to prevent mutation
+  // Deep copy to prevent mutation and inject user ID
   const items: SidebarMenuItem[] = BASE_SIDEBAR_ITEMS.map((item) => ({
     ...item,
-    subItems: item.subItems ? [...item.subItems] : undefined,
+    subItems: item.subItems
+      ? item.subItems.map((sub) => ({
+          ...sub,
+          path: sub.path.replace("__USER_ID__", userId || ""),
+        }))
+      : undefined,
   }));
 
 
@@ -194,8 +270,13 @@ export function buildSidebarMenu(
     items.push({ ...MANAGEMENT_SIDEBAR_ITEM });
   }
 
+  // Admin role - 5개의 관리자 메뉴 카테고리
   if (userRole === "admin") {
-    items.push({ ...ADMIN_SIDEBAR_ITEM });
+    items.push({ ...ADMIN_USERS_SIDEBAR_ITEM });
+    items.push({ ...ADMIN_SYSTEM_SIDEBAR_ITEM });
+    items.push({ ...ADMIN_CONTENT_SIDEBAR_ITEM });
+    items.push({ ...ADMIN_DATA_SIDEBAR_ITEM });
+    items.push({ ...ADMIN_SECURITY_SIDEBAR_ITEM });
   }
 
   return items;

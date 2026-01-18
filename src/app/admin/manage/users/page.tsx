@@ -103,138 +103,148 @@ export default function UsersManagementPage() {
   };
 
   return (
-    <div className="text-sm text-[#37352F]">
-      <h1 className="mb-4 font-semibold">직원 관리</h1>
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
+      <div className="p-4">
+        <h1 className="text-lg font-bold text-slate-800 mb-4">직원 관리</h1>
 
-      {/* 테이블 */}
-      <div className="bg-[#FBFBFB] rounded-md border">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-center">
-              <th className="px-4 py-2 border-b border-r">이름</th>
-              <th className="px-4 py-2 border-b border-r">역할</th>
-              <th className="px-4 py-2 border-b border-r">레벨</th>
-              <th className="px-4 py-2 border-b border-r">부서</th>
-              <th className="px-4 py-2 border-b border-r">이메일</th>
-              <th className="px-4 py-2 border-b border-r">잠금</th>
-              <th className="px-4 py-2 border-b border-r">전화번호</th>
-              <th className="px-4 py-2 border-b">저장</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-100 text-center">
-                <td className="px-4 py-2 border-b border-r">{user.name}</td>
-                <td className="px-4 py-2 border-b border-r">
-                  <select
-                    value={editedUsers[user.id]?.role_id ?? user.role_id}
-                    onChange={(e) =>
-                      handleInputChange(
-                        user.id,
-                        "role_id",
-                        Number(e.target.value)
-                      )
-                    }
-                    className="p-1 border rounded-md"
-                  >
-                    {roles.map((role) => (
-                      <option key={role.id} value={role.id}>
-                        {role.role_name}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="px-4 py-2 border-b border-r">
-                  <input
-                    type="text"
-                    value={editedUsers[user.id]?.level ?? user.level}
-                    onChange={(e) =>
-                      handleInputChange(user.id, "level", e.target.value)
-                    }
-                    className="p-1 border rounded-md text-center"
-                  />
-                </td>
-                <td className="px-4 py-2 border-b border-r">
-                  <input
-                    type="text"
-                    value={editedUsers[user.id]?.position ?? user.position}
-                    onChange={(e) =>
-                      handleInputChange(user.id, "position", e.target.value)
-                    }
-                    className="p-1 border rounded-md text-center"
-                  />
-                </td>
-                <td className="px-4 py-2 border-b border-r">
-                  <input
-                    type="text"
-                    value={editedUsers[user.id]?.email ?? user.email}
-                    onChange={(e) =>
-                      handleInputChange(user.id, "email", e.target.value)
-                    }
-                    className="p-1 border rounded-md text-center"
-                  />
-                </td>
-                <td className="px-4 py-2 border-b border-r">
-                  <input
-                    type="checkbox"
-                    checked={editedUsers[user.id]?.is_locked ?? user.is_locked}
-                    onChange={(e) =>
-                      handleInputChange(user.id, "is_locked", e.target.checked)
-                    }
-                  />
-                </td>
-                <td className="px-4 py-2 border-b border-r">
-                  <input
-                    type="text"
-                    value={editedUsers[user.id]?.mobile ?? user.mobile}
-                    onChange={(e) =>
-                      handleInputChange(user.id, "mobile", e.target.value)
-                    }
-                    className="p-1 border rounded-md text-center"
-                  />
-                </td>
-                <td className="px-4 py-2 border-b">
-                  <motion.button
-                    onClick={() => handleSave(user.id)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    저장
-                  </motion.button>
-                </td>
+        {/* 테이블 */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr className="text-center">
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">이름</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">역할</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">레벨</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">부서</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">이메일</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">잠금</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">전화번호</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">저장</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {users.map((user) => (
+                <tr key={user.id} className="hover:bg-slate-50 text-center transition-colors">
+                  <td className="px-4 py-3 text-slate-700">{user.name}</td>
+                  <td className="px-4 py-3">
+                    <select
+                      value={editedUsers[user.id]?.role_id ?? user.role_id}
+                      onChange={(e) =>
+                        handleInputChange(
+                          user.id,
+                          "role_id",
+                          Number(e.target.value)
+                        )
+                      }
+                      className="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      {roles.map((role) => (
+                        <option key={role.id} value={role.id}>
+                          {role.role_name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="text"
+                      value={editedUsers[user.id]?.level ?? user.level}
+                      onChange={(e) =>
+                        handleInputChange(user.id, "level", e.target.value)
+                      }
+                      className="w-16 px-2 py-1 text-sm border border-slate-200 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="text"
+                      value={editedUsers[user.id]?.position ?? user.position}
+                      onChange={(e) =>
+                        handleInputChange(user.id, "position", e.target.value)
+                      }
+                      className="w-20 px-2 py-1 text-sm border border-slate-200 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="text"
+                      value={editedUsers[user.id]?.email ?? user.email}
+                      onChange={(e) =>
+                        handleInputChange(user.id, "email", e.target.value)
+                      }
+                      className="w-40 px-2 py-1 text-sm border border-slate-200 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={editedUsers[user.id]?.is_locked ?? user.is_locked}
+                      onChange={(e) =>
+                        handleInputChange(user.id, "is_locked", e.target.checked)
+                      }
+                      className="rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <input
+                      type="text"
+                      value={editedUsers[user.id]?.mobile ?? user.mobile}
+                      onChange={(e) =>
+                        handleInputChange(user.id, "mobile", e.target.value)
+                      }
+                      className="w-28 px-2 py-1 text-sm border border-slate-200 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <motion.button
+                      onClick={() => handleSave(user.id)}
+                      className="px-3 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors"
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      저장
+                    </motion.button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <div className="flex justify-center mt-4 space-x-2">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-        >
-          이전
-        </button>
-        {paginationNumbers().map((page, index) =>
-          typeof page === "number" ? (
+        {/* 페이지네이션 */}
+        <div className="flex justify-center mt-6">
+          <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
             <button
-              key={index}
-              onClick={() => setCurrentPage(page)}
-              className={`px-3 py-1 border rounded ${
-                currentPage === page
-                  ? "bg-blue-500 text-white font-bold"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                currentPage === 1
+                  ? "text-slate-300 cursor-not-allowed"
+                  : "text-slate-600 hover:bg-slate-100"
               }`}
             >
-              {page}
+              이전
             </button>
-          ) : (
-            <span key={index} className="px-2">
-              ...
-            </span>
-          )
-        )}
+            {paginationNumbers().map((page, index) =>
+              typeof page === "number" ? (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(page)}
+                  className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === page
+                      ? "bg-purple-600 text-white"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  {page}
+                </button>
+              ) : (
+                <span key={index} className="px-2 text-slate-400">
+                  ...
+                </span>
+              )
+            )}
+          </nav>
+        </div>
       </div>
     </div>
   );

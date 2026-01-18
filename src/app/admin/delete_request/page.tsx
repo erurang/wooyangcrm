@@ -204,116 +204,134 @@ export default function DeletionRequestsPage() {
   };
 
   return (
-    <div className="text-sm text-[#37352F]">
-      <h1 className="mb-4 font-semibold">삭제 요청 목록</h1>
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
+      <div className="p-4">
+        <h1 className="text-lg font-bold text-slate-800 mb-4">삭제 요청 목록</h1>
 
-      {/* 테이블 */}
-      <div className="bg-[#FBFBFB] rounded-md border">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-center">
-              <th className="px-4 py-2 border-b border-r">삭제요청일</th>
-              <th className="px-4 py-2 border-b border-r">삭제 요청자</th>
-              <th className="px-4 py-2 border-b border-r">타입</th>
-              <th className="px-4 py-2 border-b border-r">상세</th>
-              <th className="px-4 py-2 border-b border-r">삭제사유</th>
-              <th className="px-4 py-2 border-b border-r">승인</th>
-              <th className="px-4 py-2 border-b">거부</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.map((req) => {
-              const user = users[req.user_id] || {
-                name: "알 수 없음",
-                level: "Unknown",
-              };
+        {/* 테이블 */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr className="text-center">
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">삭제요청일</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">삭제 요청자</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">타입</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">상세</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">삭제사유</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500">관리</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {requests.map((req) => {
+                const user = users[req.user_id] || {
+                  name: "알 수 없음",
+                  level: "Unknown",
+                };
 
-              const type = Object.keys(req.content)[0];
-              const value = req.content[type];
+                const type = Object.keys(req.content)[0];
+                const value = req.content[type];
 
-              return (
-                <tr key={req.id} className="hover:bg-gray-100 text-center">
-                  <td className="px-4 py-2 border-b border-r">
-                    {new Date(req.request_date).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r">
-                    {user.name} {user.level}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r">
-                    {type === "companies"
-                      ? "거래처"
-                      : type === "contacts"
-                      ? "담당자"
-                      : type === "posts"
-                      ? "게시글"
-                      : "문서"}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r">{value}</td>
-                  <td className="px-4 py-2 border-b border-r">
-                    {req.delete_reason}
-                  </td>
-                  <td className="px-4 py-2 border-b border-r">
-                    <motion.button
-                      onClick={() => handleApprove(req)}
-                      className="px-4 py-2 text-blue-500"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      승인
-                    </motion.button>
-                  </td>
-                  <td className="px-4 py-2 border-b border-r">
-                    <motion.button
-                      onClick={() => handleReject(req.id)}
-                      className="px-4 py-2 text-red-500"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      거부
-                    </motion.button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                return (
+                  <tr key={req.id} className="hover:bg-slate-50 text-center transition-colors">
+                    <td className="px-4 py-3 text-slate-700">
+                      {new Date(req.request_date).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {user.name} {user.level}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        type === "companies" ? "bg-blue-100 text-blue-700" :
+                        type === "contacts" ? "bg-green-100 text-green-700" :
+                        type === "posts" ? "bg-amber-100 text-amber-700" :
+                        "bg-purple-100 text-purple-700"
+                      }`}>
+                        {type === "companies"
+                          ? "거래처"
+                          : type === "contacts"
+                          ? "담당자"
+                          : type === "posts"
+                          ? "게시글"
+                          : "문서"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-700 max-w-[200px] truncate" title={value}>{value}</td>
+                    <td className="px-4 py-3 text-slate-600 max-w-[200px] truncate" title={req.delete_reason}>
+                      {req.delete_reason}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center gap-1">
+                        <motion.button
+                          onClick={() => handleApprove(req)}
+                          className="px-3 py-1.5 text-sm text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          승인
+                        </motion.button>
+                        <motion.button
+                          onClick={() => handleReject(req.id)}
+                          className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          거부
+                        </motion.button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
-      {/* 페이지네이션 */}
-      <div className="flex justify-center mt-4 space-x-2">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-        >
-          이전
-        </button>
-        {paginationNumbers().map((page, index) =>
-          typeof page === "number" ? (
+        {/* 페이지네이션 */}
+        <div className="flex justify-center mt-6">
+          <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
             <button
-              key={index}
-              onClick={() => setCurrentPage(page)}
-              className={`px-3 py-1 border rounded ${
-                currentPage === page
-                  ? "bg-blue-500 text-white font-bold"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                currentPage === 1
+                  ? "text-slate-300 cursor-not-allowed"
+                  : "text-slate-600 hover:bg-slate-100"
               }`}
             >
-              {page}
+              이전
             </button>
-          ) : (
-            <span key={index} className="px-2">
-              ...
-            </span>
-          )
-        )}
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-          className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-        >
-          다음
-        </button>
+            {paginationNumbers().map((page, index) =>
+              typeof page === "number" ? (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(page)}
+                  className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === page
+                      ? "bg-purple-600 text-white"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  {page}
+                </button>
+              ) : (
+                <span key={index} className="px-2 text-slate-400">
+                  ...
+                </span>
+              )
+            )}
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                currentPage === totalPages
+                  ? "text-slate-300 cursor-not-allowed"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              다음
+            </button>
+          </nav>
+        </div>
       </div>
     </div>
   );

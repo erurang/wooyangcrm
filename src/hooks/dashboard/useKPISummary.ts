@@ -8,6 +8,8 @@ interface KPISummary {
   pendingDocuments: number;
   monthSales: number;
   previousMonthSales: number;
+  monthPurchases: number;
+  previousMonthPurchases: number;
   followUpNeeded: number;
   expiringDocuments: number;
 }
@@ -69,6 +71,34 @@ const fetchKPISummary = async (userId: string): Promise<KPISummary> => {
     return sum + (doc.content?.total_amount || 0);
   }, 0) || 0;
 
+  // 이번달 매입 (완료된 발주서)
+  const { data: monthPurchaseDocs } = await supabase
+    .from("documents")
+    .select("content")
+    .eq("user_id", userId)
+    .eq("type", "order")
+    .eq("status", "completed")
+    .gte("created_at", monthStart.toISOString())
+    .lte("created_at", monthEnd.toISOString());
+
+  const monthPurchases = monthPurchaseDocs?.reduce((sum, doc) => {
+    return sum + (doc.content?.total_amount || 0);
+  }, 0) || 0;
+
+  // 전월 매입 (완료된 발주서)
+  const { data: prevMonthPurchaseDocs } = await supabase
+    .from("documents")
+    .select("content")
+    .eq("user_id", userId)
+    .eq("type", "order")
+    .eq("status", "completed")
+    .gte("created_at", prevMonthStart.toISOString())
+    .lte("created_at", prevMonthEnd.toISOString());
+
+  const previousMonthPurchases = prevMonthPurchaseDocs?.reduce((sum, doc) => {
+    return sum + (doc.content?.total_amount || 0);
+  }, 0) || 0;
+
   // 팔로우업 필요 상담 수
   const { count: followUpNeeded } = await supabase
     .from("consultations")
@@ -95,6 +125,8 @@ const fetchKPISummary = async (userId: string): Promise<KPISummary> => {
     pendingDocuments: pendingDocuments || 0,
     monthSales,
     previousMonthSales,
+    monthPurchases,
+    previousMonthPurchases,
     followUpNeeded: followUpNeeded || 0,
     expiringDocuments,
   };
@@ -116,6 +148,8 @@ export function useKPISummary(userId: string | undefined) {
       pendingDocuments: 0,
       monthSales: 0,
       previousMonthSales: 0,
+      monthPurchases: 0,
+      previousMonthPurchases: 0,
       followUpNeeded: 0,
       expiringDocuments: 0,
     },

@@ -15,6 +15,7 @@ export const useDocumentsStatusList = ({
   limit,
   companyIds = [], // ✅ 기본값 설정 (빈 배열 허용)
   notes,
+  documentId = null, // ✅ 특정 문서 ID로 검색 (highlight용)
 }: {
   userId?: string | null;
   type: string;
@@ -24,6 +25,7 @@ export const useDocumentsStatusList = ({
   docNumber: string;
   companyIds?: string[];
   notes?: string;
+  documentId?: string | null;
 }) => {
   // ✅ URL 동적 생성
   const queryParams = new URLSearchParams({
@@ -32,17 +34,22 @@ export const useDocumentsStatusList = ({
     limit: limit.toString(),
   });
 
-  // ✅ userId가 있을 때만 추가 (없으면 전체 조회)
-  if (userId) queryParams.append("userId", userId);
+  // ✅ 특정 문서 ID로 검색 (다른 필터 무시)
+  if (documentId) {
+    queryParams.set("documentId", documentId);
+  } else {
+    // ✅ userId가 있을 때만 추가 (없으면 전체 조회)
+    if (userId) queryParams.append("userId", userId);
 
-  if (docNumber) queryParams.append("docNumber", docNumber);
-  if (status !== "all") {
-    queryParams.append("status", status);
+    if (docNumber) queryParams.append("docNumber", docNumber);
+    if (status !== "all") {
+      queryParams.append("status", status);
+    }
+    if (notes) queryParams.append("notes", notes);
+
+    // ✅ companyIds가 있을 때만 추가
+    companyIds.forEach((id) => queryParams.append("companyIds", id));
   }
-  if (notes) queryParams.append("notes", notes);
-
-  // ✅ companyIds가 있을 때만 추가
-  companyIds.forEach((id) => queryParams.append("companyIds", id));
 
   // ✅ userId 없어도 요청 가능
   const key = `/api/documents/status/list?${queryParams.toString()}`;

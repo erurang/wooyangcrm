@@ -5,6 +5,8 @@ interface Todo {
   id: string;
   content: string;
   is_completed: boolean;
+  due_date: string | null;
+  start_date: string | null;
   sort_order: number;
 }
 
@@ -36,12 +38,12 @@ export function useTodos(userId: string) {
     if (res.ok) mutate(`/api/dashboard/todos?userId=${userId}`);
   };
 
-  // ✅ 할 일 수정 (자동 저장)
-  const updateTodo = async (id: string, newContent: string) => {
+  // ✅ 할 일 수정 (자동 저장) - 기한 업데이트 포함
+  const updateTodo = async (id: string, newContent: string, dueDate?: string | null) => {
     await fetch("/api/dashboard/todos", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, content: newContent }),
+      body: JSON.stringify({ id, content: newContent, due_date: dueDate }),
     });
 
     mutate(`/api/dashboard/todos?userId=${userId}`);

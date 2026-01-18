@@ -158,126 +158,148 @@ const LogsPage = () => {
   };
 
   return (
-    <div className="p-4 text-sm text-[#37352F]">
-      <h2 className="text-lg font-semibold mb-4">
-        로그 내역 (총 {totalLogs}개)
-      </h2>
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
+      <div className="p-4">
+        <h2 className="text-lg font-bold text-slate-800 mb-4">
+          로그 내역 (총 <span className="text-purple-600">{totalLogs}</span>개)
+        </h2>
 
-      {/* 필터링 UI */}
-      <div className="grid grid-cols-4 gap-4 mb-4">
-        <select
-          className="p-2 border rounded-md"
-          value={selectedUser}
-          onChange={(e) => setSelectedUser(e.target.value)}
-        >
-          <option value="">전체 사용자</option>
-          {users.map((user: any) => (
-            <option key={user.id} value={user.id}>
-              {user.name}
-            </option>
-          ))}
-        </select>
-        <select
-          className="p-2 border rounded-md"
-          value={selectedTable}
-          onChange={(e) => setSelectedTable(e.target.value)}
-        >
-          <option value="">전체 테이블</option>
-          <option value="documents">Documents</option>
-          <option value="consultations">Consultations</option>
-          <option value="posts">Posts (게시판)</option>
-          <option value="post_comments">Post Comments (댓글)</option>
-        </select>
-        <select
-          className="p-2 border rounded-md"
-          value={selectedOperation}
-          onChange={(e) => setSelectedOperation(e.target.value)}
-        >
-          <option value="">전체 작업</option>
-          <option value="INSERT">INSERT</option>
-          <option value="UPDATE">UPDATE</option>
-          <option value="DELETE">DELETE</option>
-        </select>
-      </div>
-
-      {/* 로그 테이블 */}
-      <table className="min-w-full border border-gray-300 text-center">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2 w-2/12">테이블</th>
-            <th className="border p-2 w-1/12">작업</th>
-            <th className="border p-2 w-1/12">변경자</th>
-            <th className="border p-2 w-2/12">변경 시간</th>
-            <th className="border p-2 w-3/12">내용</th>
-          </tr>
-        </thead>
-        <tbody>
-          {logs.map((log) => {
-            const changes =
-              log.operation === "UPDATE"
-                ? getChanges(log.old_data, log.new_data)
-                : null;
-
-            return (
-              <tr key={log.id} className="border">
-                <td className="border p-2">{log.table_name}</td>
-                <td className="border p-2">{log.operation}</td>
-                <td className="border p-2">{getUserName(log)}</td>
-                <td className="border p-2">{formatDate(log.changed_at)}</td>
-                <td className="border p-2 text-left text-xs">
-                  {changes ? (
-                    changes.map((change, index) => (
-                      <div key={index} className="mb-2">
-                        <span className="font-bold">{change.field}:</span>{" "}
-                        <div className="inline">
-                          {highlightDiff(change.oldValue, change.newValue)}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="whitespace-pre-wrap">
-                      {JSON.stringify(log.new_data || log.old_data, null, 2)}
-                    </div>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <div className="flex justify-center mt-4 overflow-x-auto space-x-1 md:space-x-2">
-        <div className="flex justify-center mt-4 space-x-2">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+        {/* 필터링 UI */}
+        <div className="flex flex-wrap gap-3 mb-4">
+          <select
+            className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+            value={selectedUser}
+            onChange={(e) => setSelectedUser(e.target.value)}
           >
-            이전
-          </button>
+            <option value="">전체 사용자</option>
+            {users.map((user: any) => (
+              <option key={user.id} value={user.id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+          <select
+            className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+            value={selectedTable}
+            onChange={(e) => setSelectedTable(e.target.value)}
+          >
+            <option value="">전체 테이블</option>
+            <option value="documents">Documents</option>
+            <option value="consultations">Consultations</option>
+            <option value="posts">Posts (게시판)</option>
+            <option value="post_comments">Post Comments (댓글)</option>
+          </select>
+          <select
+            className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+            value={selectedOperation}
+            onChange={(e) => setSelectedOperation(e.target.value)}
+          >
+            <option value="">전체 작업</option>
+            <option value="INSERT">INSERT</option>
+            <option value="UPDATE">UPDATE</option>
+            <option value="DELETE">DELETE</option>
+          </select>
+        </div>
 
-          {paginationNumbers().map((page, index) => (
+        {/* 로그 테이블 */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <table className="w-full text-center">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500 w-2/12">테이블</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500 w-1/12">작업</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500 w-1/12">변경자</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500 w-2/12">변경 시간</th>
+                <th className="px-4 py-3 text-xs font-medium text-slate-500 w-3/12 text-left">내용</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {logs.map((log) => {
+                const changes =
+                  log.operation === "UPDATE"
+                    ? getChanges(log.old_data, log.new_data)
+                    : null;
+
+                return (
+                  <tr key={log.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-4 py-3 text-slate-700">{log.table_name}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        log.operation === "INSERT" ? "bg-green-100 text-green-700" :
+                        log.operation === "UPDATE" ? "bg-blue-100 text-blue-700" :
+                        "bg-red-100 text-red-700"
+                      }`}>
+                        {log.operation}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">{getUserName(log)}</td>
+                    <td className="px-4 py-3 text-slate-500">{formatDate(log.changed_at)}</td>
+                    <td className="px-4 py-3 text-left text-xs">
+                      {changes ? (
+                        changes.map((change, index) => (
+                          <div key={index} className="mb-2">
+                            <span className="font-semibold text-slate-700">{change.field}:</span>{" "}
+                            <div className="inline">
+                              {highlightDiff(change.oldValue, change.newValue)}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="whitespace-pre-wrap text-slate-600">
+                          {JSON.stringify(log.new_data || log.old_data, null, 2)}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 페이지네이션 */}
+        <div className="flex justify-center mt-6">
+          <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
             <button
-              key={index}
-              onClick={() => setCurrentPage(Number(page))}
-              className={`px-3 py-1 border rounded ${
-                currentPage === page
-                  ? "bg-blue-500 text-white font-bold"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                currentPage === 1
+                  ? "text-slate-300 cursor-not-allowed"
+                  : "text-slate-600 hover:bg-slate-100"
               }`}
             >
-              {page}
+              이전
             </button>
-          ))}
 
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-          >
-            다음
-          </button>
+            {paginationNumbers().map((page, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(Number(page))}
+                className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
+                  currentPage === page
+                    ? "bg-purple-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                currentPage === totalPages
+                  ? "text-slate-300 cursor-not-allowed"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              다음
+            </button>
+          </nav>
         </div>
       </div>
     </div>

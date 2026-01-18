@@ -270,19 +270,28 @@ export default function BoardPage() {
   const showDashboard = !selectedCategoryId && !searchTerm;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-sm text-[#37352F]">
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
       {/* 헤더 */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-semibold">{currentCategoryName}</h1>
-        {!showDashboard && (
-          <button
-            onClick={() => handleNewPost()}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            글쓰기
-          </button>
-        )}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-50 rounded-lg">
+                <Plus className="h-5 w-5 text-amber-600" />
+              </div>
+              <h1 className="text-lg font-bold text-slate-800">{currentCategoryName}</h1>
+            </div>
+            {!showDashboard && (
+              <button
+                onClick={() => handleNewPost()}
+                className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                글쓰기
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {showDashboard ? (
@@ -302,19 +311,19 @@ export default function BoardPage() {
           />
 
           {/* 테이블 컨트롤 */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-sm text-gray-600">
-              총 <span className="font-semibold">{total}</span>개의 게시글
+          <div className="flex justify-between items-center px-4 py-3">
+            <div className="text-sm text-slate-500">
+              총 <span className="font-semibold text-amber-600">{total}</span>개 게시글
             </div>
-            <div className="flex items-center">
-              <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-500">표시:</span>
               <select
                 value={postsPerPage}
                 onChange={(e) => {
                   setPostsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border border-gray-300 p-1.5 rounded-md text-sm"
+                className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
               >
                 <option value="10">10개</option>
                 <option value="20">20개</option>

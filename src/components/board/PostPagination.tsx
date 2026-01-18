@@ -48,42 +48,52 @@ export default function PostPagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex justify-center items-center gap-1 mt-6">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
+    <div className="flex justify-center px-4 pb-4">
+      <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`p-2 rounded-lg transition-colors ${
+            currentPage === 1
+              ? "text-slate-300 cursor-not-allowed"
+              : "text-slate-600 hover:bg-slate-100"
+          }`}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
 
-      {getPageNumbers().map((page, index) =>
-        typeof page === "string" ? (
-          <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-400">
-            {page}
-          </span>
-        ) : (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              currentPage === page
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-100 text-gray-700"
-            }`}
-          >
-            {page}
-          </button>
-        )
-      )}
+        {getPageNumbers().map((page, index) =>
+          typeof page === "string" ? (
+            <span key={`ellipsis-${index}`} className="px-3 py-2 text-slate-400">
+              {page}
+            </span>
+          ) : (
+            <button
+              key={page}
+              onClick={() => onPageChange(page)}
+              className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === page
+                  ? "bg-amber-600 text-white"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              {page}
+            </button>
+          )
+        )}
 
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`p-2 rounded-lg transition-colors ${
+            currentPage === totalPages
+              ? "text-slate-300 cursor-not-allowed"
+              : "text-slate-600 hover:bg-slate-100"
+          }`}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </nav>
     </div>
   );
 }

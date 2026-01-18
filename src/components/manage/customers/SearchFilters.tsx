@@ -1,12 +1,13 @@
 "use client";
 
 import type React from "react";
-import { Plus, RefreshCw, Building, MapPin, User } from "lucide-react";
+import { Plus, RotateCcw, Building2, MapPin, User, Search } from "lucide-react";
 
 interface SearchFiltersProps {
   searchTerm: string;
   addressTerm: string;
   contactTerm: string;
+  total?: number;
   onSearchChange: (value: string) => void;
   onAddressChange: (value: string) => void;
   onContactChange: (value: string) => void;
@@ -19,6 +20,7 @@ export default function SearchFilters({
   searchTerm,
   addressTerm,
   contactTerm,
+  total = 0,
   onSearchChange,
   onAddressChange,
   onContactChange,
@@ -26,77 +28,84 @@ export default function SearchFilters({
   onAddCompany,
   onKeyPress,
 }: SearchFiltersProps) {
+  const hasFilters = searchTerm || addressTerm || contactTerm;
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end">
-        {/* 거래처명 */}
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Building className="w-3 h-3 mr-1 text-gray-400" />
-            거래처명
-          </label>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            onKeyDown={onKeyPress}
-            placeholder="거래처명"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          />
-        </div>
-
-        {/* 주소 */}
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <MapPin className="w-3 h-3 mr-1 text-gray-400" />
-            주소
-          </label>
-          <input
-            type="text"
-            value={addressTerm}
-            onChange={(e) => onAddressChange(e.target.value)}
-            onKeyDown={onKeyPress}
-            placeholder="주소"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          />
-        </div>
-
-        {/* 담당자 */}
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <User className="w-3 h-3 mr-1 text-gray-400" />
-            담당자
-          </label>
-          <input
-            type="text"
-            value={contactTerm}
-            onChange={(e) => onContactChange(e.target.value)}
-            onKeyPress={onKeyPress}
-            placeholder="담당자"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          />
-        </div>
-
-        {/* 필터 초기화 */}
-        <div>
-          <button
-            onClick={onResetFilters}
-            className="w-full px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 rounded transition-colors flex items-center justify-center"
-          >
-            <RefreshCw className="w-3 h-3 mr-1" />
-            초기화
-          </button>
-        </div>
-
-        {/* 거래처 추가 */}
-        <div>
+    <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <div className="px-4 py-3">
+        {/* 상단 타이틀 및 추가 버튼 */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <Building2 className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-slate-800">거래처 관리</h1>
+              <p className="text-xs text-slate-500">
+                총 <span className="font-semibold text-blue-600">{total.toLocaleString()}</span>개 거래처
+              </p>
+            </div>
+          </div>
           <button
             onClick={onAddCompany}
-            className="w-full px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors flex items-center justify-center"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm"
           >
-            <Plus className="w-3 h-3 mr-1" />
+            <Plus className="w-4 h-4" />
             거래처 추가
           </button>
+        </div>
+
+        {/* 검색 필터 영역 */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* 거래처명 검색 */}
+          <div className="relative flex-1 min-w-[180px] max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              onKeyDown={onKeyPress}
+              placeholder="거래처명 검색..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+            />
+          </div>
+
+          {/* 주소 검색 */}
+          <div className="relative flex-1 min-w-[150px] max-w-xs">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              value={addressTerm}
+              onChange={(e) => onAddressChange(e.target.value)}
+              onKeyDown={onKeyPress}
+              placeholder="주소 검색..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+            />
+          </div>
+
+          {/* 담당자 검색 */}
+          <div className="relative flex-1 min-w-[150px] max-w-xs">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              value={contactTerm}
+              onChange={(e) => onContactChange(e.target.value)}
+              onKeyDown={onKeyPress}
+              placeholder="담당자 검색..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+            />
+          </div>
+
+          {/* 필터 초기화 */}
+          {hasFilters && (
+            <button
+              onClick={onResetFilters}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              초기화
+            </button>
+          )}
         </div>
       </div>
     </div>

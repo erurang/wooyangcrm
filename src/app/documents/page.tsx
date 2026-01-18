@@ -83,29 +83,32 @@ export default function DocumentsDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 text-sm text-[#37352F]">
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
       {loading ? (
-        <p>로딩 중...</p>
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3" />
+          <p className="text-sm text-slate-500">문서 현황을 불러오는 중...</p>
+        </div>
       ) : (
         <>
           {/* 상태 요약을 3개 컬럼으로 나눠서 표시 */}
-          <div className="mb-6 bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md grid grid-cols-3 gap-4">
+          <div className="mb-4 grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 pt-4">
             {documentSummary.map((doc) => (
-              <div key={doc.type} className="bg-white p-4 rounded-md shadow-md">
-                <h2 className="font-semibold mb-2">
+              <div key={doc.type} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <h2 className="font-semibold mb-3 text-slate-800">
                   {tabs.find((t) => t.type === doc.type)?.name} 상태 요약
                 </h2>
-                <div className="grid grid-cols-5 gap-3">
+                <div className="grid grid-cols-5 gap-2">
                   {[
-                    { label: "진행 중", key: "pending", color: "bg-gray-100" },
-                    { label: "만료임박", key: "expiring_soon", color: "bg-orange-50" },
-                    { label: "완료됨", key: "completed", color: "bg-gray-100" },
-                    { label: "취소됨", key: "canceled", color: "bg-gray-100" },
-                    { label: "만료됨", key: "expired", color: "bg-gray-100" },
+                    { label: "진행 중", key: "pending", color: "bg-slate-50 hover:bg-slate-100" },
+                    { label: "만료임박", key: "expiring_soon", color: "bg-orange-50 hover:bg-orange-100" },
+                    { label: "완료됨", key: "completed", color: "bg-emerald-50 hover:bg-emerald-100" },
+                    { label: "취소됨", key: "canceled", color: "bg-red-50 hover:bg-red-100" },
+                    { label: "만료됨", key: "expired", color: "bg-slate-100 hover:bg-slate-200" },
                   ].map(({ label, key, color }) => (
                     <div
                       key={key}
-                      className={`${color} p-3 rounded-md text-center cursor-pointer hover:bg-gray-200 ${
+                      className={`${color} p-2.5 rounded-lg text-center cursor-pointer transition-colors ${
                         key === "expiring_soon" && doc.expiring_soon > 0 ? "ring-2 ring-orange-400" : ""
                       }`}
                       onClick={() =>
@@ -114,8 +117,18 @@ export default function DocumentsDashboard() {
                         )
                       }
                     >
-                      <p className={`font-semibold text-xs ${key === "expiring_soon" ? "text-orange-700" : "text-gray-700"}`}>{label}</p>
-                      <h3 className={`text-lg font-bold ${key === "expiring_soon" && doc.expiring_soon > 0 ? "text-orange-600" : ""}`}>
+                      <p className={`font-medium text-xs ${
+                        key === "expiring_soon" ? "text-orange-700" :
+                        key === "completed" ? "text-emerald-700" :
+                        key === "canceled" ? "text-red-700" :
+                        "text-slate-600"
+                      }`}>{label}</p>
+                      <h3 className={`text-lg font-bold ${
+                        key === "expiring_soon" && doc.expiring_soon > 0 ? "text-orange-600" :
+                        key === "completed" ? "text-emerald-600" :
+                        key === "canceled" ? "text-red-600" :
+                        "text-slate-800"
+                      }`}>
                         {doc[key as keyof typeof doc]}
                       </h3>
                     </div>
@@ -126,60 +139,62 @@ export default function DocumentsDashboard() {
           </div>
 
           {/* 문서 유형별 진행 중 문서 테이블 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="mb-6 bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md">
-              <h2 className="font-semibold text-md mb-4">문서 진행 현황</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 pb-4">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+              <h2 className="font-semibold text-slate-800 mb-4">문서 진행 현황</h2>
               {tabs.map((tab) => {
                 const documents = filterDocumentsByType(tab.type).filter(
                   (doc) => doc.status === "pending"
                 );
 
                 return (
-                  <div key={tab.type} className="mb-6">
-                    <h3 className="font-bold mb-2">{tab.name} 진행 중 문서</h3>
-                    <table className="min-w-full table-auto border-collapse text-left">
-                      <thead>
-                        <tr className="bg-gray-100 text-center">
-                          <th className="px-4 py-2 border-b">문서 번호</th>
-                          <th className="px-4 py-2 border-b">회사명</th>
-                          <th className="px-4 py-2 border-b">작성일</th>
-                          <th className="px-4 py-2 border-b">유효 기간</th>
-                        </tr>
-                      </thead>
-                      <tbody className="text-center">
-                        {documents.slice(0, 3).map((doc) => {
-                          const companyName = doc.company_name || "";
-                          const validUntil = doc.valid_until || "";
+                  <div key={tab.type} className="mb-5 last:mb-0">
+                    <h3 className="font-medium text-slate-700 mb-2">{tab.name} 진행 중 문서</h3>
+                    <div className="overflow-hidden rounded-lg border border-slate-200">
+                      <table className="min-w-full">
+                        <thead>
+                          <tr className="bg-slate-50">
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">문서 번호</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">회사명</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">작성일</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">유효 기간</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {documents.slice(0, 3).map((doc) => {
+                            const companyName = doc.company_name || "";
+                            const validUntil = doc.valid_until || "";
 
-                          return (
-                            <tr
-                              key={doc.document_number}
-                              className="hover:bg-gray-50"
-                            >
-                              <td className="px-4 py-2 border-b">
-                                {doc.document_number}
-                              </td>
-                              <td className="px-4 py-2 border-b">
-                                {companyName}
-                              </td>
-                              <td className="px-4 py-2 border-b">
-                                {doc.created_at.slice(0, 10)}
-                              </td>
-                              <td className="px-4 py-2 border-b">
-                                {validUntil?.slice(0, 10) || "없음"}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                            return (
+                              <tr
+                                key={doc.document_number}
+                                className="hover:bg-slate-50 transition-colors"
+                              >
+                                <td className="px-3 py-2 text-sm text-indigo-600 font-medium">
+                                  {doc.document_number}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-slate-700">
+                                  {companyName}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-slate-600">
+                                  {doc.created_at.slice(0, 10)}
+                                </td>
+                                <td className="px-3 py-2 text-sm text-slate-600">
+                                  {validUntil?.slice(0, 10) || "없음"}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 );
               })}
             </div>
             {/* 차트 */}
-            <div className="bg-[#FBFBFB] rounded-md border-[1px] p-6 shadow-md">
-              <h2 className="font-semibold text-md mb-4">문서 상태별 개수</h2>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+              <h2 className="font-semibold text-slate-800 mb-4">문서 상태별 개수</h2>
               <ReactApexChart
                 options={{
                   chart: { type: "bar" },

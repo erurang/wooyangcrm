@@ -1,21 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronRight,
   CheckCircle,
   ListTodo,
   MessageSquare,
+  BarChart3,
 } from "lucide-react";
 import DateFilterCard from "../DateFilterCard";
 import KPISummaryCards from "../KPISummaryCards";
 import SalesComparisonChart from "../SalesComparisonChart";
 import TopCompaniesCard from "../TopCompaniesCard";
-import RecentDocumentsCard from "../RecentDocumentsCard";
+import ExpiringDocumentsCard from "../ExpiringDocumentsCard";
+import ExpiringDocumentsModal from "../ExpiringDocumentsModal";
 import QuickMemoCard from "../QuickMemoCard";
+import TodoModal from "../TodoModal";
 import { useKPISummary } from "@/hooks/dashboard/useKPISummary";
 import { useYearlyComparison } from "@/hooks/dashboard/useYearlyComparison";
-import { useRecentDocuments } from "@/hooks/dashboard/useRecentDocuments";
+import { useExpiringDocuments } from "@/hooks/dashboard/useExpiringDocuments";
 import { useQuickMemo } from "@/hooks/dashboard/useQuickMemo";
 import { useLoginUser } from "@/context/login";
 import { useDashboard } from "@/context/dashboard";
@@ -46,17 +50,25 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
   const searchParams = useSearchParams();
   const highlightDocId = searchParams.get("highlight");
   const loginUser = useLoginUser();
+  const [isTodoModalOpen, setIsTodoModalOpen] = useState(false);
+  const [isExpiringModalOpen, setIsExpiringModalOpen] = useState(false);
   const { kpiData, isLoading: kpiLoading } = useKPISummary(loginUser?.id);
   const {
     todos,
     isLoading: todosLoading,
+    isAdding: todosAdding,
+    deletingTodoId,
+    addTodo,
+    updateTodo,
     toggleComplete,
+    deleteTodo,
+    updateTodoOrder,
   } = useTodos(loginUser?.id || "");
   const { data: yearlyData, isLoading: yearlyLoading } = useYearlyComparison(
     loginUser?.id
   );
-  const { documents: recentDocuments, isLoading: documentsLoading } =
-    useRecentDocuments(loginUser?.id, 5);
+  const { estimates: expiringEstimates, orders: expiringOrders, isLoading: expiringLoading } =
+    useExpiringDocuments(loginUser?.id);
   const {
     memo,
     saveMemo,
@@ -99,12 +111,23 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
             onQuarterChange={setSelectedQuarter}
             onMonthChange={setSelectedMonth}
           />
+          {/* 나의 성과지표 버튼 */}
+          <button
+            onClick={() => router.push(`/reports/performance/${loginUser?.id}`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+          >
+            <BarChart3 className="h-4 w-4" />
+            나의 성과지표
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
           <div className="hidden md:block w-px h-8 bg-slate-200" />
           <KPISummaryCards
             todayConsultations={kpiData.todayConsultations}
             pendingDocuments={kpiData.pendingDocuments}
             monthSales={kpiData.monthSales}
             previousMonthSales={kpiData.previousMonthSales}
+            monthPurchases={kpiData.monthPurchases}
+            previousMonthPurchases={kpiData.previousMonthPurchases}
             followUpNeeded={kpiData.followUpNeeded}
             expiringDocuments={kpiData.expiringDocuments}
             isLoading={kpiLoading}
@@ -191,9 +214,11 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
           </div>
         </div>
         <div>
-          <RecentDocumentsCard
-            documents={recentDocuments}
-            isLoading={documentsLoading}
+          <ExpiringDocumentsCard
+            estimates={expiringEstimates}
+            orders={expiringOrders}
+            isLoading={expiringLoading}
+            onViewAll={() => setIsExpiringModalOpen(true)}
           />
         </div>
       </div>
@@ -213,7 +238,7 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
                 )}
               </div>
               <button
-                onClick={() => router.push("/dashboard/todo")}
+                onClick={() => setIsTodoModalOpen(true)}
                 className="text-xs text-violet-600 hover:text-violet-800 font-medium flex items-center"
               >
                 전체보기
@@ -260,6 +285,30 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
           />
         </div>
       </div>
+
+      {/* Todo 모달 */}
+      <TodoModal
+        isOpen={isTodoModalOpen}
+        onClose={() => setIsTodoModalOpen(false)}
+        todos={(todos as Todo[]) || []}
+        isLoading={todosLoading}
+        isAdding={todosAdding}
+        deletingTodoId={deletingTodoId}
+        onAddTodo={addTodo}
+        onUpdateTodo={updateTodo}
+        onToggleComplete={toggleComplete}
+        onDeleteTodo={deleteTodo}
+        onUpdateOrder={updateTodoOrder}
+      />
+
+      {/* 임박 문서 모달 */}
+      <ExpiringDocumentsModal
+        isOpen={isExpiringModalOpen}
+        onClose={() => setIsExpiringModalOpen(false)}
+        estimates={expiringEstimates}
+        orders={expiringOrders}
+        isLoading={expiringLoading}
+      />
     </div>
   );
 }

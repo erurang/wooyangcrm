@@ -12,8 +12,47 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(searchParams.get("limit") || 10);
     const notes = searchParams.get("notes") || "";
+    const documentId = searchParams.get("documentId") || null;
     const start = (page - 1) * limit;
     const end = start + limit - 1;
+
+    // 🔹 특정 문서 ID로 검색하는 경우 (highlight용)
+    if (documentId) {
+      const { data: singleDoc, error: singleError } = await supabase
+        .from("documents")
+        .select(
+          `*, contacts_documents(contacts(contact_name, level, mobile)), users(name, level), companies(name, phone, fax)`
+        )
+        .eq("id", documentId)
+        .single();
+
+      if (singleError) throw singleError;
+
+      if (singleDoc) {
+        const contact = singleDoc.contacts_documents?.[0]?.contacts || {};
+        const user = singleDoc.users || {};
+        const company = singleDoc.companies || {};
+
+        const transformedDoc = {
+          ...singleDoc,
+          contact_level: contact.level || "",
+          contact_name: contact.contact_name || "",
+          contact_mobile: contact.mobile || "",
+          user_name: user.name || "",
+          user_level: user.level || "",
+          company_name: company.name || "",
+          company_phone: company.phone || "",
+          company_fax: company.fax || "",
+          contacts_documents: undefined,
+          users: undefined,
+        };
+
+        return NextResponse.json(
+          { documents: [transformedDoc], total: 1 },
+          { status: 200 }
+        );
+      }
+    }
 
     // 🔹 상담 데이터 쿼리 생성
     let query = supabase

@@ -48,12 +48,12 @@ export default function ProductSearchFilter({
   const showUserFilter = userRole === "admin" || userRole === "managementSupport";
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-4">
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 items-end">
         {/* 거래처 */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Building className="w-3 h-3 mr-1 text-gray-400" />
+          <label className="text-xs font-medium text-slate-600 flex items-center">
+            <Building className="w-3 h-3 mr-1 text-slate-400" />
             거래처
           </label>
           <input
@@ -61,14 +61,14 @@ export default function ProductSearchFilter({
             value={searchCompany}
             onChange={onSearchCompanyChange}
             placeholder="거래처명"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
           />
         </div>
 
         {/* 물품명 */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Package className="w-3 h-3 mr-1 text-gray-400" />
+          <label className="text-xs font-medium text-slate-600 flex items-center">
+            <Package className="w-3 h-3 mr-1 text-slate-400" />
             물품명
           </label>
           <input
@@ -76,14 +76,14 @@ export default function ProductSearchFilter({
             value={searchProduct}
             onChange={onSearchProductChange}
             placeholder="물품명"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
           />
         </div>
 
         {/* 규격 */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Ruler className="w-3 h-3 mr-1 text-gray-400" />
+          <label className="text-xs font-medium text-slate-600 flex items-center">
+            <Ruler className="w-3 h-3 mr-1 text-slate-400" />
             규격
           </label>
           <input
@@ -91,14 +91,14 @@ export default function ProductSearchFilter({
             value={searchSpec}
             onChange={onSearchSpecChange}
             placeholder="규격"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
           />
         </div>
 
         {/* 단가 범위 */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <DollarSign className="w-3 h-3 mr-1 text-gray-400" />
+          <label className="text-xs font-medium text-slate-600 flex items-center">
+            <DollarSign className="w-3 h-3 mr-1 text-slate-400" />
             단가 범위
           </label>
           <div className="flex items-center gap-1">
@@ -107,29 +107,29 @@ export default function ProductSearchFilter({
               value={minPrice}
               onChange={onMinPriceChange}
               placeholder="최소"
-              className="flex-1 w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="flex-1 w-full px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
             />
-            <span className="text-gray-400 text-xs">~</span>
+            <span className="text-slate-400 text-xs">~</span>
             <input
               type="number"
               value={maxPrice}
               onChange={onMaxPriceChange}
               placeholder="최대"
-              className="flex-1 w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="flex-1 w-full px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
             />
           </div>
         </div>
 
         {/* 상태 */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Filter className="w-3 h-3 mr-1 text-gray-400" />
+          <label className="text-xs font-medium text-slate-600 flex items-center">
+            <Filter className="w-3 h-3 mr-1 text-slate-400" />
             상태
           </label>
           <select
             value={status}
             onChange={onStatusChange}
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
           >
             <option value="all">모든 상태</option>
             <option value="pending">진행 중</option>
@@ -141,14 +141,14 @@ export default function ProductSearchFilter({
         {/* 상담자 (관리자 또는 관리지원 역할만 표시) */}
         {showUserFilter && (
           <div className="space-y-1">
-            <label className="text-xs font-medium text-gray-600 flex items-center">
-              <Users className="w-3 h-3 mr-1 text-gray-400" />
+            <label className="text-xs font-medium text-slate-600 flex items-center">
+              <Users className="w-3 h-3 mr-1 text-slate-400" />
               상담자
             </label>
             <select
               value={selectedUser?.id || ""}
               onChange={onUserChange}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
             >
               <option value="">전체</option>
               {users.map((u) => (

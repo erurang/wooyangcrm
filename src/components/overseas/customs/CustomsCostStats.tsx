@@ -18,14 +18,14 @@ export default function CustomsCostStats({
 }: CustomsCostStatsProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-4 pt-4">
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="bg-white rounded-lg border border-gray-200 p-4 animate-pulse"
+            className="bg-white rounded-xl border border-slate-200 p-4 animate-pulse"
           >
-            <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
-            <div className="h-6 bg-gray-200 rounded w-24"></div>
+            <div className="h-4 bg-slate-200 rounded w-20 mb-2"></div>
+            <div className="h-6 bg-slate-200 rounded w-24"></div>
           </div>
         ))}
       </div>
@@ -42,20 +42,26 @@ export default function CustomsCostStats({
       value: stats.total_amount,
       subLabel: `(VAT 제외: ${formatCurrency(stats.total_subtotal)})`,
       icon: DollarSign,
-      color: "blue",
+      bgColor: "bg-teal-50",
+      iconColor: "text-teal-600",
+      textColor: "text-teal-600",
     },
     {
       label: "항공/해상료",
       value: stats.total_air_freight + stats.total_sea_freight,
       subLabel: `항공 ${formatCurrency(stats.total_air_freight)} / 해상 ${formatCurrency(stats.total_sea_freight)}`,
       icon: stats.total_air_freight > stats.total_sea_freight ? Plane : Ship,
-      color: "indigo",
+      bgColor: "bg-indigo-50",
+      iconColor: "text-indigo-600",
+      textColor: "text-indigo-600",
     },
     {
       label: "관세",
       value: stats.total_customs_duty,
       icon: Landmark,
-      color: "amber",
+      bgColor: "bg-amber-50",
+      iconColor: "text-amber-600",
+      textColor: "text-amber-600",
     },
     {
       label: "기타 비용",
@@ -65,35 +71,34 @@ export default function CustomsCostStats({
         stats.total_express_freight,
       subLabel: `포트/통관 ${formatCurrency(stats.total_port_charges)} / 내국운송 ${formatCurrency(stats.total_domestic_transport)}`,
       icon: Truck,
-      color: "green",
+      bgColor: "bg-emerald-50",
+      iconColor: "text-emerald-600",
+      textColor: "text-emerald-600",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-4 pt-4">
       {statCards.map((card, index) => {
         const Icon = card.icon;
-        const bgColor = `bg-${card.color}-50`;
-        const iconColor = `text-${card.color}-500`;
-        const textColor = `text-${card.color}-600`;
 
         return (
           <div
             key={index}
-            className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+            className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow"
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-                <p className={`text-lg font-semibold ${textColor}`}>
+                <p className="text-xs text-slate-500 mb-1">{card.label}</p>
+                <p className={`text-lg font-semibold ${card.textColor}`}>
                   {formatCurrency(card.value)}원
                 </p>
                 {card.subLabel && (
-                  <p className="text-xs text-gray-400 mt-1">{card.subLabel}</p>
+                  <p className="text-xs text-slate-400 mt-1">{card.subLabel}</p>
                 )}
               </div>
-              <div className={`p-2 rounded-lg ${bgColor}`}>
-                <Icon size={20} className={iconColor} />
+              <div className={`p-2 rounded-lg ${card.bgColor}`}>
+                <Icon size={20} className={card.iconColor} />
               </div>
             </div>
           </div>

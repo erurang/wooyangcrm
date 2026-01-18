@@ -69,6 +69,7 @@ export default function DocumentsDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "estimate";
+  const highlightId = searchParams.get("highlight");
 
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
@@ -105,6 +106,7 @@ export default function DocumentsDetailsPage() {
     limit: filters.documentsPerPage,
     companyIds: debounced.companyIds,
     notes: debounced.notes,
+    documentId: highlightId, // 특정 문서 하이라이트용
   });
 
   const { trigger: updateStatus, isMutating } = useUpdateDocumentStatus();
@@ -185,7 +187,7 @@ export default function DocumentsDetailsPage() {
   };
 
   return (
-    <div className="text-sm text-gray-800">
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
       {/* 검색 필터 */}
       <DocumentSearchFilters
         searchTerm={filters.searchTerm}
@@ -216,6 +218,7 @@ export default function DocumentsDetailsPage() {
         type={type}
         loginUserId={loginUser?.id}
         isLoading={isDocumentsLoading}
+        highlightId={highlightId}
         onDocumentClick={setSelectedDocument}
         onCompanyClick={(companyId) =>
           router.push(`/consultations/${companyId}`)

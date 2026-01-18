@@ -350,9 +350,11 @@ export default function MyPostsPage() {
   // 로그인 필요
   if (!user?.id) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
-        <FileText className="w-12 h-12 mb-4 text-gray-300" />
-        <p>로그인이 필요합니다.</p>
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+        <div className="flex flex-col items-center justify-center text-slate-400">
+          <FileText className="w-12 h-12 mb-4" />
+          <p>로그인이 필요합니다.</p>
+        </div>
       </div>
     );
   }
@@ -363,113 +365,115 @@ export default function MyPostsPage() {
   const currentLoading = activeTab === "my" ? isLoading : activeTab === "tagged" ? taggedLoading : mentionedLoading;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-sm text-[#37352F]">
+    <div className="text-sm">
       {/* 헤더 */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-xl font-semibold">내 게시글</h1>
-          <p className="text-sm text-gray-500 mt-1">내 게시판 활동을 확인하세요.</p>
-        </div>
-        <button
-          onClick={handleNewPost}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          글쓰기
-        </button>
-      </div>
-
-      {/* 탭 네비게이션 */}
-      <div className="flex gap-1 mb-6 border-b border-gray-200">
-        <button
-          onClick={() => handleTabChange("my")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === "my"
-              ? "border-indigo-600 text-indigo-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <FileText className="w-4 h-4" />
-          내 글
-          {total > 0 && (
-            <span className={`px-1.5 py-0.5 text-xs rounded-full ${
-              activeTab === "my" ? "bg-indigo-100 text-indigo-600" : "bg-gray-100 text-gray-500"
-            }`}>
-              {total}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => handleTabChange("tagged")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === "tagged"
-              ? "border-indigo-600 text-indigo-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <Tag className="w-4 h-4" />
-          태그된 글
-          {taggedTotal > 0 && (
-            <span className={`px-1.5 py-0.5 text-xs rounded-full ${
-              activeTab === "tagged" ? "bg-indigo-100 text-indigo-600" : "bg-gray-100 text-gray-500"
-            }`}>
-              {taggedTotal}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => handleTabChange("mentioned")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === "mentioned"
-              ? "border-indigo-600 text-indigo-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <AtSign className="w-4 h-4" />
-          멘션된 댓글
-          {mentionedTotal > 0 && (
-            <span className={`px-1.5 py-0.5 text-xs rounded-full ${
-              activeTab === "mentioned" ? "bg-indigo-100 text-indigo-600" : "bg-gray-100 text-gray-500"
-            }`}>
-              {mentionedTotal}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* 검색 (내 글 탭에서만) */}
-      {activeTab === "my" && (
-        <div className="mb-4">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            placeholder="제목 또는 내용으로 검색..."
-            className="w-full max-w-md border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-      )}
-
-      {/* 테이블 컨트롤 */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
-          총 <span className="font-semibold">{currentTotal}</span>개
-        </div>
-        <div className="flex items-center">
-          <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
-          <select
-            value={postsPerPage}
-            onChange={(e) => {
-              setPostsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="border border-gray-300 p-1.5 rounded-md text-sm"
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold text-slate-800">내 게시글</h1>
+            <p className="text-sm text-slate-500 mt-1">내 게시판 활동을 확인하세요.</p>
+          </div>
+          <button
+            onClick={handleNewPost}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <option value="10">10개</option>
-            <option value="20">20개</option>
-            <option value="30">30개</option>
-            <option value="50">50개</option>
-          </select>
+            <Plus className="w-4 h-4" />
+            글쓰기
+          </button>
+        </div>
+
+        {/* 탭 네비게이션 */}
+        <div className="flex gap-1 mt-4 pt-4 border-t border-slate-100">
+          <button
+            onClick={() => handleTabChange("my")}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "my"
+                ? "bg-blue-600 text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            내 글
+            {total > 0 && (
+              <span className={`px-1.5 py-0.5 text-xs rounded-full ${
+                activeTab === "my" ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-600"
+              }`}>
+                {total}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => handleTabChange("tagged")}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "tagged"
+                ? "bg-blue-600 text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            <Tag className="w-4 h-4" />
+            태그된 글
+            {taggedTotal > 0 && (
+              <span className={`px-1.5 py-0.5 text-xs rounded-full ${
+                activeTab === "tagged" ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-600"
+              }`}>
+                {taggedTotal}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => handleTabChange("mentioned")}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              activeTab === "mentioned"
+                ? "bg-blue-600 text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            <AtSign className="w-4 h-4" />
+            멘션된 댓글
+            {mentionedTotal > 0 && (
+              <span className={`px-1.5 py-0.5 text-xs rounded-full ${
+                activeTab === "mentioned" ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-600"
+              }`}>
+                {mentionedTotal}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* 검색 (내 글 탭에서만) */}
+        {activeTab === "my" && (
+          <div className="mt-4">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              placeholder="제목 또는 내용으로 검색..."
+              className="w-full max-w-md border border-slate-200 rounded-lg px-4 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            />
+          </div>
+        )}
+
+        {/* 테이블 컨트롤 */}
+        <div className="flex justify-between items-center mt-4">
+          <div className="text-sm text-slate-600">
+            총 <span className="font-bold text-blue-600">{currentTotal}</span>개
+          </div>
+          <div className="flex items-center">
+            <label className="mr-2 text-sm text-slate-600">표시 개수:</label>
+            <select
+              value={postsPerPage}
+              onChange={(e) => {
+                setPostsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="border border-slate-200 p-1.5 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            >
+              <option value="10">10개</option>
+              <option value="20">20개</option>
+              <option value="30">30개</option>
+              <option value="50">50개</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -487,16 +491,18 @@ export default function MyPostsPage() {
           />
 
           {!isLoading && posts.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-              <FileText className="w-12 h-12 mb-4 text-gray-300" />
-              <p className="mb-4">작성한 게시글이 없습니다.</p>
-              <button
-                onClick={handleNewPost}
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                첫 글 작성하기
-              </button>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+              <div className="flex flex-col items-center justify-center text-slate-400">
+                <FileText className="w-12 h-12 mb-4" />
+                <p className="mb-4">작성한 게시글이 없습니다.</p>
+                <button
+                  onClick={handleNewPost}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  첫 글 작성하기
+                </button>
+              </div>
             </div>
           )}
         </>
@@ -506,46 +512,49 @@ export default function MyPostsPage() {
       {activeTab === "tagged" && (
         <>
           {taggedLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+              <div className="flex flex-col items-center justify-center">
+                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-slate-500 mt-3">태그된 글을 불러오는 중...</p>
+              </div>
             </div>
           ) : taggedPosts.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {taggedPosts.map((post) => (
                 <Link
                   key={post.id}
                   href={`/board/${post.id}`}
-                  className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all"
+                  className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1.5">
                         {post.category && (
-                          <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600">
+                          <span className="px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-600">
                             {post.category.name}
                           </span>
                         )}
-                        <span className={`px-2 py-0.5 text-xs rounded-full ${
+                        <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
                           post.tag_type === "coauthor"
-                            ? "bg-green-100 text-green-600"
-                            : "bg-blue-100 text-blue-600"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-blue-100 text-blue-700"
                         }`}>
                           {post.tag_type === "coauthor" ? "공동작성" : "참조"}
                         </span>
                       </div>
-                      <h3 className="font-medium text-gray-900 truncate">
+                      <h3 className="font-semibold text-slate-800 truncate">
                         {post.title}
                       </h3>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                        <span className="flex items-center gap-1">
+                      <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                        <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-full">
                           <User className="w-3 h-3" />
                           {post.user?.name}
                         </span>
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-full">
                           <Calendar className="w-3 h-3" />
                           {dayjs(post.created_at).format("YYYY-MM-DD")}
                         </span>
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-full">
                           <Eye className="w-3 h-3" />
                           {post.view_count}
                         </span>
@@ -556,9 +565,11 @@ export default function MyPostsPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-              <Tag className="w-12 h-12 mb-4 text-gray-300" />
-              <p>태그된 게시글이 없습니다.</p>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+              <div className="flex flex-col items-center justify-center text-slate-400">
+                <Tag className="w-12 h-12 mb-4" />
+                <p>태그된 게시글이 없습니다.</p>
+              </div>
             </div>
           )}
         </>
@@ -568,33 +579,38 @@ export default function MyPostsPage() {
       {activeTab === "mentioned" && (
         <>
           {mentionedLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+              <div className="flex flex-col items-center justify-center">
+                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm text-slate-500 mt-3">멘션된 댓글을 불러오는 중...</p>
+              </div>
             </div>
           ) : mentionedComments.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {mentionedComments.map((comment) => (
                 <Link
                   key={comment.id}
                   href={`/board/${comment.post_id}?commentId=${comment.id}`}
-                  className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all"
+                  className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all"
                 >
                   <div className="flex items-start gap-3">
-                    <MessageSquare className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                    <MessageSquare className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 text-xs text-gray-500">
-                        <span className="font-medium text-gray-700">
+                      <div className="flex items-center gap-2 mb-1.5 text-xs text-slate-500">
+                        <span className="font-medium text-slate-700">
                           {comment.user?.name}
                         </span>
                         님이 멘션함
                         <span>·</span>
-                        <span>{dayjs(comment.created_at).format("YYYY-MM-DD HH:mm")}</span>
+                        <span className="bg-slate-100 px-2 py-0.5 rounded-full">
+                          {dayjs(comment.created_at).format("YYYY-MM-DD HH:mm")}
+                        </span>
                       </div>
-                      <p className="text-sm text-gray-700 line-clamp-2">
+                      <p className="text-sm text-slate-700 line-clamp-2">
                         {highlightMentions(comment.content)}
                       </p>
-                      <div className="mt-2 text-xs text-gray-500">
-                        <span className="font-medium text-gray-600">게시글:</span>{" "}
+                      <div className="mt-2 text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded-lg inline-block">
+                        <span className="font-medium text-slate-600">게시글:</span>{" "}
                         {comment.post?.title}
                       </div>
                     </div>
@@ -603,9 +619,11 @@ export default function MyPostsPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-              <AtSign className="w-12 h-12 mb-4 text-gray-300" />
-              <p>멘션된 댓글이 없습니다.</p>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+              <div className="flex flex-col items-center justify-center text-slate-400">
+                <AtSign className="w-12 h-12 mb-4" />
+                <p>멘션된 댓글이 없습니다.</p>
+              </div>
             </div>
           )}
         </>

@@ -51,33 +51,33 @@ export default function OverseasCompanyInfoCard({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg border shadow-sm mb-4 p-4">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm mb-4 p-4">
         <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-4 bg-slate-200 rounded w-1/4"></div>
+          <div className="h-3 bg-slate-200 rounded w-3/4"></div>
+          <div className="h-3 bg-slate-200 rounded w-1/2"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg border shadow-sm mb-4 overflow-hidden">
-      {/* 통합 레이아웃 - 기존 CompanyInfoCard와 동일 */}
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm mb-4 overflow-hidden">
+      {/* 통합 레이아웃 */}
       <div className="flex flex-col lg:flex-row">
         {/* 좌측: 거래처 기본 정보 */}
-        <div className="flex-1 p-4 lg:border-r border-gray-100">
+        <div className="flex-1 p-4 lg:border-r border-slate-100">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Building2 size={16} className="text-gray-400" />
-              <h3 className="text-sm font-semibold text-gray-700">
+              <Building2 size={16} className="text-slate-400" />
+              <h3 className="text-sm font-semibold text-slate-700">
                 거래처 정보
               </h3>
             </div>
             {onEditCompany && (
               <button
                 onClick={onEditCompany}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors"
               >
                 <Edit3 size={12} />
                 수정
@@ -87,11 +87,11 @@ export default function OverseasCompanyInfoCard({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
             <div className="flex items-start gap-2">
-              <MapPin size={14} className="text-gray-400 mt-0.5 shrink-0" />
+              <MapPin size={14} className="text-slate-400 mt-0.5 shrink-0" />
               <div className="min-w-0">
-                <div className="text-xs text-gray-500">주소</div>
+                <div className="text-xs text-slate-500">주소</div>
                 <div
-                  className="text-sm text-gray-900 truncate max-w-[11rem]"
+                  className="text-sm text-slate-800 truncate max-w-[11rem]"
                   title={companyDetail?.address || ""}
                 >
                   {companyDetail?.address || "-"}
@@ -100,9 +100,9 @@ export default function OverseasCompanyInfoCard({
             </div>
 
             <div className="flex items-start gap-2">
-              <Globe size={14} className="text-gray-400 mt-0.5 shrink-0" />
+              <Globe size={14} className="text-slate-400 mt-0.5 shrink-0" />
               <div className="min-w-0">
-                <div className="text-xs text-gray-500">홈페이지</div>
+                <div className="text-xs text-slate-500">홈페이지</div>
                 {companyDetail?.website ? (
                   <a
                     href={
@@ -112,7 +112,7 @@ export default function OverseasCompanyInfoCard({
                     }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline flex items-center gap-1 truncate max-w-[11rem]"
+                    className="text-sm text-teal-600 hover:underline flex items-center gap-1 truncate max-w-[11rem]"
                   >
                     <ExternalLink size={12} className="shrink-0" />
                     <span className="truncate">
@@ -120,20 +120,20 @@ export default function OverseasCompanyInfoCard({
                     </span>
                   </a>
                 ) : (
-                  <div className="text-sm text-gray-900">-</div>
+                  <div className="text-sm text-slate-800">-</div>
                 )}
               </div>
             </div>
 
             <div className="flex items-start gap-2 col-span-2">
-              <Mail size={14} className="text-gray-400 mt-0.5 shrink-0" />
+              <Mail size={14} className="text-slate-400 mt-0.5 shrink-0" />
               <div className="min-w-0 flex-1">
-                <div className="text-xs text-gray-500">대표메일</div>
-                <div className="text-sm text-gray-900 truncate max-w-[11rem]">
+                <div className="text-xs text-slate-500">대표메일</div>
+                <div className="text-sm text-slate-800 truncate max-w-[11rem]">
                   {companyDetail?.email ? (
                     <a
                       href={`mailto:${companyDetail.email}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-teal-600 hover:underline"
                     >
                       {companyDetail.email}
                     </a>
@@ -147,26 +147,26 @@ export default function OverseasCompanyInfoCard({
         </div>
 
         {/* 중앙: 비고 */}
-        <div className="flex-1 p-4 lg:border-r border-gray-100 border-t lg:border-t-0">
+        <div className="flex-1 p-4 lg:border-r border-slate-100 border-t lg:border-t-0">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <FileText size={16} className="text-gray-400" />
-              <h3 className="text-sm font-semibold text-gray-700">비고</h3>
+              <FileText size={16} className="text-slate-400" />
+              <h3 className="text-sm font-semibold text-slate-700">비고</h3>
             </div>
             <button
               onClick={onEditNotes}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors"
             >
               <Edit3 size={12} />
               수정
             </button>
           </div>
 
-          <div className="text-sm text-gray-700 h-[6rem] overflow-y-auto leading-relaxed">
+          <div className="text-sm text-slate-700 h-[6rem] overflow-y-auto leading-relaxed">
             {companyDetail?.notes ? (
               formatContentWithLineBreaks(companyDetail.notes)
             ) : (
-              <span className="text-gray-400 text-xs">비고 없음</span>
+              <span className="text-slate-400 text-xs">비고 없음</span>
             )}
           </div>
         </div>
@@ -175,11 +175,11 @@ export default function OverseasCompanyInfoCard({
         <div className="w-full lg:w-80 p-4 border-t lg:border-t-0">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Users size={16} className="text-gray-400" />
-              <h3 className="text-sm font-semibold text-gray-700">
+              <Users size={16} className="text-slate-400" />
+              <h3 className="text-sm font-semibold text-slate-700">
                 담당자
                 {contacts.length > 0 && (
-                  <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
+                  <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">
                     {contacts.length}
                   </span>
                 )}
@@ -187,7 +187,7 @@ export default function OverseasCompanyInfoCard({
             </div>
             <button
               onClick={onEditContacts}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors"
             >
               <Settings size={12} />
               관리
@@ -200,25 +200,25 @@ export default function OverseasCompanyInfoCard({
                 {contacts.slice(0, 4).map((contact, index) => (
                   <div
                     key={contact.id || index}
-                    className="flex items-center justify-between gap-1 group p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="flex items-center justify-between gap-1 group p-2 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
                   >
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-gray-900 truncate">
+                      <div className="text-sm font-medium text-slate-800 truncate">
                         {contact.name}
                         {contact.position && (
-                          <span className="text-gray-500 font-normal ml-1 text-xs">
+                          <span className="text-slate-500 font-normal ml-1 text-xs">
                             {contact.position}
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-gray-500 truncate">
+                      <div className="text-xs text-slate-500 truncate">
                         {contact.mobile || contact.email || "-"}
                       </div>
                     </div>
                     {contact.email && (
                       <a
                         href={`mailto:${contact.email}`}
-                        className="p-1 text-gray-400 hover:text-blue-600 shrink-0"
+                        className="p-1 text-slate-400 hover:text-teal-600 shrink-0"
                         title="이메일 보내기"
                       >
                         <Mail size={14} />
@@ -229,7 +229,7 @@ export default function OverseasCompanyInfoCard({
                 {contacts.length > 4 && (
                   <button
                     onClick={onEditContacts}
-                    className="col-span-2 text-xs text-gray-500 hover:text-blue-600 text-center py-1"
+                    className="col-span-2 text-xs text-slate-500 hover:text-teal-600 text-center py-1"
                   >
                     +{contacts.length - 4}명 더보기
                   </button>
@@ -237,7 +237,7 @@ export default function OverseasCompanyInfoCard({
               </div>
             ) : (
               <div className="text-center py-2">
-                <span className="text-gray-400 text-xs">담당자 없음</span>
+                <span className="text-slate-400 text-xs">담당자 없음</span>
               </div>
             )}
           </div>

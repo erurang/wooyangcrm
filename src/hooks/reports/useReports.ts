@@ -38,15 +38,19 @@ const fetchReports = async (type: "estimate" | "order", date: string) => {
 
   const { data, error } = await supabase
     .from("documents")
-    .select("id, content, created_at, company_id, type, users(name,level), total_amount, company_name")
+    .select("id, document_number, content, created_at, company_id, type, status, users(name,level), total_amount, companies(name)")
     .eq("type", type)
-    .eq("status", "completed") // ✅ 완료된 문서만 조회
     .gte("created_at", startDate) // ✅ 한국 시간 기준 시작
     .lte("created_at", endDate) // ✅ 한국 시간 기준 끝
-    .order("content -> company_name", { ascending: true });
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data;
+
+  // companies.name을 company_name으로 매핑
+  return (data || []).map((doc: any) => ({
+    ...doc,
+    company_name: doc.companies?.name || doc.content?.company_name || "-",
+  }));
 };
 
 // ✅ 매출 (estimate)

@@ -2,33 +2,38 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import {
+  Building2,
+  Search,
+  Calendar,
+  User,
+  FileText,
+  ShoppingCart,
+  TrendingUp,
+  TrendingDown,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 import { useCompanySalesSummary } from "@/hooks/reports/customers/useCompanySalesSummary";
 
 export default function CompanySalesReport() {
   const router = useRouter();
 
-  // ✅ 날짜 필터 상태
-  const [dateFilter, setDateFilter] = useState<"year" | "quarter" | "month">(
-    "year"
-  );
-  const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
-  );
+  // 날짜 필터 상태
+  const [dateFilter, setDateFilter] = useState<"year" | "quarter" | "month">("year");
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedQuarter, setSelectedQuarter] = useState<number>(1);
-  const [selectedMonth, setSelectedMonth] = useState<number>(
-    new Date().getMonth() + 1
-  );
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
 
-  // ✅ 검색 필터 상태
-  const [searchTerm, setSearchTerm] = useState(""); // 거래처명 검색
-  const [salesRepTerm, setSalesRepTerm] = useState(""); // 담당 영업사원 검색
+  // 검색 필터 상태
+  const [searchTerm, setSearchTerm] = useState("");
+  const [salesRepTerm, setSalesRepTerm] = useState("");
 
-  // ✅ 페이지네이션 상태
+  // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
-  // ✅ 날짜 변환 (연도별, 분기별, 월별)
+  // 날짜 변환
   let startDate: string;
   let endDate: string;
 
@@ -36,266 +41,405 @@ export default function CompanySalesReport() {
     startDate = `${selectedYear}-01-01`;
     endDate = `${selectedYear}-12-31`;
   } else if (dateFilter === "quarter") {
-    startDate = `${selectedYear}-${(selectedQuarter - 1) * 3 + 1}-01`;
-    endDate = new Date(selectedYear, selectedQuarter * 3, 0)
-      .toISOString()
-      .split("T")[0];
+    startDate = `${selectedYear}-${String((selectedQuarter - 1) * 3 + 1).padStart(2, "0")}-01`;
+    endDate = new Date(selectedYear, selectedQuarter * 3, 0).toISOString().split("T")[0];
   } else {
     startDate = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-01`;
-    endDate = new Date(selectedYear, selectedMonth, 0)
-      .toISOString()
-      .split("T")[0];
+    endDate = new Date(selectedYear, selectedMonth, 0).toISOString().split("T")[0];
   }
 
-  // ✅ API 호출 (SWR 사용)
-  const { companySalesSummary, isLoading, isError } = useCompanySalesSummary(
-    startDate,
-    endDate
-  );
+  // API 호출
+  const { companySalesSummary, isLoading } = useCompanySalesSummary(startDate, endDate);
 
-  // ✅ 검색 필터 적용
-  const filteredData =
-    companySalesSummary?.filter((company: any) => {
-      const companyNameMatch = company.company_name
-        .toLowerCase()
-        .includes(searchTerm.trim().toLowerCase());
+  // 배열 형태로 변환 (API 응답이 배열이 아닐 경우 대비)
+  const summaryArray = Array.isArray(companySalesSummary) ? companySalesSummary : [];
 
-      const salesRepMatch =
-        salesRepTerm.trim() === "" ||
-        company.assigned_sales_reps.some((rep: string) =>
-          rep.toLowerCase().includes(salesRepTerm.trim().toLowerCase())
-        );
+  // 검색 필터 적용
+  const filteredData = summaryArray.filter((company: any) => {
+    const companyNameMatch = company.company_name
+      ?.toLowerCase()
+      .includes(searchTerm.trim().toLowerCase());
 
-      return companyNameMatch && salesRepMatch;
-    }) ?? [];
+    const salesRepMatch =
+      salesRepTerm.trim() === "" ||
+      (company.assigned_sales_reps || []).some((rep: string) =>
+        rep.toLowerCase().includes(salesRepTerm.trim().toLowerCase())
+      );
 
-  // ✅ 총 페이지 수 계산 (최소 1페이지 보장)
+    return companyNameMatch && salesRepMatch;
+  });
+
+  // 총 페이지 수 계산
   const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
 
-  // ✅ 현재 페이지 데이터
+  // 현재 페이지 데이터
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // ✅ 페이지네이션 숫자 생성 함수
-  const paginationNumbers = () => {
-    let pageNumbers: (number | string)[] = [];
-    for (let i = 1; i <= totalPages; i++) {
-      if (
-        i === 1 ||
-        i === totalPages ||
-        (i >= currentPage - 2 && i <= currentPage + 2)
-      ) {
-        pageNumbers.push(i);
-      } else if (i === currentPage - 3 || i === currentPage + 3) {
-        pageNumbers.push("...");
+  // 전체 합계 계산
+  const totalStats = filteredData.reduce(
+    (acc: any, company: any) => ({
+      estimates: acc.estimates + company.completed_estimates,
+      orders: acc.orders + company.completed_orders,
+      sales: acc.sales + company.total_sales_amount,
+      purchase: acc.purchase + company.total_purchase_amount,
+    }),
+    { estimates: 0, orders: 0, sales: 0, purchase: 0 }
+  );
+
+  // 기간 라벨
+  const getPeriodLabel = () => {
+    if (dateFilter === "year") return `${selectedYear}년`;
+    if (dateFilter === "quarter") return `${selectedYear}년 ${selectedQuarter}분기`;
+    return `${selectedYear}년 ${selectedMonth}월`;
+  };
+
+  // 페이지네이션 렌더링
+  const renderPagination = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 4, "...", totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
       }
     }
-    return pageNumbers;
+
+    return pages;
   };
 
   return (
-    <div className="text-sm text-[#333]">
-      {/* 🔹 검색 & 필터 UI */}
-      <div className="bg-[#FBFBFB] rounded-md border-[1px] p-4 grid grid-cols-1 lg:grid-cols-5 gap-4">
-        <div className="flex items-center justify-center">
-          <label className="w-1/4 block p-2 border rounded-l-md bg-gray-100">
-            거래처명
-          </label>
-          <motion.input
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1); // ✅ 검색 시 페이지 1로 이동
-            }}
-            placeholder="거래처명"
-            className="w-3/4 p-2 border rounded-r-md"
-          />
+    <div className="text-sm">
+      {/* 헤더 */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <Building2 className="w-6 h-6 text-teal-500" />
+              거래처별 실적
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              거래처별 매출/매입 실적을 확인하고 분석하세요.
+            </p>
+          </div>
+          <div className="text-sm text-slate-600">
+            총 <span className="font-bold text-teal-600">{filteredData.length}</span>개 거래처
+          </div>
         </div>
 
-        {/* 🔹 담당 영업사원 검색 */}
-        <div className="flex items-center justify-center">
-          <label className="w-1/4 block p-2 border rounded-l-md bg-gray-100">
-            담당자
-          </label>
-          <motion.input
-            value={salesRepTerm}
-            onChange={(e) => {
-              setSalesRepTerm(e.target.value);
-              setCurrentPage(1); // ✅ 검색 시 페이지 1로 이동
-            }}
-            placeholder="담당 영업사원"
-            className="w-3/4 p-2 border rounded-r-md"
-          />
-        </div>
+        {/* 검색 및 필터 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100">
+          {/* 거래처명 검색 */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="거래처명 검색..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+            />
+          </div>
 
-        <div className="flex items-center">
-          {/* 🔹 라벨 */}
-          <label className="block p-2 border rounded-tl rounded-bl bg-gray-100 min-w-[70px]">
-            기간선택
-          </label>
+          {/* 담당자 검색 */}
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="담당 영업사원 검색..."
+              value={salesRepTerm}
+              onChange={(e) => {
+                setSalesRepTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+            />
+          </div>
 
-          <select
-            className="border h-full p-2 rounded-tr rounded-br text-gray-700"
-            value={selectedYear}
-            onChange={(e) => {
-              setSelectedYear(Number(e.target.value));
-              setCurrentPage(1); // ✅ 연도 변경 시 페이지 1로 이동
-            }}
-          >
-            {Array.from(
-              { length: new Date().getFullYear() - 2010 + 1 },
-              (_, i) => {
+          {/* 기간 선택 */}
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
+            <select
+              value={selectedYear}
+              onChange={(e) => {
+                setSelectedYear(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+            >
+              {Array.from({ length: new Date().getFullYear() - 2010 + 1 }, (_, i) => {
                 const year = new Date().getFullYear() - i;
                 return (
                   <option key={year} value={year}>
-                    {year}
+                    {year}년
                   </option>
                 );
-              }
+              })}
+            </select>
+            <select
+              value={dateFilter}
+              onChange={(e) => {
+                setDateFilter(e.target.value as "year" | "quarter" | "month");
+                setCurrentPage(1);
+              }}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+            >
+              <option value="year">연간</option>
+              <option value="quarter">분기</option>
+              <option value="month">월간</option>
+            </select>
+            {dateFilter === "quarter" && (
+              <select
+                value={selectedQuarter}
+                onChange={(e) => {
+                  setSelectedQuarter(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+              >
+                <option value="1">1분기</option>
+                <option value="2">2분기</option>
+                <option value="3">3분기</option>
+                <option value="4">4분기</option>
+              </select>
             )}
-          </select>
+            {dateFilter === "month" && (
+              <select
+                value={selectedMonth}
+                onChange={(e) => {
+                  setSelectedMonth(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+              >
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}월
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
 
-          <select
-            className="border h-full p-2 rounded text-gray-700 ml-4"
-            value={dateFilter}
-            onChange={(e) => {
-              setDateFilter(e.target.value as "year" | "quarter" | "month");
-              setCurrentPage(1); // ✅ 필터 변경 시 페이지 1로 이동
-            }}
-          >
-            <option value="year">연도별</option>
-            <option value="quarter">분기별</option>
-            <option value="month">월별</option>
-          </select>
-
-          {dateFilter === "quarter" && (
+          {/* 표시 개수 */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-600">표시:</span>
             <select
-              className="border h-full p-2 rounded text-gray-700 ml-4"
-              value={selectedQuarter}
+              value={itemsPerPage}
               onChange={(e) => {
-                setSelectedQuarter(Number(e.target.value));
-                setCurrentPage(1); // ✅ 분기 변경 시 페이지 1로 이동
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
               }}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
             >
-              <option value="1">1분기 (1~3월)</option>
-              <option value="2">2분기 (4~6월)</option>
-              <option value="3">3분기 (7~9월)</option>
-              <option value="4">4분기 (10~12월)</option>
+              <option value="10">10개</option>
+              <option value="20">20개</option>
+              <option value="30">30개</option>
+              <option value="50">50개</option>
             </select>
-          )}
+          </div>
+        </div>
 
-          {dateFilter === "month" && (
-            <select
-              className="border h-full p-2 rounded text-gray-700 ml-4"
-              value={selectedMonth}
-              onChange={(e) => {
-                setSelectedMonth(Number(e.target.value));
-                setCurrentPage(1); // ✅ 월 변경 시 페이지 1로 이동
-              }}
-            >
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {i + 1}월
-                </option>
-              ))}
-            </select>
-          )}
+        {/* 현재 기간 & 합계 */}
+        <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-slate-100">
+          <span className="text-xs text-slate-500">
+            조회 기간: <span className="font-medium text-slate-700">{getPeriodLabel()}</span>
+          </span>
+          <div className="flex flex-wrap gap-3 ml-auto">
+            <div className="flex items-center gap-1.5 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg">
+              <FileText className="w-4 h-4 text-blue-500" />
+              <span className="text-xs text-blue-700">
+                견적 <span className="font-bold">{totalStats.estimates.toLocaleString()}</span>건
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-purple-50 border border-purple-100 px-3 py-1.5 rounded-lg">
+              <ShoppingCart className="w-4 h-4 text-purple-500" />
+              <span className="text-xs text-purple-700">
+                발주 <span className="font-bold">{totalStats.orders.toLocaleString()}</span>건
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-lg">
+              <TrendingUp className="w-4 h-4 text-emerald-500" />
+              <span className="text-xs text-emerald-700">
+                매출 <span className="font-bold">{totalStats.sales.toLocaleString()}</span>원
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg">
+              <TrendingDown className="w-4 h-4 text-red-500" />
+              <span className="text-xs text-red-700">
+                매입 <span className="font-bold">{totalStats.purchase.toLocaleString()}</span>원
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="flex justify-end items-center my-4">
-        <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
-        <select
-          value={itemsPerPage}
-          onChange={(e) => {
-            setItemsPerPage(Number(e.target.value));
-            setCurrentPage(1); // ✅ 페이지 변경 시 첫 페이지로 이동
-          }}
-          className="border border-gray-300 p-2 rounded-md text-sm"
-        >
-          <option value="10">10개</option>
-          <option value="20">20개</option>
-          <option value="30">30개</option>
-          <option value="50">50개</option>
-        </select>
-      </div>
-      <div className="bg-[#FBFBFB] rounded-md border mt-4">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-center">
-              <th className="px-4 py-2 border-b border-r w-2/12">거래처명</th>
-              <th className="px-4 py-2 border-b border-r w-1/12">견적서</th>
-              <th className="px-4 py-2 border-b border-r w-1/12">발주서</th>
-              <th className="px-4 py-2 border-b border-r w-2/12">총 매출</th>
-              <th className="px-4 py-2 border-b border-r w-2/12">총 매입</th>
-              <th className="px-4 py-2 border-b border-r">담당 영업사원</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((company: any) => (
-              <tr key={company.company_id} className="text-start">
-                <td
-                  className="px-4 py-2 border-b border-r text-blue-500 cursor-pointer text-center"
-                  onClick={() =>
-                    router.push(`/reports/customers/${company.company_id}`)
-                  }
-                >
-                  {company.company_name}
-                </td>
-                <td className="px-4 py-2 border-b border-r text-center">
-                  {company.completed_estimates}
-                </td>
-                <td className="px-4 py-2 border-b border-r text-center">
-                  {company.completed_orders}
-                </td>
-                <td className="px-4 py-2 border-b border-r text-right">
-                  {company.total_sales_amount.toLocaleString()} 원
-                </td>
-                <td className="px-4 py-2 border-b border-r text-right">
-                  {company.total_purchase_amount.toLocaleString()} 원
-                </td>
-                <td className="px-4 py-2 border-b border-r">
-                  {company.assigned_sales_reps.join(", ") || "-"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="flex justify-center mt-4 space-x-2">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-        >
-          이전
-        </button>
 
-        {paginationNumbers().map((page, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentPage(Number(page))}
-            className={`px-3 py-1 border rounded ${
-              currentPage === page
-                ? "bg-blue-500 text-white font-bold"
-                : "bg-gray-50 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {page}
-          </button>
-        ))}
+      {/* 테이블 */}
+      {isLoading ? (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-slate-500 mt-3">데이터를 불러오는 중...</p>
+          </div>
+        </div>
+      ) : paginatedData.length > 0 ? (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 w-1/4">
+                    거래처명
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 w-20">
+                    견적
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 w-20">
+                    발주
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 w-1/5">
+                    총 매출
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 w-1/5">
+                    총 매입
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600">
+                    담당자
+                  </th>
+                  <th className="px-4 py-3 w-10"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paginatedData.map((company: any) => (
+                  <tr
+                    key={company.company_id}
+                    onClick={() => router.push(`/reports/customers/${company.company_id}`)}
+                    className="hover:bg-slate-50 cursor-pointer transition-colors group"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Building2 className="w-4 h-4 text-teal-600" />
+                        </div>
+                        <span className="font-medium text-slate-800 group-hover:text-teal-600 transition-colors truncate">
+                          {company.company_name}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                        {company.completed_estimates}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                        {company.completed_orders}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="font-semibold text-emerald-600">
+                        {company.total_sales_amount.toLocaleString()}
+                      </span>
+                      <span className="text-slate-400 ml-1">원</span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="font-semibold text-red-500">
+                        {company.total_purchase_amount.toLocaleString()}
+                      </span>
+                      <span className="text-slate-400 ml-1">원</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        {company.assigned_sales_reps.length > 0 ? (
+                          company.assigned_sales_reps.slice(0, 2).map((rep: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs"
+                            >
+                              {rep}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                        {company.assigned_sales_reps.length > 2 && (
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">
+                            +{company.assigned_sales_reps.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-teal-500 transition-colors" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+          <div className="flex flex-col items-center justify-center text-slate-400">
+            <Building2 className="w-12 h-12 mb-4" />
+            <p>검색 결과가 없습니다.</p>
+          </div>
+        </div>
+      )}
 
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-          className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
-        >
-          다음
-        </button>
-      </div>
+      {/* 페이지네이션 */}
+      {!isLoading && totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="flex gap-1">
+              {renderPagination().map((page, index) =>
+                page === "..." ? (
+                  <span key={`ellipsis-${index}`} className="px-2 py-1.5 text-slate-400">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(Number(page))}
+                    className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === page
+                        ? "bg-teal-600 text-white"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+            </div>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </nav>
+        </div>
+      )}
     </div>
   );
 }

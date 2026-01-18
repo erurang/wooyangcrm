@@ -26,9 +26,9 @@ export default function ProductDocumentModal({
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
-        <div className="bg-white p-8 rounded-md">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">문서를 불러오는 중...</p>
+        <div className="bg-white p-8 rounded-xl shadow-lg">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="mt-4 text-slate-600">문서를 불러오는 중...</p>
         </div>
       </div>
     );

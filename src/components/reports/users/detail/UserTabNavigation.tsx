@@ -44,22 +44,24 @@ export default function UserTabNavigation({
   onTabChange,
 }: UserTabNavigationProps) {
   return (
-    <div className="px-5 pb-3">
-      <div className="flex flex-wrap gap-2">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === tab.id
-                ? "bg-indigo-600 text-white"
-                : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
-            }`}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
+    <div className="px-5 pb-4">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-2">
+        <div className="flex flex-wrap gap-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -142,11 +142,12 @@ export default function CompanySearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-sm text-gray-800">
+    <div className="min-h-screen bg-slate-50">
       <SearchFilters
         searchTerm={searchTerm}
         addressTerm={addressTerm}
         contactTerm={contactTerm}
+        total={total}
         onSearchChange={(value) => {
           setSearchTerm(value);
           setCurrentPage(1);
@@ -175,6 +176,8 @@ export default function CompanySearchPage() {
         onPerPageChange={setCompaniesPerPage}
         onEdit={(company) => openEditModal(company)}
         onDelete={openDeleteModal}
+        onAdd={openAddModal}
+        hasSearchQuery={!!(searchTerm || addressTerm || contactTerm)}
       />
 
       <CompanyFormModal

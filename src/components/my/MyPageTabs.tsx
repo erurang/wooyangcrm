@@ -40,8 +40,8 @@ export default function MyPageTabs({ basePath = "/profile" }: MyPageTabsProps) {
   };
 
   return (
-    <div className="border-b border-gray-200 mb-6">
-      <nav className="-mb-px flex space-x-1 overflow-x-auto">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 mb-6">
+      <nav className="flex overflow-x-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isActive(tab.href);
@@ -51,16 +51,19 @@ export default function MyPageTabs({ basePath = "/profile" }: MyPageTabsProps) {
               key={tab.name}
               href={tab.href}
               className={`
-                flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors
+                flex items-center gap-2 px-5 py-3.5 text-sm font-medium whitespace-nowrap transition-all relative
                 ${
                   active
-                    ? "border-indigo-500 text-indigo-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "text-blue-600 bg-blue-50/50"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
                 }
               `}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className={`w-4 h-4 ${active ? "text-blue-500" : ""}`} />
               {tab.name}
+              {active && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-t-full" />
+              )}
             </Link>
           );
         })}

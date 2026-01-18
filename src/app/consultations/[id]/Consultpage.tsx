@@ -339,7 +339,7 @@ export default function ConsultationPage() {
   };
 
   return (
-    <div className="bg-white text-gray-800 min-h-screen">
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
       <ConsultPageHeader
         companyName={companyDetail?.name || ""}
         companyId={companyDetail?.id || ""}
@@ -362,14 +362,14 @@ export default function ConsultationPage() {
         />
 
         {/* 탭 네비게이션 */}
-        <div className="mb-4 border-b border-gray-200">
-          <nav className="flex space-x-1">
+        <div className="mb-4 bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <nav className="flex">
             <button
               onClick={() => setActiveTab("consultations")}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "consultations"
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
               <MessageSquare size={16} />
@@ -377,10 +377,10 @@ export default function ConsultationPage() {
             </button>
             <button
               onClick={() => setActiveTab("price")}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "price"
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
               <TrendingUp size={16} />
@@ -388,10 +388,10 @@ export default function ConsultationPage() {
             </button>
             <button
               onClick={() => setActiveTab("files")}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "files"
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
               <Paperclip size={16} />
@@ -399,10 +399,10 @@ export default function ConsultationPage() {
             </button>
             <button
               onClick={() => setActiveTab("posts")}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "posts"
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
               <FileText size={16} />
@@ -410,10 +410,10 @@ export default function ConsultationPage() {
             </button>
             <button
               onClick={() => setActiveTab("stats")}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "stats"
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
               <BarChart3 size={16} />

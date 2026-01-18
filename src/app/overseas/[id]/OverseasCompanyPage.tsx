@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { CircularProgress } from "@mui/material";
 import {
   Search,
   Plus,
@@ -360,19 +359,20 @@ export default function OverseasCompanyPage() {
 
   if (companyLoading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <CircularProgress size={40} />
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mb-3" />
+        <p className="text-sm text-slate-500">거래처 정보를 불러오는 중...</p>
       </div>
     );
   }
 
   if (!company) {
     return (
-      <div className="text-center py-20">
-        <p className="text-gray-500">거래처를 찾을 수 없습니다.</p>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-20">
+        <p className="text-slate-500">거래처를 찾을 수 없습니다.</p>
         <button
           onClick={() => router.push("/overseas")}
-          className="mt-4 text-blue-600 hover:text-blue-800"
+          className="mt-4 text-teal-600 hover:text-teal-700"
         >
           목록으로 돌아가기
         </button>
@@ -381,23 +381,23 @@ export default function OverseasCompanyPage() {
   }
 
   return (
-    <div className="bg-white text-gray-800 min-h-screen">
-      {/* 헤더 - ConsultPageHeader와 동일한 패턴 */}
-      <div className="bg-white border-b sticky top-0 z-10">
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
+      {/* 헤더 */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between gap-4">
             {/* 좌측: 브레드크럼 */}
             <div className="flex items-center gap-2 min-w-0">
               <Link
                 href="/overseas"
-                className="text-sm text-gray-500 hover:text-gray-700 transition-colors shrink-0"
+                className="text-sm text-slate-500 hover:text-slate-700 transition-colors shrink-0"
               >
                 해외거래처
               </Link>
-              <ChevronRight size={14} className="text-gray-400 shrink-0" />
+              <ChevronRight size={14} className="text-slate-400 shrink-0" />
               <div className="flex items-center gap-2 min-w-0">
-                <Globe size={18} className="text-blue-600 shrink-0" />
-                <h1 className="text-lg font-bold text-gray-900 truncate">
+                <Globe size={18} className="text-teal-600 shrink-0" />
+                <h1 className="text-lg font-bold text-slate-800 truncate">
                   {company.name || "거래처 상세"}
                 </h1>
               </div>
@@ -408,19 +408,19 @@ export default function OverseasCompanyPage() {
               <div className="relative">
                 <Search
                   size={15}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
                 />
                 <input
                   type="text"
                   placeholder="Invoice No. 검색"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-48 py-1.5 pl-8 pr-3 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-colors"
+                  className="w-48 py-1.5 pl-8 pr-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50 hover:bg-white focus:bg-white transition-colors"
                 />
               </div>
               <button
                 onClick={handleOpenAddOrderModal}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors"
               >
                 <Plus size={16} />
                 <span className="hidden sm:inline">발주 추가</span>
@@ -444,14 +444,14 @@ export default function OverseasCompanyPage() {
         />
 
         {/* 탭 네비게이션 */}
-        <div className="mb-4 border-b border-gray-200">
+        <div className="mb-4 border-b border-slate-200">
           <nav className="flex space-x-1">
             <button
               onClick={() => setActiveTab("orders")}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "orders"
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-teal-600 text-teal-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
               }`}
             >
               <Package size={16} />
@@ -461,8 +461,8 @@ export default function OverseasCompanyPage() {
               onClick={() => setActiveTab("files")}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "files"
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-teal-600 text-teal-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
               }`}
             >
               <Paperclip size={16} />
@@ -476,13 +476,13 @@ export default function OverseasCompanyPage() {
           <>
             {/* 수입/수출 필터 */}
             <div className="flex items-center justify-between mb-4">
-              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
                 <button
                   onClick={() => setOrderType("import")}
                   className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
                     orderType === "import"
-                      ? "bg-white text-blue-600 shadow-sm font-medium"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "bg-white text-teal-600 shadow-sm font-medium"
+                      : "text-slate-600 hover:text-slate-800"
                   }`}
                 >
                   수입 발주
@@ -491,20 +491,21 @@ export default function OverseasCompanyPage() {
                   onClick={() => setOrderType("export")}
                   className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
                     orderType === "export"
-                      ? "bg-white text-blue-600 shadow-sm font-medium"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "bg-white text-teal-600 shadow-sm font-medium"
+                      : "text-slate-600 hover:text-slate-800"
                   }`}
                 >
                   수출
                 </button>
               </div>
-              <span className="text-sm text-gray-500">총 {total}건</span>
+              <span className="text-sm text-slate-500">총 <span className="font-semibold text-teal-600">{total}</span>건</span>
             </div>
 
             {/* 발주 카드 목록 */}
             {ordersLoading ? (
-              <div className="flex justify-center items-center py-20">
-                <CircularProgress size={40} />
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-sm text-slate-500">발주 내역을 불러오는 중...</p>
               </div>
             ) : orders && orders.length > 0 ? (
               <div className="space-y-4">
@@ -519,15 +520,15 @@ export default function OverseasCompanyPage() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white border border-gray-200 rounded-lg py-12 text-center">
-                <Package size={40} className="mx-auto text-gray-300 mb-3" />
-                <p className="text-gray-500">
+              <div className="bg-white border border-slate-200 rounded-xl py-12 text-center">
+                <Package size={40} className="mx-auto text-slate-300 mb-3" />
+                <p className="text-slate-500">
                   {orderType === "import" ? "수입" : "수출"} 발주 내역이
                   없습니다.
                 </p>
                 <button
                   onClick={handleOpenAddOrderModal}
-                  className="mt-4 text-blue-600 hover:text-blue-800 text-sm"
+                  className="mt-4 text-teal-600 hover:text-teal-700 text-sm"
                 >
                   첫 발주 추가하기
                 </button>
@@ -537,9 +538,9 @@ export default function OverseasCompanyPage() {
         )}
 
         {activeTab === "files" && (
-          <div className="bg-white border border-gray-200 rounded-lg py-12 text-center">
-            <Paperclip size={40} className="mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500">파일 기능은 준비 중입니다.</p>
+          <div className="bg-white border border-slate-200 rounded-xl py-12 text-center">
+            <Paperclip size={40} className="mx-auto text-slate-300 mb-3" />
+            <p className="text-slate-500">파일 기능은 준비 중입니다.</p>
           </div>
         )}
       </div>

@@ -1,13 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { MessageSquare, FileText, TrendingUp, Bell, AlertTriangle, ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
+import { MessageSquare, FileText, TrendingUp, TrendingDown, Bell, AlertTriangle, ArrowUpRight, ArrowDownRight, Minus, ChevronRight } from "lucide-react";
 
 interface KPISummaryCardsProps {
   todayConsultations: number;
   pendingDocuments: number;
   monthSales: number;
   previousMonthSales: number;
+  monthPurchases: number;
+  previousMonthPurchases: number;
   followUpNeeded: number;
   expiringDocuments: number;
   isLoading?: boolean;
@@ -27,6 +29,8 @@ export default function KPISummaryCards({
   pendingDocuments,
   monthSales,
   previousMonthSales,
+  monthPurchases,
+  previousMonthPurchases,
   followUpNeeded,
   expiringDocuments,
   isLoading = false,
@@ -34,8 +38,9 @@ export default function KPISummaryCards({
 }: KPISummaryCardsProps) {
   const router = useRouter();
 
-  // 매출 변화율 계산
+  // 변화율 계산
   const salesChange = calculateChange(monthSales, previousMonthSales);
+  const purchaseChange = calculateChange(monthPurchases, previousMonthPurchases);
 
   const cards = [
     {
@@ -70,6 +75,20 @@ export default function KPISummaryCards({
       href: "/reports",
       change: salesChange,
       showChange: true,
+    },
+    {
+      title: "이번달 매입",
+      value: monthPurchases,
+      suffix: "",
+      format: "currency",
+      icon: TrendingDown,
+      bgColor: "bg-purple-50",
+      iconColor: "text-purple-600",
+      valueColor: "text-purple-700",
+      href: "/reports",
+      change: purchaseChange,
+      showChange: true,
+      invertChange: true, // 매입은 증가하면 나쁜 것
     },
     {
       title: "팔로우업 필요",
@@ -112,7 +131,7 @@ export default function KPISummaryCards({
     if (compact) {
       return (
         <div className="flex flex-wrap gap-2">
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
               className="bg-slate-50 rounded-md px-3 py-1.5 animate-pulse flex items-center gap-2"
@@ -125,8 +144,8 @@ export default function KPISummaryCards({
       );
     }
     return (
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
-        {[1, 2, 3, 4, 5].map((i) => (
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
             className="bg-white rounded-lg border border-slate-200 p-4 animate-pulse"
@@ -145,14 +164,23 @@ export default function KPISummaryCards({
       <div className="flex flex-wrap gap-2">
         {cards.map((card) => {
           const Icon = card.icon;
+          const borderColor = card.highlight
+            ? "border-orange-300"
+            : card.bgColor === "bg-blue-50" ? "border-blue-200"
+            : card.bgColor === "bg-indigo-50" ? "border-indigo-200"
+            : card.bgColor === "bg-green-50" ? "border-green-200"
+            : card.bgColor === "bg-purple-50" ? "border-purple-200"
+            : card.bgColor === "bg-orange-50" ? "border-orange-200"
+            : card.bgColor === "bg-red-50" ? "border-red-200"
+            : "border-slate-200";
           return (
-            <div
+            <button
               key={card.title}
               onClick={() => card.href && router.push(card.href)}
               className={`
-                flex items-center gap-1.5 px-2.5 py-1.5 rounded-md cursor-pointer
-                ${card.bgColor} border ${card.highlight ? "border-orange-300" : "border-transparent"}
-                transition-all hover:opacity-80
+                group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer
+                ${card.bgColor} border ${borderColor}
+                transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98]
               `}
             >
               <Icon className={`h-3.5 w-3.5 ${card.iconColor}`} />
@@ -171,7 +199,8 @@ export default function KPISummaryCards({
                   ) : null}
                 </span>
               )}
-            </div>
+              <ChevronRight className="h-3 w-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
           );
         })}
       </div>
@@ -179,7 +208,7 @@ export default function KPISummaryCards({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
+    <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5">
       {cards.map((card) => {
         const Icon = card.icon;
         return (

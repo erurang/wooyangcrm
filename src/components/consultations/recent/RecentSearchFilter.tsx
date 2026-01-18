@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, User, RefreshCw, Building, MessageSquare } from "lucide-react";
+import { Calendar, User, RotateCcw, Building2, MessageSquare, Clock } from "lucide-react";
 
 interface UserType {
   id: string;
@@ -37,92 +37,94 @@ export default function RecentSearchFilter({
   users,
   onReset,
 }: RecentSearchFilterProps) {
+  const hasFilters = searchTerm || contentSearch || selectedUser;
+
   return (
-    <div className="bg-white rounded-lg border shadow-sm p-4 mb-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
-        {/* 거래처 검색 */}
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Building className="w-3 h-3 mr-1 text-gray-400" />
-            거래처
-          </label>
-          <input
-            value={searchTerm}
-            onChange={(e) => onSearchTermChange(e.target.value)}
-            placeholder="거래처명"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          />
+    <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <div className="px-4 py-3">
+        {/* 타이틀 */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-cyan-50 rounded-lg">
+            <Clock className="h-5 w-5 text-cyan-600" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-slate-800">최근 상담</h1>
+            <p className="text-xs text-slate-500">오늘 상담 내역을 확인합니다</p>
+          </div>
         </div>
 
-        {/* 상담내용 검색 */}
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <MessageSquare className="w-3 h-3 mr-1 text-gray-400" />
-            상담내용
-          </label>
-          <input
-            value={contentSearch}
-            onChange={(e) => onContentSearchChange(e.target.value)}
-            placeholder="쉼표로 다중검색"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          />
-        </div>
+        {/* 검색 필터 */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* 거래처 검색 */}
+          <div className="relative flex-1 min-w-[140px] max-w-[180px]">
+            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              value={searchTerm}
+              onChange={(e) => onSearchTermChange(e.target.value)}
+              placeholder="거래처..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+            />
+          </div>
 
-        {/* 상담 기간 */}
-        <div className="space-y-1 col-span-2 md:col-span-1 lg:col-span-2">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Calendar className="w-3 h-3 mr-1 text-gray-400" />
-            상담 기간
-          </label>
-          <div className="flex items-center gap-1">
+          {/* 상담내용 검색 */}
+          <div className="relative flex-1 min-w-[140px] max-w-[180px]">
+            <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              value={contentSearch}
+              onChange={(e) => onContentSearchChange(e.target.value)}
+              placeholder="상담내용..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+            />
+          </div>
+
+          {/* 상담 기간 */}
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-4 w-4 text-slate-400" />
             <input
               type="date"
               value={startDate}
               onChange={(e) => onStartDateChange(e.target.value)}
-              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="px-2.5 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
             />
-            <span className="text-gray-400 text-sm">~</span>
+            <span className="text-slate-400">~</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => onEndDateChange(e.target.value)}
-              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="px-2.5 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
             />
           </div>
-        </div>
 
-        {/* 상담자 */}
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <User className="w-3 h-3 mr-1 text-gray-400" />
-            상담자
-          </label>
-          <select
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            value={selectedUser?.id || ""}
-            onChange={(e) => {
-              const user = users.find((u) => u.id === e.target.value) || null;
-              onUserChange(user);
-            }}
-          >
-            <option value="">전체</option>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name} {user.level}
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* 상담자 */}
+          <div className="relative min-w-[120px]">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <select
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors appearance-none"
+              value={selectedUser?.id || ""}
+              onChange={(e) => {
+                const user = users.find((u) => u.id === e.target.value) || null;
+                onUserChange(user);
+              }}
+            >
+              <option value="">전체</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name} {user.level}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* 필터 초기화 */}
-        <div>
-          <button
-            onClick={onReset}
-            className="w-full px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 rounded transition-colors flex items-center justify-center"
-          >
-            <RefreshCw className="w-3 h-3 mr-1" />
-            초기화
-          </button>
+          {/* 필터 초기화 */}
+          {hasFilters && (
+            <button
+              onClick={onReset}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              초기화
+            </button>
+          )}
         </div>
       </div>
     </div>

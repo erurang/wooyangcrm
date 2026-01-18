@@ -179,9 +179,11 @@ export default function MyDocumentsPage() {
   // 로그인 필요
   if (!user?.id) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
-        <FileCheck className="w-12 h-12 mb-4 text-gray-300" />
-        <p>로그인이 필요합니다.</p>
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+        <div className="flex flex-col items-center justify-center text-slate-400">
+          <FileCheck className="w-12 h-12 mb-4" />
+          <p>로그인이 필요합니다.</p>
+        </div>
       </div>
     );
   }
@@ -191,80 +193,83 @@ export default function MyDocumentsPage() {
   const totalPages = data?.totalPages || 0;
 
   return (
-    <div className="text-sm text-[#37352F]">
+    <div className="text-sm">
       {/* 헤더 */}
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold">내 문서</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          내가 생성한 견적서와 발주서를 확인하세요.
-        </p>
-      </div>
-
-      {/* 검색 및 필터 */}
-      <div className="flex flex-col gap-4 mb-6">
-        {/* 검색 */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            placeholder="회사명으로 검색..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold text-slate-800">내 문서</h1>
+            <p className="text-sm text-slate-500 mt-1">
+              내가 생성한 견적서와 발주서를 확인하세요.
+            </p>
+          </div>
+          <div className="text-sm text-slate-600">
+            총 <span className="font-bold text-purple-600">{total}</span>개
+          </div>
         </div>
 
-        {/* 필터 */}
-        <div className="flex flex-wrap gap-4">
-          {/* 타입 필터 */}
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <div className="flex gap-1">
-              {(Object.keys(docTypeLabels) as DocType[]).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => handleTypeChange(type)}
-                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                    docType === type
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
-                >
-                  {docTypeLabels[type]}
-                </button>
-              ))}
-            </div>
+        {/* 검색 및 필터 */}
+        <div className="flex flex-col gap-4 mt-4 pt-4 border-t border-slate-100">
+          {/* 검색 */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              placeholder="회사명으로 검색..."
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+            />
           </div>
 
-          {/* 상태 필터 */}
-          <select
-            value={docStatus}
-            onChange={(e) => handleStatusChange(e.target.value as DocStatus)}
-            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            {Object.entries(docStatusLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+          {/* 필터 */}
+          <div className="flex flex-wrap gap-4">
+            {/* 타입 필터 */}
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-slate-400" />
+              <div className="flex gap-1">
+                {(Object.keys(docTypeLabels) as DocType[]).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => handleTypeChange(type)}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      docType === type
+                        ? "bg-purple-600 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {docTypeLabels[type]}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-      {/* 총 개수 */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
-          총 <span className="font-semibold">{total}</span>개
+            {/* 상태 필터 */}
+            <select
+              value={docStatus}
+              onChange={(e) => handleStatusChange(e.target.value as DocStatus)}
+              className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+            >
+              {Object.entries(docStatusLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
       {/* 문서 목록 */}
       {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-slate-500 mt-3">문서를 불러오는 중...</p>
+          </div>
         </div>
       ) : documents.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {documents.map((doc) => {
             const isHighlighted = highlightId === doc.id;
             return (
@@ -272,51 +277,51 @@ export default function MyDocumentsPage() {
               key={doc.id}
               ref={isHighlighted ? highlightRef : null}
               href={doc.consultation_id && doc.company_id ? `/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}` : "#"}
-              className={`block bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all ${
-                isHighlighted ? "bg-indigo-50 ring-2 ring-indigo-200 ring-inset" : ""
+              className={`block bg-white border rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all ${
+                isHighlighted ? "bg-purple-50 border-purple-300 ring-2 ring-purple-200" : "border-slate-200"
               }`}
             >
               <div className="flex items-center justify-between gap-4">
                 {/* 문서 정보 */}
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {docTypeIcons[doc.type] || (
-                    <FileCheck className="w-5 h-5 text-gray-400" />
+                    <FileCheck className="w-5 h-5 text-slate-400" />
                   )}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1.5">
                       <span
-                        className={`px-2 py-0.5 text-xs rounded-full ${
-                          docStatusColors[doc.status] || "bg-gray-100 text-gray-600"
+                        className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                          docStatusColors[doc.status] || "bg-slate-100 text-slate-600"
                         }`}
                       >
                         {docStatusLabels[doc.status] || doc.status}
                       </span>
-                      <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600">
+                      <span className="px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-600">
                         {docTypeLabels[doc.type as DocType] || doc.type}
                       </span>
                       {doc.document_number && (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-slate-400 font-mono">
                           #{doc.document_number}
                         </span>
                       )}
                     </div>
-                    <h3 className="font-medium text-gray-900 truncate flex items-center gap-1">
-                      <Building2 className="w-4 h-4 text-gray-400" />
+                    <h3 className="font-semibold text-slate-800 truncate flex items-center gap-1.5">
+                      <Building2 className="w-4 h-4 text-purple-500" />
                       {doc.company_name}
                     </h3>
-                    <div className="flex items-center gap-4 mt-1 text-xs text-gray-500">
-                      <span className="flex items-center gap-1">
+                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                      <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-full">
                         <Calendar className="w-3 h-3" />
                         {dayjs(doc.created_at).format("YYYY-MM-DD")}
                       </span>
                       {doc.total_amount > 0 && (
-                        <span className="flex items-center gap-1 font-medium text-gray-700">
+                        <span className="flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
                           <DollarSign className="w-3 h-3" />
                           {formatAmount(doc.total_amount)}원
                         </span>
                       )}
                       {doc.valid_until && (
-                        <span className="text-gray-400">
+                        <span className="text-slate-400">
                           유효: {dayjs(doc.valid_until).format("YYYY-MM-DD")}
                         </span>
                       )}
@@ -329,57 +334,61 @@ export default function MyDocumentsPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-          <FileCheck className="w-12 h-12 mb-4 text-gray-300" />
-          <p>생성한 문서가 없습니다.</p>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+          <div className="flex flex-col items-center justify-center text-slate-400">
+            <FileCheck className="w-12 h-12 mb-4" />
+            <p>생성한 문서가 없습니다.</p>
+          </div>
         </div>
       )}
 
       {/* 페이지네이션 */}
       {!isLoading && totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-6">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-          >
-            이전
-          </button>
-          <div className="flex gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let page: number;
-              if (totalPages <= 5) {
-                page = i + 1;
-              } else if (currentPage <= 3) {
-                page = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                page = totalPages - 4 + i;
-              } else {
-                page = currentPage - 2 + i;
-              }
+        <div className="flex justify-center mt-6">
+          <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              이전
+            </button>
+            <div className="flex gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let page: number;
+                if (totalPages <= 5) {
+                  page = i + 1;
+                } else if (currentPage <= 3) {
+                  page = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  page = totalPages - 4 + i;
+                } else {
+                  page = currentPage - 2 + i;
+                }
 
-              return (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1.5 text-sm rounded-lg ${
-                    currentPage === page
-                      ? "bg-indigo-600 text-white"
-                      : "border border-gray-300 hover:bg-gray-50"
-                  }`}
-                >
-                  {page}
-                </button>
-              );
-            })}
-          </div>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-          >
-            다음
-          </button>
+                return (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === page
+                        ? "bg-purple-600 text-white"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              다음
+            </button>
+          </nav>
         </div>
       )}
     </div>

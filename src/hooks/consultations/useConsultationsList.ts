@@ -16,12 +16,13 @@ export function useConsultationsList(
     params.set("highlightId", highlightId);
   }
 
-  const { data, error, mutate } = useSWR(
+  const { data, error, mutate, isLoading, isValidating } = useSWR(
     companyId ? `/api/consultations/list?${params.toString()}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {
       revalidateOnFocus: false,
       dedupingInterval: 60000,
+      keepPreviousData: true, // 재검증 중 이전 데이터 유지
     }
   );
 
@@ -29,7 +30,10 @@ export function useConsultationsList(
     consultations: data?.consultations || [],
     totalPages: data?.totalPages || 1,
     actualPage: data?.currentPage || currentPage,
-    isLoading: !data && !error,
+    // SWR 2.x의 isLoading 사용 (초기 로딩)
+    // isValidating은 재검증 중일 때 true
+    isLoading: isLoading || (!data && isValidating),
+    isValidating,
     isError: !!error,
     refreshConsultations: mutate,
   };

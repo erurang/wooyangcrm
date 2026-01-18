@@ -67,7 +67,7 @@ export default function ProductTable({
   }) => (
     <th
       scope="col"
-      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer ${className}`}
+      className={`px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700 transition-colors ${className}`}
       onClick={() => onSort(field)}
     >
       <div className="flex items-center">
@@ -82,7 +82,7 @@ export default function ProductTable({
   const StatusBadge = ({ status }: { status: string }) => {
     if (status === "pending") {
       return (
-        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-700">
           <Clock className="h-3.5 w-3.5 mr-1" />
           진행중
         </span>
@@ -90,7 +90,7 @@ export default function ProductTable({
     }
     if (status === "completed") {
       return (
-        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-700">
           <CheckCircle className="h-3.5 w-3.5 mr-1" />
           완료
         </span>
@@ -98,7 +98,7 @@ export default function ProductTable({
     }
     if (status === "canceled") {
       return (
-        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-700">
           <XCircle className="h-3.5 w-3.5 mr-1" />
           취소
         </span>
@@ -109,9 +109,10 @@ export default function ProductTable({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <div className="flex justify-center items-center p-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+        <div className="flex flex-col justify-center items-center p-12">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-slate-500 mt-3">물품을 불러오는 중...</p>
         </div>
       </div>
     );
@@ -119,17 +120,17 @@ export default function ProductTable({
 
   if (products.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
         <EmptyState type="product" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
               <SortableHeader field="document_number" className="hidden md:table-cell">
                 문서번호
@@ -152,18 +153,18 @@ export default function ProductTable({
               </SortableHeader>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-100">
             {products.map((product, index) => (
-              <tr key={index} className="hover:bg-gray-50 transition-colors">
+              <tr key={index} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap text-sm hidden md:table-cell">
                   <button
                     onClick={() => onDocumentClick?.(product.id)}
-                    className="text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium"
+                    className="text-blue-600 hover:text-blue-700 hover:underline transition-colors font-medium"
                   >
                     {product.document_number}
                   </button>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden md:table-cell">
                   {dayjs(product.estimate_date).format("YYYY-MM-DD")}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm hidden md:table-cell">
@@ -171,24 +172,24 @@ export default function ProductTable({
                     onClick={() =>
                       router.push(`/consultations/${product.company_id}`)
                     }
-                    className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                    className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
                   >
                     {product.company_name}
                   </button>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800">
                   {product.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                   {product.spec}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                   {product.quantity}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800 font-medium">
                   {product.unit_price.toLocaleString()} 원
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 hidden md:table-cell">
                   {product.user_name} {product.user_level}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">

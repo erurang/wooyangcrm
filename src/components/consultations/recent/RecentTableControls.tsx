@@ -16,24 +16,22 @@ export default function RecentTableControls({
   onPerPageChange,
 }: RecentTableControlsProps) {
   return (
-    <div className="flex justify-between items-center mb-4">
-      <div className="text-gray-500">
+    <div className="flex justify-between items-center px-4 py-3">
+      <div className="text-sm text-slate-500">
         {isLoading ? (
           <span>로딩 중...</span>
         ) : (
           <span>
-            총 {totalPages > 0 ? (currentPage - 1) * perPage + 1 : 0} -{" "}
-            {Math.min(currentPage * perPage, totalPages * perPage)} /{" "}
-            {totalPages * perPage} 건
+            {currentPage} / {totalPages} 페이지
           </span>
         )}
       </div>
-      <div className="flex items-center">
-        <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-slate-500">표시:</span>
         <select
           value={perPage}
           onChange={(e) => onPerPageChange(Number(e.target.value))}
-          className="border border-gray-300 p-2 rounded-md text-sm"
+          className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-white"
         >
           <option value="5">5개</option>
           <option value="10">10개</option>

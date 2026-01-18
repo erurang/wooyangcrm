@@ -42,9 +42,9 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(data, { status: 201 });
 }
 
-// ✅ PUT - 할 일 내용 수정 (자동 저장)
+// ✅ PUT - 할 일 내용 및 기한 수정 (자동 저장)
 export async function PUT(req: NextRequest) {
-  const { id, content } = await req.json();
+  const { id, content, due_date } = await req.json();
 
   if (!id || content === undefined) {
     return NextResponse.json(
@@ -53,9 +53,15 @@ export async function PUT(req: NextRequest) {
     );
   }
 
+  // 업데이트할 필드 구성
+  const updateData: { content: string; due_date?: string | null } = { content };
+  if (due_date !== undefined) {
+    updateData.due_date = due_date;
+  }
+
   const { error } = await supabase
     .from("todos")
-    .update({ content })
+    .update(updateData)
     .eq("id", id);
 
   if (error)

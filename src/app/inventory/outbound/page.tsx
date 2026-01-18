@@ -595,205 +595,192 @@ export default function OutboundPage() {
   }
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="min-h-screen bg-slate-50">
       {/* 헤더 */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Truck className="h-6 w-6 md:h-7 md:w-7 text-blue-600" />
-            출고 관리
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            완료된 견적서 기준으로 출고 확인을 진행합니다
-          </p>
-        </div>
-        <div className="flex flex-col md:flex-row gap-2">
-          {/* 기간 필터 */}
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => {
-                setDateFrom(e.target.value);
-                setPage(1);
-              }}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <span className="text-gray-500">~</span>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => {
-                setDateTo(e.target.value);
-                setPage(1);
-              }}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          {/* 검색 */}
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="거래처, 문서번호, 품명 검색..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* 선택 인쇄 버튼 */}
-      {selectedIds.size > 0 && (
-        <div className="mb-4 flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <span className="text-sm text-blue-700 font-medium">
-            {selectedIds.size}개 선택됨
-          </span>
-          <button
-            onClick={handleOpenBulkSpecSheet}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-          >
-            <Printer className="h-4 w-4" />
-            선택 명세서 인쇄
-          </button>
-          <button
-            onClick={() => setSelectedIds(new Set())}
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
-            선택 해제
-          </button>
-        </div>
-      )}
-
-      {/* 통계 카드 */}
-      <div className="grid grid-cols-5 gap-2 md:gap-4 mb-6">
-        <div
-          onClick={() => setFilter("all")}
-          className={`p-3 md:p-4 rounded-lg border cursor-pointer transition-all ${
-            filter === "all"
-              ? "bg-blue-50 border-blue-300"
-              : "bg-white border-gray-200 hover:bg-gray-50"
-          }`}
-        >
-          <div className="text-xs md:text-sm text-gray-500">전체</div>
-          <div className="text-xl md:text-2xl font-bold text-gray-900">
-            {stats.total}
-          </div>
-        </div>
-        <div
-          onClick={() => setFilter("pending")}
-          className={`p-3 md:p-4 rounded-lg border cursor-pointer transition-all ${
-            filter === "pending"
-              ? "bg-yellow-50 border-yellow-300"
-              : "bg-white border-gray-200 hover:bg-gray-50"
-          }`}
-        >
-          <div className="text-xs md:text-sm text-gray-500 flex items-center gap-1">
-            <Clock className="h-3 w-3 md:h-4 md:w-4" />
-            대기
-          </div>
-          <div className="text-xl md:text-2xl font-bold text-yellow-600">
-            {stats.pending}
-          </div>
-        </div>
-        <div
-          onClick={() => setFilter("assigned")}
-          className={`p-3 md:p-4 rounded-lg border cursor-pointer transition-all ${
-            filter === "assigned"
-              ? "bg-blue-50 border-blue-300"
-              : "bg-white border-gray-200 hover:bg-gray-50"
-          }`}
-        >
-          <div className="text-xs md:text-sm text-gray-500 flex items-center gap-1">
-            <UserCheck className="h-3 w-3 md:h-4 md:w-4" />
-            배정
-          </div>
-          <div className="text-xl md:text-2xl font-bold text-blue-600">
-            {stats.assigned}
-          </div>
-        </div>
-        <div
-          onClick={() => setFilter("overdue")}
-          className={`p-3 md:p-4 rounded-lg border cursor-pointer transition-all ${
-            filter === "overdue"
-              ? "bg-red-50 border-red-300"
-              : stats.overdue > 0
-              ? "bg-red-50 border-red-200 hover:border-red-300"
-              : "bg-white border-gray-200 hover:bg-gray-50"
-          }`}
-        >
-          <div className="text-xs md:text-sm text-red-600 flex items-center gap-1">
-            <AlertTriangle className="h-3 w-3 md:h-4 md:w-4" />
-            지연
-          </div>
-          <div className="text-xl md:text-2xl font-bold text-red-600">
-            {stats.overdue}
-          </div>
-        </div>
-        <div
-          onClick={() => setFilter("completed")}
-          className={`p-3 md:p-4 rounded-lg border cursor-pointer transition-all ${
-            filter === "completed"
-              ? "bg-green-50 border-green-300"
-              : "bg-white border-gray-200 hover:bg-gray-50"
-          }`}
-        >
-          <div className="text-xs md:text-sm text-gray-500 flex items-center gap-1">
-            <CheckCircle className="h-3 w-3 md:h-4 md:w-4" />
-            완료
-          </div>
-          <div className="text-xl md:text-2xl font-bold text-green-600">
-            {stats.completed}
-          </div>
-        </div>
-      </div>
-
-      {/* 페이지네이션 */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
-          <span>
-            전체 {total}건 중 {(page - 1) * 10 + 1}-{Math.min(page * 10, total)}건 표시
-          </span>
-          <div className="flex items-center gap-2">
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div className="px-4 py-3">
+          {/* KPI 카드 */}
+          <div className="grid grid-cols-5 gap-3 mb-4">
             <button
-              onClick={() => setPage(Math.max(1, page - 1))}
-              disabled={page === 1}
-              className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => setFilter("all")}
+              className={`p-3 rounded-lg border transition-all text-left ${
+                filter === "all"
+                  ? "bg-slate-100 border-slate-300 ring-2 ring-slate-400"
+                  : "bg-white border-slate-200 hover:bg-slate-50"
+              }`}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <div className="text-xs text-slate-500 font-medium mb-1">전체</div>
+              <div className="text-2xl font-bold text-slate-800">{stats.total}</div>
             </button>
-            <span className="px-2">
-              {page} / {totalPages}
+            <button
+              onClick={() => setFilter("pending")}
+              className={`p-3 rounded-lg border transition-all text-left ${
+                filter === "pending"
+                  ? "bg-amber-50 border-amber-300 ring-2 ring-amber-400"
+                  : "bg-amber-50/50 border-amber-100 hover:bg-amber-50"
+              }`}
+            >
+              <div className="flex items-center gap-1 text-xs text-amber-600 font-medium mb-1">
+                <Clock className="h-3.5 w-3.5" />
+                대기
+              </div>
+              <div className="text-2xl font-bold text-amber-600">{stats.pending}</div>
+            </button>
+            <button
+              onClick={() => setFilter("assigned")}
+              className={`p-3 rounded-lg border transition-all text-left ${
+                filter === "assigned"
+                  ? "bg-indigo-50 border-indigo-300 ring-2 ring-indigo-400"
+                  : "bg-indigo-50/50 border-indigo-100 hover:bg-indigo-50"
+              }`}
+            >
+              <div className="flex items-center gap-1 text-xs text-indigo-600 font-medium mb-1">
+                <UserCheck className="h-3.5 w-3.5" />
+                배정
+              </div>
+              <div className="text-2xl font-bold text-indigo-600">{stats.assigned}</div>
+            </button>
+            <button
+              onClick={() => setFilter("overdue")}
+              className={`p-3 rounded-lg border transition-all text-left ${
+                filter === "overdue"
+                  ? "bg-red-50 border-red-300 ring-2 ring-red-400"
+                  : "bg-red-50/50 border-red-100 hover:bg-red-50"
+              }`}
+            >
+              <div className="flex items-center gap-1 text-xs text-red-600 font-medium mb-1">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                지연
+              </div>
+              <div className="text-2xl font-bold text-red-600">{stats.overdue}</div>
+            </button>
+            <button
+              onClick={() => setFilter("completed")}
+              className={`p-3 rounded-lg border transition-all text-left ${
+                filter === "completed"
+                  ? "bg-sky-50 border-sky-300 ring-2 ring-sky-400"
+                  : "bg-sky-50/50 border-sky-100 hover:bg-sky-50"
+              }`}
+            >
+              <div className="flex items-center gap-1 text-xs text-sky-600 font-medium mb-1">
+                <CheckCircle className="h-3.5 w-3.5" />
+                완료
+              </div>
+              <div className="text-2xl font-bold text-sky-600">{stats.completed}</div>
+            </button>
+          </div>
+
+          {/* 필터 영역 */}
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-2">
+              <Truck className="h-5 w-5 text-blue-600" />
+              <h1 className="text-lg font-bold text-slate-800">출고 관리</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* 기간 필터 */}
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => {
+                  setDateFrom(e.target.value);
+                  setPage(1);
+                }}
+                className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <span className="text-slate-400">~</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => {
+                  setDateTo(e.target.value);
+                  setPage(1);
+                }}
+                className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {/* 검색 */}
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="거래처, 문서번호, 품명..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4">
+        {/* 선택 인쇄 버튼 */}
+        {selectedIds.size > 0 && (
+          <div className="mb-4 flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <span className="text-sm text-blue-700 font-medium">
+              {selectedIds.size}개 선택됨
             </span>
             <button
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              disabled={page === totalPages}
-              className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleOpenBulkSpecSheet}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
             >
-              <ChevronRight className="h-4 w-4" />
+              <Printer className="h-4 w-4" />
+              선택 명세서 인쇄
+            </button>
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="text-sm text-slate-500 hover:text-slate-700"
+            >
+              선택 해제
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 빈 상태 */}
-      {tasks.length === 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <Truck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            출고 대기 항목이 없습니다
-          </h3>
-          <p className="text-sm text-gray-500">
-            완료된 견적서가 있으면 자동으로 출고 대기 목록에 추가됩니다
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mb-4 text-sm text-slate-600">
+            <span>
+              전체 {total}건 중 {(page - 1) * 10 + 1}-{Math.min(page * 10, total)}건
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page === 1}
+                className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="px-3 py-1.5 text-sm">
+                {page} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+                className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 빈 상태 */}
+        {tasks.length === 0 && (
+          <div className="bg-white rounded-lg border border-slate-200 p-12 text-center">
+            <Truck className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+            <h3 className="text-base font-medium text-slate-800 mb-1">
+              출고 대기 항목이 없습니다
+            </h3>
+            <p className="text-sm text-slate-500">
+              완료된 견적서가 있으면 자동으로 추가됩니다
           </p>
         </div>
       )}
@@ -1546,6 +1533,7 @@ export default function OutboundPage() {
           setSelectedDocumentTask(null);
         }}
       />
+      </div>
     </div>
   );
 }

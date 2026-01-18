@@ -33,11 +33,11 @@ export default function ProductPagination({
 
   return (
     <div className="flex justify-center mt-6">
-      <nav className="flex items-center space-x-1">
+      <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
         <button
           onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
           disabled={currentPage === 1}
-          className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          className="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-colors"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           이전
@@ -48,16 +48,16 @@ export default function ProductPagination({
             <button
               key={index}
               onClick={() => onPageChange(page)}
-              className={`px-3 py-1 rounded-md ${
+              className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
                 currentPage === page
-                  ? "bg-blue-600 text-white font-medium"
-                  : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                  ? "bg-blue-600 text-white"
+                  : "text-slate-600 hover:bg-slate-100"
               }`}
             >
               {page}
             </button>
           ) : (
-            <span key={index} className="px-2 text-gray-500">
+            <span key={index} className="px-2 text-slate-400">
               ...
             </span>
           )
@@ -66,7 +66,7 @@ export default function ProductPagination({
         <button
           onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
           disabled={currentPage === totalPages || totalPages === 0}
-          className="px-3 py-1 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          className="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-colors"
         >
           다음
           <ChevronRight className="h-4 w-4 ml-1" />

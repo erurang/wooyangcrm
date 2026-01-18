@@ -274,13 +274,14 @@ export default function ContactsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-sm text-gray-800">
+    <div className="min-h-screen bg-slate-50">
       {/* Search Filters */}
       <ContactsSearchFilters
         companyName={companyName}
         contactName={contactName}
         email={email}
         mobile={mobile}
+        total={total}
         onCompanyNameChange={handleSearchFilterChange("companyName")}
         onContactNameChange={handleSearchFilterChange("contactName")}
         onEmailChange={handleSearchFilterChange("email")}
@@ -288,29 +289,6 @@ export default function ContactsPage() {
         onReset={resetFilters}
         onAddClick={handleOpenAddModal}
       />
-
-      {/* Table Control */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
-          총 <span className="font-semibold text-blue-600">{total}</span>명의 담당자
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-600">표시 개수:</label>
-          <select
-            value={contactsPerPage}
-            onChange={(e) => {
-              setContactsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="10">10개</option>
-            <option value="20">20개</option>
-            <option value="30">30개</option>
-            <option value="50">50개</option>
-          </select>
-        </div>
-      </div>
 
       {/* Contacts Table */}
       <ContactsTable
@@ -320,6 +298,11 @@ export default function ContactsPage() {
         onDelete={handleDeleteContact}
         onAdd={handleOpenAddModal}
         hasSearchQuery={!!(companyName || contactName || email || mobile)}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        perPage={contactsPerPage}
+        onPerPageChange={setContactsPerPage}
+        onPageChange={setCurrentPage}
       />
 
       {/* Pagination */}

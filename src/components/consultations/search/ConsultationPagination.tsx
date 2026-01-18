@@ -32,30 +32,30 @@ export default function ConsultationPagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex justify-center mt-6">
-      <nav className="flex items-center space-x-1">
+    <div className="flex justify-center px-4 pb-4">
+      <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
         <button
           onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
           disabled={currentPage === 1}
-          className={`p-2 rounded-md ${
+          className={`p-2 rounded-lg transition-colors ${
             currentPage === 1
-              ? "text-gray-400 cursor-not-allowed"
-              : "text-gray-700 hover:bg-gray-100"
+              ? "text-slate-300 cursor-not-allowed"
+              : "text-slate-600 hover:bg-slate-100"
           }`}
         >
-          <ChevronLeft size={18} />
+          <ChevronLeft className="h-4 w-4" />
         </button>
 
         {paginationNumbers().map((page, index) => (
           <button
             key={index}
             onClick={() => typeof page === "number" && onPageChange(page)}
-            className={`px-3 py-1.5 rounded-md ${
+            className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
               currentPage === page
-                ? "bg-blue-600 text-white font-medium"
+                ? "bg-cyan-600 text-white"
                 : page === "..."
-                ? "text-gray-500 cursor-default"
-                : "text-gray-700 hover:bg-gray-100"
+                ? "text-slate-400 cursor-default"
+                : "text-slate-600 hover:bg-slate-100"
             }`}
           >
             {page}
@@ -65,13 +65,13 @@ export default function ConsultationPagination({
         <button
           onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
           disabled={currentPage === totalPages}
-          className={`p-2 rounded-md ${
+          className={`p-2 rounded-lg transition-colors ${
             currentPage === totalPages
-              ? "text-gray-400 cursor-not-allowed"
-              : "text-gray-700 hover:bg-gray-100"
+              ? "text-slate-300 cursor-not-allowed"
+              : "text-slate-600 hover:bg-slate-100"
           }`}
         >
-          <ChevronRight size={18} />
+          <ChevronRight className="h-4 w-4" />
         </button>
       </nav>
     </div>

@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       `,
         { count: "exact" }
       )
-      .eq("uploaded_by", userId);
+      .eq("user_id", userId);
 
     if (search) {
       consultationQuery.ilike("file_url", `%${search}%`);

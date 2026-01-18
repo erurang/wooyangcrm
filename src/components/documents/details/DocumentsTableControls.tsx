@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 interface DocumentsTableControlsProps {
   total: number;
@@ -18,23 +18,22 @@ export default function DocumentsTableControls({
   onResetFilters,
 }: DocumentsTableControlsProps) {
   return (
-    <div className="flex justify-between items-center mb-4">
-      <div className="text-sm text-gray-600">
+    <div className="flex justify-between items-center px-4 py-3">
+      <div className="text-sm text-slate-500">
         {isLoading ? (
           <span>로딩 중...</span>
         ) : (
           <span>
-            총 <span className="font-semibold text-blue-600">{total}</span>개
-            문서
+            총 <span className="font-semibold text-indigo-600">{total}</span>개 문서
           </span>
         )}
       </div>
-      <div className="flex items-center gap-3">
-        <label className="text-sm text-gray-600">표시 개수:</label>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-slate-500">표시:</span>
         <select
           value={documentsPerPage}
           onChange={(e) => onPerPageChange(Number(e.target.value))}
-          className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
         >
           <option value="10">10개</option>
           <option value="20">20개</option>
@@ -44,10 +43,10 @@ export default function DocumentsTableControls({
 
         <button
           onClick={onResetFilters}
-          className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
         >
-          <X size={14} />
-          <span className="text-sm">필터 초기화</span>
+          <RotateCcw className="w-4 h-4" />
+          초기화
         </button>
       </div>
     </div>

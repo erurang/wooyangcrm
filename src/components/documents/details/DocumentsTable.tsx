@@ -1,7 +1,7 @@
 "use client";
 
-import { Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-import { CircularProgress } from "@mui/material";
+import { useEffect, useRef } from "react";
+import { Clock, CheckCircle, XCircle, AlertTriangle, FileText } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
 
 // 만료임박 여부 확인 (7일 이내)
@@ -71,6 +71,7 @@ interface DocumentsTableProps {
   type: string;
   loginUserId?: string;
   isLoading: boolean;
+  highlightId?: string | null;
   onDocumentClick: (doc: Document) => void;
   onCompanyClick: (companyId: string) => void;
   onStatusChange: (doc: Document, status: string) => void;
@@ -81,15 +82,27 @@ export default function DocumentsTable({
   type,
   loginUserId,
   isLoading,
+  highlightId,
   onDocumentClick,
   onCompanyClick,
   onStatusChange,
 }: DocumentsTableProps) {
+  const highlightRef = useRef<HTMLTableRowElement>(null);
+
+  // 하이라이트된 문서로 스크롤
+  useEffect(() => {
+    if (highlightId && highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightId]);
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <div className="flex justify-center items-center py-20">
-          <CircularProgress size={40} />
+      <div className="p-4">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-sm text-slate-500">문서 목록을 불러오는 중...</p>
+          </div>
         </div>
       </div>
     );
@@ -97,175 +110,196 @@ export default function DocumentsTable({
 
   if (!documents || documents.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <EmptyState type="document" />
+      <div className="p-4">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="p-4 bg-slate-100 rounded-full mb-4">
+              <FileText className="h-8 w-8 text-slate-400" />
+            </div>
+            <p className="text-slate-600 font-medium">문서가 없습니다</p>
+            <p className="text-slate-400 text-sm mt-1">검색 조건을 변경해보세요</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {type === "estimate" && "견적일"}
-                {type === "order" && "발주일"}
-                {type === "requestQuote" && "의뢰일"}
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
-                {type === "estimate" && "유효기간"}
-                {type === "order" && "납기일"}
-                {type === "requestQuote" && "희망견적일"}
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                거래처
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                문서번호
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
-                금액
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                담당자
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                상태
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                액션
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {documents.map((doc) => (
-              <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                {/* 날짜 */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{doc.date}</div>
-                </td>
-
-                {/* 유효기간/납기일 */}
-                <td className="px-4 py-3 whitespace-nowrap hidden lg:table-cell">
-                  <div className="text-sm text-gray-900">
-                    {type === "estimate" && doc.valid_until && (
-                      <span className={isExpiringSoon(doc.valid_until) && doc.status === "pending" ? "text-orange-600 font-medium" : ""}>
-                        {new Date(doc.valid_until).toLocaleDateString()}
-                        {isExpiringSoon(doc.valid_until) && doc.status === "pending" && (
-                          <span className="ml-1 text-xs">({getDaysUntilExpiry(doc.valid_until)})</span>
-                        )}
-                      </span>
-                    )}
-                    {type === "order" && doc.delivery_date}
-                    {type === "requestQuote" && doc.delivery_date}
-                  </div>
-                </td>
-
-                {/* 거래처 */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div
-                    className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline truncate max-w-[120px]"
-                    onClick={() => onCompanyClick(doc.company_id)}
-                    title={doc.company_name}
-                  >
-                    {doc.company_name}
-                  </div>
-                </td>
-
-                {/* 문서번호 */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div
-                    className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
-                    onClick={() => onDocumentClick(doc)}
-                  >
-                    {doc.document_number}
-                  </div>
-                </td>
-
-                {/* 금액 */}
-                <td className="px-4 py-3 whitespace-nowrap hidden lg:table-cell">
-                  <div className="text-sm text-gray-900 font-medium">
-                    {doc.total_amount?.toLocaleString()}원
-                  </div>
-                </td>
-
-                {/* 담당자 */}
-                <td className="px-4 py-3 whitespace-nowrap hidden md:table-cell">
-                  <div className="text-sm text-gray-900">
-                    {doc.contact_name} {doc.contact_level}
-                  </div>
-                </td>
-
-                {/* 문서 상태 */}
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        doc.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : doc.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : doc.status === "expired"
-                          ? "bg-gray-100 text-gray-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {doc.status === "pending" && <Clock className="w-3 h-3 mr-1" />}
-                      {doc.status === "completed" && <CheckCircle className="w-3 h-3 mr-1" />}
-                      {doc.status === "canceled" && <XCircle className="w-3 h-3 mr-1" />}
-                      {doc.status === "expired" && <Clock className="w-3 h-3 mr-1" />}
-                      {doc.status === "pending" && "진행"}
-                      {doc.status === "completed" && "완료"}
-                      {doc.status === "canceled" && "취소"}
-                      {doc.status === "expired" && "만료"}
-                    </span>
-                    {doc.status === "pending" && isExpiringSoon(doc.valid_until) && (
-                      <AlertTriangle className="w-4 h-4 text-orange-500" />
-                    )}
-                  </div>
-                </td>
-
-                {/* 액션 */}
-                <td className="px-4 py-3 hidden md:table-cell">
-                  <div className="text-sm text-gray-900">
-                    {doc.status === "pending" ? (
-                      doc.user_id === loginUserId ? (
-                        <div className="flex space-x-1">
-                          <button
-                            className="px-2 py-1 text-xs rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
-                            onClick={() => onStatusChange(doc, "completed")}
-                          >
-                            완료
-                          </button>
-                          <button
-                            className="px-2 py-1 text-xs rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                            onClick={() => onStatusChange(doc, "canceled")}
-                          >
-                            취소
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-400">-</span>
-                      )
-                    ) : (
-                      <span className="text-xs text-gray-500 truncate max-w-[100px] block" title={
-                        doc.status === "completed"
-                          ? doc.status_reason?.completed?.reason
-                          : doc.status_reason?.canceled?.reason
-                      }>
-                        {doc.status === "completed"
-                          ? doc.status_reason?.completed?.reason
-                          : doc.status_reason?.canceled?.reason}
-                      </span>
-                    )}
-                  </div>
-                </td>
+    <div className="p-4">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                  {type === "estimate" && "견적일"}
+                  {type === "order" && "발주일"}
+                  {type === "requestQuote" && "의뢰일"}
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 hidden lg:table-cell">
+                  {type === "estimate" && "유효기간"}
+                  {type === "order" && "납기일"}
+                  {type === "requestQuote" && "희망견적일"}
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                  거래처
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                  문서번호
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 hidden lg:table-cell">
+                  금액
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 hidden md:table-cell">
+                  담당자
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                  상태
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 hidden md:table-cell">
+                  액션
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {documents.map((doc) => {
+                const isHighlighted = highlightId === doc.id;
+                return (
+                <tr
+                  key={doc.id}
+                  ref={isHighlighted ? highlightRef : null}
+                  className={`transition-colors ${
+                    isHighlighted
+                      ? "bg-amber-50 ring-2 ring-amber-300 ring-inset animate-pulse"
+                      : "hover:bg-slate-50"
+                  }`}
+                >
+                  {/* 날짜 */}
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="text-sm text-slate-700">{doc.date}</div>
+                  </td>
+
+                  {/* 유효기간/납기일 */}
+                  <td className="px-4 py-3 whitespace-nowrap hidden lg:table-cell">
+                    <div className="text-sm text-slate-700">
+                      {type === "estimate" && doc.valid_until && (
+                        <span className={isExpiringSoon(doc.valid_until) && doc.status === "pending" ? "text-orange-600 font-medium" : ""}>
+                          {new Date(doc.valid_until).toLocaleDateString()}
+                          {isExpiringSoon(doc.valid_until) && doc.status === "pending" && (
+                            <span className="ml-1 text-xs">({getDaysUntilExpiry(doc.valid_until)})</span>
+                          )}
+                        </span>
+                      )}
+                      {type === "order" && doc.delivery_date}
+                      {type === "requestQuote" && doc.delivery_date}
+                    </div>
+                  </td>
+
+                  {/* 거래처 */}
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div
+                      className="text-sm font-medium text-indigo-600 cursor-pointer hover:text-indigo-800 truncate max-w-[120px]"
+                      onClick={() => onCompanyClick(doc.company_id)}
+                      title={doc.company_name}
+                    >
+                      {doc.company_name}
+                    </div>
+                  </td>
+
+                  {/* 문서번호 */}
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div
+                      className="text-sm font-medium text-indigo-600 cursor-pointer hover:text-indigo-800"
+                      onClick={() => onDocumentClick(doc)}
+                    >
+                      {doc.document_number}
+                    </div>
+                  </td>
+
+                  {/* 금액 */}
+                  <td className="px-4 py-3 whitespace-nowrap hidden lg:table-cell">
+                    <div className="text-sm text-slate-800 font-medium">
+                      {doc.total_amount?.toLocaleString()}원
+                    </div>
+                  </td>
+
+                  {/* 담당자 */}
+                  <td className="px-4 py-3 whitespace-nowrap hidden md:table-cell">
+                    <div className="text-sm text-slate-700">
+                      {doc.contact_name} {doc.contact_level}
+                    </div>
+                  </td>
+
+                  {/* 문서 상태 */}
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium ${
+                          doc.status === "pending"
+                            ? "bg-amber-100 text-amber-800"
+                            : doc.status === "completed"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : doc.status === "expired"
+                            ? "bg-slate-100 text-slate-600"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {doc.status === "pending" && <Clock className="w-3 h-3 mr-1" />}
+                        {doc.status === "completed" && <CheckCircle className="w-3 h-3 mr-1" />}
+                        {doc.status === "canceled" && <XCircle className="w-3 h-3 mr-1" />}
+                        {doc.status === "expired" && <Clock className="w-3 h-3 mr-1" />}
+                        {doc.status === "pending" && "진행"}
+                        {doc.status === "completed" && "완료"}
+                        {doc.status === "canceled" && "취소"}
+                        {doc.status === "expired" && "만료"}
+                      </span>
+                      {doc.status === "pending" && isExpiringSoon(doc.valid_until) && (
+                        <AlertTriangle className="w-4 h-4 text-orange-500" />
+                      )}
+                    </div>
+                  </td>
+
+                  {/* 액션 */}
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    <div className="text-sm">
+                      {doc.status === "pending" ? (
+                        doc.user_id === loginUserId ? (
+                          <div className="flex space-x-1">
+                            <button
+                              className="px-2 py-1 text-xs rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                              onClick={() => onStatusChange(doc, "completed")}
+                            >
+                              완료
+                            </button>
+                            <button
+                              className="px-2 py-1 text-xs rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                              onClick={() => onStatusChange(doc, "canceled")}
+                            >
+                              취소
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400">-</span>
+                        )
+                      ) : (
+                        <span className="text-xs text-slate-500 truncate max-w-[100px] block" title={
+                          doc.status === "completed"
+                            ? doc.status_reason?.completed?.reason
+                            : doc.status_reason?.canceled?.reason
+                        }>
+                          {doc.status === "completed"
+                            ? doc.status_reason?.completed?.reason
+                            : doc.status_reason?.canceled?.reason}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

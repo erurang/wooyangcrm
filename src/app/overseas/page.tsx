@@ -142,20 +142,34 @@ export default function OverseasCompaniesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-sm text-gray-800">
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
       {/* 검색 필터 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-        <div className="flex flex-wrap gap-4 items-end justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-gray-700">
-              <Globe size={20} className="text-blue-500" />
-              <span className="font-medium">해외거래처 검색</span>
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div className="px-4 py-3">
+          {/* 타이틀 */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-teal-50 rounded-lg">
+                <Globe className="h-5 w-5 text-teal-600" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-slate-800">해외 거래처</h1>
+                <p className="text-xs text-slate-500">해외 거래처를 관리합니다</p>
+              </div>
             </div>
-            <div className="relative min-w-[300px]">
-              <Search
-                size={16}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
+            <button
+              onClick={openAddModal}
+              className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+            >
+              <Plus size={16} />
+              거래처 추가
+            </button>
+          </div>
+
+          {/* 검색 필터 */}
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
                 value={searchTerm}
@@ -163,8 +177,8 @@ export default function OverseasCompaniesPage() {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                placeholder="거래처명 검색"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+                placeholder="거래처명 검색..."
               />
             </div>
             {searchTerm && (
@@ -173,20 +187,13 @@ export default function OverseasCompaniesPage() {
                   setSearchTerm("");
                   setCurrentPage(1);
                 }}
-                className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
               >
                 <X size={14} />
                 초기화
               </button>
             )}
           </div>
-          <button
-            onClick={openAddModal}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={16} />
-            거래처 추가
-          </button>
         </div>
       </div>
 

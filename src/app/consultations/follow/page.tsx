@@ -218,7 +218,7 @@ export default function FollowUpConsultations() {
   }, []);
 
   return (
-    <div className="text-sm text-gray-800">
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
       <FollowSearchFilter
         searchTerm={searchTerm}
         onSearchTermChange={(val) => {

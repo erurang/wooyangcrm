@@ -286,7 +286,7 @@ export default function RecentConsultationsList() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-sm text-[#37352F]">
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
       <RecentSearchFilter
         searchTerm={searchTerm}
         onSearchTermChange={(val) => {

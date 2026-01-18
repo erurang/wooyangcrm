@@ -104,10 +104,10 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
 
   const getTypeColor = (type: string) => {
     return type === "estimate"
-      ? "bg-blue-100 text-blue-700"
+      ? "bg-cyan-100 text-cyan-700"
       : type === "order"
-      ? "bg-green-100 text-green-700"
-      : "bg-gray-100 text-gray-700";
+      ? "bg-emerald-100 text-emerald-700"
+      : "bg-slate-100 text-slate-700";
   };
 
   // 인라인 차트용 데이터
@@ -244,34 +244,34 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
     <div>
       {/* 상단 헤더: 총 개수 + 검색 필터 */}
       <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-gray-600">
-          총 <span className="font-semibold text-blue-600">{total}</span>개의 품목
+        <div className="text-sm text-slate-600">
+          총 <span className="font-semibold text-cyan-600">{total}</span>개의 품목
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search size={14} className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search size={14} className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchProduct}
               onChange={(e) => setSearchProduct(e.target.value)}
               placeholder="품명"
-              className="w-28 pl-8 pr-2 py-1.5 border border-gray-200 rounded text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+              className="w-28 pl-8 pr-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 bg-slate-50"
             />
           </div>
           <div className="relative">
-            <Filter size={14} className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Filter size={14} className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchSpec}
               onChange={(e) => setSearchSpec(e.target.value)}
               placeholder="규격"
-              className="w-28 pl-8 pr-2 py-1.5 border border-gray-200 rounded text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
+              className="w-28 pl-8 pr-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 bg-slate-50"
             />
           </div>
           {hasSearchFilter && (
             <button
               onClick={clearFilters}
-              className="flex items-center gap-1 px-2 py-1.5 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+              className="flex items-center gap-1 px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
               title="필터 초기화"
             >
               <XCircle size={14} />
@@ -282,16 +282,17 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
 
       {/* 로딩 상태 */}
       {isLoading && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
-          <div className="flex justify-center items-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+          <div className="flex flex-col justify-center items-center">
+            <div className="w-8 h-8 border-2 border-cyan-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm text-slate-500 mt-3">품목을 불러오는 중...</p>
           </div>
         </div>
       )}
 
       {/* 빈 상태 */}
       {!isLoading && products.length === 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200">
           <EmptyState type="product" />
         </div>
       )}
@@ -308,25 +309,25 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
             return (
               <div
                 key={group.groupKey}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+                className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
               >
                 {/* 헤더: 품목 정보 + 가격 통계 */}
-                <div className="px-5 py-4 border-b border-gray-100">
+                <div className="px-5 py-4 border-b border-slate-100">
                   <div className="flex items-start justify-between">
                     {/* 왼쪽: 품목 정보 */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-gray-900 text-lg truncate">
+                        <h3 className="font-semibold text-slate-800 text-lg truncate">
                           {group.name}
                         </h3>
                         {group.spec && (
                           <>
-                            <span className="text-gray-300">|</span>
-                            <span className="text-sm text-gray-600">{group.spec}</span>
+                            <span className="text-slate-300">|</span>
+                            <span className="text-sm text-slate-600">{group.spec}</span>
                           </>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-slate-500">
                         <span>총 {group.recordCount}건 거래</span>
                         <span>최근 거래: {dayjs(group.latestDate).format("YYYY.MM.DD")}</span>
                       </div>
@@ -335,9 +336,9 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
                     {/* 오른쪽: 가격 통계 */}
                     <div className="flex items-center gap-6 ml-4">
                       <div className="text-center">
-                        <div className="text-xs text-gray-500 mb-0.5">최신 단가</div>
+                        <div className="text-xs text-slate-500 mb-0.5">최신 단가</div>
                         <div className="flex items-center justify-center gap-1">
-                          <span className="font-bold text-blue-600 text-lg">
+                          <span className="font-bold text-cyan-600 text-lg">
                             {formatPrice(group.latestPrice)}
                           </span>
                           {priceDiff !== 0 && (
@@ -357,26 +358,26 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
                         </div>
                       </div>
                       <div className="text-center">
-                        <div className="text-xs text-gray-500 mb-0.5">평균</div>
-                        <span className="font-medium text-gray-700">
+                        <div className="text-xs text-slate-500 mb-0.5">평균</div>
+                        <span className="font-medium text-slate-700">
                           {formatPrice(group.avgPrice)}
                         </span>
                       </div>
                       <div className="text-center">
-                        <div className="text-xs text-gray-500 mb-0.5">최저</div>
+                        <div className="text-xs text-slate-500 mb-0.5">최저</div>
                         <span className="font-medium text-green-600">
                           {formatPrice(group.minPrice)}
                         </span>
                       </div>
                       <div className="text-center">
-                        <div className="text-xs text-gray-500 mb-0.5">최고</div>
+                        <div className="text-xs text-slate-500 mb-0.5">최고</div>
                         <span className="font-medium text-red-600">
                           {formatPrice(group.maxPrice)}
                         </span>
                       </div>
                       <button
                         onClick={() => setChartGroup(group)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                        className="p-2 text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
                         title="상세 차트 보기"
                       >
                         <Maximize2 size={18} />
@@ -395,17 +396,17 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
                       height={160}
                     />
                   ) : (
-                    <div className="flex items-center justify-center h-[160px] text-gray-400 text-sm">
+                    <div className="flex items-center justify-center h-[160px] text-slate-400 text-sm">
                       차트 데이터가 부족합니다 (최소 2개 이상 필요)
                     </div>
                   )}
                 </div>
 
                 {/* 거래 이력 펼치기/접기 */}
-                <div className="border-t border-gray-100">
+                <div className="border-t border-slate-100">
                   <button
                     onClick={() => toggleGroup(group.groupKey)}
-                    className="w-full px-5 py-2.5 flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                    className="w-full px-5 py-2.5 flex items-center justify-center gap-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                   >
                     <FileText size={14} />
                     거래 이력 ({group.recordCount}건)
@@ -418,8 +419,8 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
 
                   {/* 확장된 거래 이력 - 인라인 버튼 스타일 */}
                   {isExpanded && (
-                    <div className="px-4 pb-4 pt-2 bg-gray-50 border-t border-gray-100">
-                      <div className="text-[10px] text-gray-400 mb-2 flex items-center gap-1">
+                    <div className="px-4 pb-4 pt-2 bg-slate-50 border-t border-slate-100">
+                      <div className="text-[10px] text-slate-400 mb-2 flex items-center gap-1">
                         <FileText size={10} />
                         거래 내역 (클릭하여 문서 보기)
                       </div>
@@ -428,27 +429,27 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
                           <button
                             key={idx}
                             onClick={() => handleDocumentClick(history.documentId, history.type)}
-                            className="group inline-flex items-center text-xs bg-blue-50 text-gray-700 px-2.5 py-1.5 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+                            className="group inline-flex items-center text-xs bg-cyan-50 text-slate-700 px-2.5 py-1.5 rounded-lg border border-cyan-200 hover:bg-cyan-100 hover:border-cyan-300 hover:shadow-sm transition-all cursor-pointer"
                             title="클릭하여 문서 보기"
                           >
-                            <FileText size={11} className="mr-1.5 text-blue-500 group-hover:text-blue-600" />
+                            <FileText size={11} className="mr-1.5 text-cyan-500 group-hover:text-cyan-600" />
                             <span
-                              className={`px-1.5 py-0.5 rounded text-[10px] font-medium mr-1.5 ${getTypeColor(
+                              className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium mr-1.5 ${getTypeColor(
                                 history.type
                               )}`}
                             >
                               {getTypeLabel(history.type)}
                             </span>
-                            <Calendar size={10} className="mr-1 text-gray-400" />
+                            <Calendar size={10} className="mr-1 text-slate-400" />
                             {dayjs(history.date).format("YY.MM.DD")}
-                            <span className="mx-1.5 text-gray-300">|</span>
-                            <span className="font-medium text-blue-600">{history.quantity}{history.unit}</span>
-                            <span className="mx-1.5 text-gray-300">@</span>
+                            <span className="mx-1.5 text-slate-300">|</span>
+                            <span className="font-medium text-cyan-600">{history.quantity}{history.unit}</span>
+                            <span className="mx-1.5 text-slate-300">@</span>
                             <span className="font-medium">{formatPrice(history.price)}</span>
                           </button>
                         ))}
                         {group.priceHistory.length > 8 && (
-                          <span className="text-xs text-gray-400 px-1 self-center">
+                          <span className="text-xs text-slate-400 px-1 self-center">
                             +{group.priceHistory.length - 8}건 더보기
                           </span>
                         )}
@@ -469,19 +470,19 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
           onClick={() => setChartGroup(null)}
         >
           <div
-            className="bg-white rounded-lg shadow-xl w-[66vw] max-w-6xl max-h-[90vh] overflow-auto"
+            className="bg-white rounded-xl shadow-xl w-[66vw] max-w-6xl max-h-[90vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center justify-between p-4 border-b border-slate-200">
               <div>
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-slate-800">
                   {chartGroup.name} 단가 추이
                 </h3>
-                <p className="text-sm text-gray-500">{chartGroup.spec}</p>
+                <p className="text-sm text-slate-500">{chartGroup.spec}</p>
               </div>
               <button
                 onClick={() => setChartGroup(null)}
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-md"
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg"
               >
                 <X size={20} />
               </button>
@@ -489,26 +490,26 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
             <div className="p-4">
               {/* 요약 정보 */}
               <div className="grid grid-cols-4 gap-3 mb-4">
-                <div className="bg-gray-50 rounded-md p-3 text-center">
-                  <div className="text-xs text-gray-500">최신 단가</div>
-                  <div className="font-semibold text-blue-600">
+                <div className="bg-slate-50 rounded-lg p-3 text-center">
+                  <div className="text-xs text-slate-500">최신 단가</div>
+                  <div className="font-semibold text-cyan-600">
                     {formatPrice(chartGroup.latestPrice)}
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-md p-3 text-center">
-                  <div className="text-xs text-gray-500">평균 단가</div>
-                  <div className="font-semibold text-gray-700">
+                <div className="bg-slate-50 rounded-lg p-3 text-center">
+                  <div className="text-xs text-slate-500">평균 단가</div>
+                  <div className="font-semibold text-slate-700">
                     {formatPrice(chartGroup.avgPrice)}
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-md p-3 text-center">
-                  <div className="text-xs text-gray-500">최저가</div>
+                <div className="bg-slate-50 rounded-lg p-3 text-center">
+                  <div className="text-xs text-slate-500">최저가</div>
                   <div className="font-semibold text-green-600">
                     {formatPrice(chartGroup.minPrice)}
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-md p-3 text-center">
-                  <div className="text-xs text-gray-500">최고가</div>
+                <div className="bg-slate-50 rounded-lg p-3 text-center">
+                  <div className="text-xs text-slate-500">최고가</div>
                   <div className="font-semibold text-red-600">
                     {formatPrice(chartGroup.maxPrice)}
                   </div>
@@ -516,7 +517,7 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
               </div>
 
               {/* 차트 */}
-              <div className="border rounded-lg p-3">
+              <div className="border border-slate-200 rounded-xl p-3">
                 {(() => {
                   const modalChartData = getChartData(chartGroup);
                   return (
@@ -532,7 +533,7 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
 
               {/* 거래 이력 - 인라인 버튼 스타일 */}
               <div className="mt-4">
-                <div className="text-[10px] text-gray-400 mb-2 flex items-center gap-1">
+                <div className="text-[10px] text-slate-400 mb-2 flex items-center gap-1">
                   <FileText size={10} />
                   거래 내역 ({chartGroup.recordCount}건) - 클릭하여 문서 보기
                 </div>
@@ -544,22 +545,22 @@ export default function CompanyPriceTab({ companyId }: CompanyPriceTabProps) {
                         setChartGroup(null);
                         handleDocumentClick(history.documentId, history.type);
                       }}
-                      className="group inline-flex items-center text-xs bg-blue-50 text-gray-700 px-2.5 py-1.5 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+                      className="group inline-flex items-center text-xs bg-cyan-50 text-slate-700 px-2.5 py-1.5 rounded-lg border border-cyan-200 hover:bg-cyan-100 hover:border-cyan-300 hover:shadow-sm transition-all cursor-pointer"
                       title="클릭하여 문서 보기"
                     >
-                      <FileText size={11} className="mr-1.5 text-blue-500 group-hover:text-blue-600" />
+                      <FileText size={11} className="mr-1.5 text-cyan-500 group-hover:text-cyan-600" />
                       <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-medium mr-1.5 ${getTypeColor(
+                        className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium mr-1.5 ${getTypeColor(
                           history.type
                         )}`}
                       >
                         {getTypeLabel(history.type)}
                       </span>
-                      <Calendar size={10} className="mr-1 text-gray-400" />
+                      <Calendar size={10} className="mr-1 text-slate-400" />
                       {dayjs(history.date).format("YY.MM.DD")}
-                      <span className="mx-1.5 text-gray-300">|</span>
-                      <span className="font-medium text-blue-600">{history.quantity}{history.unit}</span>
-                      <span className="mx-1.5 text-gray-300">@</span>
+                      <span className="mx-1.5 text-slate-300">|</span>
+                      <span className="font-medium text-cyan-600">{history.quantity}{history.unit}</span>
+                      <span className="mx-1.5 text-slate-300">@</span>
                       <span className="font-medium">{formatPrice(history.price)}</span>
                     </button>
                   ))}

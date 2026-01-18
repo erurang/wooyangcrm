@@ -198,31 +198,40 @@ export default function CustomsCostsPage() {
   };
 
   return (
-    <div className="text-sm text-gray-800">
+    <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
       {/* 헤더 */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
-          <Ship size={24} className="text-blue-500" />
-          <h1 className="text-xl font-semibold">통관비용 관리</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              // TODO: 엑셀 다운로드 구현
-              console.log("Download Excel");
-            }}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <Download size={16} />
-            엑셀 다운로드
-          </button>
-          <button
-            onClick={openAddModal}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={16} />
-            통관비용 추가
-          </button>
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-teal-50 rounded-lg">
+                <Ship className="h-5 w-5 text-teal-600" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-slate-800">통관비용 관리</h1>
+                <p className="text-xs text-slate-500">해외 수입 통관비용을 관리합니다</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  // TODO: 엑셀 다운로드 구현
+                  console.log("Download Excel");
+                }}
+                className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                <Download size={16} />
+                엑셀
+              </button>
+              <button
+                onClick={openAddModal}
+                className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                <Plus size={16} />
+                통관비용 추가
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

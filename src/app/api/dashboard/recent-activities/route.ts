@@ -28,7 +28,6 @@ export async function GET(request: Request) {
           )
         `)
         .eq("user_id", userId)
-        .is("deleted_at", null)
         .order("created_at", { ascending: false })
         .limit(10);
 

@@ -47,9 +47,9 @@ const sourceTypeLabels: Record<SourceType, string> = {
 };
 
 const sourceTypeColors: Record<string, string> = {
-  consultation: "bg-green-100 text-green-600",
-  post: "bg-blue-100 text-blue-600",
-  comment: "bg-purple-100 text-purple-600",
+  consultation: "bg-emerald-100 text-emerald-700",
+  post: "bg-blue-100 text-blue-700",
+  comment: "bg-amber-100 text-amber-700",
 };
 
 export default function MyFilesPage() {
@@ -194,9 +194,11 @@ export default function MyFilesPage() {
   // 로그인 필요
   if (!user?.id) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
-        <Paperclip className="w-12 h-12 mb-4 text-gray-300" />
-        <p>로그인이 필요합니다.</p>
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+        <div className="flex flex-col items-center justify-center text-slate-400">
+          <Paperclip className="w-12 h-12 mb-4" />
+          <p>로그인이 필요합니다.</p>
+        </div>
       </div>
     );
   }
@@ -206,72 +208,75 @@ export default function MyFilesPage() {
   const totalPages = data?.totalPages || 0;
 
   return (
-    <div className="text-sm text-[#37352F]">
+    <div className="text-sm">
       {/* 헤더 */}
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold">내 파일</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          상담, 게시글, 댓글에서 업로드한 파일을 확인하세요.
-        </p>
-      </div>
-
-      {/* 검색 및 필터 */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        {/* 검색 */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            placeholder="파일명으로 검색..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        {/* 타입 필터 */}
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-400" />
-          <div className="flex gap-1">
-            {(Object.keys(sourceTypeLabels) as SourceType[]).map((type) => (
-              <button
-                key={type}
-                onClick={() => handleTypeChange(type)}
-                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                  sourceType === type
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {sourceTypeLabels[type]}
-              </button>
-            ))}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold text-slate-800">내 파일</h1>
+            <p className="text-sm text-slate-500 mt-1">
+              상담, 게시글, 댓글에서 업로드한 파일을 확인하세요.
+            </p>
+          </div>
+          <div className="text-sm text-slate-600">
+            총 <span className="font-bold text-amber-600">{total}</span>개
           </div>
         </div>
-      </div>
 
-      {/* 총 개수 */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
-          총 <span className="font-semibold">{total}</span>개
+        {/* 검색 및 필터 */}
+        <div className="flex flex-col sm:flex-row gap-4 mt-4 pt-4 border-t border-slate-100">
+          {/* 검색 */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              placeholder="파일명으로 검색..."
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+            />
+          </div>
+
+          {/* 타입 필터 */}
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <div className="flex gap-1">
+              {(Object.keys(sourceTypeLabels) as SourceType[]).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => handleTypeChange(type)}
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    sourceType === type
+                      ? "bg-amber-600 text-white"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {sourceTypeLabels[type]}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* 파일 목록 */}
       {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-slate-500 mt-3">파일을 불러오는 중...</p>
+          </div>
         </div>
       ) : files.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {files.map((file) => {
             const isHighlighted = highlightId === file.id;
             return (
             <div
               key={`${file.source_type}-${file.id}`}
               ref={isHighlighted ? highlightRef : null}
-              className={`bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all ${
-                isHighlighted ? "bg-indigo-50 ring-2 ring-indigo-200 ring-inset" : ""
+              className={`bg-white border rounded-xl p-4 hover:border-amber-300 hover:shadow-md transition-all ${
+                isHighlighted ? "bg-amber-50 border-amber-300 ring-2 ring-amber-200" : "border-slate-200"
               }`}
             >
               <div className="flex items-center justify-between gap-4">
@@ -279,26 +284,26 @@ export default function MyFilesPage() {
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <span className="text-2xl">{getFileIcon(file.file_name)}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1.5">
                       <span
-                        className={`px-2 py-0.5 text-xs rounded-full ${
+                        className={`px-2 py-0.5 text-xs rounded-full font-medium ${
                           sourceTypeColors[file.source_type]
                         }`}
                       >
                         {sourceTypeLabels[file.source_type as SourceType]}
                       </span>
                     </div>
-                    <h3 className="font-medium text-gray-900 truncate">
+                    <h3 className="font-semibold text-slate-800 truncate">
                       {file.file_name}
                     </h3>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                      <span className="flex items-center gap-1">
+                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                      <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-full">
                         <Calendar className="w-3 h-3" />
                         {dayjs(file.created_at).format("YYYY-MM-DD HH:mm")}
                       </span>
                       <Link
                         href={getSourceLink(file)}
-                        className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700"
+                        className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-medium"
                       >
                         {file.source_type === "consultation" ? (
                           <MessageSquare className="w-3 h-3" />
@@ -312,17 +317,17 @@ export default function MyFilesPage() {
                 </div>
 
                 {/* 액션 버튼 */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <Link
                     href={getSourceLink(file)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     title="원본 보기"
                   >
                     <ExternalLink className="w-4 h-4" />
                   </Link>
                   <button
                     onClick={() => handleDownload(file)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                     title="다운로드"
                   >
                     <Download className="w-4 h-4" />
@@ -334,57 +339,61 @@ export default function MyFilesPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-          <Paperclip className="w-12 h-12 mb-4 text-gray-300" />
-          <p>업로드한 파일이 없습니다.</p>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+          <div className="flex flex-col items-center justify-center text-slate-400">
+            <Paperclip className="w-12 h-12 mb-4" />
+            <p>업로드한 파일이 없습니다.</p>
+          </div>
         </div>
       )}
 
       {/* 페이지네이션 */}
       {!isLoading && totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-6">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-          >
-            이전
-          </button>
-          <div className="flex gap-1">
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let page: number;
-              if (totalPages <= 5) {
-                page = i + 1;
-              } else if (currentPage <= 3) {
-                page = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                page = totalPages - 4 + i;
-              } else {
-                page = currentPage - 2 + i;
-              }
+        <div className="flex justify-center mt-6">
+          <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              이전
+            </button>
+            <div className="flex gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let page: number;
+                if (totalPages <= 5) {
+                  page = i + 1;
+                } else if (currentPage <= 3) {
+                  page = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  page = totalPages - 4 + i;
+                } else {
+                  page = currentPage - 2 + i;
+                }
 
-              return (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1.5 text-sm rounded-lg ${
-                    currentPage === page
-                      ? "bg-indigo-600 text-white"
-                      : "border border-gray-300 hover:bg-gray-50"
-                  }`}
-                >
-                  {page}
-                </button>
-              );
-            })}
-          </div>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-          >
-            다음
-          </button>
+                return (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === page
+                        ? "bg-amber-600 text-white"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              다음
+            </button>
+          </nav>
         </div>
       )}
     </div>

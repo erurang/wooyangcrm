@@ -293,22 +293,22 @@ export default function ProductPage() {
 
       {/* 테이블 컨트롤 */}
       <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
-          총 <span className="font-semibold">{viewMode === "list" ? total : groupedTotal}</span>
+        <div className="text-sm text-slate-600">
+          총 <span className="font-semibold text-blue-600">{viewMode === "list" ? total : groupedTotal}</span>
           {viewMode === "list" ? "개의 물품" : "개의 품목 그룹"}
         </div>
         <div className="flex items-center space-x-3">
           {/* 뷰 모드 토글 */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center bg-slate-100 rounded-lg p-1">
             <button
               onClick={() => {
                 setViewMode("list");
                 setCurrentPage(1);
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 viewMode === "list"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white text-slate-800 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
               }`}
             >
               <List size={14} />
@@ -319,10 +319,10 @@ export default function ProductPage() {
                 setViewMode("grouped");
                 setCurrentPage(1);
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 viewMode === "grouped"
                   ? "bg-blue-600 text-white shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  : "text-slate-500 hover:text-slate-700"
               }`}
               title="동일 품목별 단가 비교 및 추이 분석"
             >
@@ -333,18 +333,18 @@ export default function ProductPage() {
 
           <button
             onClick={resetFilters}
-            className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm flex items-center transition-colors"
+            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm flex items-center transition-colors"
           >
             <Filter className="h-3.5 w-3.5 mr-1.5" />
             필터 초기화
           </button>
           {viewMode === "list" && (
             <div className="flex items-center">
-              <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+              <label className="mr-2 text-sm text-slate-600">표시 개수:</label>
               <select
                 value={productsPerPage}
                 onChange={handlePerPageChange}
-                className="border border-gray-300 p-1.5 rounded-md text-sm"
+                className="border border-slate-200 p-1.5 rounded-lg text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="10">10개</option>
                 <option value="20">20개</option>

@@ -1,6 +1,5 @@
 "use client";
 
-import { CircularProgress } from "@mui/material";
 import { Edit, Trash2, ChevronLeft, ChevronRight, Ship, Plane, Package } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
 import { CustomsCost, ShippingMethodType, SHIPPING_METHOD_LABELS } from "@/types/overseas";
@@ -69,18 +68,18 @@ export default function CustomsCostTable({
     <>
       {/* Table Controls */}
       <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
-          총 <span className="font-semibold text-blue-600">{total}</span>건
+        <div className="text-sm text-slate-500">
+          총 <span className="font-semibold text-teal-600">{total}</span>건
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-600">표시 개수:</label>
+          <span className="text-sm text-slate-500">표시:</span>
           <select
             value={itemsPerPage}
             onChange={(e) => {
               onPerPageChange(Number(e.target.value));
               onPageChange(1);
             }}
-            className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
           >
             <option value="10">10개</option>
             <option value="20">20개</option>
@@ -91,107 +90,108 @@ export default function CustomsCostTable({
       </div>
 
       {/* Customs Cost Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
         {isLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <CircularProgress size={40} />
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-sm text-slate-500">통관비용을 불러오는 중...</p>
           </div>
         ) : customsCosts && customsCosts.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="w-full">
+              <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
                     통관일
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
                     거래처
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
                     Invoice
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">
                     운송
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 hidden md:table-cell">
                     관세
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 hidden lg:table-cell">
                     소계
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-500">
                     합계
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 hidden xl:table-cell">
                     포워더
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">
                     관리
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-slate-100">
                 {customsCosts.map((cost) => (
                   <tr
                     key={cost.id}
-                    className="hover:bg-gray-50 transition-colors"
+                    className="hover:bg-slate-50 transition-colors"
                   >
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-sm text-slate-700">
                         {cost.clearance_date}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-sm font-medium text-slate-800">
                         {cost.company_name || "-"}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="text-sm text-slate-700">
                         {cost.invoice_no || "-"}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-center">
-                      <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100">
+                    <td className="px-4 py-3 whitespace-nowrap text-center">
+                      <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-slate-100">
                         <ShippingMethodIcon method={cost.shipping_method} />
-                        <span>{SHIPPING_METHOD_LABELS[cost.shipping_method]}</span>
+                        <span className="text-slate-600">{SHIPPING_METHOD_LABELS[cost.shipping_method]}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right hidden md:table-cell">
-                      <div className="text-sm text-gray-900">
+                    <td className="px-4 py-3 whitespace-nowrap text-right hidden md:table-cell">
+                      <div className="text-sm text-slate-700">
                         {formatCurrency(cost.customs_duty)}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right hidden lg:table-cell">
-                      <div className="text-sm text-gray-900">
+                    <td className="px-4 py-3 whitespace-nowrap text-right hidden lg:table-cell">
+                      <div className="text-sm text-slate-700">
                         {formatCurrency(cost.subtotal)}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-semibold text-blue-600">
+                    <td className="px-4 py-3 whitespace-nowrap text-right">
+                      <div className="text-sm font-semibold text-teal-600">
                         {formatCurrency(cost.total)}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap hidden xl:table-cell">
-                      <div className="text-sm text-gray-900 truncate max-w-[150px]">
+                    <td className="px-4 py-3 whitespace-nowrap hidden xl:table-cell">
+                      <div className="text-sm text-slate-700 truncate max-w-[150px]">
                         {cost.forwarder || "-"}
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => onEdit(cost)}
-                          className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                          title="수정"
                         >
-                          <Edit size={14} />
-                          수정
+                          <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => onDelete(cost)}
-                          className="flex items-center gap-1 px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="삭제"
                         >
-                          <Trash2 size={14} />
-                          삭제
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
@@ -211,29 +211,29 @@ export default function CustomsCostTable({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-6">
-          <nav className="flex items-center space-x-1">
+          <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
             <button
               onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
               disabled={currentPage === 1}
-              className={`p-2 rounded-md ${
+              className={`p-2 rounded-lg transition-colors ${
                 currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-100"
+                  ? "text-slate-300 cursor-not-allowed"
+                  : "text-slate-600 hover:bg-slate-100"
               }`}
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft className="h-4 w-4" />
             </button>
 
             {paginationNumbers().map((page, index) => (
               <button
                 key={index}
                 onClick={() => typeof page === "number" && onPageChange(page)}
-                className={`px-3 py-1.5 rounded-md ${
+                className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
                   currentPage === page
-                    ? "bg-blue-600 text-white font-medium"
+                    ? "bg-teal-600 text-white"
                     : page === "..."
-                    ? "text-gray-500 cursor-default"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "text-slate-400 cursor-default"
+                    : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 {page}
@@ -245,13 +245,13 @@ export default function CustomsCostTable({
                 onPageChange(Math.min(currentPage + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className={`p-2 rounded-md ${
+              className={`p-2 rounded-lg transition-colors ${
                 currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-100"
+                  ? "text-slate-300 cursor-not-allowed"
+                  : "text-slate-600 hover:bg-slate-100"
               }`}
             >
-              <ChevronRight size={18} />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </nav>
         </div>

@@ -85,7 +85,7 @@ const getStatusBadge = (status: string) => {
     completed: "bg-green-100 text-green-700",
     pending: "bg-yellow-100 text-yellow-700",
     canceled: "bg-red-100 text-red-700",
-    expired: "bg-gray-100 text-gray-700",
+    expired: "bg-slate-100 text-slate-700",
   };
   const labels: Record<string, string> = {
     completed: "완료",
@@ -94,7 +94,7 @@ const getStatusBadge = (status: string) => {
     expired: "만료",
   };
   return (
-    <span className={`px-2 py-0.5 text-xs rounded-full ${styles[status] || "bg-gray-100 text-gray-600"}`}>
+    <span className={`px-2 py-0.5 text-xs rounded-full ${styles[status] || "bg-slate-100 text-slate-600"}`}>
       {labels[status] || status}
     </span>
   );
@@ -143,13 +143,13 @@ function ComparisonCard({
       </div>
       <div className="flex items-baseline justify-between">
         <div>
-          <div className="text-xl font-bold text-gray-900">{formatAmount(current)}</div>
-          <div className="text-xs text-gray-500">현재</div>
+          <div className="text-xl font-bold text-slate-800">{formatAmount(current)}</div>
+          <div className="text-xs text-slate-500">현재</div>
         </div>
-        <ArrowRight size={16} className="text-gray-300" />
+        <ArrowRight size={16} className="text-slate-300" />
         <div className="text-right">
-          <div className="text-lg text-gray-600">{formatAmount(previous)}</div>
-          <div className="text-xs text-gray-500">이전</div>
+          <div className="text-lg text-slate-600">{formatAmount(previous)}</div>
+          <div className="text-xs text-slate-500">이전</div>
         </div>
       </div>
     </div>
@@ -268,8 +268,9 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
+      <div className="flex flex-col items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-cyan-600 border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-slate-500 mt-3">통계를 불러오는 중...</p>
       </div>
     );
   }
@@ -290,13 +291,13 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
     <div className="space-y-6">
       {/* 헤더 */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">종합 거래 통계</h3>
+        <h3 className="text-lg font-semibold text-slate-800">종합 거래 통계</h3>
         {summary.firstTransactionDate && (
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-slate-500">
             <CalendarDays size={16} />
             <span>
               거래 기간: {dayjs(summary.firstTransactionDate).format("YYYY.MM.DD")} ~ {dayjs(summary.lastTransactionDate).format("YYYY.MM.DD")}
-              <span className="ml-2 text-blue-600">({summary.tradingDays}일)</span>
+              <span className="ml-2 text-cyan-600">({summary.tradingDays}일)</span>
             </span>
           </div>
         )}
@@ -359,22 +360,22 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
         </div>
 
         {/* 담당자 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="p-2 bg-orange-100 rounded-lg">
               <Users size={20} className="text-orange-600" />
             </div>
             {summary.resignedContacts > 0 && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
                 퇴사 {summary.resignedContacts}명
               </span>
             )}
           </div>
-          <div className="text-2xl font-bold text-gray-900 mb-1">
+          <div className="text-2xl font-bold text-slate-800 mb-1">
             {summary.totalContacts}명
           </div>
-          <div className="text-sm text-gray-600">활성 담당자</div>
-          <div className="flex gap-2 mt-2 text-xs text-gray-500">
+          <div className="text-sm text-slate-600">활성 담당자</div>
+          <div className="flex gap-2 mt-2 text-xs text-slate-500">
             <MessageSquare size={12} />
             상담 {summary.totalConsultations}건 · 후속 {summary.followUpNeeded}건
           </div>
@@ -382,11 +383,11 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
       </div>
 
       {/* 전년 대비 (YoY) */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-4">
-          <BarChart3 size={18} className="text-gray-600" />
-          <h4 className="text-sm font-semibold text-gray-800">전년 대비 (YoY)</h4>
-          <span className="text-xs text-gray-500">
+          <BarChart3 size={18} className="text-slate-600" />
+          <h4 className="text-sm font-semibold text-slate-800">전년 대비 (YoY)</h4>
+          <span className="text-xs text-slate-500">
             {yoyComparison.prevYear}년 vs {yoyComparison.currentYear}년
           </span>
         </div>
@@ -419,11 +420,11 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
       </div>
 
       {/* 전분기 대비 (QoQ) */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-4">
-          <Repeat size={18} className="text-gray-600" />
-          <h4 className="text-sm font-semibold text-gray-800">전분기 대비 (QoQ)</h4>
-          <span className="text-xs text-gray-500">
+          <Repeat size={18} className="text-slate-600" />
+          <h4 className="text-sm font-semibold text-slate-800">전분기 대비 (QoQ)</h4>
+          <span className="text-xs text-slate-500">
             {qoqComparison.prevQuarter} vs {qoqComparison.currentQuarter}
           </span>
         </div>
@@ -450,8 +451,8 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
       {/* 차트 영역 - 연도별/분기별 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* 연도별 추이 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-gray-800 mb-4">연도별 매출/매입 추이</h4>
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-slate-800 mb-4">연도별 매출/매입 추이</h4>
           {yearlyChartData.categories.length > 0 ? (
             <ApexChart
               type="bar"
@@ -496,15 +497,15 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
               ]}
             />
           ) : (
-            <div className="flex items-center justify-center h-48 text-gray-400">
+            <div className="flex items-center justify-center h-48 text-slate-400">
               데이터가 없습니다
             </div>
           )}
         </div>
 
         {/* 분기별 추이 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-gray-800 mb-4">분기별 매출/매입 추이</h4>
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-slate-800 mb-4">분기별 매출/매입 추이</h4>
           {quarterlyChartData.categories.length > 0 ? (
             <ApexChart
               type="line"
@@ -542,7 +543,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
               ]}
             />
           ) : (
-            <div className="flex items-center justify-center h-48 text-gray-400">
+            <div className="flex items-center justify-center h-48 text-slate-400">
               데이터가 없습니다
             </div>
           )}
@@ -551,9 +552,9 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
 
       {/* 월별 매출 추이 - 3년 비교 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-sm font-semibold text-gray-800">월별 매출 추이 (3년)</h4>
+            <h4 className="text-sm font-semibold text-slate-800">월별 매출 추이 (3년)</h4>
             <div className="flex items-center gap-3 text-xs">
               {threeYearChartData.years.map((year, idx) => (
                 <span key={year} className="flex items-center gap-1">
@@ -611,9 +612,9 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
         </div>
 
         {/* 월별 매입 추이 - 3년 비교 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-sm font-semibold text-gray-800">월별 매입 추이 (3년)</h4>
+            <h4 className="text-sm font-semibold text-slate-800">월별 매입 추이 (3년)</h4>
             <div className="flex items-center gap-3 text-xs">
               {threeYearChartData.years.map((year, idx) => (
                 <span key={year} className="flex items-center gap-1">
@@ -674,36 +675,36 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
       {/* TOP 품목 & 담당자별 활동 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* TOP 품목 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Package size={18} className="text-gray-600" />
-            <h4 className="text-sm font-semibold text-gray-800">TOP 10 품목 (금액 기준)</h4>
+            <Package size={18} className="text-slate-600" />
+            <h4 className="text-sm font-semibold text-slate-800">TOP 10 품목 (금액 기준)</h4>
           </div>
           {topProducts.length > 0 ? (
             <div className="space-y-2">
               {topProducts.map((product, index) => (
                 <div
                   key={`${product.name}-${product.spec}`}
-                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-2 bg-slate-50 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
                     <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
-                      index < 3 ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-600"
+                      index < 3 ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-600"
                     }`}>
                       {index + 1}
                     </span>
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                      <div className="text-sm font-medium text-slate-800">{product.name}</div>
                       {product.spec && (
-                        <div className="text-xs text-gray-500">{product.spec}</div>
+                        <div className="text-xs text-slate-500">{product.spec}</div>
                       )}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-semibold text-gray-900">
+                    <div className="text-sm font-semibold text-slate-800">
                       {formatAmount(product.totalAmount)}원
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-slate-500">
                       {product.totalQuantity}개 · {product.count}건
                     </div>
                   </div>
@@ -711,34 +712,34 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-48 text-gray-400">
+            <div className="flex items-center justify-center h-48 text-slate-400">
               품목 데이터가 없습니다
             </div>
           )}
         </div>
 
         {/* 담당자별 활동 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Activity size={18} className="text-gray-600" />
-            <h4 className="text-sm font-semibold text-gray-800">담당자별 활동</h4>
+            <Activity size={18} className="text-slate-600" />
+            <h4 className="text-sm font-semibold text-slate-800">담당자별 활동</h4>
           </div>
           {userActivity.length > 0 ? (
             <div className="space-y-2">
               {userActivity.map((user, index) => (
                 <div
                   key={user.userId}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold ${
-                      index === 0 ? "bg-yellow-400 text-white" : "bg-gray-300 text-gray-700"
+                      index === 0 ? "bg-yellow-400 text-white" : "bg-slate-300 text-slate-700"
                     }`}>
                       {user.name.charAt(0)}
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-sm font-medium text-slate-800">{user.name}</div>
+                      <div className="text-xs text-slate-500">
                         문서 {user.documents}건 · 상담 {user.consultations}건
                       </div>
                     </div>
@@ -752,7 +753,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-48 text-gray-400">
+            <div className="flex items-center justify-center h-48 text-slate-400">
               활동 데이터가 없습니다
             </div>
           )}
@@ -762,8 +763,8 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
       {/* 문서/상담 분석 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* 문서 상태 분포 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-gray-800 mb-4">문서 상태 분포</h4>
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-slate-800 mb-4">문서 상태 분포</h4>
           {docStatusData.series.some((v) => v > 0) ? (
             <>
               <ApexChart
@@ -799,7 +800,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
               <div className="mt-4 space-y-2">
                 {Object.entries(documentStats).map(([type, stat]) => (
                   <div key={type} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">{getDocTypeLabel(type)}</span>
+                    <span className="text-slate-600">{getDocTypeLabel(type)}</span>
                     <div className="flex gap-2">
                       <span className="text-green-600">{stat.completed}완료</span>
                       <span className="text-yellow-600">{stat.pending}진행</span>
@@ -810,15 +811,15 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-48 text-gray-400">
+            <div className="flex items-center justify-center h-48 text-slate-400">
               데이터가 없습니다
             </div>
           )}
         </div>
 
         {/* 상담방법 분포 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-gray-800 mb-4">상담방법 분포</h4>
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-slate-800 mb-4">상담방법 분포</h4>
           {consultMethodData.series.length > 0 ? (
             <ApexChart
               type="bar"
@@ -840,15 +841,15 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
               series={[{ name: "상담수", data: consultMethodData.series }]}
             />
           ) : (
-            <div className="flex items-center justify-center h-48 text-gray-400">
+            <div className="flex items-center justify-center h-48 text-slate-400">
               데이터가 없습니다
             </div>
           )}
         </div>
 
         {/* 부서별 담당자 분포 */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4">
-          <h4 className="text-sm font-semibold text-gray-800 mb-4">부서별 담당자 분포</h4>
+        <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <h4 className="text-sm font-semibold text-slate-800 mb-4">부서별 담당자 분포</h4>
           {Object.keys(contactStats.byDepartment).length > 0 ? (
             <ApexChart
               type="pie"
@@ -862,7 +863,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
               series={Object.values(contactStats.byDepartment)}
             />
           ) : (
-            <div className="flex items-center justify-center h-48 text-gray-400">
+            <div className="flex items-center justify-center h-48 text-slate-400">
               부서 정보가 없습니다
             </div>
           )}
@@ -870,9 +871,9 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
       </div>
 
       {/* 월별 상담 추이 - 3년 비교 */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
         <div className="flex items-center justify-between mb-4">
-          <h4 className="text-sm font-semibold text-gray-800">월별 상담 현황 (3년)</h4>
+          <h4 className="text-sm font-semibold text-slate-800">월별 상담 현황 (3년)</h4>
           <div className="flex items-center gap-3 text-xs">
             {threeYearChartData.years.map((year, idx) => (
               <span key={year} className="flex items-center gap-1">
@@ -925,14 +926,14 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
       </div>
 
       {/* 최근 문서 */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <h4 className="text-sm font-semibold text-gray-800 mb-4">최근 문서</h4>
+      <div className="bg-white border border-slate-200 rounded-xl p-4">
+        <h4 className="text-sm font-semibold text-slate-800 mb-4">최근 문서</h4>
         {recentDocuments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {recentDocuments.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${
@@ -945,16 +946,16 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
                     } />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-slate-800">
                       {doc.document_number}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-slate-500">
                       {getDocTypeLabel(doc.type)} · {dayjs(doc.date).format("YYYY-MM-DD")}
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-slate-800">
                     {formatAmount(doc.total_amount)}원
                   </div>
                   {getStatusBadge(doc.status)}
@@ -963,7 +964,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center h-32 text-gray-400">
+          <div className="flex items-center justify-center h-32 text-slate-400">
             최근 문서가 없습니다
           </div>
         )}
