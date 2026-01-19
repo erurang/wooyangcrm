@@ -2,8 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CircularProgress } from "@mui/material";
-import { X, AlertCircle } from "lucide-react";
-import { useState, useCallback } from "react";
+import { X, AlertCircle, Paperclip, FileText, Upload } from "lucide-react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { ContactMethod } from "@/types/consultation";
 import { CONTACT_METHOD_LABELS } from "@/types/consultation";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
@@ -45,6 +45,7 @@ const CONTACT_METHOD_OPTIONS: { value: ContactMethod; label: string }[] = [
   { value: "meeting", label: "미팅" },
   { value: "exhibition", label: "전시회" },
   { value: "visit", label: "방문" },
+  { value: "sample", label: "샘플" },
   { value: "other", label: "기타" },
 ];
 
@@ -56,8 +57,11 @@ interface ConsultationFormModalProps {
   setFormData: (data: ConsultationFormData) => void;
   contacts: Contact[];
   users: User[];
-  onSubmit: () => Promise<void>;
+  onSubmit: (files?: File[]) => Promise<void>;
   saving: boolean;
+  // 파일 첨부 관련
+  pendingFiles?: File[];
+  onFilesChange?: (files: File[]) => void;
 }
 
 export default function ConsultationFormModal({
@@ -70,13 +74,95 @@ export default function ConsultationFormModal({
   users,
   onSubmit,
   saving,
+  pendingFiles: externalPendingFiles,
+  onFilesChange,
 }: ConsultationFormModalProps) {
   const isAddMode = mode === "add";
   const modalTitle = isAddMode ? "상담 내역 추가" : "상담 내역 수정";
   const [errors, setErrors] = useState<FormErrors>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // 내부 파일 상태 (외부에서 관리하지 않을 경우)
+  const [internalPendingFiles, setInternalPendingFiles] = useState<File[]>([]);
+  const pendingFiles = externalPendingFiles ?? internalPendingFiles;
+  const setPendingFiles = onFilesChange ?? setInternalPendingFiles;
+
+  // 모달 닫힐 때 파일 초기화
+  useEffect(() => {
+    if (!isOpen) {
+      setInternalPendingFiles([]);
+      setIsDragging(false);
+    }
+  }, [isOpen]);
 
   // ESC 키로 모달 닫기
   useEscapeKey(isOpen, onClose);
+
+  // 파일 선택 핸들러
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
+    if (!selectedFiles) return;
+    setPendingFiles([...pendingFiles, ...Array.from(selectedFiles)]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // 드래그 앤 드롭 핸들러
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // 자식 요소로 이동할 때는 무시
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const droppedFiles = e.dataTransfer.files;
+    if (droppedFiles && droppedFiles.length > 0) {
+      setPendingFiles([...pendingFiles, ...Array.from(droppedFiles)]);
+    }
+  }, [pendingFiles, setPendingFiles]);
+
+  // 파일 제거
+  const removePendingFile = (index: number) => {
+    setPendingFiles(pendingFiles.filter((_, i) => i !== index));
+  };
+
+  // 파일 확장자 아이콘
+  const getFileIcon = (fileName: string) => {
+    const ext = fileName.split(".").pop()?.toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext || "")) {
+      return "🖼️";
+    } else if (["pdf"].includes(ext || "")) {
+      return "📄";
+    } else if (["doc", "docx"].includes(ext || "")) {
+      return "📝";
+    } else if (["xls", "xlsx"].includes(ext || "")) {
+      return "📊";
+    } else if (["ppt", "pptx"].includes(ext || "")) {
+      return "📽️";
+    } else if (["zip", "rar", "7z"].includes(ext || "")) {
+      return "🗜️";
+    }
+    return "📎";
+  };
 
   // 필드별 검증
   const validateField = useCallback((field: keyof FormErrors, value: string): string | undefined => {
@@ -127,12 +213,13 @@ export default function ConsultationFormModal({
   // 제출 시 검증
   const handleSubmit = useCallback(async () => {
     if (!validateForm()) return;
-    await onSubmit();
-  }, [validateForm, onSubmit]);
+    await onSubmit(pendingFiles.length > 0 ? pendingFiles : undefined);
+  }, [validateForm, onSubmit, pendingFiles]);
 
-  // 모달 닫을 때 에러 초기화
+  // 모달 닫을 때 에러 및 파일 초기화
   const handleClose = useCallback(() => {
     setErrors({});
+    setInternalPendingFiles([]);
     onClose();
   }, [onClose]);
 
@@ -310,6 +397,83 @@ export default function ConsultationFormModal({
                   </p>
                 )}
               </div>
+
+              {/* 파일 첨부 */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="flex items-center gap-2">
+                    <Paperclip className="h-4 w-4" />
+                    파일 첨부
+                  </div>
+                </label>
+
+                  {/* 첨부된 파일 목록 */}
+                  {pendingFiles.length > 0 && (
+                    <div className="mb-3 space-y-2">
+                      {pendingFiles.map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg"
+                        >
+                          <span className="text-lg">{getFileIcon(file.name)}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-700 truncate">
+                              {file.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removePendingFile(index)}
+                            className="p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 드래그 앤 드롭 영역 */}
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
+                      isDragging
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                    }`}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                    {isDragging ? (
+                      <div className="flex flex-col items-center gap-2 text-blue-600">
+                        <Upload className="h-8 w-8" />
+                        <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-gray-500">
+                        <FileText className="h-8 w-8" />
+                        <p className="text-sm">
+                          <span className="font-medium text-blue-600">파일 선택</span> 또는 드래그 앤 드롭
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          상담 저장 후 파일이 업로드됩니다
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
             </div>
 
             <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">

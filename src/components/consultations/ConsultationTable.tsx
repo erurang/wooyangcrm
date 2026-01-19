@@ -247,6 +247,7 @@ export default function ConsultationTable({
       case "meeting": return "bg-orange-100 text-orange-700";
       case "exhibition": return "bg-pink-100 text-pink-700";
       case "visit": return "bg-teal-100 text-teal-700";
+      case "sample": return "bg-amber-100 text-amber-700";
       default: return "bg-slate-100 text-slate-700";
     }
   };

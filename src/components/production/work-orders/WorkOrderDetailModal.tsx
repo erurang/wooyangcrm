@@ -125,6 +125,10 @@ export default function WorkOrderDetailModal({
   const [cursorPosition, setCursorPosition] = useState(0);
   const justSelectedMention = useRef(false);
 
+  // 드래그 앤 드롭 상태
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [isDraggingCommentFile, setIsDraggingCommentFile] = useState(false);
+
   // 필터링된 사용자 목록 (멘션용)
   const filteredMentionUsers = users.filter((user: { id: string; name: string }) =>
     user.name.toLowerCase().includes(mentionSearch.toLowerCase())
@@ -221,6 +225,75 @@ export default function WorkOrderDetailModal({
   // 대기 중인 파일 제거
   const removePendingFile = (index: number) => {
     setPendingCommentFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // 작업지시 파일 드래그 앤 드롭 핸들러
+  const handleFileDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleFileDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(true);
+  };
+
+  const handleFileDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setIsDraggingFile(false);
+  };
+
+  const handleFileDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+
+    const droppedFiles = e.dataTransfer.files;
+    if (!droppedFiles || droppedFiles.length === 0 || !workOrderId || !workOrder) return;
+
+    setUploading(true);
+    for (const file of Array.from(droppedFiles)) {
+      const result = await uploadWorkOrderFile(file, workOrderId, currentUserId);
+      if (result) {
+        await loadFiles();
+        await sendFileNotification("upload", file.name);
+      }
+    }
+    setUploading(false);
+    refreshLogs();
+  };
+
+  // 댓글 파일 드래그 앤 드롭 핸들러
+  const handleCommentFileDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleCommentFileDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingCommentFile(true);
+  };
+
+  const handleCommentFileDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setIsDraggingCommentFile(false);
+  };
+
+  const handleCommentFileDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingCommentFile(false);
+
+    const droppedFiles = e.dataTransfer.files;
+    if (droppedFiles && droppedFiles.length > 0) {
+      setPendingCommentFiles((prev) => [...prev, ...Array.from(droppedFiles)]);
+    }
   };
 
   // 댓글 파일 다운로드
@@ -756,18 +829,6 @@ export default function WorkOrderDetailModal({
                       <FileText className="h-4 w-4" />
                       첨부파일 ({files.length})
                     </div>
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
-                      className="flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50"
-                    >
-                      {uploading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Upload className="h-4 w-4" />
-                      )}
-                      {uploading ? "업로드 중..." : "파일 추가"}
-                    </button>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -776,7 +837,39 @@ export default function WorkOrderDetailModal({
                       onChange={handleFileUpload}
                     />
                   </div>
-                  {files.length > 0 ? (
+                  {/* 드래그 앤 드롭 영역 */}
+                  <div
+                    onDragOver={handleFileDragOver}
+                    onDragEnter={handleFileDragEnter}
+                    onDragLeave={handleFileDragLeave}
+                    onDrop={handleFileDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`relative border-2 border-dashed rounded-lg p-3 mb-2 text-center cursor-pointer transition-all ${
+                      isDraggingFile
+                        ? "border-purple-500 bg-purple-50"
+                        : "border-slate-200 hover:border-purple-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    {uploading ? (
+                      <div className="flex flex-col items-center gap-1 text-slate-500">
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <p className="text-xs">업로드 중...</p>
+                      </div>
+                    ) : isDraggingFile ? (
+                      <div className="flex flex-col items-center gap-1 text-purple-600">
+                        <Upload className="h-6 w-6" />
+                        <p className="text-xs font-medium">파일을 여기에 놓으세요</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1 text-slate-400">
+                        <Upload className="h-6 w-6" />
+                        <p className="text-xs">
+                          <span className="font-medium text-purple-600">파일 선택</span> 또는 드래그
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  {files.length > 0 && (
                     <div className="space-y-2 max-h-40 overflow-y-auto">
                       {files.map((file) => (
                         <div
@@ -796,7 +889,10 @@ export default function WorkOrderDetailModal({
                           </div>
                           <div className="flex items-center gap-1">
                             <button
-                              onClick={() => handleDownload(file)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownload(file);
+                              }}
                               className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                               title="다운로드"
                             >
@@ -804,7 +900,10 @@ export default function WorkOrderDetailModal({
                             </button>
                             {file.user_id === currentUserId && (
                               <button
-                                onClick={() => handleFileDelete(file)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleFileDelete(file);
+                                }}
                                 className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
                                 title="삭제"
                               >
@@ -815,10 +914,6 @@ export default function WorkOrderDetailModal({
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <p className="text-sm text-slate-400 text-center py-4 bg-slate-50 rounded-lg">
-                      첨부된 파일이 없습니다
-                    </p>
                   )}
                 </div>
 
@@ -998,7 +1093,24 @@ export default function WorkOrderDetailModal({
                 </div>
 
                 {/* 댓글 입력 영역 */}
-                <div className="p-4 border-t border-slate-200 bg-white">
+                <div
+                  className={`p-4 border-t transition-colors ${
+                    isDraggingCommentFile
+                      ? "border-purple-500 bg-purple-50"
+                      : "border-slate-200 bg-white"
+                  }`}
+                  onDragOver={handleCommentFileDragOver}
+                  onDragEnter={handleCommentFileDragEnter}
+                  onDragLeave={handleCommentFileDragLeave}
+                  onDrop={handleCommentFileDrop}
+                >
+                  {/* 드래그 중 오버레이 */}
+                  {isDraggingCommentFile && (
+                    <div className="mb-2 p-3 border-2 border-dashed border-purple-400 rounded-lg bg-purple-100 text-center">
+                      <Upload className="h-6 w-6 mx-auto text-purple-600 mb-1" />
+                      <p className="text-xs font-medium text-purple-700">파일을 여기에 놓으세요</p>
+                    </div>
+                  )}
                   {/* 대기 중인 파일 표시 */}
                   {pendingCommentFiles.length > 0 && (
                     <div className="mb-2 space-y-1">

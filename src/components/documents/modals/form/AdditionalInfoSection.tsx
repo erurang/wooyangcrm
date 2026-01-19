@@ -1,6 +1,6 @@
 "use client";
 
-import { Info, MapPin, Truck } from "lucide-react";
+import { Info, MapPin, Truck, ClipboardPaste } from "lucide-react";
 
 interface NewDocument {
   delivery_place: string;
@@ -12,6 +12,7 @@ interface AdditionalInfoSectionProps {
   setNewDocument: (doc: any) => void;
   iconColor: string;
   focusClass: string;
+  companyAddress?: string;
 }
 
 export default function AdditionalInfoSection({
@@ -19,7 +20,14 @@ export default function AdditionalInfoSection({
   setNewDocument,
   iconColor,
   focusClass,
+  companyAddress,
 }: AdditionalInfoSectionProps) {
+  const handlePasteAddress = () => {
+    if (companyAddress) {
+      setNewDocument({ ...newDocument, delivery_place: companyAddress });
+    }
+  };
+
   return (
     <div className="bg-gray-50 p-5 rounded-xl">
       <div className="flex items-center gap-2 mb-4 text-gray-800">
@@ -42,6 +50,16 @@ export default function AdditionalInfoSection({
               className={`w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
             />
           </div>
+          {companyAddress && (
+            <button
+              type="button"
+              onClick={handlePasteAddress}
+              className="mt-2 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors"
+            >
+              <ClipboardPaste size={14} />
+              주소 붙여넣기
+            </button>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">

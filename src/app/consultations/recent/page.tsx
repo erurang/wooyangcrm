@@ -112,6 +112,7 @@ interface ContactConsultation {
 interface RecentConsultation {
   id: string;
   date: string;
+  title?: string;
   content: string;
   created_at: string;
   contact_name: string;

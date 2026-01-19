@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { supabaseUploadFile } from "@/lib/supabaseUploadFile";
 
 interface Consultation {
   id: string;
@@ -121,7 +122,8 @@ export function useConsultPageHandlers({
   // 상담 추가
   const handleAddConsultation = useCallback(async (
     newConsultation: NewConsultation,
-    onSuccess: () => void
+    onSuccess: () => void,
+    files?: File[]
   ) => {
     if (isAdding) return;
     const { content, follow_up_date, user_id, contact_name, title, contact_method } = newConsultation;
@@ -166,7 +168,16 @@ export function useConsultPageHandlers({
         },
       });
 
-      setSnackbarMessage("상담 내역 추가 완료");
+      // 파일 업로드 (있을 경우)
+      if (files && files.length > 0) {
+        for (const file of files) {
+          await supabaseUploadFile(file, addedConsultation.consultation_id, user_id);
+        }
+      }
+
+      setSnackbarMessage(files && files.length > 0
+        ? `상담 내역 추가 완료 (파일 ${files.length}개 업로드됨)`
+        : "상담 내역 추가 완료");
       onSuccess();
       await refreshConsultations();
       await refreshContactsConsultations();
@@ -181,7 +192,8 @@ export function useConsultPageHandlers({
   const handleUpdateConsultation = useCallback(async (
     selectedConsultationId: string | undefined,
     newConsultation: NewConsultation,
-    onSuccess: () => void
+    onSuccess: () => void,
+    files?: File[]
   ) => {
     if (isUpdating) return;
     const { content, follow_up_date, user_id, contact_name, title, contact_method } = newConsultation;
@@ -215,7 +227,16 @@ export function useConsultPageHandlers({
         },
       });
 
-      setSnackbarMessage("상담 내역 수정 완료");
+      // 파일 업로드 (있을 경우)
+      if (files && files.length > 0 && selectedConsultationId) {
+        for (const file of files) {
+          await supabaseUploadFile(file, selectedConsultationId, user_id);
+        }
+      }
+
+      setSnackbarMessage(files && files.length > 0
+        ? `상담 내역 수정 완료 (파일 ${files.length}개 업로드됨)`
+        : "상담 내역 수정 완료");
       onSuccess();
       await refreshConsultations();
       await refreshContactsConsultations();
@@ -224,7 +245,7 @@ export function useConsultPageHandlers({
     } finally {
       setSaving(false);
     }
-  }, [isUpdating, contacts, updateConsultation, refreshConsultations, refreshContactsConsultations]);
+  }, [isUpdating, contacts, updateConsultation, refreshConsultations, refreshContactsConsultations, loginUserId]);
 
   // 삭제 요청
   const handleConfirmDelete = useCallback(async (

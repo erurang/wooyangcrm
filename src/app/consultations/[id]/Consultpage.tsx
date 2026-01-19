@@ -466,7 +466,7 @@ export default function ConsultationPage() {
         setFormData={setNewConsultation}
         contacts={contacts}
         users={users}
-        onSubmit={() => handleAddConsultation(newConsultation, () => setOpenAddModal(false))}
+        onSubmit={(files) => handleAddConsultation(newConsultation, () => setOpenAddModal(false), files)}
         saving={saving}
       />
 
@@ -478,7 +478,7 @@ export default function ConsultationPage() {
         setFormData={setNewConsultation}
         contacts={contacts}
         users={users}
-        onSubmit={() => handleUpdateConsultation(selectedConsultation?.id, newConsultation, () => setOpenEditModal(false))}
+        onSubmit={(files) => handleUpdateConsultation(selectedConsultation?.id, newConsultation, () => setOpenEditModal(false), files)}
         saving={saving}
       />
 

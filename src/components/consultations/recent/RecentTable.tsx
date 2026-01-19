@@ -12,6 +12,8 @@ interface Document {
 interface Consultation {
   id: string;
   date: string;
+  created_at?: string;
+  title?: string;
   content: string;
   contact_name?: string;
   contact_level?: string;
@@ -43,6 +45,12 @@ export default function RecentTable({
         <br />
       </span>
     ));
+  };
+
+  const formatTime = (createdAt?: string) => {
+    if (!createdAt) return "";
+    const date = new Date(createdAt);
+    return date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
   };
 
   if (isLoading) {
@@ -104,6 +112,11 @@ export default function RecentTable({
                     <div className="text-xs text-slate-500 mb-0.5">상담일</div>
                     <div className="text-sm font-medium text-slate-800">
                       {consultation.date}
+                      {consultation.created_at && (
+                        <span className="ml-1.5 text-xs text-slate-500 font-normal">
+                          {formatTime(consultation.created_at)}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -125,8 +138,14 @@ export default function RecentTable({
                 </div>
               </div>
 
-              {/* 우측 (b): 내용 + 문서 */}
+              {/* 우측 (b): 제목 + 내용 + 문서 */}
               <div className="flex-1 p-4 flex flex-col">
+                {/* 제목 */}
+                {consultation.title && (
+                  <div className="text-sm font-semibold text-slate-800 mb-2 pb-2 border-b border-slate-100">
+                    {consultation.title}
+                  </div>
+                )}
                 {/* 내용 */}
                 <div className="text-sm text-slate-700 leading-relaxed flex-1">
                   {formatContentWithLineBreaks(consultation.content)}

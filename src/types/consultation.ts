@@ -1,7 +1,7 @@
 // 상담 관련 공유 타입 정의
 
 // 접수 경로 타입
-export type ContactMethod = "phone" | "online" | "email" | "meeting" | "exhibition" | "visit" | "other";
+export type ContactMethod = "phone" | "online" | "email" | "meeting" | "exhibition" | "visit" | "sample" | "other";
 
 // 접수 경로 라벨
 export const CONTACT_METHOD_LABELS: Record<ContactMethod, string> = {
@@ -11,6 +11,7 @@ export const CONTACT_METHOD_LABELS: Record<ContactMethod, string> = {
   meeting: "미팅",
   exhibition: "전시회",
   visit: "방문",
+  sample: "샘플",
   other: "기타",
 };
 

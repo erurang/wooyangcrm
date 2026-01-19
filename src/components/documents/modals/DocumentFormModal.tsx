@@ -39,6 +39,7 @@ interface DocumentFormModalProps {
   paymentMethods: string[];
   saving: boolean;
   contacts: Contact[];
+  companyAddress?: string;
 }
 
 export default function DocumentFormModal({
@@ -60,6 +61,7 @@ export default function DocumentFormModal({
   paymentMethods,
   saving,
   contacts,
+  companyAddress,
 }: DocumentFormModalProps) {
   const isAddMode = mode === "add";
 
@@ -118,6 +120,7 @@ export default function DocumentFormModal({
                 setNewDocument={setNewDocument}
                 iconColor={colorConfig.iconColor}
                 focusClass={colorConfig.focus}
+                companyAddress={companyAddress}
               />
             )}
 

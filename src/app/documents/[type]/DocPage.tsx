@@ -161,7 +161,7 @@ const DocPage = () => {
         company_name: company.name,
         phone: company.phone,
         fax: company.fax,
-        delivery_place: company.address || "",
+        delivery_place: "귀사도",
       }));
     }
   }, [company, newDocument.company_name]);
@@ -252,6 +252,7 @@ const DocPage = () => {
         statusReason={statusReason}
         setStatusReason={setStatusReason}
         highlightId={highlightId}
+        companyAddress={company?.address || ""}
       />
 
       <DocDeleteModal

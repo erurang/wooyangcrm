@@ -20,6 +20,7 @@ import {
   MessageSquare,
   Presentation,
   PartyPopper,
+  Package,
 } from "lucide-react";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
@@ -69,6 +70,7 @@ const CONTACT_METHOD_STYLES: Record<ContactMethod, { bgColor: string; textColor:
   meeting: { bgColor: "bg-orange-100", textColor: "text-orange-700", calendarBg: "bg-orange-500", icon: Presentation },
   exhibition: { bgColor: "bg-pink-100", textColor: "text-pink-700", calendarBg: "bg-pink-500", icon: PartyPopper },
   visit: { bgColor: "bg-teal-100", textColor: "text-teal-700", calendarBg: "bg-teal-500", icon: MapPin },
+  sample: { bgColor: "bg-amber-100", textColor: "text-amber-700", calendarBg: "bg-amber-500", icon: Package },
   other: { bgColor: "bg-slate-100", textColor: "text-slate-700", calendarBg: "bg-slate-400", icon: MessageSquare },
 };
 
@@ -291,6 +293,7 @@ export default function ConsultationCalendarPage() {
     { value: "meeting", label: "미팅", color: "bg-orange-500 text-white" },
     { value: "exhibition", label: "전시회", color: "bg-pink-500 text-white" },
     { value: "visit", label: "방문", color: "bg-teal-500 text-white" },
+    { value: "sample", label: "샘플", color: "bg-amber-500 text-white" },
     { value: "other", label: "기타", color: "bg-slate-500 text-white" },
   ];
 
