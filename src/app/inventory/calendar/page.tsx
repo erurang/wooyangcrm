@@ -380,6 +380,38 @@ export default function InventoryCalendarPage() {
 
       {/* 메인 컨텐츠 */}
       <div className="p-4">
+        {/* Legend */}
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-3 mb-4">
+          <div className="flex items-center gap-6 flex-wrap">
+            <span className="text-xs font-medium text-slate-600">색상 안내:</span>
+            <div className="flex items-center gap-4 flex-wrap">
+              {/* 타입 */}
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-emerald-500"></span>
+                <span className="text-xs text-slate-600">입고</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-blue-500"></span>
+                <span className="text-xs text-slate-600">출고</span>
+              </div>
+              <div className="w-px h-4 bg-slate-200"></div>
+              {/* 상태 */}
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-emerald-100 border border-emerald-300"></span>
+                <span className="text-xs text-slate-600">입고 완료</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-blue-100 border border-blue-300"></span>
+                <span className="text-xs text-slate-600">출고 완료</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-red-500"></span>
+                <span className="text-xs text-slate-600">지연</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="flex gap-4">
           {/* 캘린더 */}
           <div className="flex-1 min-w-0">

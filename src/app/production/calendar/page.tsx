@@ -413,6 +413,37 @@ export default function ProductionCalendarPage() {
 
       {/* Main Content */}
       <div className="p-4">
+        {/* Legend */}
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-3 mb-4">
+          <div className="flex items-center gap-6 flex-wrap">
+            <span className="text-xs font-medium text-slate-600">색상 안내:</span>
+            <div className="flex items-center gap-4 flex-wrap">
+              {/* 타입 */}
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-purple-500"></span>
+                <span className="text-xs text-slate-600">작업지시 (대기)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-blue-500"></span>
+                <span className="text-xs text-slate-600">작업지시 (진행중)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-green-100 border border-green-300"></span>
+                <span className="text-xs text-slate-600">작업지시 (완료)</span>
+              </div>
+              <div className="w-px h-4 bg-slate-200"></div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-emerald-500"></span>
+                <span className="text-xs text-slate-600">생산기록</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-red-500"></span>
+                <span className="text-xs text-slate-600">지연</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="flex gap-4">
           {/* Calendar */}
           <div className="flex-1 min-w-0">

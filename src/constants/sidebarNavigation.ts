@@ -94,6 +94,7 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
       { id: "customers", title: "거래처 검색", path: "/manage/customers" },
       { id: "contacts", title: "담당자 검색", path: "/manage/contacts" },
       { id: "resignContacts", title: "퇴사자 검색", path: "/manage/contacts/resign" },
+      { id: "consultation-calendar", title: "상담 캘린더", path: "/consultations/calendar" },
       { id: "recent", title: "상담내역 조회", path: "/consultations/recent" },
       { id: "follow", title: "후속상담 검색", path: "/consultations/follow" },
     ],
@@ -113,6 +114,7 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     title: "문서 관리",
     icon: FileText,
     subItems: [
+      { id: "calendar", title: "문서 캘린더", path: "/documents/calendar" },
       { id: "all", title: "전체 문서", path: "/documents/review" },
       { id: "estimate", title: "견적서", path: "/documents/review?type=estimate" },
       { id: "order", title: "발주서", path: "/documents/review?type=order" },
