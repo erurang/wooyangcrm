@@ -2,15 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import CommentItem from "./CommentItem";
-import type { PostComment } from "@/types/post";
+import type { PostComment, CreateReferenceData } from "@/types/post";
 
 interface CommentListProps {
   comments: PostComment[];
   currentUserId: string;
   highlightCommentId?: string | null;
-  onReply: (content: string, parentId?: string) => void;
+  onReply: (content: string, parentId?: string, files?: File[], references?: CreateReferenceData[]) => void;
   onEdit?: (commentId: string, content: string) => Promise<void>;
   onDelete?: (commentId: string) => Promise<void>;
+  isSubmittingReply?: boolean;
 }
 
 export default function CommentList({
@@ -20,6 +21,7 @@ export default function CommentList({
   onReply,
   onEdit,
   onDelete,
+  isSubmittingReply = false,
 }: CommentListProps) {
   const highlightRef = useRef<HTMLDivElement>(null);
   const [activeHighlightId, setActiveHighlightId] = useState<string | null>(null);
@@ -71,6 +73,7 @@ export default function CommentList({
             onReply={onReply}
             onEdit={onEdit}
             onDelete={onDelete}
+            isSubmittingReply={isSubmittingReply}
           />
           {/* 대댓글 */}
           {getReplies(comment.id).length > 0 && (
@@ -90,6 +93,7 @@ export default function CommentList({
                     onEdit={onEdit}
                     onDelete={onDelete}
                     isReply
+                    isSubmittingReply={isSubmittingReply}
                   />
                 </div>
                 );

@@ -21,6 +21,8 @@ import {
   MessageCircle,
   Send,
   MoreVertical,
+  AtSign,
+  Paperclip,
 } from "lucide-react";
 import dayjs from "dayjs";
 import { useUsersList } from "@/hooks/useUserList";
@@ -32,6 +34,11 @@ import {
   deleteWorkOrderFile,
   type WorkOrderFile,
 } from "@/lib/workOrderFiles";
+import {
+  uploadWorkOrderCommentFile,
+  fetchFilesForComments,
+  type WorkOrderCommentFile,
+} from "@/lib/workOrderCommentFiles";
 import type { WorkOrder, WorkOrderStatus } from "@/types/production";
 
 interface WorkOrderDetailModalProps {
@@ -103,6 +110,25 @@ export default function WorkOrderDetailModal({
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
+  const commentFileInputRef = useRef<HTMLInputElement>(null);
+
+  // 댓글 파일 관련 상태
+  const [pendingCommentFiles, setPendingCommentFiles] = useState<File[]>([]);
+  const [commentFilesMap, setCommentFilesMap] = useState<Record<string, WorkOrderCommentFile[]>>({});
+  const [uploadingCommentFile, setUploadingCommentFile] = useState(false);
+
+  // 멘션 관련 상태
+  const [showMentions, setShowMentions] = useState(false);
+  const [mentionSearch, setMentionSearch] = useState("");
+  const [mentionIndex, setMentionIndex] = useState(0);
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const justSelectedMention = useRef(false);
+
+  // 필터링된 사용자 목록 (멘션용)
+  const filteredMentionUsers = users.filter((user: { id: string; name: string }) =>
+    user.name.toLowerCase().includes(mentionSearch.toLowerCase())
+  );
 
   // Load work order data into form
   useEffect(() => {
@@ -129,6 +155,18 @@ export default function WorkOrderDetailModal({
     setFiles(loadedFiles);
   };
 
+  // 댓글 파일 로드
+  useEffect(() => {
+    const loadCommentFiles = async () => {
+      if (comments.length > 0) {
+        const commentIds = comments.map((c) => c.id);
+        const filesMap = await fetchFilesForComments(commentIds);
+        setCommentFilesMap(filesMap);
+      }
+    };
+    loadCommentFiles();
+  }, [comments]);
+
   // Reset on close
   useEffect(() => {
     if (!isOpen) {
@@ -141,18 +179,77 @@ export default function WorkOrderDetailModal({
       setEditingCommentId(null);
       setEditingCommentContent("");
       setOpenCommentMenu(null);
+      setPendingCommentFiles([]);
+      setCommentFilesMap({});
     }
   }, [isOpen]);
 
   const handleAddComment = async () => {
-    if (!newComment.trim() || commentSubmitting) return;
+    if ((!newComment.trim() && pendingCommentFiles.length === 0) || commentSubmitting) return;
     setCommentSubmitting(true);
-    const result = await addComment(currentUserId, newComment);
-    if (!result.error) {
+    const result = await addComment(currentUserId, newComment || "(파일 첨부)");
+    if (!result.error && result.comment) {
+      // 파일 업로드
+      if (pendingCommentFiles.length > 0) {
+        setUploadingCommentFile(true);
+        for (const file of pendingCommentFiles) {
+          await uploadWorkOrderCommentFile(file, result.comment.id, currentUserId);
+        }
+        setPendingCommentFiles([]);
+        setUploadingCommentFile(false);
+        // 파일 맵 새로고침
+        const commentIds = [...comments.map((c) => c.id), result.comment.id];
+        const filesMap = await fetchFilesForComments(commentIds);
+        setCommentFilesMap(filesMap);
+      }
       setNewComment("");
       refreshLogs();
     }
     setCommentSubmitting(false);
+  };
+
+  // 댓글 파일 선택 핸들러
+  const handleCommentFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
+    if (!selectedFiles) return;
+    setPendingCommentFiles((prev) => [...prev, ...Array.from(selectedFiles)]);
+    if (commentFileInputRef.current) {
+      commentFileInputRef.current.value = "";
+    }
+  };
+
+  // 대기 중인 파일 제거
+  const removePendingFile = (index: number) => {
+    setPendingCommentFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // 댓글 파일 다운로드
+  const handleCommentFileDownload = async (file: WorkOrderCommentFile) => {
+    if (!file.signedUrl) return;
+
+    // 다운로드 기록 저장
+    await fetch("/api/file-downloads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        file_id: file.id,
+        file_type: "work_order_comment",
+        file_name: file.file_name,
+        user_id: currentUserId,
+        related_id: file.comment_id,
+      }),
+    });
+
+    const response = await fetch(file.signedUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.file_name;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   };
 
   const handleUpdateComment = async (commentId: string) => {
@@ -252,6 +349,22 @@ export default function WorkOrderDetailModal({
 
   const handleDownload = async (file: WorkOrderFile) => {
     if (!file.public_url) return;
+
+    // 다운로드 기록 저장
+    if (workOrderId) {
+      await fetch("/api/file-downloads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          file_id: file.id,
+          file_type: "work_order",
+          file_name: file.file_name,
+          user_id: currentUserId,
+          related_id: workOrderId,
+        }),
+      });
+    }
+
     const response = await fetch(file.public_url);
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
@@ -406,9 +519,9 @@ export default function WorkOrderDetailModal({
         {/* Backdrop */}
         <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
-        {/* Modal */}
+        {/* Modal - 좌우 분할 레이아웃 */}
         <motion.div
-          className="relative bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] overflow-hidden flex flex-col"
+          className="relative bg-white rounded-xl shadow-2xl w-full max-w-6xl mx-4 max-h-[90vh] overflow-hidden flex flex-col"
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
@@ -462,17 +575,20 @@ export default function WorkOrderDetailModal({
             </div>
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          {/* Content - 좌우 분할 레이아웃 */}
+          <div className="flex-1 flex overflow-hidden">
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
+              <div className="flex-1 flex items-center justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
               </div>
             ) : !workOrder ? (
-              <div className="text-center py-12 text-slate-500">
+              <div className="flex-1 text-center py-12 text-slate-500">
                 작업지시를 찾을 수 없습니다
               </div>
             ) : (
+              <>
+              {/* 왼쪽 패널: 작업지시 정보 */}
+              <div className="flex-1 overflow-y-auto p-6 border-r border-slate-200">
               <div className="space-y-6">
                 {error && (
                   <div className="p-3 bg-red-50 text-red-600 rounded-lg flex items-center gap-2 text-sm">
@@ -706,138 +822,6 @@ export default function WorkOrderDetailModal({
                   )}
                 </div>
 
-                {/* 댓글 섹션 */}
-                {viewMode === "view" && (
-                  <div>
-                    <div className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-3">
-                      <MessageCircle className="h-4 w-4" />
-                      댓글 ({comments.length})
-                    </div>
-
-                    {/* 댓글 입력 */}
-                    <div className="flex gap-2 mb-4">
-                      <input
-                        type="text"
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleAddComment()}
-                        placeholder="댓글을 입력하세요..."
-                        className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <button
-                        onClick={handleAddComment}
-                        disabled={!newComment.trim() || commentSubmitting}
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        {commentSubmitting ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Send className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-
-                    {/* 댓글 목록 */}
-                    {comments.length > 0 ? (
-                      <div className="space-y-3 max-h-48 overflow-y-auto">
-                        {comments.map((comment) => (
-                          <div
-                            key={comment.id}
-                            className="bg-slate-50 rounded-lg p-3"
-                          >
-                            {editingCommentId === comment.id ? (
-                              <div className="flex gap-2">
-                                <input
-                                  type="text"
-                                  value={editingCommentContent}
-                                  onChange={(e) => setEditingCommentContent(e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") handleUpdateComment(comment.id);
-                                    if (e.key === "Escape") {
-                                      setEditingCommentId(null);
-                                      setEditingCommentContent("");
-                                    }
-                                  }}
-                                  className="flex-1 px-2 py-1 text-sm border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
-                                  autoFocus
-                                />
-                                <button
-                                  onClick={() => handleUpdateComment(comment.id)}
-                                  disabled={commentSubmitting}
-                                  className="px-2 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50"
-                                >
-                                  저장
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setEditingCommentId(null);
-                                    setEditingCommentContent("");
-                                  }}
-                                  className="px-2 py-1 text-sm bg-slate-200 text-slate-600 rounded hover:bg-slate-300"
-                                >
-                                  취소
-                                </button>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="flex items-start justify-between">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                                      <span className="text-xs font-medium text-purple-600">
-                                        {comment.user?.name?.charAt(0)}
-                                      </span>
-                                    </div>
-                                    <span className="text-sm font-medium text-slate-700">
-                                      {comment.user?.name}
-                                    </span>
-                                    <span className="text-xs text-slate-400">
-                                      {dayjs(comment.created_at).format("MM/DD HH:mm")}
-                                    </span>
-                                    {comment.updated_at !== comment.created_at && (
-                                      <span className="text-xs text-slate-400">(수정됨)</span>
-                                    )}
-                                  </div>
-                                  {comment.user_id === currentUserId && (
-                                    <div className="relative">
-                                      <button
-                                        onClick={() => setOpenCommentMenu(openCommentMenu === comment.id ? null : comment.id)}
-                                        className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded"
-                                      >
-                                        <MoreVertical className="h-4 w-4" />
-                                      </button>
-                                      {openCommentMenu === comment.id && (
-                                        <div className="absolute right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 py-1 min-w-[80px]">
-                                          <button
-                                            onClick={() => startEditComment(comment.id, comment.content)}
-                                            className="w-full px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 text-left"
-                                          >
-                                            수정
-                                          </button>
-                                          <button
-                                            onClick={() => handleDeleteComment(comment.id)}
-                                            className="w-full px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 text-left"
-                                          >
-                                            삭제
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                                <p className="text-sm text-slate-600 ml-8">{comment.content}</p>
-                              </>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-slate-400 text-center py-4 bg-slate-50 rounded-lg">
-                        아직 댓글이 없습니다. 첫 댓글을 남겨보세요!
-                      </p>
-                    )}
-                  </div>
-                )}
-
                 {/* 활동 로그 */}
                 {viewMode === "view" && logs.length > 0 && (
                   <div>
@@ -860,6 +844,354 @@ export default function WorkOrderDetailModal({
                   </div>
                 )}
               </div>
+              </div>
+
+              {/* 오른쪽 패널: 댓글 섹션 */}
+              <div className="flex-1 flex flex-col bg-slate-50/50">
+                {/* 댓글 헤더 */}
+                <div className="px-4 py-3 border-b border-slate-200 bg-white">
+                  <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                    <MessageCircle className="h-4 w-4" />
+                    댓글 ({comments.length})
+                  </div>
+                </div>
+
+                {/* 댓글 목록 */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {comments.length > 0 ? (
+                    comments.map((comment) => (
+                      <div
+                        key={comment.id}
+                        className="bg-white rounded-lg p-3 shadow-sm"
+                      >
+                        {editingCommentId === comment.id ? (
+                          <div className="flex flex-col gap-2">
+                            <textarea
+                              value={editingCommentContent}
+                              onChange={(e) => setEditingCommentContent(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                  e.preventDefault();
+                                  handleUpdateComment(comment.id);
+                                }
+                                if (e.key === "Escape") {
+                                  setEditingCommentId(null);
+                                  setEditingCommentContent("");
+                                }
+                              }}
+                              rows={2}
+                              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500 resize-none"
+                              autoFocus
+                            />
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => {
+                                  setEditingCommentId(null);
+                                  setEditingCommentContent("");
+                                }}
+                                className="px-3 py-1.5 text-xs bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200"
+                              >
+                                취소
+                              </button>
+                              <button
+                                onClick={() => handleUpdateComment(comment.id)}
+                                disabled={commentSubmitting}
+                                className="px-3 py-1.5 text-xs bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                              >
+                                저장
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 bg-purple-100 rounded-full flex items-center justify-center">
+                                  <span className="text-xs font-medium text-purple-600">
+                                    {comment.user?.name?.charAt(0)}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-sm font-medium text-slate-700">
+                                    {comment.user?.name}
+                                  </span>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs text-slate-400">
+                                      {dayjs(comment.created_at).format("MM/DD HH:mm")}
+                                    </span>
+                                    {comment.updated_at !== comment.created_at && (
+                                      <span className="text-xs text-slate-400">(수정됨)</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              {comment.user_id === currentUserId && (
+                                <div className="relative">
+                                  <button
+                                    onClick={() => setOpenCommentMenu(openCommentMenu === comment.id ? null : comment.id)}
+                                    className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded"
+                                  >
+                                    <MoreVertical className="h-4 w-4" />
+                                  </button>
+                                  {openCommentMenu === comment.id && (
+                                    <div className="absolute right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 py-1 min-w-[80px]">
+                                      <button
+                                        onClick={() => startEditComment(comment.id, comment.content)}
+                                        className="w-full px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 text-left"
+                                      >
+                                        수정
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteComment(comment.id)}
+                                        className="w-full px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 text-left"
+                                      >
+                                        삭제
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-sm text-slate-600 whitespace-pre-wrap break-words">
+                              {comment.content.split(/(@\S+)/g).map((part, i) =>
+                                part.startsWith("@") ? (
+                                  <span key={i} className="text-purple-600 font-medium">{part}</span>
+                                ) : (
+                                  part
+                                )
+                              )}
+                            </p>
+                            {/* 댓글 첨부 파일 */}
+                            {commentFilesMap[comment.id] && commentFilesMap[comment.id].length > 0 && (
+                              <div className="mt-2 space-y-1">
+                                {commentFilesMap[comment.id].map((file) => (
+                                  <div
+                                    key={file.id}
+                                    className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg text-xs"
+                                  >
+                                    <Paperclip className="h-3 w-3 text-slate-400 flex-shrink-0" />
+                                    <span className="text-slate-600 truncate flex-1">
+                                      {file.file_name}
+                                    </span>
+                                    <button
+                                      onClick={() => handleCommentFileDownload(file)}
+                                      className="p-1 text-slate-400 hover:text-blue-600 rounded transition-colors"
+                                      title="다운로드"
+                                    >
+                                      <Download className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-slate-400">
+                      <MessageCircle className="h-10 w-10 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">아직 댓글이 없습니다</p>
+                      <p className="text-xs">첫 댓글을 남겨보세요!</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 댓글 입력 영역 */}
+                <div className="p-4 border-t border-slate-200 bg-white">
+                  {/* 대기 중인 파일 표시 */}
+                  {pendingCommentFiles.length > 0 && (
+                    <div className="mb-2 space-y-1">
+                      {pendingCommentFiles.map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 p-2 bg-purple-50 rounded-lg text-xs"
+                        >
+                          <Paperclip className="h-3 w-3 text-purple-500 flex-shrink-0" />
+                          <span className="text-purple-700 truncate flex-1">{file.name}</span>
+                          <button
+                            onClick={() => removePendingFile(index)}
+                            className="p-0.5 text-purple-400 hover:text-red-500 rounded transition-colors"
+                            title="파일 제거"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="relative">
+                    <input
+                      ref={commentFileInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={handleCommentFileSelect}
+                    />
+                    <textarea
+                      ref={commentInputRef}
+                      value={newComment}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const pos = e.target.selectionStart;
+                        setNewComment(value);
+                        setCursorPosition(pos);
+
+                        // @ 입력 감지
+                        const textBeforeCursor = value.slice(0, pos);
+                        const atMatch = textBeforeCursor.match(/@([^\s@]*)$/);
+                        if (atMatch) {
+                          setMentionSearch(atMatch[1]);
+                          setShowMentions(true);
+                          setMentionIndex(0);
+                        } else {
+                          setShowMentions(false);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (showMentions && filteredMentionUsers.length > 0) {
+                          switch (e.key) {
+                            case "ArrowDown":
+                              e.preventDefault();
+                              setMentionIndex((prev) =>
+                                prev < filteredMentionUsers.length - 1 ? prev + 1 : 0
+                              );
+                              return;
+                            case "ArrowUp":
+                              e.preventDefault();
+                              setMentionIndex((prev) =>
+                                prev > 0 ? prev - 1 : filteredMentionUsers.length - 1
+                              );
+                              return;
+                            case "Enter":
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const selectedUser = filteredMentionUsers[mentionIndex];
+                              if (selectedUser) {
+                                justSelectedMention.current = true;
+                                const textBeforeCursor = newComment.slice(0, cursorPosition);
+                                const textAfterCursor = newComment.slice(cursorPosition);
+                                const atIndex = textBeforeCursor.lastIndexOf("@");
+                                const updatedComment =
+                                  textBeforeCursor.slice(0, atIndex) + `@${selectedUser.name} ` + textAfterCursor;
+                                setNewComment(updatedComment);
+                                setShowMentions(false);
+                                setTimeout(() => {
+                                  justSelectedMention.current = false;
+                                  if (commentInputRef.current) {
+                                    const newPos = atIndex + selectedUser.name.length + 2;
+                                    commentInputRef.current.focus();
+                                    commentInputRef.current.setSelectionRange(newPos, newPos);
+                                  }
+                                }, 50);
+                              }
+                              return;
+                            case "Escape":
+                              setShowMentions(false);
+                              return;
+                          }
+                        }
+                        if (e.key === "Enter" && !e.shiftKey && !showMentions && !justSelectedMention.current) {
+                          e.preventDefault();
+                          handleAddComment();
+                        }
+                      }}
+                      placeholder="댓글을 입력하세요... (@로 멘션)"
+                      rows={2}
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none pr-20"
+                    />
+
+                    {/* 멘션 드롭다운 */}
+                    {showMentions && filteredMentionUsers.length > 0 && (
+                      <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-slate-200 rounded-lg shadow-lg z-20 max-h-40 overflow-y-auto">
+                        <div className="px-2 py-1.5 text-xs text-slate-500 border-b bg-slate-50">
+                          멘션할 사용자 선택
+                        </div>
+                        {filteredMentionUsers.slice(0, 5).map((user: { id: string; name: string }, index: number) => (
+                          <button
+                            key={user.id}
+                            type="button"
+                            onClick={() => {
+                              const textBeforeCursor = newComment.slice(0, cursorPosition);
+                              const textAfterCursor = newComment.slice(cursorPosition);
+                              const atIndex = textBeforeCursor.lastIndexOf("@");
+                              const updatedComment =
+                                textBeforeCursor.slice(0, atIndex) + `@${user.name} ` + textAfterCursor;
+                              setNewComment(updatedComment);
+                              setShowMentions(false);
+                              setTimeout(() => {
+                                if (commentInputRef.current) {
+                                  const newPos = atIndex + user.name.length + 2;
+                                  commentInputRef.current.focus();
+                                  commentInputRef.current.setSelectionRange(newPos, newPos);
+                                }
+                              }, 0);
+                            }}
+                            className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-slate-50 ${
+                              index === mentionIndex ? "bg-purple-50 text-purple-700" : ""
+                            }`}
+                          >
+                            <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xs font-medium shrink-0">
+                              {user.name.charAt(0)}
+                            </div>
+                            <span className="truncate">{user.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 버튼 영역 */}
+                    <div className="absolute right-2 bottom-2 flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => commentFileInputRef.current?.click()}
+                        disabled={uploadingCommentFile}
+                        className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors disabled:opacity-50"
+                        title="파일 첨부"
+                      >
+                        {uploadingCommentFile ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Paperclip className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const pos = commentInputRef.current?.selectionStart || newComment.length;
+                          const updated = newComment.slice(0, pos) + "@" + newComment.slice(pos);
+                          setNewComment(updated);
+                          setCursorPosition(pos + 1);
+                          setMentionSearch("");
+                          setShowMentions(true);
+                          setMentionIndex(0);
+                          setTimeout(() => {
+                            commentInputRef.current?.focus();
+                            commentInputRef.current?.setSelectionRange(pos + 1, pos + 1);
+                          }, 0);
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                        title="멘션"
+                      >
+                        <AtSign className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={handleAddComment}
+                        disabled={(!newComment.trim() && pendingCommentFiles.length === 0) || commentSubmitting}
+                        className="p-1.5 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="댓글 등록"
+                      >
+                        {commentSubmitting ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Send className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </>
             )}
           </div>
 

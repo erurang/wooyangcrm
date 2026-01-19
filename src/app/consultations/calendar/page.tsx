@@ -13,18 +13,19 @@ import {
   Phone,
   Mail,
   MapPin,
-  Video,
-  MessageCircle,
-  MessageSquare,
+  Globe,
   Users,
   User,
   Paperclip,
-  FileText,
+  MessageSquare,
+  Presentation,
+  PartyPopper,
 } from "lucide-react";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { supabase } from "@/lib/supabaseClient";
 import useSWR from "swr";
+import { CONTACT_METHOD_LABELS, type ContactMethod } from "@/types/consultation";
 
 dayjs.locale("ko");
 
@@ -55,28 +56,25 @@ interface Consultation {
   file_count?: number;
 }
 
-type ContactMethodFilter = "all" | "phone" | "visit" | "email" | "video" | "message" | "other";
+type ContactMethodFilter = "all" | ContactMethod;
 type UserFilter = "all" | string;
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
-const CONTACT_METHOD_INFO: Record<string, { label: string; color: string; bgColor: string; icon: typeof Phone }> = {
-  phone: { label: "전화", color: "text-blue-700", bgColor: "bg-blue-100", icon: Phone },
-  전화: { label: "전화", color: "text-blue-700", bgColor: "bg-blue-100", icon: Phone },
-  visit: { label: "방문", color: "text-green-700", bgColor: "bg-green-100", icon: MapPin },
-  방문: { label: "방문", color: "text-green-700", bgColor: "bg-green-100", icon: MapPin },
-  email: { label: "이메일", color: "text-purple-700", bgColor: "bg-purple-100", icon: Mail },
-  이메일: { label: "이메일", color: "text-purple-700", bgColor: "bg-purple-100", icon: Mail },
-  video: { label: "화상", color: "text-orange-700", bgColor: "bg-orange-100", icon: Video },
-  화상: { label: "화상", color: "text-orange-700", bgColor: "bg-orange-100", icon: Video },
-  message: { label: "메시지", color: "text-cyan-700", bgColor: "bg-cyan-100", icon: MessageCircle },
-  문자: { label: "메시지", color: "text-cyan-700", bgColor: "bg-cyan-100", icon: MessageCircle },
-  메시지: { label: "메시지", color: "text-cyan-700", bgColor: "bg-cyan-100", icon: MessageCircle },
+// 접수경로별 스타일 (ConsultationTable.tsx와 동일)
+const CONTACT_METHOD_STYLES: Record<ContactMethod, { bgColor: string; textColor: string; calendarBg: string; icon: typeof Phone }> = {
+  phone: { bgColor: "bg-green-100", textColor: "text-green-700", calendarBg: "bg-green-500", icon: Phone },
+  online: { bgColor: "bg-purple-100", textColor: "text-purple-700", calendarBg: "bg-purple-500", icon: Globe },
+  email: { bgColor: "bg-cyan-100", textColor: "text-cyan-700", calendarBg: "bg-cyan-500", icon: Mail },
+  meeting: { bgColor: "bg-orange-100", textColor: "text-orange-700", calendarBg: "bg-orange-500", icon: Presentation },
+  exhibition: { bgColor: "bg-pink-100", textColor: "text-pink-700", calendarBg: "bg-pink-500", icon: PartyPopper },
+  visit: { bgColor: "bg-teal-100", textColor: "text-teal-700", calendarBg: "bg-teal-500", icon: MapPin },
+  other: { bgColor: "bg-slate-100", textColor: "text-slate-700", calendarBg: "bg-slate-400", icon: MessageSquare },
 };
 
-function getContactMethodInfo(method: string | null) {
-  if (!method) return { label: "기타", color: "text-slate-700", bgColor: "bg-slate-100", icon: MessageSquare };
-  return CONTACT_METHOD_INFO[method.toLowerCase()] || CONTACT_METHOD_INFO[method] || { label: method, color: "text-slate-700", bgColor: "bg-slate-100", icon: MessageSquare };
+function getContactMethodStyle(method: string | null) {
+  if (!method) return CONTACT_METHOD_STYLES.other;
+  return CONTACT_METHOD_STYLES[method as ContactMethod] || CONTACT_METHOD_STYLES.other;
 }
 
 function getMonthDays(year: number, month: number) {
@@ -237,19 +235,7 @@ export default function ConsultationCalendarPage() {
 
     // Method filter
     if (methodFilter !== "all") {
-      events = events.filter((c) => {
-        const method = c.contact_method?.toLowerCase() || "";
-        if (methodFilter === "phone") return ["phone", "전화"].includes(method);
-        if (methodFilter === "visit") return ["visit", "방문"].includes(method);
-        if (methodFilter === "email") return ["email", "이메일"].includes(method);
-        if (methodFilter === "video") return ["video", "화상"].includes(method);
-        if (methodFilter === "message") return ["message", "문자", "메시지"].includes(method);
-        if (methodFilter === "other") {
-          const knownMethods = ["phone", "전화", "visit", "방문", "email", "이메일", "video", "화상", "message", "문자", "메시지"];
-          return !knownMethods.includes(method);
-        }
-        return true;
-      });
+      events = events.filter((c) => c.contact_method === methodFilter);
     }
 
     // User filter
@@ -282,18 +268,31 @@ export default function ConsultationCalendarPage() {
 
   const selectedDateEvents = selectedDate ? getFilteredEvents(selectedDate) : [];
 
-  // Stats
+  // Stats - 기존 상담 분류에 맞춤
   const stats = useMemo(() => {
     const total = consultations.length;
-    const phoneCount = consultations.filter((c) => ["phone", "전화"].includes(c.contact_method?.toLowerCase() || "")).length;
-    const visitCount = consultations.filter((c) => ["visit", "방문"].includes(c.contact_method?.toLowerCase() || "")).length;
-    const emailCount = consultations.filter((c) => ["email", "이메일"].includes(c.contact_method?.toLowerCase() || "")).length;
-    const videoCount = consultations.filter((c) => ["video", "화상"].includes(c.contact_method?.toLowerCase() || "")).length;
-    const messageCount = consultations.filter((c) => ["message", "문자", "메시지"].includes(c.contact_method?.toLowerCase() || "")).length;
-    const otherCount = total - phoneCount - visitCount - emailCount - videoCount - messageCount;
+    const phoneCount = consultations.filter((c) => c.contact_method === "phone").length;
+    const onlineCount = consultations.filter((c) => c.contact_method === "online").length;
+    const emailCount = consultations.filter((c) => c.contact_method === "email").length;
+    const meetingCount = consultations.filter((c) => c.contact_method === "meeting").length;
+    const exhibitionCount = consultations.filter((c) => c.contact_method === "exhibition").length;
+    const visitCount = consultations.filter((c) => c.contact_method === "visit").length;
+    const otherCount = consultations.filter((c) => c.contact_method === "other" || !c.contact_method).length;
 
-    return { total, phoneCount, visitCount, emailCount, videoCount, messageCount, otherCount };
+    return { total, phoneCount, onlineCount, emailCount, meetingCount, exhibitionCount, visitCount, otherCount };
   }, [consultations]);
+
+  // 필터 버튼 옵션
+  const filterOptions: { value: ContactMethodFilter; label: string; color: string }[] = [
+    { value: "all", label: "전체", color: "bg-white text-slate-800" },
+    { value: "phone", label: "전화", color: "bg-green-500 text-white" },
+    { value: "online", label: "온라인", color: "bg-purple-500 text-white" },
+    { value: "email", label: "메일", color: "bg-cyan-500 text-white" },
+    { value: "meeting", label: "미팅", color: "bg-orange-500 text-white" },
+    { value: "exhibition", label: "전시회", color: "bg-pink-500 text-white" },
+    { value: "visit", label: "방문", color: "bg-teal-500 text-white" },
+    { value: "other", label: "기타", color: "bg-slate-500 text-white" },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -301,55 +300,62 @@ export default function ConsultationCalendarPage() {
       <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="px-4 py-3">
           {/* Stats */}
-          <div className="grid grid-cols-7 gap-3 mb-4">
-            <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-              <div className="flex items-center gap-2 text-slate-600 text-xs font-medium mb-1">
+          <div className="grid grid-cols-8 gap-2 mb-4">
+            <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100">
+              <div className="flex items-center gap-1.5 text-slate-600 text-xs font-medium mb-1">
                 <CalendarIcon className="h-3.5 w-3.5" />
                 전체
               </div>
-              <p className="text-2xl font-bold text-slate-700">{stats.total}</p>
+              <p className="text-xl font-bold text-slate-700">{stats.total}</p>
             </div>
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-              <div className="flex items-center gap-2 text-blue-600 text-xs font-medium mb-1">
+            <div className="bg-green-50 rounded-lg p-2.5 border border-green-100">
+              <div className="flex items-center gap-1.5 text-green-600 text-xs font-medium mb-1">
                 <Phone className="h-3.5 w-3.5" />
                 전화
               </div>
-              <p className="text-2xl font-bold text-blue-700">{stats.phoneCount}</p>
+              <p className="text-xl font-bold text-green-700">{stats.phoneCount}</p>
             </div>
-            <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-              <div className="flex items-center gap-2 text-green-600 text-xs font-medium mb-1">
+            <div className="bg-purple-50 rounded-lg p-2.5 border border-purple-100">
+              <div className="flex items-center gap-1.5 text-purple-600 text-xs font-medium mb-1">
+                <Globe className="h-3.5 w-3.5" />
+                온라인
+              </div>
+              <p className="text-xl font-bold text-purple-700">{stats.onlineCount}</p>
+            </div>
+            <div className="bg-cyan-50 rounded-lg p-2.5 border border-cyan-100">
+              <div className="flex items-center gap-1.5 text-cyan-600 text-xs font-medium mb-1">
+                <Mail className="h-3.5 w-3.5" />
+                메일
+              </div>
+              <p className="text-xl font-bold text-cyan-700">{stats.emailCount}</p>
+            </div>
+            <div className="bg-orange-50 rounded-lg p-2.5 border border-orange-100">
+              <div className="flex items-center gap-1.5 text-orange-600 text-xs font-medium mb-1">
+                <Presentation className="h-3.5 w-3.5" />
+                미팅
+              </div>
+              <p className="text-xl font-bold text-orange-700">{stats.meetingCount}</p>
+            </div>
+            <div className="bg-pink-50 rounded-lg p-2.5 border border-pink-100">
+              <div className="flex items-center gap-1.5 text-pink-600 text-xs font-medium mb-1">
+                <PartyPopper className="h-3.5 w-3.5" />
+                전시회
+              </div>
+              <p className="text-xl font-bold text-pink-700">{stats.exhibitionCount}</p>
+            </div>
+            <div className="bg-teal-50 rounded-lg p-2.5 border border-teal-100">
+              <div className="flex items-center gap-1.5 text-teal-600 text-xs font-medium mb-1">
                 <MapPin className="h-3.5 w-3.5" />
                 방문
               </div>
-              <p className="text-2xl font-bold text-green-700">{stats.visitCount}</p>
+              <p className="text-xl font-bold text-teal-700">{stats.visitCount}</p>
             </div>
-            <div className="bg-purple-50 rounded-lg p-3 border border-purple-100">
-              <div className="flex items-center gap-2 text-purple-600 text-xs font-medium mb-1">
-                <Mail className="h-3.5 w-3.5" />
-                이메일
-              </div>
-              <p className="text-2xl font-bold text-purple-700">{stats.emailCount}</p>
-            </div>
-            <div className="bg-orange-50 rounded-lg p-3 border border-orange-100">
-              <div className="flex items-center gap-2 text-orange-600 text-xs font-medium mb-1">
-                <Video className="h-3.5 w-3.5" />
-                화상
-              </div>
-              <p className="text-2xl font-bold text-orange-700">{stats.videoCount}</p>
-            </div>
-            <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
-              <div className="flex items-center gap-2 text-cyan-600 text-xs font-medium mb-1">
-                <MessageCircle className="h-3.5 w-3.5" />
-                메시지
-              </div>
-              <p className="text-2xl font-bold text-cyan-700">{stats.messageCount}</p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-              <div className="flex items-center gap-2 text-gray-600 text-xs font-medium mb-1">
+            <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+              <div className="flex items-center gap-1.5 text-slate-600 text-xs font-medium mb-1">
                 <MessageSquare className="h-3.5 w-3.5" />
                 기타
               </div>
-              <p className="text-2xl font-bold text-gray-700">{stats.otherCount}</p>
+              <p className="text-xl font-bold text-slate-700">{stats.otherCount}</p>
             </div>
           </div>
 
@@ -382,66 +388,19 @@ export default function ConsultationCalendarPage() {
             <div className="flex items-center gap-2">
               {/* Method filter */}
               <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
-                <button
-                  onClick={() => setMethodFilter("all")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    methodFilter === "all"
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  전체
-                </button>
-                <button
-                  onClick={() => setMethodFilter("phone")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    methodFilter === "phone"
-                      ? "bg-blue-500 text-white shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  전화
-                </button>
-                <button
-                  onClick={() => setMethodFilter("visit")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    methodFilter === "visit"
-                      ? "bg-green-500 text-white shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  방문
-                </button>
-                <button
-                  onClick={() => setMethodFilter("email")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    methodFilter === "email"
-                      ? "bg-purple-500 text-white shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  이메일
-                </button>
-                <button
-                  onClick={() => setMethodFilter("video")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    methodFilter === "video"
-                      ? "bg-orange-500 text-white shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  화상
-                </button>
-                <button
-                  onClick={() => setMethodFilter("message")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    methodFilter === "message"
-                      ? "bg-cyan-500 text-white shadow-sm"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  메시지
-                </button>
+                {filterOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setMethodFilter(opt.value)}
+                    className={`px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                      methodFilter === opt.value
+                        ? opt.value === "all" ? "bg-white text-slate-800 shadow-sm" : `${opt.color} shadow-sm`
+                        : "text-slate-500 hover:text-slate-700"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
 
               {/* User filter */}
@@ -470,24 +429,28 @@ export default function ConsultationCalendarPage() {
             <span className="text-xs font-medium text-slate-600">색상 안내:</span>
             <div className="flex items-center gap-4 flex-wrap">
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-blue-500"></span>
+                <span className="w-3 h-3 rounded bg-green-500"></span>
                 <span className="text-xs text-slate-600">전화</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-green-500"></span>
-                <span className="text-xs text-slate-600">방문</span>
-              </div>
-              <div className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded bg-purple-500"></span>
-                <span className="text-xs text-slate-600">이메일</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-orange-500"></span>
-                <span className="text-xs text-slate-600">화상</span>
+                <span className="text-xs text-slate-600">온라인문의</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded bg-cyan-500"></span>
-                <span className="text-xs text-slate-600">메시지</span>
+                <span className="text-xs text-slate-600">메일</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-orange-500"></span>
+                <span className="text-xs text-slate-600">미팅</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-pink-500"></span>
+                <span className="text-xs text-slate-600">전시회</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-teal-500"></span>
+                <span className="text-xs text-slate-600">방문</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded bg-slate-400"></span>
@@ -556,25 +519,16 @@ export default function ConsultationCalendarPage() {
 
                         <div className="mt-1 space-y-0.5">
                           {events.slice(0, 3).map((c) => {
-                            const methodInfo = getContactMethodInfo(c.contact_method);
-                            const colorClass =
-                              ["phone", "전화"].includes(c.contact_method?.toLowerCase() || "") ? "bg-blue-500 text-white" :
-                              ["visit", "방문"].includes(c.contact_method?.toLowerCase() || "") ? "bg-green-500 text-white" :
-                              ["email", "이메일"].includes(c.contact_method?.toLowerCase() || "") ? "bg-purple-500 text-white" :
-                              ["video", "화상"].includes(c.contact_method?.toLowerCase() || "") ? "bg-orange-500 text-white" :
-                              ["message", "문자", "메시지"].includes(c.contact_method?.toLowerCase() || "") ? "bg-cyan-500 text-white" :
-                              "bg-slate-400 text-white";
+                            const style = getContactMethodStyle(c.contact_method);
+                            const label = c.contact_method ? CONTACT_METHOD_LABELS[c.contact_method as ContactMethod] || c.contact_method : "기타";
 
                             return (
                               <div
                                 key={c.id}
-                                className={`
-                                  px-1 py-0.5 text-[10px] font-medium rounded truncate
-                                  ${colorClass}
-                                `}
-                                title={`${methodInfo.label} - ${c.companies?.name || "미지정"}`}
+                                className={`px-1 py-0.5 text-[10px] font-medium rounded truncate ${style.calendarBg} text-white`}
+                                title={`${label} - ${c.companies?.name || "미지정"}`}
                               >
-                                {methodInfo.label.charAt(0)} {c.companies?.name || "미지정"}
+                                {label.charAt(0)} {c.companies?.name || "미지정"}
                               </div>
                             );
                           })}
@@ -623,8 +577,9 @@ export default function ConsultationCalendarPage() {
                 ) : (
                   <div className="divide-y divide-slate-100">
                     {selectedDateEvents.map((c) => {
-                      const methodInfo = getContactMethodInfo(c.contact_method);
-                      const MethodIcon = methodInfo.icon;
+                      const style = getContactMethodStyle(c.contact_method);
+                      const MethodIcon = style.icon;
+                      const label = c.contact_method ? CONTACT_METHOD_LABELS[c.contact_method as ContactMethod] || c.contact_method : "기타";
                       const contactInfo = c.contacts_consultations?.[0]?.contacts;
 
                       return (
@@ -635,14 +590,14 @@ export default function ConsultationCalendarPage() {
                         >
                           <div className="flex items-start gap-2.5">
                             <div
-                              className={`p-1.5 rounded-lg flex-shrink-0 ${methodInfo.bgColor}`}
+                              className={`p-1.5 rounded-lg flex-shrink-0 ${style.bgColor}`}
                             >
-                              <MethodIcon className={`w-4 h-4 ${methodInfo.color}`} />
+                              <MethodIcon className={`w-4 h-4 ${style.textColor}`} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1 flex-wrap">
-                                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${methodInfo.bgColor} ${methodInfo.color}`}>
-                                  {methodInfo.label}
+                                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${style.bgColor} ${style.textColor}`}>
+                                  {label}
                                 </span>
                               </div>
                               <div className="mt-1 flex items-center gap-1 text-sm font-medium text-slate-800">

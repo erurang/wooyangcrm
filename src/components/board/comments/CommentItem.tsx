@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { Reply, User, FileText, Download, Building2, MessageSquare, ExternalLink, Pencil, Trash2, X, Check } from "lucide-react";
 import dayjs from "dayjs";
-import type { PostComment, ReferenceType } from "@/types/post";
+import type { PostComment, ReferenceType, CreateReferenceData } from "@/types/post";
 import { highlightMentions } from "./CommentForm";
+import ReplyForm from "./ReplyForm";
 
 const refTypeLabels: Record<ReferenceType, string> = {
   company: "거래처",
@@ -41,10 +42,11 @@ const getRefLink = (type: ReferenceType, id: string): string => {
 interface CommentItemProps {
   comment: PostComment;
   currentUserId: string;
-  onReply: (content: string, parentId?: string) => void;
+  onReply: (content: string, parentId?: string, files?: File[], references?: CreateReferenceData[]) => void;
   onEdit?: (commentId: string, content: string) => Promise<void>;
   onDelete?: (commentId: string) => Promise<void>;
   isReply?: boolean;
+  isSubmittingReply?: boolean;
 }
 
 export default function CommentItem({
@@ -54,9 +56,9 @@ export default function CommentItem({
   onEdit,
   onDelete,
   isReply = false,
+  isSubmittingReply = false,
 }: CommentItemProps) {
   const [isReplying, setIsReplying] = useState(false);
-  const [replyContent, setReplyContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -65,10 +67,8 @@ export default function CommentItem({
   const isAuthor = currentUserId === comment.user_id;
   const isDeleted = !!comment.deleted_at;
 
-  const handleReplySubmit = () => {
-    if (!replyContent.trim()) return;
-    onReply(replyContent.trim(), comment.id);
-    setReplyContent("");
+  const handleReplySubmit = (content: string, files?: File[], references?: CreateReferenceData[]) => {
+    onReply(content, comment.id, files, references);
     setIsReplying(false);
   };
 
@@ -246,31 +246,12 @@ export default function CommentItem({
       {/* 답글 작성 폼 */}
       {isReplying && (
         <div className="mt-3 pl-4 border-l-2 border-blue-200">
-          <textarea
-            value={replyContent}
-            onChange={(e) => setReplyContent(e.target.value)}
-            placeholder="답글을 입력하세요..."
-            rows={2}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          <ReplyForm
+            onSubmit={handleReplySubmit}
+            onCancel={() => setIsReplying(false)}
+            isLoading={isSubmittingReply}
+            placeholder={`@${comment.user?.name || ""}님께 답글 작성...`}
           />
-          <div className="flex justify-end gap-2 mt-2">
-            <button
-              onClick={() => {
-                setIsReplying(false);
-                setReplyContent("");
-              }}
-              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              취소
-            </button>
-            <button
-              onClick={handleReplySubmit}
-              disabled={!replyContent.trim()}
-              className="px-3 py-1 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              등록
-            </button>
-          </div>
         </div>
       )}
     </div>

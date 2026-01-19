@@ -274,11 +274,11 @@ export default function PostDetailPage() {
     }
   };
 
-  // 대댓글 제출 (파일 첨부 없음)
-  const handleReplySubmit = async (content: string, parentId?: string) => {
+  // 대댓글 제출 (파일 첨부 및 참조 지원)
+  const handleReplySubmit = async (content: string, parentId?: string, files?: File[], commentRefs?: CreateReferenceData[]) => {
     if (!user?.id) return;
     try {
-      await addComment({
+      const newComment = await addComment({
         postId,
         data: {
           user_id: user.id,
@@ -286,6 +286,16 @@ export default function PostDetailPage() {
           parent_id: parentId,
         },
       });
+      // 파일 업로드
+      if (newComment?.id && files && files.length > 0) {
+        for (const file of files) {
+          await uploadCommentFile(file, newComment.id, user.id);
+        }
+      }
+      // 참조 저장
+      if (newComment?.id && commentRefs && commentRefs.length > 0) {
+        await saveCommentReferences(newComment.id, commentRefs);
+      }
       mutateComments();
     } catch (error) {
       console.error("Failed to add reply:", error);
