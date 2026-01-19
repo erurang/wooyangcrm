@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Plus, FileText, User, MessageSquare, AtSign, Tag, Calendar, Eye } from "lucide-react";
 import dayjs from "dayjs";
 import { useLoginUser } from "@/context/login";
+import { useGlobalToast } from "@/context/toast";
 import { usePosts, useCategories, useAddPost, useUpdatePost, useDeletePost } from "@/hooks/posts";
 import { uploadPostFile } from "@/lib/postFiles";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -41,6 +42,7 @@ export default function MyPostsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useLoginUser();
+  const { success, error: showError } = useGlobalToast();
 
   // 탭 상태
   const [activeTab, setActiveTab] = useState<TabType>(
@@ -335,11 +337,11 @@ export default function MyPostsPage() {
 
       if (error) {
         console.error("Failed to create delete request:", error);
-        alert("삭제 요청에 실패했습니다.");
+        showError("삭제 요청에 실패했습니다.");
         return;
       }
 
-      alert("삭제 요청이 완료되었습니다. 관리자의 승인을 기다려주세요.");
+      success("삭제 요청이 완료되었습니다. 관리자의 승인을 기다려주세요.");
       setIsDeleteModalOpen(false);
       setDeletingPost(null);
     } catch (error) {

@@ -12,6 +12,7 @@ import {
   ArrowDownRight,
 } from "lucide-react";
 import type { DateFilterType, MonthlyStat } from "@/types/reports";
+import { KPIGaugeChart, TrendComparisonChart } from "@/components/reports/charts";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -328,6 +329,34 @@ export default function StatisticsTab({
         </div>
       </div>
 
+      {/* 목표 달성률 게이지 */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPIGaugeChart
+          value={totalSales}
+          target={totalSales * 1.2} // 목표는 실제 데이터로 교체 필요
+          label="매출 달성률"
+          unit="원"
+        />
+        <KPIGaugeChart
+          value={totalPurchases}
+          target={totalPurchases * 1.1}
+          label="매입 달성률"
+          unit="원"
+        />
+        <KPIGaugeChart
+          value={totalSalesCount}
+          target={Math.ceil(totalSalesCount * 1.15)}
+          label="견적 달성률"
+          unit="건"
+        />
+        <KPIGaugeChart
+          value={totalPurchaseCount}
+          target={Math.ceil(totalPurchaseCount * 1.1)}
+          label="발주 달성률"
+          unit="건"
+        />
+      </div>
+
       {/* 차트 영역 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* 매출/매입 추이 */}
@@ -369,20 +398,23 @@ export default function StatisticsTab({
           </div>
         </div>
 
-        {/* 전년 대비 */}
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
-          <h3 className="text-sm font-semibold text-slate-800 mb-4">
-            전년 대비 매출
-          </h3>
-          <div className="h-72">
-            <Chart
-              options={comparisonOptions}
-              series={comparisonSeries}
-              type="line"
-              height="100%"
-            />
-          </div>
-        </div>
+        {/* 전년 대비 (새 컴포넌트) */}
+        <TrendComparisonChart
+          title={`${year}년 vs ${year - 1}년 매출 비교`}
+          currentYearData={filteredStats.map((s) => s.sales)}
+          previousYearData={filteredPrevStats.map((s) => s.sales)}
+          categories={filteredStats.map((s) => `${s.month}월`)}
+          currentYearLabel={`${year}년`}
+          previousYearLabel={`${year - 1}년`}
+          valueFormatter={(v) =>
+            v >= 100000000
+              ? `${(v / 100000000).toFixed(1)}억`
+              : v >= 10000
+              ? `${(v / 10000).toFixed(0)}만`
+              : v.toLocaleString()
+          }
+          showGrowth={true}
+        />
       </div>
 
       {/* 월별 상세 테이블 */}

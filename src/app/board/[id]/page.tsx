@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Pin, Eye, Calendar, User, Pencil, Trash2, Paperclip, Link2, History } from "lucide-react";
 import dayjs from "dayjs";
 import { useLoginUser } from "@/context/login";
+import { useGlobalToast } from "@/context/toast";
 import { usePost, useUpdatePost, useComments, useAddComment } from "@/hooks/posts";
 import { supabase } from "@/lib/supabaseClient";
 import { useCategories } from "@/hooks/posts";
@@ -26,6 +27,7 @@ export default function PostDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useLoginUser();
+  const { success, error: showError } = useGlobalToast();
   const postId = typeof params.id === "string" ? params.id : params.id?.[0] ?? "";
   const highlightCommentId = searchParams.get("commentId");
 
@@ -213,15 +215,15 @@ export default function PostDetailPage() {
 
       if (error) {
         console.error("Failed to create delete request:", error);
-        alert("삭제 요청에 실패했습니다.");
+        showError("삭제 요청에 실패했습니다.");
         return;
       }
 
-      alert("삭제 요청이 완료되었습니다. 관리자의 승인을 기다려주세요.");
+      success("삭제 요청이 완료되었습니다. 관리자의 승인을 기다려주세요.");
       setIsDeleteModalOpen(false);
     } catch (error) {
       console.error("Failed to create delete request:", error);
-      alert("삭제 요청에 실패했습니다.");
+      showError("삭제 요청에 실패했습니다.");
     } finally {
       setIsRequestingDelete(false);
     }

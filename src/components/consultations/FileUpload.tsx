@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { CircularProgress } from "@mui/material";
 import { Download, Trash2, User, Calendar, FileText, X, History, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { useGlobalToast } from "@/context/toast";
 import dayjs from "dayjs";
 
 interface ConsultationFile {
@@ -47,6 +48,7 @@ export default function FileUpload({
   const [dragging, setDragging] = useState(false);
   const [deletingFile, setDeletingFile] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { error: showError } = useGlobalToast();
 
   // 파일 업로드 시 설명 입력용
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -290,7 +292,7 @@ export default function FileUpload({
       .eq("id", fileId);
 
     if (dbError) {
-      alert("파일 삭제에 실패했습니다.");
+      showError("파일 삭제에 실패했습니다.");
     } else {
       setFiles((prev) => prev.filter((f) => f.id !== fileId));
       onFileCountChange?.(files.length - 1);

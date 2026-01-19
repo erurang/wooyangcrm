@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { Upload, X, FileText, Loader2, Download, User, Calendar, History } from "lucide-react";
 import { uploadPostFile, fetchPostFilesWithDetails, deletePostFile } from "@/lib/postFiles";
 import { supabase } from "@/lib/supabaseClient";
+import { useGlobalToast } from "@/context/toast";
 import dayjs from "dayjs";
 
 interface PostFile {
@@ -53,6 +54,7 @@ export default function PostFileUpload({
   const [downloadHistory, setDownloadHistory] = useState<{ [fileId: string]: DownloadRecord[] }>({});
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState<string | null>(null);
+  const { error: showError } = useGlobalToast();
 
   // 기존 파일 로드
   useEffect(() => {
@@ -219,7 +221,7 @@ export default function PostFileUpload({
       setFiles(newFiles);
       onFilesChange?.(newFiles);
     } else {
-      alert("파일 삭제에 실패했습니다.");
+      showError("파일 삭제에 실패했습니다.");
     }
     setDeletingFile(null);
   };

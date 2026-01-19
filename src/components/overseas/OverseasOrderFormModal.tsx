@@ -8,6 +8,7 @@ import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useUsersList } from "@/hooks/useUserList";
 import { supabase } from "@/lib/supabaseClient";
 import { useLoginUser } from "@/context/login";
+import { useGlobalToast } from "@/context/toast";
 import dayjs from "dayjs";
 import {
   OverseasOrderFormData,
@@ -115,6 +116,7 @@ export default function OverseasOrderFormModal({
   const isAddMode = mode === "add";
   const modalTitle = isAddMode ? "발주 추가" : "발주 수정";
   const [errors, setErrors] = useState<FormErrors>({});
+  const { error: showError } = useGlobalToast();
 
   // 로그인 사용자
   const loginUser = useLoginUser();
@@ -233,7 +235,7 @@ export default function OverseasOrderFormModal({
 
       if (uploadError) {
         console.error("스토리지 업로드 실패:", uploadError);
-        alert(`파일 업로드 실패: ${uploadError.message}`);
+        showError(`파일 업로드 실패: ${uploadError.message}`);
         continue;
       }
 
@@ -252,7 +254,7 @@ export default function OverseasOrderFormModal({
 
       if (dbError) {
         console.error("DB 저장 실패:", dbError);
-        alert(`DB 저장 실패: ${dbError.message}`);
+        showError(`DB 저장 실패: ${dbError.message}`);
       } else {
         console.log("파일 업로드 완료:", file.name);
       }

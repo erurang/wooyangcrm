@@ -5,6 +5,7 @@ import { Dialog, DialogTitle, DialogContent, IconButton, CircularProgress } from
 import { X, Download, Trash2, Upload, FileText, Calendar, User } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useLoginUser } from "@/context/login";
+import { useGlobalToast } from "@/context/toast";
 import dayjs from "dayjs";
 
 interface OrderFile {
@@ -48,6 +49,7 @@ export default function OverseasOrderFileModal({
   onFileCountChange,
 }: OverseasOrderFileModalProps) {
   const loginUser = useLoginUser();
+  const { error: showError } = useGlobalToast();
   const [files, setFiles] = useState<OrderFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -202,7 +204,7 @@ export default function OverseasOrderFileModal({
       .eq("id", fileId);
 
     if (dbError) {
-      alert("파일 삭제에 실패했습니다.");
+      showError("파일 삭제에 실패했습니다.");
     } else {
       setFiles((prev) => prev.filter((f) => f.id !== fileId));
       onFileCountChange?.(files.length - 1);

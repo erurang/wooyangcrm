@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useGlobalToast } from "@/context/toast";
 import type { PostWithAuthor } from "@/types/post";
 
 interface DeletePostModalProps {
@@ -21,6 +22,7 @@ export default function DeletePostModal({
   onConfirm,
 }: DeletePostModalProps) {
   const [reason, setReason] = useState("");
+  const { warning } = useGlobalToast();
 
   // ESC 키로 모달 닫기
   useEscapeKey(isOpen && !!post, onClose);
@@ -29,7 +31,7 @@ export default function DeletePostModal({
 
   const handleSubmit = () => {
     if (!reason.trim()) {
-      alert("삭제 사유를 입력해주세요.");
+      warning("삭제 사유를 입력해주세요.");
       return;
     }
     onConfirm(reason.trim());
