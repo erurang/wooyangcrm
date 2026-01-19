@@ -97,15 +97,13 @@ export default function DocumentFormModal({
   const showAmountInfo = isAddMode ? type !== "requestQuote" : true;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={onClose}>
-      {/* 모바일: 전체화면, 데스크탑: 중앙 모달 */}
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="
-          fixed inset-0 bg-white flex flex-col
-          sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2
-          sm:rounded-xl sm:shadow-2xl sm:w-[calc(100%-2rem)] sm:max-w-4xl sm:max-h-[90vh]
-        "
+        className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         <DocumentFormHeader
           mode={mode}

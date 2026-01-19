@@ -164,7 +164,7 @@ export default function CompanyFormModal({
             </div>
 
             <motion.div
-              className="fixed inset-0 bg-white flex flex-col sm:inset-auto sm:relative sm:inline-block sm:rounded-lg sm:text-left sm:overflow-hidden sm:shadow-xl sm:transform sm:transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full z-50"
+              className="fixed inset-0 bg-white flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:shadow-xl sm:max-w-4xl sm:w-[calc(100%-2rem)] sm:max-h-[90vh] z-50"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}

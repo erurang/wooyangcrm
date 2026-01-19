@@ -250,16 +250,15 @@ export default function ConsultationFormModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black/50"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
           onClick={handleClose}
         >
-          {/* 모바일: 전체화면, 데스크탑: 중앙 모달 */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="fixed inset-0 bg-white flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:shadow-2xl sm:w-[calc(100%-2rem)] sm:max-w-2xl sm:max-h-[90vh]"
+            className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
           >
             {/* 헤더 - 고정 */}
             <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-b bg-white shrink-0">
