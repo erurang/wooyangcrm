@@ -164,6 +164,16 @@ export async function PATCH(
       let notificationTitle = "작업지시 수정";
       let notificationMessage = `${updaterName}님이 "${oldData.title}" 작업지시를 수정했습니다.`;
 
+      // 날짜 포맷 헬퍼
+      const formatDate = (dateStr: string | null) => {
+        if (!dateStr) return "미정";
+        return new Date(dateStr).toLocaleDateString("ko-KR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      };
+
       if (updates.status) {
         notificationType = "work_order_status";
         notificationTitle = "작업지시 상태 변경";
@@ -173,11 +183,50 @@ export async function PATCH(
           completed: "완료",
           canceled: "취소됨",
         };
-        notificationMessage = `"${oldData.title}" 작업지시 상태가 "${statusLabels[updates.status] || updates.status}"(으)로 변경되었습니다.`;
+        const oldStatusLabel = statusLabels[oldData.status] || oldData.status;
+        const newStatusLabel = statusLabels[updates.status] || updates.status;
+        notificationMessage = `${updaterName}님이 "${oldData.title}" 작업지시 상태를 변경했습니다.\n• 상태: ${oldStatusLabel} → ${newStatusLabel}`;
+
+        if (updates.status === "canceled" && updates.cancel_reason) {
+          notificationMessage += `\n• 취소 사유: ${updates.cancel_reason}`;
+        }
       } else if (updates.deadline_start !== undefined || updates.deadline_end !== undefined) {
         notificationType = "work_order_deadline";
         notificationTitle = "작업지시 기한 변경";
-        notificationMessage = `${updaterName}님이 "${oldData.title}" 작업지시의 기한을 변경했습니다.`;
+        const oldStart = formatDate(oldData.deadline_start);
+        const oldEnd = formatDate(oldData.deadline_end);
+        const newStart = updates.deadline_start !== undefined ? formatDate(updates.deadline_start) : oldStart;
+        const newEnd = updates.deadline_end !== undefined ? formatDate(updates.deadline_end) : oldEnd;
+        notificationMessage = `${updaterName}님이 "${oldData.title}" 작업지시의 기한을 변경했습니다.\n• 시작일: ${oldStart} → ${newStart}\n• 종료일: ${oldEnd} → ${newEnd}`;
+      } else {
+        // 일반 수정 시 변경 내용 상세 표시
+        const changes: string[] = [];
+        if (updates.title !== undefined && updates.title !== oldData.title) {
+          changes.push(`• 제목: "${oldData.title}" → "${updates.title}"`);
+        }
+        if (updates.content !== undefined && updates.content !== oldData.content) {
+          changes.push(`• 내용이 수정되었습니다`);
+        }
+        if (updates.deadline_type !== undefined && updates.deadline_type !== oldData.deadline_type) {
+          const typeLabels: Record<string, string> = {
+            single: "특정일",
+            range: "기간",
+            none: "없음",
+          };
+          changes.push(`• 기한 유형: ${typeLabels[oldData.deadline_type] || oldData.deadline_type} → ${typeLabels[updates.deadline_type] || updates.deadline_type}`);
+        }
+        if (updates.completion_type !== undefined && updates.completion_type !== oldData.completion_type) {
+          const completionLabels: Record<string, string> = {
+            all: "전원 완료",
+            any: "1인 완료",
+            threshold: "최소 인원",
+          };
+          changes.push(`• 완료 조건: ${completionLabels[oldData.completion_type] || oldData.completion_type} → ${completionLabels[updates.completion_type] || updates.completion_type}`);
+        }
+
+        if (changes.length > 0) {
+          notificationMessage = `${updaterName}님이 "${oldData.title}" 작업지시를 수정했습니다.\n${changes.join("\n")}`;
+        }
       }
 
       const notifications = Array.from(notificationTargets).map((targetUserId) => ({

@@ -87,15 +87,62 @@ export async function POST(
       .eq("id", user_id)
       .single();
 
+    const uploaderName = user?.name || "사용자";
+
     await supabase.from("work_order_logs").insert([
       {
         work_order_id: id,
         user_id,
         action: "file_added",
         new_data: { file_name, file_url },
-        description: `${user?.name || "사용자"}님이 파일 첨부: ${file_name}`,
+        description: `${uploaderName}님이 파일 첨부: ${file_name}`,
       },
     ]);
+
+    // 파일 업로드 알림 발송 (지시자 + 담당자들에게)
+    const { data: workOrder } = await supabase
+      .from("work_orders")
+      .select(`
+        title,
+        requester_id,
+        assignees:work_order_assignees(user_id)
+      `)
+      .eq("id", id)
+      .single();
+
+    if (workOrder) {
+      const notificationTargets = new Set<string>();
+
+      // 지시자 추가 (업로더 제외)
+      if (workOrder.requester_id && workOrder.requester_id !== user_id) {
+        notificationTargets.add(workOrder.requester_id);
+      }
+
+      // 담당자들 추가 (업로더 제외)
+      const assignees = workOrder.assignees as { user_id: string }[] | null;
+      if (assignees) {
+        assignees.forEach((a) => {
+          if (a.user_id !== user_id) {
+            notificationTargets.add(a.user_id);
+          }
+        });
+      }
+
+      // 알림 발송
+      if (notificationTargets.size > 0) {
+        const notifications = Array.from(notificationTargets).map((targetUserId) => ({
+          user_id: targetUserId,
+          type: "work_order_file",
+          title: "작업지시 파일 추가",
+          message: `${uploaderName}님이 "${workOrder.title}" 작업지시에 파일을 추가했습니다.\n• 파일명: ${file_name}`,
+          related_id: id,
+          related_type: "work_order",
+          read: false,
+        }));
+
+        await supabase.from("notifications").insert(notifications);
+      }
+    }
 
     // 파일 URL 생성
     const { data: urlData } = supabase.storage

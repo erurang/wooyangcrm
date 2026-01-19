@@ -127,9 +127,104 @@ export default function DocumentsTable({
   }
 
   return (
-    <div className="p-4">
+    <div className="p-3 sm:p-4">
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* 모바일: 카드 레이아웃 */}
+        <div className="sm:hidden divide-y divide-slate-100">
+          {documents.map((doc) => {
+            const isHighlighted = highlightId === doc.id;
+            return (
+              <div
+                key={doc.id}
+                ref={isHighlighted ? highlightRef : null}
+                className={`p-3 ${
+                  isHighlighted
+                    ? "bg-amber-50 ring-2 ring-amber-300 ring-inset animate-pulse"
+                    : "active:bg-slate-50"
+                }`}
+              >
+                {/* 상단: 거래처 + 상태 */}
+                <div className="flex items-center justify-between mb-2">
+                  <div
+                    className="text-sm font-medium text-indigo-600 truncate flex-1"
+                    onClick={() => onCompanyClick(doc.company_id)}
+                  >
+                    {doc.company_name}
+                  </div>
+                  <div className="flex items-center gap-1.5 ml-2">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium ${
+                        doc.status === "pending"
+                          ? "bg-amber-100 text-amber-800"
+                          : doc.status === "completed"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : doc.status === "expired"
+                          ? "bg-slate-100 text-slate-600"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {doc.status === "pending" && "진행"}
+                      {doc.status === "completed" && "완료"}
+                      {doc.status === "canceled" && "취소"}
+                      {doc.status === "expired" && "만료"}
+                    </span>
+                    {doc.status === "pending" && isExpiringSoon(doc.valid_until) && (
+                      <AlertTriangle className="w-4 h-4 text-orange-500" />
+                    )}
+                  </div>
+                </div>
+
+                {/* 문서번호 + 날짜 */}
+                <div className="flex items-center justify-between mb-2">
+                  <div
+                    className="text-sm font-medium text-indigo-600"
+                    onClick={() => onDocumentClick(doc)}
+                  >
+                    {doc.document_number}
+                  </div>
+                  <div className="text-xs text-slate-500">{doc.date}</div>
+                </div>
+
+                {/* 금액 + 담당자 */}
+                <div className="flex items-center justify-between text-xs text-slate-600 mb-2">
+                  <span className="font-medium">{doc.total_amount?.toLocaleString()}원</span>
+                  <span>{doc.contact_name} {doc.contact_level}</span>
+                </div>
+
+                {/* 액션 버튼 */}
+                {doc.user_id === loginUserId && (
+                  <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                    <button
+                      className="flex-1 px-3 py-2 text-xs rounded-lg bg-indigo-50 text-indigo-600 active:bg-indigo-100 transition-colors"
+                      onClick={() => router.push(`/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&highlight=${doc.id}`)}
+                    >
+                      수정
+                    </button>
+                    {doc.status === "pending" && (
+                      <>
+                        <button
+                          className="flex-1 px-3 py-2 text-xs rounded-lg bg-emerald-50 text-emerald-600 active:bg-emerald-100 transition-colors"
+                          onClick={() => onStatusChange(doc, "completed")}
+                        >
+                          완료
+                        </button>
+                        <button
+                          className="flex-1 px-3 py-2 text-xs rounded-lg bg-red-50 text-red-600 active:bg-red-100 transition-colors"
+                          onClick={() => onStatusChange(doc, "canceled")}
+                        >
+                          취소
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 데스크탑: 테이블 레이아웃 */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>

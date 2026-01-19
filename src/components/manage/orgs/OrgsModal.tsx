@@ -60,16 +60,17 @@ export default function OrgsModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 flex justify-center items-center bg-black/50 z-50 px-2"
+        className="fixed inset-0 flex justify-center items-center bg-black/50 z-50 sm:px-2"
         initial={{ opacity: 0, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="bg-white p-6 rounded-md w-11/12 md:w-2/3 max-h-[75vh] md:max-h-[85vh] overflow-y-auto">
-          <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
-            {title}
-          </h3>
+        <div className="bg-white w-full h-full sm:h-auto sm:rounded-md sm:w-11/12 md:w-2/3 sm:max-h-[85vh] overflow-y-auto flex flex-col">
+          <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
+            <h3 className="text-lg md:text-xl font-semibold mb-4 text-center">
+              {title}
+            </h3>
 
           {/* Organization Fields */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -216,11 +217,13 @@ export default function OrgsModal({
             ></textarea>
           </div>
 
+          </div>
+
           {/* Buttons */}
-          <div className="flex justify-end space-x-2">
+          <div className="flex gap-2 p-4 sm:p-6 pt-0 sm:pt-0 bg-white border-t sm:border-none shrink-0">
             <button
               onClick={onClose}
-              className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+              className={`flex-1 sm:flex-none bg-gray-500 text-white px-4 py-2.5 sm:py-2 rounded-md text-sm active:bg-gray-600 ${
                 isSaving ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={isSaving}
@@ -229,7 +232,7 @@ export default function OrgsModal({
             </button>
             <button
               onClick={onSave}
-              className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+              className={`flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2.5 sm:py-2 rounded-md text-sm flex items-center justify-center ${
                 isSaving ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={isSaving}

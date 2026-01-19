@@ -233,6 +233,27 @@ export async function POST(
       );
     }
 
+    // 대댓글인 경우, 부모 댓글 작성자에게 알림 (본인 제외, 게시글 작성자도 아닌 경우)
+    if (parent_id) {
+      const { data: parentComment } = await supabase
+        .from("post_comments")
+        .select("user_id")
+        .eq("id", parent_id)
+        .single();
+
+      if (parentComment && parentComment.user_id !== user_id && parentComment.user_id !== post?.user_id) {
+        const contentPreview = content.length > 50 ? content.slice(0, 50) + "..." : content;
+        await createNotification(
+          parentComment.user_id,
+          "post_reply",
+          "대댓글 알림",
+          `${commenter?.name || "누군가"}님이 "${post?.title || "게시글"}"의 회원님 댓글에 답글을 남겼습니다.\n"${contentPreview}"`,
+          `${id}:${newCommentId}`,
+          "post"
+        );
+      }
+    }
+
     // @멘션된 사용자들에게 알림
     const mentionedUserIds = await parseMentions(content);
     console.log("Parsed mentioned user IDs:", mentionedUserIds, "from content:", content);

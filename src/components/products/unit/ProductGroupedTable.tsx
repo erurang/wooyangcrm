@@ -375,75 +375,99 @@ export default function ProductGroupedTable({
               className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
             >
               {/* 헤더: 품목 정보 + 가격 통계 */}
-              <div className="px-5 py-4 border-b border-slate-100">
-                <div className="flex items-start justify-between">
+              <div className="px-3 sm:px-5 py-3 sm:py-4 border-b border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   {/* 왼쪽: 품목 정보 */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-slate-800 text-lg truncate">
+                      <h3 className="font-semibold text-slate-800 text-base sm:text-lg truncate">
                         {group.name}
                       </h3>
-                      <span className="text-slate-300">|</span>
-                      <span className="text-sm text-slate-600">{group.spec}</span>
+                      <span className="text-slate-300 hidden sm:inline">|</span>
+                      <span className="text-sm text-slate-600 hidden sm:inline">{group.spec}</span>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <div className="text-xs text-slate-500 sm:hidden mb-1">{group.spec}</div>
+                    <div className="flex items-center gap-2 sm:gap-4 text-xs text-slate-500 flex-wrap">
                       <span className="flex items-center gap-1">
                         <Building2 size={12} />
-                        거래처 {group.companyCount}곳
+                        {group.companyCount}곳
                       </span>
-                      <span>총 {group.recordCount}건 거래</span>
-                      <span>최근 거래: {dayjs(group.latestDate).format("YYYY.MM.DD")}</span>
+                      <span>{group.recordCount}건</span>
+                      <span className="hidden sm:inline">최근: {dayjs(group.latestDate).format("YYYY.MM.DD")}</span>
                     </div>
                   </div>
 
-                  {/* 오른쪽: 가격 통계 */}
-                  <div className="flex items-center gap-6 ml-4">
-                    <div className="text-center">
-                      <div className="text-xs text-slate-500 mb-0.5">최신 단가</div>
-                      <div className="flex items-center justify-center gap-1">
-                        <span className="font-bold text-blue-600 text-lg">
-                          {formatPrice(group.latestPrice)}
-                        </span>
-                        {priceDiff !== 0 && (
-                          <span
-                            className={`flex items-center text-xs ${
-                              priceDiff > 0 ? "text-red-500" : "text-green-500"
-                            }`}
-                          >
-                            {priceDiff > 0 ? (
-                              <TrendingUp size={12} />
-                            ) : (
-                              <TrendingDown size={12} />
-                            )}
-                            {Math.abs(priceDiff)}%
-                          </span>
-                        )}
+                  {/* 오른쪽: 가격 통계 - 모바일에서는 그리드 */}
+                  <div className="flex items-center gap-3 sm:gap-6">
+                    {/* 모바일: 2x2 그리드 */}
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:hidden">
+                      <div>
+                        <div className="text-[10px] text-slate-400">최신</div>
+                        <span className="font-bold text-blue-600 text-sm">{formatPrice(group.latestPrice)}</span>
+                      </div>
+                      <div>
+                        <div className="text-[10px] text-slate-400">평균</div>
+                        <span className="font-medium text-slate-700 text-sm">{formatPrice(group.avgPrice)}</span>
+                      </div>
+                      <div>
+                        <div className="text-[10px] text-slate-400">최저</div>
+                        <span className="font-medium text-green-600 text-sm">{formatPrice(group.minPrice)}</span>
+                      </div>
+                      <div>
+                        <div className="text-[10px] text-slate-400">최고</div>
+                        <span className="font-medium text-red-600 text-sm">{formatPrice(group.maxPrice)}</span>
                       </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-xs text-slate-500 mb-0.5">평균</div>
-                      <span className="font-medium text-slate-700">
-                        {formatPrice(group.avgPrice)}
-                      </span>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xs text-slate-500 mb-0.5">최저</div>
-                      <span className="font-medium text-green-600">
-                        {formatPrice(group.minPrice)}
-                      </span>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xs text-slate-500 mb-0.5">최고</div>
-                      <span className="font-medium text-red-600">
-                        {formatPrice(group.maxPrice)}
-                      </span>
+
+                    {/* 데스크탑: 가로 배치 */}
+                    <div className="hidden sm:flex items-center gap-6">
+                      <div className="text-center">
+                        <div className="text-xs text-slate-500 mb-0.5">최신 단가</div>
+                        <div className="flex items-center justify-center gap-1">
+                          <span className="font-bold text-blue-600 text-lg">
+                            {formatPrice(group.latestPrice)}
+                          </span>
+                          {priceDiff !== 0 && (
+                            <span
+                              className={`flex items-center text-xs ${
+                                priceDiff > 0 ? "text-red-500" : "text-green-500"
+                              }`}
+                            >
+                              {priceDiff > 0 ? (
+                                <TrendingUp size={12} />
+                              ) : (
+                                <TrendingDown size={12} />
+                              )}
+                              {Math.abs(priceDiff)}%
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-slate-500 mb-0.5">평균</div>
+                        <span className="font-medium text-slate-700">
+                          {formatPrice(group.avgPrice)}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-slate-500 mb-0.5">최저</div>
+                        <span className="font-medium text-green-600">
+                          {formatPrice(group.minPrice)}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xs text-slate-500 mb-0.5">최고</div>
+                        <span className="font-medium text-red-600">
+                          {formatPrice(group.maxPrice)}
+                        </span>
+                      </div>
                     </div>
                     <button
                       onClick={() => {
                         setChartGroup(group);
                         setChartViewMode("summary");
                       }}
-                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 rounded-md transition-colors"
                       title="상세 차트 보기"
                     >
                       <Maximize2 size={18} />
@@ -570,51 +594,51 @@ export default function ProductGroupedTable({
       {/* 상세 차트 모달 */}
       {chartGroup && (
         <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center sm:p-4"
           onClick={() => setChartGroup(null)}
         >
           <div
-            className="bg-white rounded-xl shadow-xl w-[66vw] max-w-6xl max-h-[90vh] overflow-auto"
+            className="bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-xl sm:w-[90vw] md:w-[80vw] lg:w-[66vw] sm:max-w-6xl sm:max-h-[90vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-4 border-b">
-              <div>
-                <h3 className="font-semibold text-slate-800">
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b sticky top-0 bg-white z-10">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-slate-800 truncate">
                   {chartGroup.name} 단가 추이
                 </h3>
-                <p className="text-sm text-slate-500">{chartGroup.spec}</p>
+                <p className="text-xs sm:text-sm text-slate-500 truncate">{chartGroup.spec}</p>
               </div>
               <button
                 onClick={() => setChartGroup(null)}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-md"
+                className="p-2 text-slate-400 hover:text-slate-600 active:bg-slate-100 rounded-md ml-2"
               >
                 <X size={20} />
               </button>
             </div>
-            <div className="p-4">
-              {/* 요약 정보 */}
-              <div className="grid grid-cols-4 gap-3 mb-4">
-                <div className="bg-slate-50 rounded-md p-3 text-center">
-                  <div className="text-xs text-slate-500">최신 단가</div>
-                  <div className="font-semibold text-blue-600">
+            <div className="p-3 sm:p-4">
+              {/* 요약 정보 - 모바일: 2x2, 데스크탑: 4열 */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
+                <div className="bg-slate-50 rounded-md p-2 sm:p-3 text-center">
+                  <div className="text-[10px] sm:text-xs text-slate-500">최신 단가</div>
+                  <div className="font-semibold text-blue-600 text-sm sm:text-base">
                     {formatPrice(chartGroup.latestPrice)}
                   </div>
                 </div>
-                <div className="bg-slate-50 rounded-md p-3 text-center">
-                  <div className="text-xs text-slate-500">평균 단가</div>
-                  <div className="font-semibold text-slate-700">
+                <div className="bg-slate-50 rounded-md p-2 sm:p-3 text-center">
+                  <div className="text-[10px] sm:text-xs text-slate-500">평균 단가</div>
+                  <div className="font-semibold text-slate-700 text-sm sm:text-base">
                     {formatPrice(chartGroup.avgPrice)}
                   </div>
                 </div>
-                <div className="bg-slate-50 rounded-md p-3 text-center">
-                  <div className="text-xs text-slate-500">최저가</div>
-                  <div className="font-semibold text-green-600">
+                <div className="bg-slate-50 rounded-md p-2 sm:p-3 text-center">
+                  <div className="text-[10px] sm:text-xs text-slate-500">최저가</div>
+                  <div className="font-semibold text-green-600 text-sm sm:text-base">
                     {formatPrice(chartGroup.minPrice)}
                   </div>
                 </div>
-                <div className="bg-slate-50 rounded-md p-3 text-center">
-                  <div className="text-xs text-slate-500">최고가</div>
-                  <div className="font-semibold text-red-600">
+                <div className="bg-slate-50 rounded-md p-2 sm:p-3 text-center">
+                  <div className="text-[10px] sm:text-xs text-slate-500">최고가</div>
+                  <div className="font-semibold text-red-600 text-sm sm:text-base">
                     {formatPrice(chartGroup.maxPrice)}
                   </div>
                 </div>

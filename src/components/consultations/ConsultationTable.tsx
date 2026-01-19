@@ -288,14 +288,15 @@ export default function ConsultationTable({
                     : "hover:shadow-md"
                 }`}
               >
-                {/* 카드 본문: a | b 레이아웃 */}
-                <div className="flex">
-                  {/* 좌측 (a): 날짜, 담당자, 상담자, 접수경로 */}
-                  <div className="w-40 shrink-0 bg-slate-50 p-4 border-r border-slate-100 flex flex-col justify-between">
-                    <div className="space-y-3">
+                {/* 모바일: 세로 레이아웃, 데스크탑: 가로 레이아웃 */}
+                <div className="flex flex-col sm:flex-row">
+                  {/* 상단/좌측: 날짜, 담당자, 상담자, 접수경로 */}
+                  <div className="sm:w-40 shrink-0 bg-slate-50 p-3 sm:p-4 border-b sm:border-b-0 sm:border-r border-slate-100">
+                    {/* 모바일: 가로 배열 */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:block sm:space-y-3">
                       {/* 날짜 */}
-                      <div>
-                        <div className="text-xs text-slate-500 mb-0.5">날짜</div>
+                      <div className="flex items-center gap-2 sm:block">
+                        <div className="text-xs text-slate-500 sm:mb-0.5">날짜</div>
                         <div className="text-sm font-medium text-slate-800">
                           {consultation.date}
                           {formatTime(consultation.created_at) && (
@@ -305,17 +306,17 @@ export default function ConsultationTable({
                           )}
                         </div>
                         {consultation.follow_up_date && (
-                          <div className="text-xs text-orange-600 mt-0.5">
+                          <div className="text-xs text-orange-600 sm:mt-0.5">
                             ~ {consultation.follow_up_date}
                           </div>
                         )}
                       </div>
 
                       {/* 담당자 */}
-                      <div>
-                        <div className="text-xs text-slate-500 mb-0.5">담당자</div>
+                      <div className="flex items-center gap-2 sm:block">
+                        <div className="text-xs text-slate-500 sm:mb-0.5">담당자</div>
                         <div
-                          className="text-sm font-medium text-cyan-600 cursor-pointer hover:underline"
+                          className="text-sm font-medium text-cyan-600 cursor-pointer hover:underline active:text-cyan-800"
                           onClick={() => onContactClick(consultation.contact_id || "")}
                         >
                           {consultation.contact_name} {consultation.contact_level}
@@ -323,30 +324,30 @@ export default function ConsultationTable({
                       </div>
 
                       {/* 상담자 */}
-                      <div>
-                        <div className="text-xs text-slate-500 mb-0.5">상담자</div>
+                      <div className="flex items-center gap-2 sm:block">
+                        <div className="text-xs text-slate-500 sm:mb-0.5">상담자</div>
                         {consultUser ? (
-                          <Link href={userLink} className="text-sm text-cyan-600 hover:underline">
+                          <Link href={userLink} className="text-sm text-cyan-600 hover:underline active:text-cyan-800">
                             {consultUser.name} {consultUser.level}
                           </Link>
                         ) : (
                           <span className="text-sm text-slate-400">-</span>
                         )}
                       </div>
-                    </div>
 
-                    {/* 접수경로 (하단) */}
-                    {consultation.contact_method && (
-                      <div className="mt-4">
-                        <span className={`inline-block px-2 py-1 text-xs rounded-full ${getContactMethodStyle(consultation.contact_method)}`}>
-                          {CONTACT_METHOD_LABELS[consultation.contact_method as ContactMethod] || consultation.contact_method}
-                        </span>
-                      </div>
-                    )}
+                      {/* 접수경로 */}
+                      {consultation.contact_method && (
+                        <div className="sm:mt-4">
+                          <span className={`inline-block px-2 py-1 text-xs rounded-full ${getContactMethodStyle(consultation.contact_method)}`}>
+                            {CONTACT_METHOD_LABELS[consultation.contact_method as ContactMethod] || consultation.contact_method}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {/* 우측 (b): 제목 + 내용 + 문서버튼 + 관리버튼 */}
-                  <div className="flex-1 p-4 flex flex-col">
+                  {/* 하단/우측: 제목 + 내용 + 문서버튼 + 관리버튼 */}
+                  <div className="flex-1 p-3 sm:p-4 flex flex-col">
                     {/* 제목 + 관리 버튼 */}
                     <div className="flex items-start justify-between gap-2 mb-2">
                       {consultation.title && (
@@ -355,19 +356,19 @@ export default function ConsultationTable({
                         </h3>
                       )}
                       {isAuthor && (
-                        <div className="flex items-center gap-1 shrink-0">
+                        <div className="flex items-center gap-1 sm:gap-1 shrink-0">
                           <button
                             onClick={() => onEditConsultation(consultation)}
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+                            className="flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 text-xs text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 active:bg-cyan-100 rounded-lg transition-colors"
                           >
-                            <Edit size={13} />
+                            <Edit size={14} className="sm:w-[13px] sm:h-[13px]" />
                             수정
                           </button>
                           <button
                             onClick={() => onDeleteConsultation(consultation)}
-                            className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 text-xs text-slate-500 hover:text-red-600 hover:bg-red-50 active:bg-red-100 rounded-lg transition-colors"
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={14} className="sm:w-[13px] sm:h-[13px]" />
                             삭제
                           </button>
                         </div>
@@ -380,101 +381,105 @@ export default function ConsultationTable({
                     </div>
 
                     {/* 문서 버튼들 (content 아래) */}
-                    <div className="flex items-center gap-2 flex-wrap mt-4 pt-3 border-t border-slate-100">
-                      {/* 견적서 */}
-                      <div className="flex items-center gap-1">
-                        <button
-                          className={`flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg border transition-colors ${
-                            consultation.documents.estimate
-                              ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
-                              : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-                          }`}
-                          onClick={() => openDocumentWindow("estimate", consultation.id)}
-                        >
-                          <FileText size={14} />
-                          견적서
-                        </button>
-                        {consultation.rawDocuments
-                          ?.filter((doc) => doc.type === "estimate")
-                          .map((doc) => (
-                            <span
-                              key={doc.id}
-                              onClick={() => doc.id && openDocumentModal(doc.id)}
-                              className="px-2 py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 transition-colors"
-                            >
-                              {doc.document_number || "번호없음"}
-                            </span>
-                          ))}
-                      </div>
+                    <div className="mt-4 pt-3 border-t border-slate-100">
+                      {/* 모바일: 2x2 그리드, 데스크탑: 가로 배열 */}
+                      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2">
+                        {/* 견적서 */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                          <button
+                            className={`flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border transition-colors active:scale-95 ${
+                              consultation.documents.estimate
+                                ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 active:bg-cyan-200"
+                                : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 active:bg-slate-100"
+                            }`}
+                            onClick={() => openDocumentWindow("estimate", consultation.id)}
+                          >
+                            <FileText size={14} />
+                            견적서
+                          </button>
+                          {consultation.rawDocuments
+                            ?.filter((doc) => doc.type === "estimate")
+                            .map((doc) => (
+                              <span
+                                key={doc.id}
+                                onClick={() => doc.id && openDocumentModal(doc.id)}
+                                className="px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
+                              >
+                                {doc.document_number || "번호없음"}
+                              </span>
+                            ))}
+                        </div>
 
-                      {/* 발주서 */}
-                      <div className="flex items-center gap-1">
-                        <button
-                          className={`flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg border transition-colors ${
-                            consultation.documents.order
-                              ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
-                              : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-                          }`}
-                          onClick={() => openDocumentWindow("order", consultation.id)}
-                        >
-                          <FileText size={14} />
-                          발주서
-                        </button>
-                        {consultation.rawDocuments
-                          ?.filter((doc) => doc.type === "order")
-                          .map((doc) => (
-                            <span
-                              key={doc.id}
-                              onClick={() => doc.id && openDocumentModal(doc.id)}
-                              className="px-2 py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 transition-colors"
-                            >
-                              {doc.document_number || "번호없음"}
-                            </span>
-                          ))}
-                      </div>
+                        {/* 발주서 */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                          <button
+                            className={`flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border transition-colors active:scale-95 ${
+                              consultation.documents.order
+                                ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 active:bg-cyan-200"
+                                : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 active:bg-slate-100"
+                            }`}
+                            onClick={() => openDocumentWindow("order", consultation.id)}
+                          >
+                            <FileText size={14} />
+                            발주서
+                          </button>
+                          {consultation.rawDocuments
+                            ?.filter((doc) => doc.type === "order")
+                            .map((doc) => (
+                              <span
+                                key={doc.id}
+                                onClick={() => doc.id && openDocumentModal(doc.id)}
+                                className="px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
+                              >
+                                {doc.document_number || "번호없음"}
+                              </span>
+                            ))}
+                        </div>
 
-                      {/* 의뢰서 */}
-                      <div className="flex items-center gap-1">
-                        <button
-                          className={`flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg border transition-colors ${
-                            consultation.documents.requestQuote
-                              ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
-                              : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-                          }`}
-                          onClick={() => openDocumentWindow("requestQuote", consultation.id)}
-                        >
-                          <FileText size={14} />
-                          의뢰서
-                        </button>
-                        {consultation.rawDocuments
-                          ?.filter((doc) => doc.type === "requestQuote")
-                          .map((doc) => (
-                            <span
-                              key={doc.id}
-                              onClick={() => doc.id && openDocumentModal(doc.id)}
-                              className="px-2 py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 transition-colors"
-                            >
-                              {doc.document_number || "번호없음"}
-                            </span>
-                          ))}
-                      </div>
+                        {/* 의뢰서 */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                          <button
+                            className={`flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border transition-colors active:scale-95 ${
+                              consultation.documents.requestQuote
+                                ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 active:bg-cyan-200"
+                                : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 active:bg-slate-100"
+                            }`}
+                            onClick={() => openDocumentWindow("requestQuote", consultation.id)}
+                          >
+                            <FileText size={14} />
+                            의뢰서
+                          </button>
+                          {consultation.rawDocuments
+                            ?.filter((doc) => doc.type === "requestQuote")
+                            .map((doc) => (
+                              <span
+                                key={doc.id}
+                                onClick={() => doc.id && openDocumentModal(doc.id)}
+                                className="px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
+                              >
+                                {doc.document_number || "번호없음"}
+                              </span>
+                            ))}
+                        </div>
 
-                      <button
-                        className={`flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg border transition-colors ${
-                          fileCounts[consultation.id] > 0
-                            ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
-                            : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-                        }`}
-                        onClick={() => handleOpenFileModal(consultation.id, consultation.date)}
-                      >
-                        <Paperclip size={14} />
-                        첨부파일
-                        {fileCounts[consultation.id] > 0 && (
-                          <span className="ml-0.5 bg-cyan-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">
-                            {fileCounts[consultation.id]}
-                          </span>
-                        )}
-                      </button>
+                        {/* 첨부파일 */}
+                        <button
+                          className={`flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border transition-colors active:scale-95 ${
+                            fileCounts[consultation.id] > 0
+                              ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 active:bg-cyan-200"
+                              : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 active:bg-slate-100"
+                          }`}
+                          onClick={() => handleOpenFileModal(consultation.id, consultation.date)}
+                        >
+                          <Paperclip size={14} />
+                          첨부파일
+                          {fileCounts[consultation.id] > 0 && (
+                            <span className="ml-0.5 bg-cyan-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                              {fileCounts[consultation.id]}
+                            </span>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -493,30 +498,30 @@ export default function ConsultationTable({
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-center">
-          <nav className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm">
+        <div className="mt-4 flex items-center justify-center px-2 sm:px-0">
+          <nav className="flex items-center gap-0.5 sm:gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm overflow-x-auto max-w-full">
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2.5 sm:p-2 rounded-lg transition-colors shrink-0 active:scale-95 ${
                 currentPage === 1
                   ? "text-slate-300 cursor-not-allowed"
-                  : "text-slate-600 hover:bg-slate-100"
+                  : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
               }`}
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={20} className="sm:w-[18px] sm:h-[18px]" />
             </button>
 
             {paginationNumbers().map((page, index) => (
               <button
                 key={index}
                 onClick={() => typeof page === "number" && onPageChange(page)}
-                className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
+                className={`min-w-[36px] sm:min-w-[32px] h-9 sm:h-8 rounded-lg text-sm font-medium transition-colors shrink-0 active:scale-95 ${
                   currentPage === page
                     ? "bg-cyan-600 text-white"
                     : page === "..."
                     ? "text-slate-400 cursor-default"
-                    : "text-slate-600 hover:bg-slate-100"
+                    : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
                 }`}
                 disabled={page === "..."}
               >
@@ -527,13 +532,13 @@ export default function ConsultationTable({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2.5 sm:p-2 rounded-lg transition-colors shrink-0 active:scale-95 ${
                 currentPage === totalPages
                   ? "text-slate-300 cursor-not-allowed"
-                  : "text-slate-600 hover:bg-slate-100"
+                  : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
               }`}
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={20} className="sm:w-[18px] sm:h-[18px]" />
             </button>
           </nav>
         </div>

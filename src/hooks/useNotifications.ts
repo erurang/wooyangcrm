@@ -6,15 +6,36 @@ export interface Notification {
   id: number;
   user_id: string;
   type:
+    // 문서 관련
     | "document_expiry"
+    | "estimate_completed"
+    | "order_completed"
+    // 상담 관련
     | "consultation_followup"
+    // 할일 관련
     | "todo_reminder"
+    // 시스템
     | "system"
+    // 게시판 관련
     | "post_comment"
     | "post_mention"
+    | "post_reply"
+    // 재고 입출고 관련 (기존)
     | "inventory_assignment"
     | "inventory_update"
     | "inventory_complete"
+    | "inventory_cancel"
+    // 입고 관련
+    | "inbound_assignment"
+    | "inbound_date_change"
+    | "inbound_confirmed"
+    | "inbound_canceled"
+    // 출고 관련
+    | "outbound_assignment"
+    | "outbound_date_change"
+    | "outbound_confirmed"
+    | "outbound_canceled"
+    // 작업지시 관련
     | "work_order_assignment"
     | "work_order_unassignment"
     | "work_order_comment"
@@ -27,7 +48,7 @@ export interface Notification {
   title: string;
   message: string;
   related_id: string | null;
-  related_type: "document" | "consultation" | "todo" | "post" | "inventory_task" | "work_order" | null;
+  related_type: "document" | "consultation" | "todo" | "post" | "inventory_task" | "work_order" | "inbound" | "outbound" | null;
   read: boolean;
   created_at: string;
 }

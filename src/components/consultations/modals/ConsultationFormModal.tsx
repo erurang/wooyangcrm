@@ -223,9 +223,21 @@ export default function ConsultationFormModal({
     onClose();
   }, [onClose]);
 
-  // 입력 필드 스타일
+  // 모달 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  // 입력 필드 스타일 - 모바일에서 더 큰 터치 영역
   const getInputClass = (hasError: boolean, isDisabled = false) => {
-    const base = "w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors";
+    const base = "w-full px-3 py-2.5 sm:py-2 border rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors";
     if (isDisabled) return `${base} bg-gray-100 border-gray-300`;
     if (hasError) return `${base} border-red-500 focus:ring-red-500 bg-red-50`;
     return `${base} border-gray-300 focus:ring-blue-500`;
@@ -238,26 +250,32 @@ export default function ConsultationFormModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/50"
+          onClick={handleClose}
         >
+          {/* 모바일: 전체화면, 데스크탑: 중앙 모달 */}
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-white flex flex-col sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:shadow-2xl sm:w-[calc(100%-2rem)] sm:max-w-2xl sm:max-h-[90vh]"
           >
-            <div className="flex items-center justify-between p-5 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">{modalTitle}</h3>
+            {/* 헤더 - 고정 */}
+            <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-b bg-white shrink-0">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">{modalTitle}</h3>
               <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-500"
+                onClick={handleClose}
+                className="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="p-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* 컨텐츠 - 스크롤 */}
+            <div className="flex-1 overflow-y-auto overscroll-contain">
+              <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     상담일
@@ -288,7 +306,7 @@ export default function ConsultationFormModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     담당자 <span className="text-red-500">*</span>
@@ -336,20 +354,20 @@ export default function ConsultationFormModal({
               </div>
 
               {/* 접수경로 */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   접수 경로
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {CONTACT_METHOD_OPTIONS.map((option) => (
                     <button
                       key={option.value}
                       type="button"
                       onClick={() => handleFieldChange("contact_method", option.value)}
-                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                      className={`px-3 py-2 sm:py-1.5 text-sm rounded-full border transition-colors ${
                         formData.contact_method === option.value
                           ? "bg-blue-600 text-white border-blue-600"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 active:bg-gray-100"
                       }`}
                     >
                       {option.label}
@@ -359,7 +377,7 @@ export default function ConsultationFormModal({
               </div>
 
               {/* 제목 */}
-              <div className="mb-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   제목
                 </label>
@@ -373,7 +391,7 @@ export default function ConsultationFormModal({
               </div>
 
               {/* 상담 내용 */}
-              <div className="mb-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   상담 내용 <span className="text-red-500">*</span>
                 </label>
@@ -382,7 +400,7 @@ export default function ConsultationFormModal({
                   value={formData.content}
                   onChange={(e) => handleFieldChange("content", e.target.value)}
                   className={`${getInputClass(!!errors.content)} resize-none`}
-                  rows={8}
+                  rows={5}
                 />
                 {errors.content ? (
                   <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
@@ -399,7 +417,7 @@ export default function ConsultationFormModal({
               </div>
 
               {/* 파일 첨부 */}
-              <div className="mb-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <div className="flex items-center gap-2">
                     <Paperclip className="h-4 w-4" />
@@ -407,86 +425,86 @@ export default function ConsultationFormModal({
                   </div>
                 </label>
 
-                  {/* 첨부된 파일 목록 */}
-                  {pendingFiles.length > 0 && (
-                    <div className="mb-3 space-y-2">
-                      {pendingFiles.map((file, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg"
-                        >
-                          <span className="text-lg">{getFileIcon(file.name)}</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-700 truncate">
-                              {file.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {(file.size / 1024).toFixed(1)} KB
-                            </p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removePendingFile(index)}
-                            className="p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
+                {/* 첨부된 파일 목록 */}
+                {pendingFiles.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    {pendingFiles.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 p-2.5 sm:p-2 bg-blue-50 border border-blue-200 rounded-lg"
+                      >
+                        <span className="text-lg">{getFileIcon(file.name)}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-700 truncate">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </p>
                         </div>
-                      ))}
+                        <button
+                          type="button"
+                          onClick={() => removePendingFile(index)}
+                          className="p-2 sm:p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 드래그 앤 드롭 영역 - 모바일에서 간소화 */}
+                <div
+                  onDragOver={handleDragOver}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`relative border-2 border-dashed rounded-lg p-4 sm:p-4 text-center cursor-pointer transition-all active:bg-gray-100 ${
+                    isDragging
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                  {isDragging ? (
+                    <div className="flex flex-col items-center gap-2 text-blue-600">
+                      <Upload className="h-8 w-8" />
+                      <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 sm:gap-2 text-gray-500">
+                      <FileText className="h-6 w-6 sm:h-8 sm:w-8" />
+                      <p className="text-sm">
+                        <span className="font-medium text-blue-600">파일 선택</span>
+                        <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
+                      </p>
                     </div>
                   )}
-
-                  {/* 드래그 앤 드롭 영역 */}
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragEnter={handleDragEnter}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
-                      isDragging
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
-                    }`}
-                  >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
-                    {isDragging ? (
-                      <div className="flex flex-col items-center gap-2 text-blue-600">
-                        <Upload className="h-8 w-8" />
-                        <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-gray-500">
-                        <FileText className="h-8 w-8" />
-                        <p className="text-sm">
-                          <span className="font-medium text-blue-600">파일 선택</span> 또는 드래그 앤 드롭
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          상담 저장 후 파일이 업로드됩니다
-                        </p>
-                      </div>
-                    )}
-                  </div>
                 </div>
+              </div>
+              </div>
             </div>
 
-            <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">
+            {/* 푸터 - 고정 */}
+            <div className="flex justify-end items-center gap-2 sm:gap-3 px-4 py-3 sm:px-5 sm:py-4 bg-gray-50 border-t shrink-0">
               <button
                 onClick={handleClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 active:bg-gray-100"
                 disabled={saving}
               >
                 취소
               </button>
               <button
                 onClick={handleSubmit}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 disabled={saving}
               >
                 {saving ? (

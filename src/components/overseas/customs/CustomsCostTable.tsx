@@ -97,109 +97,157 @@ export default function CustomsCostTable({
             <p className="text-sm text-slate-500">통관비용을 불러오는 중...</p>
           </div>
         ) : customsCosts && customsCosts.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
-                    통관일
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
-                    거래처
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
-                    Invoice
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">
-                    운송
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 hidden md:table-cell">
-                    관세
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 hidden lg:table-cell">
-                    소계
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-500">
-                    합계
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 hidden xl:table-cell">
-                    포워더
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">
-                    관리
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {customsCosts.map((cost) => (
-                  <tr
-                    key={cost.id}
-                    className="hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="text-sm text-slate-700">
-                        {cost.clearance_date}
+          <>
+            {/* 모바일: 카드 레이아웃 */}
+            <div className="sm:hidden divide-y divide-slate-100">
+              {customsCosts.map((cost) => (
+                <div key={cost.id} className="p-3 active:bg-slate-50">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium text-slate-800">
+                          {cost.company_name || "-"}
+                        </span>
+                        <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100">
+                          <ShippingMethodIcon method={cost.shipping_method} />
+                          <span className="text-slate-600">{SHIPPING_METHOD_LABELS[cost.shipping_method]}</span>
+                        </div>
                       </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="text-sm font-medium text-slate-800">
-                        {cost.company_name || "-"}
+                      <div className="flex items-center gap-3 text-xs text-slate-500">
+                        <span>{cost.clearance_date}</span>
+                        {cost.invoice_no && <span>{cost.invoice_no}</span>}
                       </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="text-sm text-slate-700">
-                        {cost.invoice_no || "-"}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-center">
-                      <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-slate-100">
-                        <ShippingMethodIcon method={cost.shipping_method} />
-                        <span className="text-slate-600">{SHIPPING_METHOD_LABELS[cost.shipping_method]}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right hidden md:table-cell">
-                      <div className="text-sm text-slate-700">
-                        {formatCurrency(cost.customs_duty)}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right hidden lg:table-cell">
-                      <div className="text-sm text-slate-700">
-                        {formatCurrency(cost.subtotal)}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right">
-                      <div className="text-sm font-semibold text-teal-600">
-                        {formatCurrency(cost.total)}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap hidden xl:table-cell">
-                      <div className="text-sm text-slate-700 truncate max-w-[150px]">
-                        {cost.forwarder || "-"}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => onEdit(cost)}
-                          className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
-                          title="수정"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => onDelete(cost)}
-                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="삭제"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => onEdit(cost)}
+                        className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 active:bg-teal-100 rounded-lg transition-colors"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => onDelete(cost)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 active:bg-red-100 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs text-slate-500">합계</span>
+                    <span className="text-sm font-semibold text-teal-600">
+                      {formatCurrency(cost.total)}원
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 데스크탑: 테이블 레이아웃 */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                      통관일
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                      거래처
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">
+                      Invoice
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">
+                      운송
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 hidden md:table-cell">
+                      관세
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 hidden lg:table-cell">
+                      소계
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500">
+                      합계
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 hidden xl:table-cell">
+                      포워더
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">
+                      관리
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {customsCosts.map((cost) => (
+                    <tr
+                      key={cost.id}
+                      className="hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="text-sm text-slate-700">
+                          {cost.clearance_date}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="text-sm font-medium text-slate-800">
+                          {cost.company_name || "-"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="text-sm text-slate-700">
+                          {cost.invoice_no || "-"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-center">
+                        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-slate-100">
+                          <ShippingMethodIcon method={cost.shipping_method} />
+                          <span className="text-slate-600">{SHIPPING_METHOD_LABELS[cost.shipping_method]}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-right hidden md:table-cell">
+                        <div className="text-sm text-slate-700">
+                          {formatCurrency(cost.customs_duty)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-right hidden lg:table-cell">
+                        <div className="text-sm text-slate-700">
+                          {formatCurrency(cost.subtotal)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-right">
+                        <div className="text-sm font-semibold text-teal-600">
+                          {formatCurrency(cost.total)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap hidden xl:table-cell">
+                        <div className="text-sm text-slate-700 truncate max-w-[150px]">
+                          {cost.forwarder || "-"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => onEdit(cost)}
+                            className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                            title="수정"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => onDelete(cost)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="삭제"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         ) : (
           <EmptyState
             type="document"

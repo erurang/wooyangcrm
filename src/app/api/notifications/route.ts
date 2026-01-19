@@ -49,25 +49,45 @@ export async function POST(request: Request) {
     }
 
     const validTypes = [
-      "document_expiry",
-      "consultation_followup",
-      "todo_reminder",
-      "system",
-      "post_comment",    // 게시글에 댓글 달림
-      "post_mention",    // @멘션됨
-      "inventory_assignment",  // 재고 작업 배정
-      "inventory_update",      // 재고 작업 변경
-      "inventory_complete",    // 재고 작업 완료
+      // 문서 관련
+      "document_expiry",        // 문서 만료 임박
+      "estimate_completed",     // 견적서 완료 → 출고 리스트 등록
+      "order_completed",        // 발주서 완료 → 입고 리스트 등록
+      // 상담 관련
+      "consultation_followup",  // 상담 후속조치
+      // 할일 관련
+      "todo_reminder",          // 할일 알림
+      // 게시판 관련
+      "post_comment",           // 내 게시글에 댓글
+      "post_mention",           // 멘션됨
+      "post_reply",             // 내 댓글에 대댓글
+      // 재고 입출고 관련 (기존)
+      "inventory_assignment",   // 입출고 담당 배정
+      "inventory_update",       // 입출고 정보 변경
+      "inventory_complete",     // 입출고 확인 완료
+      "inventory_cancel",       // 입출고 취소
+      // 입고 관련
+      "inbound_assignment",     // 입고 담당 지정
+      "inbound_date_change",    // 입고 예정일 변경
+      "inbound_confirmed",      // 입고 확인 완료
+      "inbound_canceled",       // 입고 취소
+      // 출고 관련
+      "outbound_assignment",    // 출고 담당 지정
+      "outbound_date_change",   // 출고 예정일 변경
+      "outbound_confirmed",     // 출고 확인 완료
+      "outbound_canceled",      // 출고 취소
       // 작업지시 관련
-      "work_order_assignment",   // 작업지시 배정
-      "work_order_unassignment", // 작업지시 배정 해제
+      "work_order_assignment",   // 작업지시 담당자 배정
+      "work_order_unassignment", // 작업지시 담당 해제
       "work_order_comment",      // 작업지시 댓글
-      "work_order_update",       // 작업지시 수정
+      "work_order_update",       // 작업지시 내용 수정
       "work_order_status",       // 작업지시 상태 변경
-      "work_order_deadline",     // 작업지시 기한 변경
+      "work_order_deadline",     // 작업지시 일자/기한 변경
       "work_order_progress",     // 작업지시 진행 상황
       "work_order_completed",    // 작업지시 완료
-      "work_order_file",         // 작업지시 파일
+      "work_order_file",         // 작업지시 파일 추가
+      // 시스템
+      "system",
     ];
     if (!validTypes.includes(type)) {
       return NextResponse.json(

@@ -13,7 +13,7 @@ import {
   ArrowRight,
   Building2,
 } from "lucide-react";
-import { PushNotificationSettings } from "@/components/notifications";
+import { PushNotificationSettings, NotificationPreferences } from "@/components/notifications";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 
@@ -43,7 +43,7 @@ export default function MyActivityPage() {
 
   if (!user) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
@@ -73,7 +73,7 @@ export default function MyActivityPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* 최근 상담 */}
       <ActivitySection
         title="최근 상담"
@@ -186,8 +186,11 @@ export default function MyActivityPage() {
         )}
       </ActivitySection>
 
-      {/* 알림 설정 */}
+      {/* 푸시 알림 설정 */}
       <PushNotificationSettings userId={user?.id} />
+
+      {/* 알림 유형 설정 */}
+      <NotificationPreferences userId={user?.id} />
     </div>
   );
 }
@@ -214,7 +217,7 @@ function ActivitySection({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           {icon}

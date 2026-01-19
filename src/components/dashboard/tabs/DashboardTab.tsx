@@ -99,11 +99,11 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
   // loginUser가 아직 로드되지 않았으면 로딩 표시
   if (!loginUser) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-3">
           <div className="h-12 bg-slate-100 rounded animate-pulse"></div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
           <div className="lg:col-span-2 bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-64 animate-pulse">
             <div className="h-full bg-slate-100 rounded"></div>
           </div>
@@ -111,7 +111,7 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
             <div className="h-full bg-slate-100 rounded"></div>
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
           <div className="lg:col-span-2 bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-48 animate-pulse">
             <div className="h-full bg-slate-100 rounded"></div>
           </div>
@@ -141,7 +141,7 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
   const upcomingDocs = allUrgentDocs.filter(doc => doc.days_remaining >= 0);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* 긴급 문서 알림 배너 (견적서 + 발주서) */}
       {!dismissedOrderAlert && allUrgentDocs.length > 0 && (
         <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-4 shadow-sm">
@@ -255,7 +255,7 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
       </div>
 
       {/* 두 번째 줄: 매출 차트 + 주요 거래처 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="lg:col-span-2">
           {yearlyData ? (
             <SalesComparisonChart
@@ -290,7 +290,7 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
       </div>
 
       {/* 세 번째 줄: 상담 현황 + 최근 문서 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-full">
             <div className="flex items-center justify-between mb-3">
@@ -342,7 +342,7 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
       </div>
 
       {/* 네 번째 줄: 할 일 + 빠른 메모 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-full">
             <div className="flex items-center justify-between mb-3">

@@ -128,7 +128,43 @@ export default function ProductTable({
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
-      <div className="overflow-x-auto">
+      {/* 모바일: 카드 레이아웃 */}
+      <div className="sm:hidden divide-y divide-slate-100">
+        {products.map((product, index) => (
+          <div key={index} className="p-3 active:bg-slate-50">
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-slate-800 truncate">{product.name}</div>
+                <div className="text-xs text-slate-500">{product.spec}</div>
+              </div>
+              <StatusBadge status={product.status} />
+            </div>
+            <div className="flex items-center justify-between text-xs mb-2">
+              <button
+                onClick={() => router.push(`/consultations/${product.company_id}`)}
+                className="text-blue-600"
+              >
+                {product.company_name}
+              </button>
+              <span className="text-slate-500">{dayjs(product.estimate_date).format("YY.MM.DD")}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-slate-500">
+                {product.quantity} × {product.unit_price.toLocaleString()}원
+              </div>
+              <button
+                onClick={() => onDocumentClick?.(product.id)}
+                className="text-xs text-blue-600"
+              >
+                {product.document_number}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 데스크탑: 테이블 레이아웃 */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50">
             <tr>

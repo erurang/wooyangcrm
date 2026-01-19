@@ -104,11 +104,15 @@ export async function POST(
       // 알림 발송
       if (notificationTargets.size > 0) {
         const commenterName = comment.user?.name || "알 수 없음";
+        const contentPreview = content.trim().length > 50
+          ? content.trim().substring(0, 50) + "..."
+          : content.trim();
+
         const notifications = Array.from(notificationTargets).map((targetUserId) => ({
           user_id: targetUserId,
           type: "work_order_comment",
           title: "작업지시 새 댓글",
-          message: `${commenterName}님이 "${workOrder.title}"에 댓글을 남겼습니다.`,
+          message: `${commenterName}님이 "${workOrder.title}" 작업지시에 댓글을 남겼습니다.\n"${contentPreview}"`,
           related_id: id,
           related_type: "work_order",
           read: false,

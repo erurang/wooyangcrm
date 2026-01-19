@@ -17,17 +17,17 @@ export default function DocumentFormFooter({
   onSubmit,
 }: DocumentFormFooterProps) {
   return (
-    <div className="flex justify-end space-x-3 mt-8">
+    <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 p-4 sm:p-5">
       <button
         onClick={onClose}
-        className="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        className="w-full sm:w-auto px-5 py-3 sm:py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors"
         disabled={saving}
       >
         취소
       </button>
       <button
         onClick={onSubmit}
-        className={`px-5 py-2.5 ${buttonClass} text-white rounded-lg transition-colors text-sm font-medium flex items-center shadow-sm`}
+        className={`w-full sm:w-auto px-5 py-3 sm:py-2.5 ${buttonClass} active:opacity-90 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center shadow-sm`}
         disabled={saving}
       >
         {saving ? (

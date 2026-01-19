@@ -166,21 +166,27 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
               </button>
             </div>
 
-            {/* User Info */}
+            {/* User Info - 마이페이지 링크 */}
             {user && (
-              <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+              <Link
+                href="/profile"
+                className={`block px-4 py-3 border-b border-gray-200 bg-gray-50 hover:bg-indigo-50 active:bg-indigo-100 transition-colors ${
+                  pathname.startsWith("/profile") ? "bg-indigo-50" : ""
+                }`}
+              >
                 <div className="flex items-center">
                   <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium mr-3">
                     {user.name?.charAt(0) || "U"}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <div className="text-sm font-medium text-gray-900">
-                      {user.name}
+                      {user.name} {user.level}
                     </div>
-                    <div className="text-xs text-gray-500">{user.level}</div>
+                    <div className="text-xs text-indigo-600 font-medium">마이페이지</div>
                   </div>
+                  <User className="w-4 h-4 text-gray-400" />
                 </div>
-              </div>
+              </Link>
             )}
 
             {/* Menu Items */}

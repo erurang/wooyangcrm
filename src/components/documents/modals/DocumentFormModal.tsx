@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import DocumentItemsGrid from "../DocumentItemsGrid";
 import {
   DocumentFormHeader,
@@ -11,6 +12,7 @@ import {
   DocumentFormFooter,
 } from "./form";
 import type { AppUser, NewDocument, Contact } from "@/types/document";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface Items {
   name: string;
@@ -65,6 +67,17 @@ export default function DocumentFormModal({
 }: DocumentFormModalProps) {
   const isAddMode = mode === "add";
 
+  // ESC 키로 닫기
+  useEscapeKey(true, onClose);
+
+  // 모달 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   const colorConfig = isAddMode
     ? {
         gradient: "from-blue-600 to-blue-700",
@@ -84,8 +97,16 @@ export default function DocumentFormModal({
   const showAmountInfo = isAddMode ? type !== "requestQuote" : true;
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={onClose}>
+      {/* 모바일: 전체화면, 데스크탑: 중앙 모달 */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="
+          fixed inset-0 bg-white flex flex-col
+          sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2
+          sm:rounded-xl sm:shadow-2xl sm:w-[calc(100%-2rem)] sm:max-w-4xl sm:max-h-[90vh]
+        "
+      >
         <DocumentFormHeader
           mode={mode}
           type={type}
@@ -93,8 +114,9 @@ export default function DocumentFormModal({
           onClose={onClose}
         />
 
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-          <div className="space-y-8">
+        {/* 스크롤 가능한 컨텐츠 영역 */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
             <BasicInfoSection
               newDocument={newDocument}
               setNewDocument={setNewDocument}
@@ -153,7 +175,10 @@ export default function DocumentFormModal({
               accentColor={colorConfig.accent}
             />
           </div>
+        </div>
 
+        {/* 고정 푸터 */}
+        <div className="shrink-0 border-t border-slate-200 bg-white">
           <DocumentFormFooter
             saving={saving}
             buttonClass={colorConfig.button}

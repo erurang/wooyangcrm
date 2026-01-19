@@ -52,16 +52,17 @@ export default function DocumentInfoSection({
   };
 
   return (
-    <div className="bg-gray-50 p-5 rounded-xl">
-      <div className="flex items-center gap-2 mb-4 text-gray-800">
+    <div className="bg-gray-50 p-4 sm:p-5 rounded-xl">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4 text-gray-800">
         <FileText className={`h-5 w-5 ${iconColor}`} />
-        <h4 className="text-lg font-semibold">문서 정보</h4>
+        <h4 className="text-base sm:text-lg font-semibold">문서 정보</h4>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* 모바일: 2열, 데스크탑: 4열 */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         {/* 결제조건 */}
         {(isAddMode ? type !== "requestQuote" : true) && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
               결제조건 <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -71,7 +72,7 @@ export default function DocumentInfoSection({
                 onChange={(e) =>
                   setNewDocument({ ...newDocument, payment_method: e.target.value })
                 }
-                className={`w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent appearance-none bg-white`}
+                className={`w-full pl-10 pr-8 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent appearance-none bg-white`}
               >
                 <option value="">선택</option>
                 {paymentMethods.map((method) => (
@@ -89,7 +90,7 @@ export default function DocumentInfoSection({
         <div>
           {type === "estimate" && (
             <>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
                 견적일
               </label>
               <div className="relative">
@@ -100,14 +101,14 @@ export default function DocumentInfoSection({
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, date: e.target.value })
                   }
-                  className={`w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                  className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
                 />
               </div>
             </>
           )}
           {type === "order" && (
             <>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
                 발주일
               </label>
               <div className="relative">
@@ -119,7 +120,7 @@ export default function DocumentInfoSection({
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, date: e.target.value })
                   }
-                  className={`w-full pl-10 pr-4 py-2.5 ${
+                  className={`w-full pl-10 pr-3 py-2.5 ${
                     isAddMode ? "bg-gray-100" : ""
                   } border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
                 />
@@ -128,7 +129,7 @@ export default function DocumentInfoSection({
           )}
           {type === "requestQuote" && (
             <>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
                 의뢰일
               </label>
               <div className="relative">
@@ -137,7 +138,7 @@ export default function DocumentInfoSection({
                   type="date"
                   disabled
                   value={isAddMode ? newDocument.date : newDocument.created_at}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
+                  className="w-full pl-10 pr-3 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
                 />
               </div>
             </>
@@ -148,7 +149,7 @@ export default function DocumentInfoSection({
         <div>
           {type === "estimate" && (
             <>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
                 유효기간 <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -159,14 +160,14 @@ export default function DocumentInfoSection({
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, valid_until: e.target.value })
                   }
-                  className={`w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                  className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
                 />
               </div>
             </>
           )}
           {type === "order" && (
             <>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
                 납기일 <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -177,14 +178,14 @@ export default function DocumentInfoSection({
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, delivery_date: e.target.value })
                   }
-                  className={`w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                  className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
                 />
               </div>
             </>
           )}
           {type === "requestQuote" && (
             <>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
                 희망견적일 <span className="text-red-500">*</span>
               </label>
               <div className="relative">
@@ -195,7 +196,7 @@ export default function DocumentInfoSection({
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, delivery_date: e.target.value })
                   }
-                  className={`w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                  className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
                 />
               </div>
             </>
@@ -204,7 +205,7 @@ export default function DocumentInfoSection({
 
         {/* 작성자 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
             {getUserLabel()}
           </label>
           <div className="relative">

@@ -76,7 +76,7 @@ export default function ContactsTable({
   }
 
   return (
-    <div className="p-4">
+    <div className="p-3 sm:p-4">
       {/* Table Controls */}
       <div className="flex justify-between items-center mb-3">
         <div className="text-sm text-slate-500">
@@ -84,14 +84,14 @@ export default function ContactsTable({
         </div>
         {onPerPageChange && onPageChange && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">표시:</span>
+            <span className="text-sm text-slate-500 hidden sm:inline">표시:</span>
             <select
               value={perPage}
               onChange={(e) => {
                 onPerPageChange(Number(e.target.value));
                 onPageChange(1);
               }}
-              className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white"
+              className="border border-slate-200 rounded-lg px-2 py-2 sm:py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white"
             >
               <option value="10">10개</option>
               <option value="20">20개</option>
@@ -103,7 +103,87 @@ export default function ContactsTable({
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* 모바일: 카드 레이아웃 */}
+        <div className="sm:hidden divide-y divide-slate-100">
+          {contacts.map((contact: Contact) => (
+            <div
+              key={contact.id}
+              className="p-3 active:bg-slate-50"
+              onClick={() => router.push(`/manage/contacts/${contact.id}`)}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <div className="p-2 bg-violet-50 rounded-lg shrink-0">
+                    <User className="h-4 w-4 text-violet-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-slate-800 truncate">
+                        {contact.contact_name || "-"}
+                      </span>
+                      {contact.level && (
+                        <span className="inline-flex px-1.5 py-0.5 text-[10px] font-medium bg-slate-100 text-slate-600 rounded shrink-0">
+                          {contact.level}
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      className="flex items-center gap-1 text-xs text-slate-500 mt-0.5"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/consultations/${contact.company_id}`);
+                      }}
+                    >
+                      <Building2 className="h-3 w-3 text-slate-400" />
+                      <span className="truncate">{contact.companies?.name || "-"}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(contact);
+                    }}
+                    className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 active:bg-violet-100 rounded-lg transition-colors"
+                    title="수정"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(contact);
+                    }}
+                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 active:bg-red-100 rounded-lg transition-colors"
+                    title="삭제"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              {(contact.mobile || contact.email) && (
+                <div className="mt-2 ml-10 flex flex-wrap gap-x-4 gap-y-1">
+                  {contact.mobile && (
+                    <div className="flex items-center gap-1 text-xs text-slate-500">
+                      <Phone className="h-3 w-3 text-slate-400" />
+                      {contact.mobile}
+                    </div>
+                  )}
+                  {contact.email && (
+                    <div className="flex items-center gap-1 text-xs text-slate-500 truncate">
+                      <Mail className="h-3 w-3 text-slate-400" />
+                      <span className="truncate">{contact.email}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* 데스크탑: 테이블 레이아웃 */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>

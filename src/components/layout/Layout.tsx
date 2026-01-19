@@ -33,7 +33,7 @@ export default function Layout({ children }: LayoutProps) {
           ${isHydrated ? (isExpanded ? "lg:pl-60" : "lg:pl-16") : "lg:pl-16"}
         `}
       >
-        <div className="p-4">
+        <div className="p-2 sm:p-4">
           <Breadcrumb />
           {children}
         </div>

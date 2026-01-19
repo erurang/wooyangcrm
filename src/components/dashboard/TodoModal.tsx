@@ -218,20 +218,20 @@ export default function TodoModal({
         {/* Backdrop */}
         <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
-        {/* Modal */}
+        {/* Modal - 모바일: 전체화면, 데스크탑: 중앙 모달 */}
         <motion.div
-          className="relative bg-white rounded-xl shadow-2xl w-full max-w-6xl mx-4 max-h-[90vh] flex flex-col"
+          className="relative bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-2xl sm:w-full sm:max-w-6xl sm:mx-4 sm:max-h-[90vh] flex flex-col"
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-5 w-5 text-violet-600" />
-              <h2 className="text-lg font-semibold text-slate-800">할 일 관리</h2>
-              {/* 상태 배지 */}
-              <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 sticky top-0 bg-white z-10">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              <CheckCircle2 className="h-5 w-5 text-violet-600 shrink-0" />
+              <h2 className="text-base sm:text-lg font-semibold text-slate-800">할 일 관리</h2>
+              {/* 상태 배지 - 모바일에서 축소 */}
+              <div className="hidden sm:flex items-center gap-2">
                 {overdueCount > 0 && (
                   <span className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded-full">
                     <AlertCircle className="h-3 w-3" />
@@ -251,20 +251,29 @@ export default function TodoModal({
                   </span>
                 )}
               </div>
+              {/* 모바일: 배지 요약 */}
+              <div className="flex sm:hidden items-center gap-1">
+                {(overdueCount > 0 || dueTodayCount > 0 || dueSoonCount > 0) && (
+                  <span className="text-xs text-slate-500">
+                    {overdueCount > 0 && <span className="text-red-600">{overdueCount}</span>}
+                    {dueTodayCount > 0 && <span className="text-orange-600 ml-1">{dueTodayCount}</span>}
+                  </span>
+                )}
+              </div>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-lg hover:bg-slate-100 active:bg-slate-200 transition-colors shrink-0"
             >
               <X className="h-5 w-5 text-slate-500" />
             </button>
           </div>
 
-          {/* Content - Split View */}
-          <div className="flex-1 overflow-hidden grid grid-cols-2 divide-x divide-slate-200">
-            {/* Left: 진행중 */}
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between px-4 py-3 bg-violet-50 border-b border-slate-200">
+          {/* Content - 모바일: 세로 스택, 데스크탑: 가로 분할 */}
+          <div className="flex-1 overflow-hidden flex flex-col sm:grid sm:grid-cols-2 sm:divide-x divide-slate-200">
+            {/* Left: 진행중 - 모바일에서는 전체 높이 */}
+            <div className="flex flex-col flex-1 sm:flex-none sm:h-full min-h-0 border-b sm:border-b-0">
+              <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-violet-50 border-b border-slate-200">
                 <div className="flex items-center gap-2">
                   <Circle className="h-4 w-4 text-violet-600" />
                   <h3 className="text-sm font-semibold text-violet-800">진행중</h3>
@@ -463,9 +472,9 @@ export default function TodoModal({
               </div>
             </div>
 
-            {/* Right: 완료됨 */}
-            <div className="flex flex-col h-full">
-              <div className="flex items-center gap-2 px-4 py-3 bg-emerald-50 border-b border-slate-200">
+            {/* Right: 완료됨 - 모바일에서 축소 */}
+            <div className="flex flex-col flex-1 sm:flex-none sm:h-full min-h-0">
+              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-emerald-50 border-b border-slate-200">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                 <h3 className="text-sm font-semibold text-emerald-800">완료됨</h3>
                 <span className="px-1.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700 rounded-full">
@@ -530,8 +539,9 @@ export default function TodoModal({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500 text-center">
-            클릭하여 수정 • 화살표로 상태 이동 • 기한 설정으로 우선순위 관리
+          <div className="px-4 sm:px-6 py-2 sm:py-3 border-t border-slate-200 bg-slate-50 text-[10px] sm:text-xs text-slate-500 text-center">
+            <span className="hidden sm:inline">클릭하여 수정 • 화살표로 상태 이동 • 기한 설정으로 우선순위 관리</span>
+            <span className="sm:hidden">탭하여 수정 • 화살표로 이동</span>
           </div>
         </motion.div>
       </motion.div>

@@ -22,20 +22,28 @@ export default function StatusChangeModal({
   handleStatusChange,
 }: StatusChangeModalProps) {
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 sm:p-4">
+      <div className="bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-2xl sm:max-w-md overflow-auto flex flex-col">
         {/* 모달 헤더 */}
-        <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-5 text-white">
-          <div className="flex items-center gap-3">
-            <div className="bg-white bg-opacity-20 p-2 rounded-lg">
-              <AlertCircle className="h-5 w-5" />
+        <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-4 sm:p-5 text-white sticky top-0 z-10">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="bg-white bg-opacity-20 p-2 rounded-lg">
+                <AlertCircle className="h-5 w-5" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold">진행 상태 변경</h2>
             </div>
-            <h2 className="text-xl font-bold">진행 상태 변경</h2>
+            <button
+              onClick={() => setStatusChangeDoc(null)}
+              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors sm:hidden"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
         </div>
 
         {/* 모달 내용 */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6 flex-1">
           <div className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -51,6 +51,26 @@ export async function GET(
   }
 }
 
+// 사용자 이름 조회 헬퍼
+async function getUserName(userId: string): Promise<string> {
+  const { data } = await supabase
+    .from("users")
+    .select("name")
+    .eq("id", userId)
+    .single();
+  return data?.name || "사용자";
+}
+
+// 거래처 이름 조회 헬퍼
+async function getCompanyName(companyId: string): Promise<string> {
+  const { data } = await supabase
+    .from("companies")
+    .select("name")
+    .eq("id", companyId)
+    .single();
+  return data?.name || "거래처";
+}
+
 // PATCH: 재고 작업 수정 (예정일, 메모, 상태 등)
 export async function PATCH(
   request: Request,
@@ -59,7 +79,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { expected_date, notes, status, assigned_to, user_id } = body;
+    const { expected_date, notes, status, assigned_to, user_id, cancel_reason } = body;
 
     // 기존 데이터 조회
     const { data: oldData, error: fetchError } = await supabase
@@ -153,16 +173,29 @@ export async function PATCH(
       changed_by: user_id || null,
     });
 
-    // 알림 생성 (담당자 변경 시)
+    // 작업 타입 텍스트 및 알림 타입 결정
+    const isInbound = oldData.task_type === "inbound";
+    const taskTypeText = isInbound ? "입고" : "출고";
+    const companyName = oldData.company_id ? await getCompanyName(oldData.company_id) : "거래처";
+    const changerName = user_id ? await getUserName(user_id) : "사용자";
+
+    // 알림 생성 (담당자 배정 시) - 상세 정보 포함
     if (assigned_to && assigned_to !== oldData.assigned_to) {
-      const taskTypeText = oldData.task_type === "inbound" ? "입고" : "출고";
+      const notifType = isInbound ? "inbound_assignment" : "outbound_assignment";
+      let message = `${changerName}님이 ${taskTypeText} 작업을 배정했습니다.\n`;
+      message += `• 문서번호: ${oldData.document_number}\n`;
+      message += `• 거래처: ${companyName}`;
+      if (expected_date || oldData.expected_date) {
+        message += `\n• 예정일: ${expected_date || oldData.expected_date}`;
+      }
+
       await supabase.from("notifications").insert({
         user_id: assigned_to,
-        type: "inventory_assignment",
-        title: `${taskTypeText} 작업 배정`,
-        message: `${oldData.document_number} ${taskTypeText} 작업이 배정되었습니다.`,
+        type: notifType,
+        title: `${taskTypeText} 담당 배정`,
+        message,
         related_id: id,
-        related_type: "inventory_task",
+        related_type: isInbound ? "inbound" : "outbound",
       });
     }
 
@@ -172,15 +205,65 @@ export async function PATCH(
       oldData.assigned_to &&
       oldData.assigned_to !== user_id
     ) {
-      const taskTypeText = oldData.task_type === "inbound" ? "입고" : "출고";
+      const notifType = isInbound ? "inbound_date_change" : "outbound_date_change";
+      const message = `${changerName}님이 ${taskTypeText} 예정일을 변경했습니다.\n• 문서번호: ${oldData.document_number}\n• 거래처: ${companyName}\n• 변경: ${oldData.expected_date || "미정"} → ${expected_date}`;
+
       await supabase.from("notifications").insert({
         user_id: oldData.assigned_to,
-        type: "inventory_update",
+        type: notifType,
         title: `${taskTypeText} 예정일 변경`,
-        message: `${oldData.document_number} ${taskTypeText} 예정일이 ${expected_date}로 변경되었습니다.`,
+        message,
         related_id: id,
-        related_type: "inventory_task",
+        related_type: isInbound ? "inbound" : "outbound",
       });
+    }
+
+    // 알림 생성 (완료 시, 지정자에게)
+    if (changedFields.includes("status") && status === "completed" && oldData.assigned_by) {
+      // 본인이 지정자가 아닌 경우에만 알림
+      if (oldData.assigned_by !== user_id) {
+        const notifType = isInbound ? "inbound_confirmed" : "outbound_confirmed";
+        const message = `${changerName}님이 ${taskTypeText}를 확인했습니다.\n• 문서번호: ${oldData.document_number}\n• 거래처: ${companyName}`;
+
+        await supabase.from("notifications").insert({
+          user_id: oldData.assigned_by,
+          type: notifType,
+          title: `${taskTypeText} 확인 완료`,
+          message,
+          related_id: id,
+          related_type: isInbound ? "inbound" : "outbound",
+        });
+      }
+    }
+
+    // 알림 생성 (취소 시, 지정자/담당자에게)
+    if (changedFields.includes("status") && status === "canceled") {
+      const notifType = isInbound ? "inbound_canceled" : "outbound_canceled";
+      let message = `${changerName}님이 ${taskTypeText}를 취소했습니다.\n• 문서번호: ${oldData.document_number}\n• 거래처: ${companyName}`;
+      if (cancel_reason) {
+        message += `\n• 사유: ${cancel_reason}`;
+      }
+
+      // 알림 받을 사용자 목록 (지정자 + 담당자, 본인 제외)
+      const recipientIds = new Set<string>();
+      if (oldData.assigned_by && oldData.assigned_by !== user_id) {
+        recipientIds.add(oldData.assigned_by);
+      }
+      if (oldData.assigned_to && oldData.assigned_to !== user_id) {
+        recipientIds.add(oldData.assigned_to);
+      }
+
+      // 알림 생성
+      for (const recipientId of recipientIds) {
+        await supabase.from("notifications").insert({
+          user_id: recipientId,
+          type: notifType,
+          title: `${taskTypeText} 취소`,
+          message,
+          related_id: id,
+          related_type: isInbound ? "inbound" : "outbound",
+        });
+      }
     }
 
     return NextResponse.json({

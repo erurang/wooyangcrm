@@ -50,14 +50,21 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    // 기존 문서 정보 조회 (알림 전송용)
+    // 기존 문서 정보 조회 (알림 전송용) - 거래처 정보도 포함
     const { data: document } = await supabase
       .from("documents")
-      .select("user_id, document_number, type, status")
+      .select(`
+        user_id,
+        document_number,
+        type,
+        status,
+        company:companies(name)
+      `)
       .eq("id", id)
       .single();
 
     const oldStatus = document?.status;
+    const companyName = (document?.company as { name?: string })?.name || "거래처";
 
     // status_reason 데이터 정제: amount 필드가 없거나 빈 문자열이면 0으로 설정
     const sanitizedStatusReason: Record<string, { reason: string; amount: number }> = {};
@@ -82,16 +89,40 @@ export async function PATCH(request: Request) {
 
     // 문서 작성자에게 상태 변경 알림 전송 (상태가 실제로 변경된 경우만)
     if (document && document.user_id && oldStatus !== status) {
-      // 상태를 변경한 사람이 문서 작성자 본인이 아닌 경우에만 알림
-      if (!updated_by || updated_by !== document.user_id) {
-        const typeLabel = document.type === "estimate" ? "견적서" :
-                          document.type === "order" ? "발주서" : "문서";
+      const typeLabel = document.type === "estimate" ? "견적서" :
+                        document.type === "order" ? "발주서" : "문서";
 
+      // 상태를 변경한 사람이 문서 작성자 본인이 아닌 경우에만 기본 상태 변경 알림
+      if (!updated_by || updated_by !== document.user_id) {
         await createNotification(
           document.user_id,
           "system",
           "문서 상태 변경",
           `${typeLabel} "${document.document_number}"의 상태가 ${getStatusLabel(oldStatus)} → ${getStatusLabel(status)}로 변경되었습니다.`,
+          id,
+          "document"
+        );
+      }
+
+      // 견적서 완료 시 → 출고 리스트 등록 알림 (문서 작성자에게)
+      if (document.type === "estimate" && status === "completed") {
+        await createNotification(
+          document.user_id,
+          "estimate_completed",
+          "견적서 완료 - 출고 등록",
+          `견적서 "${document.document_number}" (${companyName})가 완료되어 출고 리스트에 등록되었습니다.\n• 거래처: ${companyName}\n• 문서번호: ${document.document_number}`,
+          id,
+          "document"
+        );
+      }
+
+      // 발주서 완료 시 → 입고 리스트 등록 알림 (문서 작성자에게)
+      if (document.type === "order" && status === "completed") {
+        await createNotification(
+          document.user_id,
+          "order_completed",
+          "발주서 완료 - 입고 등록",
+          `발주서 "${document.document_number}" (${companyName})가 완료되어 입고 리스트에 등록되었습니다.\n• 거래처: ${companyName}\n• 문서번호: ${document.document_number}`,
           id,
           "document"
         );

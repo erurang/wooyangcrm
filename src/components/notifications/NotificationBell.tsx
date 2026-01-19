@@ -63,12 +63,20 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
           break;
         case "inventory_task":
           // 재고 작업 알림 - task_type에 따라 입고/출고 페이지로 이동
-          if (notification.type === "inventory_assignment" || notification.type === "inventory_update" || notification.type === "inventory_complete") {
+          if (notification.type === "inventory_assignment" || notification.type === "inventory_update" || notification.type === "inventory_complete" || notification.type === "inventory_cancel") {
             // 알림 메시지에서 입고/출고 판단 (메시지에 "입고" 또는 "출고" 포함)
             const isInbound = notification.message?.includes("입고") || notification.title?.includes("입고");
             const targetPage = isInbound ? "/inventory/inbound" : "/inventory/outbound";
             router.push(`${targetPage}?highlight=${notification.related_id}`);
           }
+          break;
+        case "inbound":
+          // 입고 관련 알림
+          router.push(`/inventory/inbound?highlight=${notification.related_id}`);
+          break;
+        case "outbound":
+          // 출고 관련 알림
+          router.push(`/inventory/outbound?highlight=${notification.related_id}`);
           break;
         case "work_order":
           router.push(`/production/work-orders/${notification.related_id}`);
@@ -81,22 +89,54 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
   // 알림 타입별 아이콘
   const getTypeIcon = (type: Notification["type"]) => {
     switch (type) {
+      // 문서 관련
       case "document_expiry":
         return "📄";
+      case "estimate_completed":
+        return "📤";
+      case "order_completed":
+        return "📥";
+      // 상담 관련
       case "consultation_followup":
         return "💬";
+      // 할일 관련
       case "todo_reminder":
         return "✅";
+      // 게시판 관련
       case "post_comment":
         return "💬";
       case "post_mention":
         return "@";
+      case "post_reply":
+        return "↩️";
+      // 입출고 관련 (기존)
       case "inventory_assignment":
         return "📦";
       case "inventory_update":
         return "📝";
       case "inventory_complete":
         return "✅";
+      case "inventory_cancel":
+        return "❌";
+      // 입고 관련
+      case "inbound_assignment":
+        return "📥";
+      case "inbound_date_change":
+        return "📅";
+      case "inbound_confirmed":
+        return "✅";
+      case "inbound_canceled":
+        return "❌";
+      // 출고 관련
+      case "outbound_assignment":
+        return "📤";
+      case "outbound_date_change":
+        return "📅";
+      case "outbound_confirmed":
+        return "✅";
+      case "outbound_canceled":
+        return "❌";
+      // 작업지시 관련
       case "work_order_assignment":
         return "📋";
       case "work_order_unassignment":
@@ -123,22 +163,54 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
   // 알림 타입별 색상
   const getTypeColor = (type: Notification["type"]) => {
     switch (type) {
+      // 문서 관련
       case "document_expiry":
         return "bg-red-50 border-red-200";
+      case "estimate_completed":
+        return "bg-blue-50 border-blue-200";
+      case "order_completed":
+        return "bg-green-50 border-green-200";
+      // 상담 관련
       case "consultation_followup":
         return "bg-blue-50 border-blue-200";
+      // 할일 관련
       case "todo_reminder":
         return "bg-yellow-50 border-yellow-200";
+      // 게시판 관련
       case "post_comment":
         return "bg-green-50 border-green-200";
       case "post_mention":
         return "bg-purple-50 border-purple-200";
+      case "post_reply":
+        return "bg-indigo-50 border-indigo-200";
+      // 입출고 관련 (기존)
       case "inventory_assignment":
         return "bg-green-50 border-green-200";
       case "inventory_update":
         return "bg-blue-50 border-blue-200";
       case "inventory_complete":
         return "bg-emerald-50 border-emerald-200";
+      case "inventory_cancel":
+        return "bg-red-50 border-red-200";
+      // 입고 관련
+      case "inbound_assignment":
+        return "bg-green-50 border-green-200";
+      case "inbound_date_change":
+        return "bg-yellow-50 border-yellow-200";
+      case "inbound_confirmed":
+        return "bg-emerald-50 border-emerald-200";
+      case "inbound_canceled":
+        return "bg-red-50 border-red-200";
+      // 출고 관련
+      case "outbound_assignment":
+        return "bg-blue-50 border-blue-200";
+      case "outbound_date_change":
+        return "bg-yellow-50 border-yellow-200";
+      case "outbound_confirmed":
+        return "bg-emerald-50 border-emerald-200";
+      case "outbound_canceled":
+        return "bg-red-50 border-red-200";
+      // 작업지시 관련
       case "work_order_assignment":
         return "bg-purple-50 border-purple-200";
       case "work_order_unassignment":

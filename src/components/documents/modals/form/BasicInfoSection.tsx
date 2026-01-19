@@ -32,14 +32,15 @@ export default function BasicInfoSection({
   focusClass,
 }: BasicInfoSectionProps) {
   return (
-    <div className="bg-gray-50 p-5 rounded-xl">
-      <div className="flex items-center gap-2 mb-4 text-gray-800">
+    <div className="bg-gray-50 p-4 sm:p-5 rounded-xl">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4 text-gray-800">
         <Building className={`h-5 w-5 ${iconColor}`} />
-        <h4 className="text-lg font-semibold">기본 정보</h4>
+        <h4 className="text-base sm:text-lg font-semibold">기본 정보</h4>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+      {/* 모바일: 2열, 데스크탑: 4열 */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+        <div className="col-span-2 sm:col-span-1">
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
             회사명
           </label>
           <div className="relative">
@@ -48,12 +49,12 @@ export default function BasicInfoSection({
               type="text"
               disabled
               value={newDocument.company_name}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
+              className="w-full pl-10 pr-4 py-2.5 sm:py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
             전화
           </label>
           <div className="relative">
@@ -62,12 +63,12 @@ export default function BasicInfoSection({
               type="text"
               disabled
               value={newDocument.phone}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
+              className="w-full pl-10 pr-4 py-2.5 sm:py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
             팩스
           </label>
           <div className="relative">
@@ -76,12 +77,12 @@ export default function BasicInfoSection({
               type="text"
               disabled
               value={newDocument.fax}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
+              className="w-full pl-10 pr-4 py-2.5 sm:py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
             />
           </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <div className="col-span-2 sm:col-span-1">
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
             담당자명 <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -91,7 +92,7 @@ export default function BasicInfoSection({
               onChange={(e) =>
                 setNewDocument({ ...newDocument, contact: e.target.value })
               }
-              className={`w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent appearance-none bg-white`}
+              className={`w-full pl-10 pr-8 py-2.5 sm:py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent appearance-none bg-white`}
             >
               <option value="">선택</option>
               {contacts.map((contact) => {
