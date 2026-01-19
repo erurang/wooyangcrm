@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
-// 알림 카테고리 정의
-export const NOTIFICATION_CATEGORIES = {
+// 알림 카테고리 정의 (route 파일에서는 export 불가)
+const NOTIFICATION_CATEGORIES = {
   documents: {
     label: "문서",
     types: ["document_expiry", "estimate_completed", "order_completed"],
@@ -63,7 +63,7 @@ export const NOTIFICATION_CATEGORIES = {
   },
 } as const;
 
-export type NotificationCategory = keyof typeof NOTIFICATION_CATEGORIES;
+type NotificationCategory = keyof typeof NOTIFICATION_CATEGORIES;
 
 // GET: 사용자의 알림 설정 조회
 export async function GET(request: Request) {
