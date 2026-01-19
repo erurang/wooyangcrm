@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { usePushNotification } from "@/hooks/usePushNotification";
+import { useLoginUser } from "@/context/login";
 import { Bell, X } from "lucide-react";
 
 interface NotificationBannerProps {
-  userId?: string;
   dismissKey?: string;
 }
 
@@ -15,10 +15,10 @@ interface NotificationBannerProps {
  * - 로컬 스토리지에 dismiss 상태 저장
  */
 export default function NotificationBanner({
-  userId,
   dismissKey = "notification-banner-dismissed",
 }: NotificationBannerProps) {
-  const { isSupported, permission, subscribe, isLoading } = usePushNotification(userId);
+  const loginUser = useLoginUser();
+  const { isSupported, permission, subscribe, isLoading } = usePushNotification(loginUser?.id);
   const [isDismissed, setIsDismissed] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
 
