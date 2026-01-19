@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Building2,
 } from "lucide-react";
+import { PushNotificationSettings } from "@/components/notifications";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 
@@ -146,46 +147,47 @@ export default function MyActivityPage() {
         )}
       </ActivitySection>
 
-      {/* 최근 게시글 - 전체 너비 */}
-      <div className="lg:col-span-2">
-        <ActivitySection
-          title="최근 게시글"
-          icon={<FileText className="w-5 h-5 text-blue-500" />}
-          viewAllHref="/profile/posts"
-          isLoading={postsLoading}
-          accentColor="blue"
-        >
-          {recentPosts?.posts?.length ? (
-            <ul className="divide-y divide-slate-100">
-              {recentPosts.posts.slice(0, 5).map((post) => (
-                <li key={post.id} className="py-3">
-                  <Link
-                    href={`/board/${post.id}`}
-                    className="flex items-center justify-between hover:bg-slate-50 -mx-2 px-2 py-1 rounded-lg transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      {post.category && (
-                        <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
-                          {post.category.name}
-                        </span>
-                      )}
-                      <span className="text-sm text-slate-700 hover:text-blue-600">
-                        {post.title}
+      {/* 최근 게시글 */}
+      <ActivitySection
+        title="최근 게시글"
+        icon={<FileText className="w-5 h-5 text-blue-500" />}
+        viewAllHref="/profile/posts"
+        isLoading={postsLoading}
+        accentColor="blue"
+      >
+        {recentPosts?.posts?.length ? (
+          <ul className="divide-y divide-slate-100">
+            {recentPosts.posts.slice(0, 5).map((post) => (
+              <li key={post.id} className="py-3">
+                <Link
+                  href={`/board/${post.id}`}
+                  className="flex items-center justify-between hover:bg-slate-50 -mx-2 px-2 py-1 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    {post.category && (
+                      <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+                        {post.category.name}
                       </span>
-                    </div>
-                    <span className="text-xs text-slate-400 flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {formatDate(post.created_at)}
+                    )}
+                    <span className="text-sm text-slate-700 hover:text-blue-600">
+                      {post.title}
                     </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <EmptyMessage>작성한 게시글이 없습니다.</EmptyMessage>
-          )}
-        </ActivitySection>
-      </div>
+                  </div>
+                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {formatDate(post.created_at)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyMessage>작성한 게시글이 없습니다.</EmptyMessage>
+        )}
+      </ActivitySection>
+
+      {/* 알림 설정 */}
+      <PushNotificationSettings userId={user?.id} />
     </div>
   );
 }

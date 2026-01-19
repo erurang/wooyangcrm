@@ -130,40 +130,72 @@ async function networkFirstWithOffline(request) {
   }
 }
 
-// 푸시 알림 수신 (향후 구현)
+// 푸시 알림 수신
 self.addEventListener('push', (event) => {
   console.log('[Service Worker] Push received');
 
-  if (event.data) {
-    const data = event.data.json();
-    const options = {
-      body: data.body || '새로운 알림이 있습니다.',
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-192x192.png',
-      vibrate: [100, 50, 100],
-      data: {
-        url: data.url || '/',
-      },
-    };
+  let data = {
+    title: 'WOOYANG CRM',
+    body: '새로운 알림이 있습니다.',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/icon-192x192.png',
+    url: '/',
+  };
 
-    event.waitUntil(
-      self.registration.showNotification(data.title || 'WOOYANG CRM', options)
-    );
+  if (event.data) {
+    try {
+      const payload = event.data.json();
+      data = { ...data, ...payload };
+    } catch (e) {
+      console.error('[Service Worker] Failed to parse push data:', e);
+      data.body = event.data.text();
+    }
   }
+
+  const options = {
+    body: data.body,
+    icon: data.icon,
+    badge: data.badge,
+    vibrate: [200, 100, 200],
+    tag: data.tag || 'default',
+    renotify: true,
+    requireInteraction: false,
+    actions: [
+      { action: 'open', title: '열기' },
+      { action: 'close', title: '닫기' },
+    ],
+    data: {
+      url: data.url,
+      timestamp: Date.now(),
+    },
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
 });
 
 // 알림 클릭 처리
 self.addEventListener('notificationclick', (event) => {
-  console.log('[Service Worker] Notification click');
+  console.log('[Service Worker] Notification click:', event.action);
   event.notification.close();
+
+  // 닫기 버튼 클릭 시 아무것도 하지 않음
+  if (event.action === 'close') {
+    return;
+  }
 
   const url = event.notification.data?.url || '/';
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
-      // 이미 열린 탭이 있으면 포커스
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // 이미 열린 탭이 있으면 포커스하고 URL 이동
       for (const client of clientList) {
-        if (client.url === url && 'focus' in client) {
-          return client.focus();
+        if ('focus' in client) {
+          client.focus();
+          if (client.url !== url) {
+            client.navigate(url);
+          }
+          return;
         }
       }
       // 없으면 새 탭 열기
@@ -172,4 +204,9 @@ self.addEventListener('notificationclick', (event) => {
       }
     })
   );
+});
+
+// 알림 닫기 처리
+self.addEventListener('notificationclose', (event) => {
+  console.log('[Service Worker] Notification closed');
 });
