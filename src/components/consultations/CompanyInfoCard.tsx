@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
@@ -12,7 +13,74 @@ import {
   Edit3,
   Settings,
   Mail,
+  Copy,
+  Check,
 } from "lucide-react";
+
+// 복사 가능한 필드 컴포넌트
+function CopyableField({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: string | undefined;
+  icon: React.ElementType;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!value) return;
+
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("복사 실패:", err);
+    }
+  };
+
+  return (
+    <div
+      className="flex items-start gap-2 group relative"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      <Icon size={14} className="text-slate-400 mt-0.5 shrink-0" />
+      <div className="min-w-0 flex-1">
+        <div className="text-xs text-slate-500">{label}</div>
+        <div className="flex items-center gap-1">
+          <div className="text-sm text-slate-800 truncate max-w-[10rem]">
+            {value || "-"}
+          </div>
+          {value && (
+            <button
+              onClick={handleCopy}
+              className="p-0.5 rounded text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 transition-all shrink-0"
+              title="복사"
+            >
+              {copied ? (
+                <Check size={12} className="text-green-500" />
+              ) : (
+                <Copy size={12} />
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 전체 내용 툴팁 */}
+      {showTooltip && value && value.length > 15 && (
+        <div className="absolute left-0 top-full mt-1 z-50 px-2 py-1 bg-slate-800 text-white text-xs rounded shadow-lg max-w-xs whitespace-pre-wrap break-all">
+          {value}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface Contact {
   id: string;
@@ -105,70 +173,35 @@ export default function CompanyInfoCard({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-            <div className="flex items-start gap-2">
-              <MapPin size={14} className="text-slate-400 mt-0.5 shrink-0" />
-              <div className="min-w-0">
-                <div className="text-xs text-slate-500">주소</div>
-                <div
-                  className="text-sm text-slate-800 truncate max-w-[11rem]"
-                  title={companyDetail?.address || ""}
-                >
-                  {companyDetail?.address || "-"}
-                </div>
-              </div>
-            </div>
+            <CopyableField
+              label="주소"
+              value={companyDetail?.address}
+              icon={MapPin}
+            />
 
-            <div className="flex items-start gap-2">
-              <Truck size={14} className="text-slate-400 mt-0.5 shrink-0" />
-              <div className="min-w-0">
-                <div className="text-xs text-slate-500">배송</div>
-                <div
-                  className="text-sm text-slate-800 truncate max-w-[11rem]"
-                  title={companyDetail?.parcel || ""}
-                >
-                  {companyDetail?.parcel || "-"}
-                </div>
-              </div>
-            </div>
+            <CopyableField
+              label="배송"
+              value={companyDetail?.parcel}
+              icon={Truck}
+            />
 
-            <div className="flex items-start gap-2">
-              <Phone size={14} className="text-slate-400 mt-0.5 shrink-0" />
-              <div className="min-w-0">
-                <div className="text-xs text-slate-500">전화</div>
-                <div className="text-sm text-slate-800 max-w-[11rem]">
-                  {companyDetail?.phone || "-"}
-                </div>
-              </div>
-            </div>
+            <CopyableField
+              label="전화"
+              value={companyDetail?.phone}
+              icon={Phone}
+            />
 
-            <div className="flex items-start gap-2">
-              <Printer size={14} className="text-slate-400 mt-0.5 shrink-0" />
-              <div className="min-w-0">
-                <div className="text-xs text-slate-500">팩스</div>
-                <div className="text-sm text-slate-800 max-w-[11rem]">
-                  {companyDetail?.fax || "-"}
-                </div>
-              </div>
-            </div>
+            <CopyableField
+              label="팩스"
+              value={companyDetail?.fax}
+              icon={Printer}
+            />
 
-            <div className="flex items-start gap-2 col-span-2">
-              <Mail size={14} className="text-slate-400 mt-0.5 shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="text-xs text-slate-500">대표메일</div>
-                <div className="text-sm text-slate-800 truncate max-w-[11rem]">
-                  {companyDetail?.email ? (
-                    <a
-                      href={`mailto:${companyDetail.email}`}
-                      className="text-cyan-600 hover:underline"
-                    >
-                      {companyDetail.email}
-                    </a>
-                  ) : (
-                    "-"
-                  )}
-                </div>
-              </div>
-            </div>
+            <CopyableField
+              label="대표메일"
+              value={companyDetail?.email}
+              icon={Mail}
+            />
           </div>
         </div>
 

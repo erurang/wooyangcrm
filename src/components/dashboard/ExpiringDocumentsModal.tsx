@@ -11,6 +11,7 @@ import {
   Calendar,
   Clock,
 } from "lucide-react";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import type { ExpiringDocument } from "@/hooks/dashboard/useExpiringDocuments";
 
 interface ExpiringDocumentsModalProps {
@@ -136,6 +137,9 @@ export default function ExpiringDocumentsModal({
   isLoading = false,
 }: ExpiringDocumentsModalProps) {
   const router = useRouter();
+
+  // ESC 키로 모달 닫기
+  useEscapeKey(isOpen, onClose);
 
   // 임박 문서 (days_remaining >= 0)
   const upcomingEstimates = estimates.filter(doc => doc.days_remaining >= 0);
