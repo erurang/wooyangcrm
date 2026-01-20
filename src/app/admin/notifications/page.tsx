@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell,
   Play,
@@ -16,10 +16,22 @@ import {
   MessageSquare,
   ToggleLeft,
   ToggleRight,
+  Send,
+  Users,
+  X,
+  Search,
+  Check,
 } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import { useRouter } from "next/navigation";
 import { useGlobalToast } from "@/context/toast";
+
+interface User {
+  id: string;
+  name: string;
+  level: string;
+  position: string;
+}
 
 interface NotificationTrigger {
   id: string;
@@ -42,11 +54,114 @@ export default function NotificationTriggersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [runningTrigger, setRunningTrigger] = useState<string | null>(null);
 
+  // 수동 알림 발송 관련 state
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [notificationTitle, setNotificationTitle] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+
   useEffect(() => {
     if (loginUser && loginUser.role !== "admin") {
       router.push("/dashboard");
     }
   }, [loginUser, router]);
+
+  // 사용자 목록 로드
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const res = await fetch("/api/users/list");
+        if (res.ok) {
+          const data = await res.json();
+          setUsers(data);
+        }
+      } catch (error) {
+        console.error("사용자 목록 로드 실패:", error);
+      }
+    };
+    loadUsers();
+  }, []);
+
+  // 알림 발송 함수
+  const handleSendNotification = async () => {
+    if (selectedUsers.length === 0) {
+      toast.error("수신자를 선택해주세요");
+      return;
+    }
+    if (!notificationTitle.trim()) {
+      toast.error("알림 제목을 입력해주세요");
+      return;
+    }
+    if (!notificationMessage.trim()) {
+      toast.error("알림 내용을 입력해주세요");
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const res = await fetch("/api/admin/notifications/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_ids: selectedUsers,
+          title: notificationTitle,
+          message: notificationMessage,
+          sender_id: loginUser?.id,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(data.message);
+        setShowSendModal(false);
+        setSelectedUsers([]);
+        setNotificationTitle("");
+        setNotificationMessage("");
+      } else {
+        toast.error(data.error || "알림 발송 실패");
+      }
+    } catch (error) {
+      console.error("알림 발송 에러:", error);
+      toast.error("알림 발송 중 오류가 발생했습니다");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  // 전체 선택/해제
+  const handleSelectAll = () => {
+    const filtered = users.filter(
+      (u) =>
+        u.name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+        (u.position && u.position.toLowerCase().includes(userSearchQuery.toLowerCase())) ||
+        (u.level && u.level.toLowerCase().includes(userSearchQuery.toLowerCase()))
+    );
+    if (selectedUsers.length === filtered.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filtered.map((u) => u.id));
+    }
+  };
+
+  // 사용자 선택 토글
+  const toggleUserSelection = (userId: string) => {
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  // 필터링된 사용자 목록
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+      (u.position && u.position.toLowerCase().includes(userSearchQuery.toLowerCase())) ||
+      (u.level && u.level.toLowerCase().includes(userSearchQuery.toLowerCase()))
+  );
 
   useEffect(() => {
     const loadTriggers = async () => {
@@ -209,6 +324,13 @@ export default function NotificationTriggersPage() {
               <p className="text-slate-500">자동 알림 스케줄 및 이벤트 관리</p>
             </div>
           </div>
+          <button
+            onClick={() => setShowSendModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Send className="w-4 h-4" />
+            수동 알림 발송
+          </button>
         </div>
 
         {/* Stats */}
@@ -368,6 +490,198 @@ export default function NotificationTriggersPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* 수동 알림 발송 모달 */}
+      <AnimatePresence>
+        {showSendModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+            onClick={() => setShowSendModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+            >
+              {/* 모달 헤더 */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center gap-2">
+                  <Send className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    수동 알림 발송
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowSendModal(false)}
+                  className="p-1 text-slate-400 hover:text-slate-600 rounded"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* 모달 내용 */}
+              <div className="p-4 flex-1 overflow-y-auto space-y-4">
+                {/* 수신자 선택 */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <Users className="w-4 h-4 inline mr-1" />
+                    수신자 선택 <span className="text-red-500">*</span>
+                    <span className="ml-2 text-blue-600 font-normal">
+                      ({selectedUsers.length}명 선택됨)
+                    </span>
+                  </label>
+
+                  {/* 검색 및 전체 선택 */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="이름 또는 직책으로 검색..."
+                        value={userSearchQuery}
+                        onChange={(e) => setUserSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <button
+                      onClick={handleSelectAll}
+                      className="px-3 py-2 text-sm border border-slate-300 rounded-lg hover:bg-slate-50"
+                    >
+                      {selectedUsers.length === filteredUsers.length
+                        ? "전체 해제"
+                        : "전체 선택"}
+                    </button>
+                  </div>
+
+                  {/* 사용자 목록 */}
+                  <div className="border border-slate-200 rounded-lg max-h-48 overflow-y-auto">
+                    {filteredUsers.length === 0 ? (
+                      <div className="p-4 text-center text-slate-500 text-sm">
+                        검색 결과가 없습니다
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100">
+                        {filteredUsers.map((user) => (
+                          <label
+                            key={user.id}
+                            className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 ${
+                              selectedUsers.includes(user.id) ? "bg-blue-50" : ""
+                            }`}
+                          >
+                            <div
+                              className={`w-5 h-5 rounded border flex items-center justify-center ${
+                                selectedUsers.includes(user.id)
+                                  ? "bg-blue-600 border-blue-600"
+                                  : "border-slate-300"
+                              }`}
+                              onClick={() => toggleUserSelection(user.id)}
+                            >
+                              {selectedUsers.includes(user.id) && (
+                                <Check className="w-3 h-3 text-white" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <span className="text-sm font-medium text-slate-800">
+                                {user.name}
+                              </span>
+                              <span className="text-sm text-slate-500 ml-2">
+                                {user.level} {user.position && `/ ${user.position}`}
+                              </span>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 알림 제목 */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    알림 제목 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={notificationTitle}
+                    onChange={(e) => setNotificationTitle(e.target.value)}
+                    placeholder="알림 제목을 입력하세요"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* 알림 내용 */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    알림 내용 <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={notificationMessage}
+                    onChange={(e) => setNotificationMessage(e.target.value)}
+                    placeholder="알림 내용을 입력하세요"
+                    rows={4}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                {/* 미리보기 */}
+                {(notificationTitle || notificationMessage) && (
+                  <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                    <p className="text-xs text-slate-500 mb-2">알림 미리보기</p>
+                    <div className="bg-white rounded-lg p-3 border border-slate-200 shadow-sm">
+                      <div className="flex items-start gap-2">
+                        <div className="p-1.5 bg-blue-100 rounded-lg">
+                          <Bell className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-800">
+                            {notificationTitle || "제목"}
+                          </p>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            [{loginUser?.name || "관리자"}]{" "}
+                            {notificationMessage || "내용"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 모달 푸터 */}
+              <div className="flex items-center justify-end gap-2 p-4 border-t bg-slate-50">
+                <button
+                  onClick={() => setShowSendModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleSendNotification}
+                  disabled={isSending || selectedUsers.length === 0}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSending ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      발송 중...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      {selectedUsers.length}명에게 발송
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

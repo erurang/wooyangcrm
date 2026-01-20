@@ -1,0 +1,85 @@
+import { NextResponse } from "next/server";
+import { supabase } from "@/lib/supabaseClient";
+
+// POST: 관리자가 수동으로 알림 발송
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { user_ids, title, message, sender_id } = body;
+
+    // 필수 필드 검증
+    if (!user_ids || user_ids.length === 0) {
+      return NextResponse.json(
+        { error: "수신자를 선택해주세요" },
+        { status: 400 }
+      );
+    }
+
+    if (!title || !message) {
+      return NextResponse.json(
+        { error: "제목과 내용을 입력해주세요" },
+        { status: 400 }
+      );
+    }
+
+    // 발송자 정보 조회
+    let senderName = "시스템 관리자";
+    if (sender_id) {
+      const { data: sender } = await supabase
+        .from("users")
+        .select("name")
+        .eq("id", sender_id)
+        .single();
+
+      if (sender) {
+        senderName = sender.name;
+      }
+    }
+
+    // 알림 생성
+    const notifications = user_ids.map((userId: string) => ({
+      user_id: userId,
+      type: "system",
+      title: title,
+      message: `[${senderName}] ${message}`,
+      related_id: null,
+      related_type: "admin_notification",
+      read: false,
+    }));
+
+    const { data, error } = await supabase
+      .from("notifications")
+      .insert(notifications)
+      .select();
+
+    if (error) {
+      console.error("알림 발송 실패:", error);
+      throw new Error(`알림 발송 실패: ${error.message}`);
+    }
+
+    // 발송 로그 기록 (audit 테이블이 있다면)
+    try {
+      await supabase.from("admin_notification_logs").insert({
+        sender_id: sender_id,
+        recipient_count: user_ids.length,
+        title: title,
+        message: message,
+        created_at: new Date().toISOString(),
+      });
+    } catch {
+      // 로그 테이블이 없어도 무시
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `${user_ids.length}명에게 알림이 발송되었습니다`,
+      count: data?.length || 0,
+    });
+  } catch (error) {
+    console.error("관리자 알림 발송 에러:", error);
+    return NextResponse.json(
+      { error: "알림 발송 중 오류가 발생했습니다" },
+      { status: 500 }
+    );
+  }
+}

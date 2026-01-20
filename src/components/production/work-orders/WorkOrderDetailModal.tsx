@@ -131,7 +131,7 @@ export default function WorkOrderDetailModal({
 
   // 필터링된 사용자 목록 (멘션용)
   const filteredMentionUsers = users.filter((user: { id: string; name: string }) =>
-    user.name.toLowerCase().includes(mentionSearch.toLowerCase())
+    user.name?.toLowerCase().includes(mentionSearch.toLowerCase())
   );
 
   // Load work order data into form

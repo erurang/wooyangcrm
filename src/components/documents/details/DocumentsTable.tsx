@@ -191,8 +191,8 @@ export default function DocumentsTable({
                   <span>{doc.contact_name} {doc.contact_level}</span>
                 </div>
 
-                {/* 액션 버튼 */}
-                {doc.user_id === loginUserId && (
+                {/* 액션 버튼 - pending 상태일 때만 표시 */}
+                {doc.user_id === loginUserId && doc.status === "pending" && (
                   <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
                     <button
                       className="flex-1 px-3 py-2 text-xs rounded-lg bg-indigo-50 text-indigo-600 active:bg-indigo-100 transition-colors"
@@ -200,22 +200,18 @@ export default function DocumentsTable({
                     >
                       수정
                     </button>
-                    {doc.status === "pending" && (
-                      <>
-                        <button
-                          className="flex-1 px-3 py-2 text-xs rounded-lg bg-emerald-50 text-emerald-600 active:bg-emerald-100 transition-colors"
-                          onClick={() => onStatusChange(doc, "completed")}
-                        >
-                          완료
-                        </button>
-                        <button
-                          className="flex-1 px-3 py-2 text-xs rounded-lg bg-red-50 text-red-600 active:bg-red-100 transition-colors"
-                          onClick={() => onStatusChange(doc, "canceled")}
-                        >
-                          취소
-                        </button>
-                      </>
-                    )}
+                    <button
+                      className="flex-1 px-3 py-2 text-xs rounded-lg bg-emerald-50 text-emerald-600 active:bg-emerald-100 transition-colors"
+                      onClick={() => onStatusChange(doc, "completed")}
+                    >
+                      완료
+                    </button>
+                    <button
+                      className="flex-1 px-3 py-2 text-xs rounded-lg bg-red-50 text-red-600 active:bg-red-100 transition-colors"
+                      onClick={() => onStatusChange(doc, "canceled")}
+                    >
+                      취소
+                    </button>
                   </div>
                 )}
               </div>
@@ -359,18 +355,16 @@ export default function DocumentsTable({
                   {/* 액션 */}
                   <td className="px-4 py-3 hidden md:table-cell">
                     <div className="text-sm flex items-center gap-1">
-                      {/* 수정 버튼 - 본인 문서만 */}
-                      {doc.user_id === loginUserId && (
-                        <button
-                          className="px-2 py-1 text-xs rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
-                          onClick={() => router.push(`/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&highlight=${doc.id}`)}
-                        >
-                          수정
-                        </button>
-                      )}
                       {doc.status === "pending" ? (
                         doc.user_id === loginUserId ? (
                           <>
+                            {/* 수정 버튼 - 본인 문서 + pending 상태만 */}
+                            <button
+                              className="px-2 py-1 text-xs rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                              onClick={() => router.push(`/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&highlight=${doc.id}`)}
+                            >
+                              수정
+                            </button>
                             <button
                               className="px-2 py-1 text-xs rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
                               onClick={() => onStatusChange(doc, "completed")}

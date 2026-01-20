@@ -256,13 +256,18 @@ export const ADMIN_SECURITY_SIDEBAR_ITEM: SidebarMenuItem = {
   ],
 };
 
-// Build sidebar menu based on user role
+// Position-based menu restrictions
+// "생산관리" position can only see: dashboard, production, inventory, board
+const PRODUCTION_ALLOWED_MENUS = ["dashboard", "production", "inventory", "board"];
+
+// Build sidebar menu based on user role and position
 export function buildSidebarMenu(
   userId: string | undefined,
-  userRole: string | undefined
+  userRole: string | undefined,
+  userPosition?: string | null
 ): SidebarMenuItem[] {
   // Deep copy to prevent mutation and inject user ID
-  const items: SidebarMenuItem[] = BASE_SIDEBAR_ITEMS.map((item) => ({
+  let items: SidebarMenuItem[] = BASE_SIDEBAR_ITEMS.map((item) => ({
     ...item,
     subItems: item.subItems
       ? item.subItems.map((sub) => ({
@@ -272,6 +277,11 @@ export function buildSidebarMenu(
       : undefined,
   }));
 
+  // Filter by position if "생산관리"
+  if (userPosition === "생산관리") {
+    items = items.filter((item) => PRODUCTION_ALLOWED_MENUS.includes(item.id));
+    return items; // 생산관리 position은 role-based 메뉴 제외
+  }
 
   // Add role-based items
   if (userRole === "research" || userRole === "admin") {

@@ -337,15 +337,15 @@ export default function DocumentTable({
                   <div className="flex items-center justify-center space-x-2">
                     {user?.id === document.user_id && (
                       <>
-                        <button
-                          onClick={() => handleEditModal(document)}
-                          className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
-                          title="수정"
-                        >
-                          {document.status === "pending" && (
+                        {document.status === "pending" && (
+                          <button
+                            onClick={() => handleEditModal(document)}
+                            className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                            title="수정"
+                          >
                             <Edit className="h-4 w-4" />
-                          )}
-                        </button>
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDeleteDocument(document)}
                           className="p-1 text-gray-500 hover:text-red-600 transition-colors"
