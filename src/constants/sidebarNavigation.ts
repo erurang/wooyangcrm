@@ -201,6 +201,7 @@ export const ADMIN_USERS_SIDEBAR_ITEM: SidebarMenuItem = {
   roles: ["admin"],
   subItems: [
     { id: "roles", title: "직원/권한 관리", path: "/admin/manage/roles" },
+    { id: "teams", title: "부서/팀 관리", path: "/admin/manage/teams" },
     { id: "sessions", title: "접속 현황", path: "/admin/manage/sessions" },
   ],
 };
@@ -256,15 +257,17 @@ export const ADMIN_SECURITY_SIDEBAR_ITEM: SidebarMenuItem = {
   ],
 };
 
-// Position-based menu restrictions
+// Position-based menu restrictions (레거시 지원)
 // "생산관리" position can only see: dashboard, production, inventory, board
 const PRODUCTION_ALLOWED_MENUS = ["dashboard", "production", "inventory", "board"];
 
-// Build sidebar menu based on user role and position
+// Build sidebar menu based on user role, team's allowed_menus, and role-based sidebar permissions
 export function buildSidebarMenu(
   userId: string | undefined,
   userRole: string | undefined,
-  userPosition?: string | null
+  userPosition?: string | null,
+  teamAllowedMenus?: string[] | null,
+  sidebarPermissions?: string[] | null  // role_permissions 테이블에서 가져온 권한
 ): SidebarMenuItem[] {
   // Deep copy to prevent mutation and inject user ID
   let items: SidebarMenuItem[] = BASE_SIDEBAR_ITEMS.map((item) => ({
@@ -277,28 +280,59 @@ export function buildSidebarMenu(
       : undefined,
   }));
 
-  // Filter by position if "생산관리"
-  if (userPosition === "생산관리") {
-    items = items.filter((item) => PRODUCTION_ALLOWED_MENUS.includes(item.id));
-    return items; // 생산관리 position은 role-based 메뉴 제외
-  }
-
-  // Add role-based items
-  if (userRole === "research" || userRole === "admin") {
-    items.push({ ...RESEARCH_SIDEBAR_ITEM });
-  }
-
-  if (userRole === "managementSupport" || userRole === "admin") {
-    items.push({ ...MANAGEMENT_SIDEBAR_ITEM });
-  }
-
-  // Admin role - 5개의 관리자 메뉴 카테고리
+  // Admin은 모든 메뉴 접근 가능
   if (userRole === "admin") {
+    // Add role-based items for admin
+    items.push({ ...RESEARCH_SIDEBAR_ITEM });
+    items.push({ ...MANAGEMENT_SIDEBAR_ITEM });
     items.push({ ...ADMIN_USERS_SIDEBAR_ITEM });
     items.push({ ...ADMIN_SYSTEM_SIDEBAR_ITEM });
     items.push({ ...ADMIN_CONTENT_SIDEBAR_ITEM });
     items.push({ ...ADMIN_DATA_SIDEBAR_ITEM });
     items.push({ ...ADMIN_SECURITY_SIDEBAR_ITEM });
+    return items;
+  }
+
+  // 1순위: role_permissions 테이블의 사이드바 권한 (가장 세밀한 제어)
+  if (sidebarPermissions && sidebarPermissions.length > 0) {
+    items = items.filter((item) => sidebarPermissions.includes(item.id));
+
+    // role-based 메뉴도 sidebarPermissions에 포함된 경우에만 추가
+    if (sidebarPermissions.includes("research")) {
+      items.push({ ...RESEARCH_SIDEBAR_ITEM });
+    }
+    if (sidebarPermissions.includes("management")) {
+      items.push({ ...MANAGEMENT_SIDEBAR_ITEM });
+    }
+    return items;
+  }
+
+  // 2순위: 팀의 allowed_menus가 설정된 경우 해당 메뉴만 표시
+  if (teamAllowedMenus && teamAllowedMenus.length > 0) {
+    items = items.filter((item) => teamAllowedMenus.includes(item.id));
+
+    // role-based 메뉴도 allowed_menus에 포함된 경우에만 추가
+    if (teamAllowedMenus.includes("research") && (userRole === "research")) {
+      items.push({ ...RESEARCH_SIDEBAR_ITEM });
+    }
+    if (teamAllowedMenus.includes("management") && (userRole === "managementSupport")) {
+      items.push({ ...MANAGEMENT_SIDEBAR_ITEM });
+    }
+    return items;
+  }
+
+  // 3순위: 레거시 position으로 필터링 (team과 sidebarPermissions가 없는 경우)
+  if (userPosition === "생산관리") {
+    items = items.filter((item) => PRODUCTION_ALLOWED_MENUS.includes(item.id));
+    return items;
+  }
+
+  // 기본: role-based items (권한 설정이 없는 경우 모든 기본 메뉴 표시)
+  if (userRole === "research") {
+    items.push({ ...RESEARCH_SIDEBAR_ITEM });
+  }
+  if (userRole === "managementSupport") {
+    items.push({ ...MANAGEMENT_SIDEBAR_ITEM });
   }
 
   return items;

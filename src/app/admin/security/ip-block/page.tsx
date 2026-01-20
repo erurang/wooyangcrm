@@ -5,9 +5,6 @@ import { motion } from "framer-motion";
 import {
   Shield,
   Plus,
-  Trash2,
-  Edit,
-  Save,
   X,
   AlertTriangle,
   Globe,

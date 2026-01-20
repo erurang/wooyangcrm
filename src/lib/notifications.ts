@@ -1,9 +1,34 @@
 /**
  * 알림 시스템 유틸리티
  * 알림 생성 및 관리를 위한 중앙화된 함수들
+ * PWA 푸시 알림 기능 포함
  */
 
 import { supabase } from "@/lib/supabaseClient";
+
+// VAPID 설정 (동적으로 web-push 로드)
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@wooyang.com";
+
+// web-push 인스턴스를 lazy하게 가져오기
+let webPushInstance: typeof import("web-push") | null = null;
+
+async function getWebPush() {
+  if (!vapidPublicKey || !vapidPrivateKey) {
+    return null;
+  }
+  if (!webPushInstance) {
+    try {
+      webPushInstance = await import("web-push");
+      webPushInstance.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+    } catch (e) {
+      console.error("web-push 로드 실패:", e);
+      return null;
+    }
+  }
+  return webPushInstance;
+}
 
 // 알림 타입 정의
 export type NotificationType =
@@ -96,6 +121,161 @@ export const NOTIFICATION_TYPE_TO_CATEGORY: Record<NotificationType, string> = {
   // 시스템
   system: "system",
 };
+
+// PWA 푸시 알림을 보낼 알림 타입들 (work_order_progress 제외)
+const PUSH_ENABLED_TYPES: Set<NotificationType> = new Set([
+  // 문서 관련
+  "document_expiry",
+  "estimate_completed",
+  "order_completed",
+  // 상담 관련
+  "consultation_followup",
+  // 할일 관련
+  "todo_reminder",
+  // 게시판 관련
+  "post_comment",
+  "post_mention",
+  "post_reply",
+  // 입고 관련
+  "inbound_assignment",
+  "inbound_date_change",
+  "inbound_confirmed",
+  "inbound_canceled",
+  // 출고 관련
+  "outbound_assignment",
+  "outbound_date_change",
+  "outbound_confirmed",
+  "outbound_canceled",
+  // 작업지시 관련 (work_order_progress 제외)
+  "work_order_assignment",
+  "work_order_unassignment",
+  "work_order_comment",
+  "work_order_update",
+  "work_order_status",
+  "work_order_deadline",
+  "work_order_completed",
+  "work_order_file",
+  // 시스템
+  "system",
+]);
+
+/**
+ * PWA 푸시 알림을 보낼지 여부 확인
+ */
+function shouldSendPush(type: NotificationType): boolean {
+  return PUSH_ENABLED_TYPES.has(type);
+}
+
+/**
+ * 사용자에게 PWA 푸시 알림 발송
+ */
+async function sendPushToUser(
+  userId: string,
+  title: string,
+  body: string,
+  url?: string,
+  tag?: string
+): Promise<{ sent: boolean; error?: string }> {
+  const webPush = await getWebPush();
+  if (!webPush) {
+    return { sent: false, error: "VAPID not configured" };
+  }
+
+  try {
+    // 사용자의 푸시 구독 정보 조회
+    const { data: subscriptions } = await supabase
+      .from("push_subscriptions")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (!subscriptions || subscriptions.length === 0) {
+      return { sent: false, error: "No subscription" };
+    }
+
+    const payload = JSON.stringify({
+      title,
+      body,
+      icon: "/icons/icon-192x192.png",
+      badge: "/icons/icon-192x192.png",
+      url: url || "/",
+      tag: tag || "notification",
+    });
+
+    // 모든 구독에 푸시 발송
+    const results = await Promise.allSettled(
+      subscriptions.map(async (sub) => {
+        const pushSubscription = {
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          },
+        };
+
+        try {
+          await webPush.sendNotification(pushSubscription, payload);
+          return { success: true };
+        } catch (err: unknown) {
+          const error = err as { statusCode?: number };
+          // 410 Gone 또는 404 - 구독 만료됨
+          if (error.statusCode === 410 || error.statusCode === 404) {
+            await supabase
+              .from("push_subscriptions")
+              .delete()
+              .eq("endpoint", sub.endpoint);
+          }
+          return { success: false };
+        }
+      })
+    );
+
+    const successCount = results.filter(
+      (r) => r.status === "fulfilled" && (r.value as { success: boolean }).success
+    ).length;
+
+    return { sent: successCount > 0 };
+  } catch (e) {
+    console.error("푸시 발송 오류:", e);
+    return { sent: false, error: String(e) };
+  }
+}
+
+/**
+ * 여러 사용자에게 PWA 푸시 알림 발송
+ */
+async function sendPushToUsers(
+  userIds: string[],
+  title: string,
+  body: string,
+  url?: string,
+  tag?: string
+): Promise<{ sent: number; failed: number }> {
+  if (userIds.length === 0) {
+    return { sent: 0, failed: 0 };
+  }
+
+  // VAPID 설정 확인
+  const webPush = await getWebPush();
+  if (!webPush) {
+    return { sent: 0, failed: userIds.length };
+  }
+
+  const results = await Promise.allSettled(
+    userIds.map((userId) => sendPushToUser(userId, title, body, url, tag))
+  );
+
+  let sent = 0;
+  let failed = 0;
+  results.forEach((r) => {
+    if (r.status === "fulfilled" && r.value.sent) {
+      sent++;
+    } else {
+      failed++;
+    }
+  });
+
+  return { sent, failed };
+}
 
 // 사용자별 알림 설정 캐시 (1분 TTL)
 const settingsCache = new Map<string, { settings: Record<string, boolean>; timestamp: number }>();
@@ -199,7 +379,7 @@ export interface CreateBulkNotificationParams {
 }
 
 /**
- * 단일 알림 생성 (사용자 설정 확인 후 발송)
+ * 단일 알림 생성 (사용자 설정 확인 후 발송 + PWA 푸시)
  */
 export async function createNotification({
   userId,
@@ -217,6 +397,7 @@ export async function createNotification({
       return true; // 설정으로 인한 스킵은 성공으로 처리
     }
 
+    // 1. DB 알림 생성
     const { error } = await supabase
       .from("notifications")
       .insert([{
@@ -233,6 +414,13 @@ export async function createNotification({
       console.error("알림 생성 실패:", error);
       return false;
     }
+
+    // 2. PWA 푸시 발송 (해당 타입이 푸시 대상인 경우)
+    if (shouldSendPush(type)) {
+      const url = relatedType && relatedId ? getNotificationUrl(relatedType, relatedId) : "/";
+      await sendPushToUser(userId, title, message, url, type);
+    }
+
     return true;
   } catch (e) {
     console.error("알림 생성 예외:", e);
@@ -241,7 +429,33 @@ export async function createNotification({
 }
 
 /**
- * 여러 사용자에게 동일한 알림 생성 (사용자 설정 필터링 적용)
+ * 알림 타입에 따른 이동 URL 생성
+ */
+function getNotificationUrl(relatedType: RelatedType, relatedId: string): string {
+  switch (relatedType) {
+    case "document":
+      return `/documents/${relatedId}`;
+    case "consultation":
+      return `/consultations`;
+    case "todo":
+      return `/`;
+    case "post":
+      // postId:commentId 형식 처리
+      const postId = relatedId.includes(":") ? relatedId.split(":")[0] : relatedId;
+      return `/board/${postId}`;
+    case "work_order":
+      return `/production/work-orders/${relatedId}`;
+    case "inbound":
+      return `/inventory?tab=inbound`;
+    case "outbound":
+      return `/inventory?tab=outbound`;
+    default:
+      return "/";
+  }
+}
+
+/**
+ * 여러 사용자에게 동일한 알림 생성 (사용자 설정 필터링 적용 + PWA 푸시)
  */
 export async function createBulkNotifications({
   userIds,
@@ -262,6 +476,7 @@ export async function createBulkNotifications({
       return true; // 설정으로 인한 스킵은 성공으로 처리
     }
 
+    // 1. DB 알림 생성
     const notifications = filteredUserIds.map((userId) => ({
       user_id: userId,
       type,
@@ -280,6 +495,13 @@ export async function createBulkNotifications({
       console.error("일괄 알림 생성 실패:", error);
       return false;
     }
+
+    // 2. PWA 푸시 발송 (해당 타입이 푸시 대상인 경우)
+    if (shouldSendPush(type)) {
+      const url = relatedType && relatedId ? getNotificationUrl(relatedType, relatedId) : "/";
+      await sendPushToUsers(filteredUserIds, title, message, url, type);
+    }
+
     return true;
   } catch (e) {
     console.error("일괄 알림 생성 예외:", e);

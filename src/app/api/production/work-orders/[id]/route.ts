@@ -2,6 +2,84 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import type { UpdateWorkOrderRequest } from "@/types/production";
 
+// VAPID 설정 (동적으로 web-push 로드)
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@wooyang.com";
+
+// web-push 인스턴스를 lazy하게 가져오기
+let webPushInstance: typeof import("web-push") | null = null;
+
+async function getWebPush() {
+  if (!vapidPublicKey || !vapidPrivateKey) {
+    return null;
+  }
+  if (!webPushInstance) {
+    try {
+      webPushInstance = await import("web-push");
+      webPushInstance.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+    } catch (e) {
+      console.error("web-push 로드 실패:", e);
+      return null;
+    }
+  }
+  return webPushInstance;
+}
+
+/**
+ * PWA 푸시 발송 (여러 사용자, notification_id 매핑 지원)
+ */
+async function sendPushToUsers(
+  userIds: string[],
+  title: string,
+  body: string,
+  url: string,
+  tag: string,
+  notificationIdMap?: Map<string, number>
+) {
+  const webPush = await getWebPush();
+  if (!webPush || userIds.length === 0) return;
+
+  try {
+    const { data: subscriptions } = await supabase
+      .from("push_subscriptions")
+      .select("*")
+      .in("user_id", userIds);
+
+    if (!subscriptions || subscriptions.length === 0) return;
+
+    for (const sub of subscriptions) {
+      const notificationId = notificationIdMap?.get(sub.user_id);
+      const payload = JSON.stringify({
+        title,
+        body,
+        icon: "/icons/icon-192x192.png",
+        badge: "/icons/icon-192x192.png",
+        url,
+        tag,
+        notificationId,
+      });
+
+      try {
+        await webPush.sendNotification(
+          {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth },
+          },
+          payload
+        );
+      } catch (err: unknown) {
+        const error = err as { statusCode?: number };
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("푸시 발송 오류:", e);
+  }
+}
+
 // GET: 작업지시 상세 조회
 export async function GET(
   request: Request,
@@ -239,7 +317,26 @@ export async function PATCH(
         read: false,
       }));
 
-      await supabase.from("notifications").insert(notifications);
+      const { data: createdNotifs } = await supabase
+        .from("notifications")
+        .insert(notifications)
+        .select("id, user_id");
+
+      // notification_id 매핑 생성
+      const notificationIdMap = new Map<string, number>();
+      createdNotifs?.forEach((n) => {
+        notificationIdMap.set(n.user_id, n.id);
+      });
+
+      // PWA 푸시 발송 (notification_id 포함)
+      await sendPushToUsers(
+        Array.from(notificationTargets),
+        notificationTitle,
+        notificationMessage,
+        `/production/work-orders/${id}`,
+        notificationType,
+        notificationIdMap
+      );
     }
 
     return NextResponse.json({

@@ -32,8 +32,14 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
   const { favorites, isLoading: favLoading } = useFavorites(user?.id);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
-  // Build menu based on user role and position
-  const menuItems = buildSidebarMenu(user?.id, user?.role, user?.position);
+  // Build menu based on user role, position, team's allowed_menus, and role-based sidebar permissions
+  const menuItems = buildSidebarMenu(
+    user?.id,
+    user?.role,
+    user?.position,
+    user?.team?.allowed_menus,
+    user?.sidebarPermissions
+  );
 
   // Build favorites menu
   const favoritesMenu: SidebarMenuItem | null =

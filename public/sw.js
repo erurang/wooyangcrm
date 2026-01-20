@@ -186,9 +186,24 @@ self.addEventListener('notificationclick', (event) => {
   }
 
   const url = event.notification.data?.url || '/';
+  const notificationId = event.notification.data?.notificationId;
+
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    (async () => {
+      // DB 알림 읽음 처리 (notification_id가 있는 경우)
+      if (notificationId) {
+        try {
+          await fetch(`/api/notifications/${notificationId}`, {
+            method: 'PATCH',
+          });
+          console.log('[Service Worker] Notification marked as read:', notificationId);
+        } catch (e) {
+          console.error('[Service Worker] Failed to mark notification as read:', e);
+        }
+      }
+
       // 이미 열린 탭이 있으면 포커스하고 URL 이동
+      const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
       for (const client of clientList) {
         if ('focus' in client) {
           client.focus();
@@ -202,7 +217,7 @@ self.addEventListener('notificationclick', (event) => {
       if (clients.openWindow) {
         return clients.openWindow(url);
       }
-    })
+    })()
   );
 });
 

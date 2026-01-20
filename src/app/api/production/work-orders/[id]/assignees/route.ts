@@ -1,6 +1,76 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
+// VAPID 설정 (동적으로 web-push 로드)
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@wooyang.com";
+
+// web-push 인스턴스를 lazy하게 가져오기
+let webPushInstance: typeof import("web-push") | null = null;
+
+async function getWebPush() {
+  if (!vapidPublicKey || !vapidPrivateKey) {
+    return null;
+  }
+  if (!webPushInstance) {
+    try {
+      webPushInstance = await import("web-push");
+      webPushInstance.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+    } catch (e) {
+      console.error("web-push 로드 실패:", e);
+      return null;
+    }
+  }
+  return webPushInstance;
+}
+
+/**
+ * PWA 푸시 발송
+ */
+async function sendPushToUser(userId: string, title: string, body: string, url: string, tag: string, notificationId?: number) {
+  const webPush = await getWebPush();
+  if (!webPush) return;
+
+  try {
+    const { data: subscriptions } = await supabase
+      .from("push_subscriptions")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (!subscriptions || subscriptions.length === 0) return;
+
+    const payload = JSON.stringify({
+      title,
+      body,
+      icon: "/icons/icon-192x192.png",
+      badge: "/icons/icon-192x192.png",
+      url,
+      tag,
+      notificationId,
+    });
+
+    for (const sub of subscriptions) {
+      try {
+        await webPush.sendNotification(
+          {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth },
+          },
+          payload
+        );
+      } catch (err: unknown) {
+        const error = err as { statusCode?: number };
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("푸시 발송 오류:", e);
+  }
+}
+
 // GET: 담당자 목록 조회
 export async function GET(
   request: Request,
@@ -101,22 +171,41 @@ export async function POST(
     // 담당자에게 알림 발송
     if (workOrder) {
       const requesterName = (workOrder.requester as any)?.name || "알 수 없음";
+      const notifTitle = "새 작업지시 배정";
+      const notifMessage = `${requesterName}님이 "${workOrder.title}" 작업을 배정했습니다.`;
+
       const notifications = user_ids.map((userId: string) => ({
         user_id: userId,
         type: "work_order_assignment",
-        title: "새 작업지시 배정",
-        message: `${requesterName}님이 "${workOrder.title}" 작업을 배정했습니다.`,
+        title: notifTitle,
+        message: notifMessage,
         related_id: id,
         related_type: "work_order",
         read: false,
       }));
 
       console.log("Inserting notifications:", notifications);
-      const { error: notifyError } = await supabase.from("notifications").insert(notifications);
+      const { data: createdNotifs, error: notifyError } = await supabase
+        .from("notifications")
+        .insert(notifications)
+        .select("id, user_id");
+
       if (notifyError) {
         console.error("알림 생성 실패:", notifyError);
       } else {
         console.log("알림 생성 성공");
+        // PWA 푸시 발송 (notification_id 포함)
+        for (const userId of user_ids) {
+          const notifRecord = createdNotifs?.find((n) => n.user_id === userId);
+          await sendPushToUser(
+            userId,
+            notifTitle,
+            notifMessage,
+            `/production/work-orders/${id}`,
+            "work_order_assignment",
+            notifRecord?.id
+          );
+        }
       }
     } else {
       console.error("작업지시 정보를 찾을 수 없음:", id);
@@ -187,15 +276,32 @@ export async function DELETE(
       .single();
 
     if (workOrder) {
-      await supabase.from("notifications").insert({
-        user_id: userId,
-        type: "work_order_unassignment",
-        title: "작업지시 배정 해제",
-        message: `"${workOrder.title}" 작업에서 담당자 배정이 해제되었습니다.`,
-        related_id: id,
-        related_type: "work_order",
-        read: false,
-      });
+      const notifTitle = "작업지시 배정 해제";
+      const notifMessage = `"${workOrder.title}" 작업에서 담당자 배정이 해제되었습니다.`;
+
+      const { data: createdNotif } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: userId,
+          type: "work_order_unassignment",
+          title: notifTitle,
+          message: notifMessage,
+          related_id: id,
+          related_type: "work_order",
+          read: false,
+        })
+        .select("id")
+        .single();
+
+      // PWA 푸시 발송 (notification_id 포함)
+      await sendPushToUser(
+        userId,
+        notifTitle,
+        notifMessage,
+        `/production/work-orders/${id}`,
+        "work_order_unassignment",
+        createdNotif?.id
+      );
     }
 
     return NextResponse.json({ message: "담당자가 제거되었습니다" });

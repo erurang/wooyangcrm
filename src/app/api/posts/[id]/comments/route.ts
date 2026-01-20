@@ -1,6 +1,76 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
+// VAPID 설정 (동적으로 web-push 로드)
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@wooyang.com";
+
+// web-push 인스턴스를 lazy하게 가져오기
+let webPushInstance: typeof import("web-push") | null = null;
+
+async function getWebPush() {
+  if (!vapidPublicKey || !vapidPrivateKey) {
+    return null;
+  }
+  if (!webPushInstance) {
+    try {
+      webPushInstance = await import("web-push");
+      webPushInstance.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+    } catch (e) {
+      console.error("web-push 로드 실패:", e);
+      return null;
+    }
+  }
+  return webPushInstance;
+}
+
+/**
+ * PWA 푸시 발송
+ */
+async function sendPushToUser(userId: string, title: string, body: string, url: string, tag: string, notificationId?: number) {
+  const webPush = await getWebPush();
+  if (!webPush) return;
+
+  try {
+    const { data: subscriptions } = await supabase
+      .from("push_subscriptions")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (!subscriptions || subscriptions.length === 0) return;
+
+    const payload = JSON.stringify({
+      title,
+      body,
+      icon: "/icons/icon-192x192.png",
+      badge: "/icons/icon-192x192.png",
+      url,
+      tag,
+      notificationId,
+    });
+
+    for (const sub of subscriptions) {
+      try {
+        await webPush.sendNotification(
+          {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth },
+          },
+          payload
+        );
+      } catch (err: unknown) {
+        const error = err as { statusCode?: number };
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("푸시 발송 오류:", e);
+  }
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -119,7 +189,7 @@ async function parseMentions(content: string): Promise<string[]> {
   return userIds;
 }
 
-// 알림 생성 함수
+// 알림 생성 함수 (+ PWA 푸시)
 async function createNotification(
   userId: string,
   type: string,
@@ -145,7 +215,7 @@ async function createNotification(
     const { data, error, status, statusText } = await supabase
       .from("notifications")
       .insert([insertData])
-      .select();
+      .select("id");
 
     console.log("Insert 결과 - status:", status, "statusText:", statusText);
 
@@ -153,6 +223,11 @@ async function createNotification(
       console.error("알림 생성 실패:", JSON.stringify(error, null, 2));
     } else {
       console.log("알림 생성 성공:", JSON.stringify(data, null, 2));
+
+      // PWA 푸시 발송 (notification_id 포함)
+      const postId = relatedId.includes(":") ? relatedId.split(":")[0] : relatedId;
+      const notificationId = data?.[0]?.id;
+      await sendPushToUser(userId, title, message, `/board/${postId}`, type, notificationId);
     }
     console.log("=== createNotification 끝 ===");
   } catch (e) {

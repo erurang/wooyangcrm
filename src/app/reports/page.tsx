@@ -8,11 +8,13 @@ import {
   FileText,
   Calendar,
   ChevronDown,
+  Factory,
 } from "lucide-react";
 import StatisticsTab from "@/components/reports/tabs/StatisticsTab";
 import CompaniesTab from "@/components/reports/tabs/CompaniesTab";
 import EmployeesTab from "@/components/reports/tabs/EmployeesTab";
 import DailyReportsTab from "@/components/reports/tabs/DailyReportsTab";
+import ProductionPerformanceTab from "@/components/reports/tabs/ProductionPerformanceTab";
 import { useReportStatistics } from "@/hooks/reports/useReportStatistics";
 import type { ReportTabType, DateFilterType } from "@/types/reports";
 
@@ -20,6 +22,7 @@ const TABS: { id: ReportTabType; label: string; icon: React.ElementType }[] = [
   { id: "statistics", label: "매출/매입 통계", icon: BarChart3 },
   { id: "companies", label: "거래처별 실적", icon: Building2 },
   { id: "employees", label: "직원별 실적", icon: Users },
+  { id: "production", label: "생산팀 실적", icon: Factory },
   { id: "daily", label: "일보/월보", icon: FileText },
 ];
 
@@ -188,6 +191,14 @@ export default function ReportsPage() {
         )}
         {activeTab === "employees" && (
           <EmployeesTab
+            year={selectedYear}
+            dateFilter={dateFilter}
+            quarter={selectedQuarter}
+            month={selectedMonth}
+          />
+        )}
+        {activeTab === "production" && (
+          <ProductionPerformanceTab
             year={selectedYear}
             dateFilter={dateFilter}
             quarter={selectedQuarter}

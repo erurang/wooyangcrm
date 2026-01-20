@@ -22,6 +22,14 @@ import {
   Unlock,
   UserCheck,
   UserX,
+  LayoutDashboard,
+  Globe,
+  DollarSign,
+  Factory,
+  Newspaper,
+  Beaker,
+  ChartBar,
+  Menu,
 } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import { useRouter } from "next/navigation";
@@ -41,6 +49,13 @@ interface PermissionGroup {
   permissions: Permission[];
 }
 
+interface SidebarMenuPermission {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+}
+
 interface Role {
   id: number;
   role_name: string;
@@ -48,6 +63,15 @@ interface Role {
 
 interface RolePermissions {
   [permissionKey: string]: boolean;
+}
+
+interface Team {
+  id: string;
+  name: string;
+  department?: {
+    id: string;
+    name: string;
+  };
 }
 
 interface User {
@@ -59,9 +83,26 @@ interface User {
   is_locked: boolean;
   mobile: string;
   role_id: number;
+  team_id: string | null;
+  team?: Team;
 }
 
-const PERMISSION_GROUPS: PermissionGroup[] = [
+// 사이드바 메뉴 권한 정의
+const SIDEBAR_MENU_PERMISSIONS: SidebarMenuPermission[] = [
+  { id: "sidebar.dashboard", name: "대시보드", description: "홈, 성과지표", icon: LayoutDashboard },
+  { id: "sidebar.companies", name: "거래처 관리", description: "거래처, 담당자, 상담내역", icon: Building },
+  { id: "sidebar.overseas", name: "해외거래처 관리", description: "해외 거래처, 상담, 통관비용", icon: Globe },
+  { id: "sidebar.documents", name: "문서 관리", description: "견적서, 발주서, 의뢰서", icon: FileText },
+  { id: "sidebar.pricing", name: "단가 관리", description: "매입/매출 단가", icon: DollarSign },
+  { id: "sidebar.production", name: "생산관리", description: "작업지시, 생산기록, 원자재", icon: Factory },
+  { id: "sidebar.inventory", name: "재고", description: "입고, 출고, 캘린더", icon: Package },
+  { id: "sidebar.board", name: "게시판", description: "공지사항, 자유게시판, 자료실", icon: Newspaper },
+  { id: "sidebar.research", name: "연구실", description: "지원기관, R&D, 개발건", icon: Beaker },
+  { id: "sidebar.management", name: "경영지원", description: "직원, 거래처, 매출/매입 리포트", icon: ChartBar },
+];
+
+// 기능 권한 그룹 정의
+const FEATURE_PERMISSION_GROUPS: PermissionGroup[] = [
   {
     id: "companies",
     name: "거래처 관리",
@@ -92,6 +133,17 @@ const PERMISSION_GROUPS: PermissionGroup[] = [
     permissions: [
       { id: "inventory.view", name: "조회", description: "재고 현황 조회" },
       { id: "inventory.manage", name: "관리", description: "입출고 관리" },
+    ],
+  },
+  {
+    id: "production",
+    name: "생산 관리",
+    icon: Factory,
+    permissions: [
+      { id: "production.view", name: "조회", description: "작업지시 조회" },
+      { id: "production.create", name: "생성", description: "작업지시 생성" },
+      { id: "production.edit", name: "수정", description: "작업지시 수정" },
+      { id: "production.delete", name: "삭제", description: "작업지시 삭제" },
     ],
   },
   {
@@ -131,12 +183,13 @@ export default function AdminRolesPage() {
   const router = useRouter();
   const toast = useGlobalToast();
 
-  // Tab state
-  const [activeTab, setActiveTab] = useState<"users" | "roles">("users");
+  // Tab state - 3 tabs
+  const [activeTab, setActiveTab] = useState<"users" | "sidebar" | "features">("users");
 
   // Users state
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
@@ -147,7 +200,6 @@ export default function AdminRolesPage() {
   const [roleUsers, setRoleUsers] = useState<User[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const [rolePermissions, setRolePermissions] = useState<RolePermissions>({});
-  const [isSavingPermissions, setIsSavingPermissions] = useState(false);
 
   useEffect(() => {
     if (loginUser && loginUser.role !== "admin") {
@@ -162,14 +214,34 @@ export default function AdminRolesPage() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      // Fetch users
+      // Fetch users with team info
       const { data: usersData, error: usersError } = await supabase
         .from("users")
-        .select("id, name, level, position, email, is_locked, mobile, role_id")
+        .select(`
+          id, name, level, position, email, is_locked, mobile, role_id, team_id,
+          team:teams (
+            id,
+            name,
+            department:departments (
+              id,
+              name
+            )
+          )
+        `)
         .order("name");
 
       if (usersError) throw usersError;
-      setUsers(usersData || []);
+      const processedUsers = (usersData || []).map((u: any) => {
+        const team = Array.isArray(u.team) ? u.team[0] : u.team;
+        const department = team?.department
+          ? (Array.isArray(team.department) ? team.department[0] : team.department)
+          : undefined;
+        return {
+          ...u,
+          team: team ? { ...team, department } : undefined,
+        };
+      });
+      setUsers(processedUsers as User[]);
 
       // Fetch roles
       const { data: rolesData, error: rolesError } = await supabase
@@ -179,6 +251,13 @@ export default function AdminRolesPage() {
 
       if (rolesError) throw rolesError;
       setRoles(rolesData || []);
+
+      // Fetch teams with departments
+      const teamsRes = await fetch("/api/admin/teams");
+      if (teamsRes.ok) {
+        const teamsData = await teamsRes.json();
+        setTeams(teamsData || []);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("데이터를 불러오는데 실패했습니다.");
@@ -209,12 +288,18 @@ export default function AdminRolesPage() {
           mobile: editedUser.mobile,
           role_id: editedUser.role_id,
           is_locked: editedUser.is_locked,
+          team_id: editedUser.team_id || null,
         })
         .eq("id", userId);
 
       if (error) throw error;
 
-      setUsers(users.map(u => u.id === userId ? { ...u, ...editedUser } as User : u));
+      const selectedTeam = teams.find(t => t.id === editedUser.team_id);
+      setUsers(users.map(u => u.id === userId ? {
+        ...u,
+        ...editedUser,
+        team: selectedTeam || undefined,
+      } as User : u));
       setEditingUserId(null);
       setEditedUser({});
       toast.success("사용자 정보가 저장되었습니다.");
@@ -245,8 +330,7 @@ export default function AdminRolesPage() {
   // Role Management Functions
   const handleSelectRole = async (role: Role) => {
     setSelectedRole(role);
-    setExpandedGroups(PERMISSION_GROUPS.map(g => g.id));
-    // Filter users by role
+    setExpandedGroups(FEATURE_PERMISSION_GROUPS.map(g => g.id));
     const filteredUsers = users.filter(u => u.role_id === role.id);
     setRoleUsers(filteredUsers);
 
@@ -264,7 +348,12 @@ export default function AdminRolesPage() {
       } else {
         // 권한이 없으면 admin은 모두 활성화, 나머지는 기본값 설정
         const defaultPerms: RolePermissions = {};
-        PERMISSION_GROUPS.forEach(group => {
+        // 사이드바 권한
+        SIDEBAR_MENU_PERMISSIONS.forEach(p => {
+          defaultPerms[p.id] = role.role_name === "admin";
+        });
+        // 기능 권한
+        FEATURE_PERMISSION_GROUPS.forEach(group => {
           group.permissions.forEach(p => {
             defaultPerms[p.id] = role.role_name === "admin";
           });
@@ -273,9 +362,11 @@ export default function AdminRolesPage() {
       }
     } catch (error) {
       console.error("권한 조회 실패:", error);
-      // 에러 시 기본값 설정
       const defaultPerms: RolePermissions = {};
-      PERMISSION_GROUPS.forEach(group => {
+      SIDEBAR_MENU_PERMISSIONS.forEach(p => {
+        defaultPerms[p.id] = role.role_name === "admin";
+      });
+      FEATURE_PERMISSION_GROUPS.forEach(group => {
         group.permissions.forEach(p => {
           defaultPerms[p.id] = role.role_name === "admin";
         });
@@ -322,10 +413,44 @@ export default function AdminRolesPage() {
     }
   };
 
-  const handleToggleAllPermissions = async (groupId: string, enabled: boolean) => {
+  const handleToggleAllSidebarPermissions = async (enabled: boolean) => {
     if (!selectedRole) return;
 
-    const group = PERMISSION_GROUPS.find(g => g.id === groupId);
+    // Optimistic update
+    const updates: RolePermissions = {};
+    SIDEBAR_MENU_PERMISSIONS.forEach(p => {
+      updates[p.id] = enabled;
+    });
+
+    setRolePermissions(prev => ({
+      ...prev,
+      ...updates,
+    }));
+
+    try {
+      for (const perm of SIDEBAR_MENU_PERMISSIONS) {
+        await fetch("/api/admin/permissions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            roleId: selectedRole.id,
+            permissionKey: perm.id,
+            isEnabled: enabled,
+          }),
+        });
+      }
+
+      toast.success(`사이드바 권한이 ${enabled ? "모두 활성화" : "모두 비활성화"} 되었습니다.`);
+    } catch (error) {
+      console.error("권한 일괄 업데이트 실패:", error);
+      toast.error("권한 변경에 실패했습니다.");
+    }
+  };
+
+  const handleToggleAllFeaturePermissions = async (groupId: string, enabled: boolean) => {
+    if (!selectedRole) return;
+
+    const group = FEATURE_PERMISSION_GROUPS.find(g => g.id === groupId);
     if (!group) return;
 
     // Optimistic update
@@ -340,7 +465,6 @@ export default function AdminRolesPage() {
     }));
 
     try {
-      // 각 권한을 개별 업데이트
       for (const perm of group.permissions) {
         await fetch("/api/admin/permissions", {
           method: "POST",
@@ -411,6 +535,10 @@ export default function AdminRolesPage() {
     return null;
   }
 
+  // 사이드바 권한 통계
+  const sidebarEnabledCount = SIDEBAR_MENU_PERMISSIONS.filter(p => rolePermissions[p.id]).length;
+  const allSidebarEnabled = sidebarEnabledCount === SIDEBAR_MENU_PERMISSIONS.length;
+
   return (
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -427,7 +555,7 @@ export default function AdminRolesPage() {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs - 3개 탭 */}
         <div className="flex gap-2 bg-white rounded-xl p-1.5 shadow-sm border border-slate-200 w-fit">
           <button
             onClick={() => setActiveTab("users")}
@@ -441,15 +569,26 @@ export default function AdminRolesPage() {
             직원 관리
           </button>
           <button
-            onClick={() => setActiveTab("roles")}
+            onClick={() => setActiveTab("sidebar")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === "roles"
+              activeTab === "sidebar"
+                ? "bg-violet-500 text-white"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            <Menu className="w-4 h-4" />
+            사이드바 권한
+          </button>
+          <button
+            onClick={() => setActiveTab("features")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === "features"
                 ? "bg-violet-500 text-white"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
           >
             <Shield className="w-4 h-4" />
-            권한 관리
+            기능 권한
           </button>
         </div>
 
@@ -468,7 +607,7 @@ export default function AdminRolesPage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="이름, 이메일, 부서로 검색..."
+                    placeholder="이름, 이메일, 직책으로 검색..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
@@ -494,8 +633,9 @@ export default function AdminRolesPage() {
                       <tr>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">이름</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">역할</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">팀</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">레벨</th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">부서</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">직책</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">이메일</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-slate-500">전화번호</th>
                         <th className="text-center px-4 py-3 text-xs font-medium text-slate-500">상태</th>
@@ -535,6 +675,32 @@ export default function AdminRolesPage() {
                               ) : (
                                 <span className={`text-xs px-2 py-1 rounded-full ${getRoleColor(roleName)}`}>
                                   {roleName}
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              {isEditing ? (
+                                <select
+                                  value={editedUser.team_id || ""}
+                                  onChange={(e) => setEditedUser({ ...editedUser, team_id: e.target.value || null })}
+                                  className="w-32 px-2 py-1 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-violet-500"
+                                >
+                                  <option value="">팀 없음</option>
+                                  {teams.map((team) => (
+                                    <option key={team.id} value={team.id}>
+                                      {team.department?.name ? `${team.department.name} / ` : ""}{team.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <span className="text-slate-600">
+                                  {user.team ? (
+                                    <span className="text-xs px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full">
+                                      {user.team.department?.name ? `${user.team.department.name}/` : ""}{user.team.name}
+                                    </span>
+                                  ) : (
+                                    <span className="text-slate-400">-</span>
+                                  )}
                                 </span>
                               )}
                             </td>
@@ -643,9 +809,10 @@ export default function AdminRolesPage() {
                 </div>
               </div>
             </motion.div>
-          ) : (
+          ) : activeTab === "sidebar" ? (
+            /* 사이드바 권한 탭 */
             <motion.div
-              key="roles"
+              key="sidebar"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -654,7 +821,8 @@ export default function AdminRolesPage() {
               {/* Role List */}
               <div className="bg-white rounded-xl shadow-sm border border-slate-200">
                 <div className="p-4 border-b border-slate-200">
-                  <h2 className="font-semibold text-slate-800">역할 목록</h2>
+                  <h2 className="font-semibold text-slate-800">역할 선택</h2>
+                  <p className="text-xs text-slate-500 mt-1">역할별로 볼 수 있는 메뉴를 설정합니다</p>
                 </div>
                 <div className="divide-y divide-slate-100">
                   {roles.map((role) => {
@@ -664,18 +832,18 @@ export default function AdminRolesPage() {
                         key={role.id}
                         onClick={() => handleSelectRole(role)}
                         className={`w-full text-left p-4 hover:bg-slate-50 transition-colors ${
-                          selectedRole?.id === role.id ? "bg-violet-50" : ""
+                          selectedRole?.id === role.id ? "bg-violet-50 border-l-4 border-violet-500" : ""
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-medium text-slate-800">{role.role_name}</p>
+                            <p className={`font-medium ${selectedRole?.id === role.id ? "text-violet-700" : "text-slate-800"}`}>
+                              {role.role_name}
+                            </p>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
-                              {userCount}명
-                            </span>
-                          </div>
+                          <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
+                            {userCount}명
+                          </span>
                         </div>
                       </button>
                     );
@@ -683,48 +851,160 @@ export default function AdminRolesPage() {
                 </div>
               </div>
 
-              {/* Role Details */}
+              {/* Sidebar Permissions */}
+              <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200">
+                {selectedRole ? (
+                  <>
+                    <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+                      <div>
+                        <h2 className="font-semibold text-slate-800">
+                          <span className={`px-2 py-0.5 rounded ${getRoleColor(selectedRole.role_name)}`}>
+                            {selectedRole.role_name}
+                          </span>
+                          {" "}사이드바 메뉴 권한
+                        </h2>
+                        <p className="text-xs text-slate-500 mt-1">
+                          체크된 메뉴만 사이드바에 표시됩니다 ({sidebarEnabledCount}/{SIDEBAR_MENU_PERMISSIONS.length})
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleToggleAllSidebarPermissions(!allSidebarEnabled)}
+                        className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                          allSidebarEnabled
+                            ? "bg-violet-100 text-violet-700 hover:bg-violet-200"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        {allSidebarEnabled ? "모두 해제" : "모두 선택"}
+                      </button>
+                    </div>
+
+                    <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {SIDEBAR_MENU_PERMISSIONS.map((menu) => {
+                        const isEnabled = rolePermissions[menu.id] ?? false;
+                        const IconComponent = menu.icon;
+                        return (
+                          <label
+                            key={menu.id}
+                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border-2 ${
+                              isEnabled
+                                ? "bg-violet-50 border-violet-300"
+                                : "bg-slate-50 border-slate-200 hover:border-slate-300"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isEnabled}
+                              onChange={() => handleTogglePermission(menu.id)}
+                              className="w-5 h-5 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+                            />
+                            <IconComponent className={`w-5 h-5 ${isEnabled ? "text-violet-600" : "text-slate-400"}`} />
+                            <div className="flex-1">
+                              <p className={`font-medium ${isEnabled ? "text-violet-700" : "text-slate-700"}`}>
+                                {menu.name}
+                              </p>
+                              <p className="text-xs text-slate-500">{menu.description}</p>
+                            </div>
+                            {isEnabled && <Check className="w-5 h-5 text-violet-500" />}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <div className="p-12 text-center">
+                    <Menu className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                    <p className="text-slate-500">역할을 선택하여 사이드바 권한을 설정하세요</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ) : (
+            /* 기능 권한 탭 */
+            <motion.div
+              key="features"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            >
+              {/* Role List */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+                <div className="p-4 border-b border-slate-200">
+                  <h2 className="font-semibold text-slate-800">역할 선택</h2>
+                  <p className="text-xs text-slate-500 mt-1">역할별 CRUD 권한을 설정합니다</p>
+                </div>
+                <div className="divide-y divide-slate-100">
+                  {roles.map((role) => {
+                    const userCount = users.filter(u => u.role_id === role.id).length;
+                    return (
+                      <button
+                        key={role.id}
+                        onClick={() => handleSelectRole(role)}
+                        className={`w-full text-left p-4 hover:bg-slate-50 transition-colors ${
+                          selectedRole?.id === role.id ? "bg-violet-50 border-l-4 border-violet-500" : ""
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className={`font-medium ${selectedRole?.id === role.id ? "text-violet-700" : "text-slate-800"}`}>
+                              {role.role_name}
+                            </p>
+                          </div>
+                          <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded-full">
+                            {userCount}명
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Feature Permissions */}
               <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200">
                 {selectedRole ? (
                   <>
                     <div className="p-4 border-b border-slate-200">
                       <h2 className="font-semibold text-slate-800">
-                        {selectedRole.role_name} 역할 정보
+                        <span className={`px-2 py-0.5 rounded ${getRoleColor(selectedRole.role_name)}`}>
+                          {selectedRole.role_name}
+                        </span>
+                        {" "}기능 권한
                       </h2>
+                      <p className="text-xs text-slate-500 mt-1">
+                        조회/생성/수정/삭제 등의 기능 권한을 설정합니다
+                      </p>
                     </div>
 
                     {/* Users in this role */}
-                    <div className="p-4 border-b border-slate-200">
-                      <h3 className="text-sm font-medium text-slate-600 mb-3">소속 직원</h3>
+                    <div className="p-4 border-b border-slate-200 bg-slate-50">
+                      <h3 className="text-sm font-medium text-slate-600 mb-2">소속 직원 ({roleUsers.length}명)</h3>
                       {roleUsers.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
-                          {roleUsers.map(user => (
+                          {roleUsers.slice(0, 10).map(user => (
                             <div
                               key={user.id}
-                              className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full"
+                              className="flex items-center gap-1.5 px-2 py-1 bg-white rounded-full border border-slate-200"
                             >
-                              <div className="w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center text-xs font-medium">
+                              <div className="w-5 h-5 rounded-full bg-violet-500 text-white flex items-center justify-center text-xs font-medium">
                                 {user.name?.charAt(0) || "?"}
                               </div>
-                              <span className="text-sm text-slate-700">{user.name}</span>
-                              <span className="text-xs text-slate-500">{user.level}</span>
+                              <span className="text-xs text-slate-700">{user.name}</span>
                             </div>
                           ))}
+                          {roleUsers.length > 10 && (
+                            <span className="text-xs text-slate-500 px-2 py-1">+{roleUsers.length - 10}명</span>
+                          )}
                         </div>
                       ) : (
-                        <p className="text-sm text-slate-500">이 역할에 소속된 직원이 없습니다.</p>
+                        <p className="text-xs text-slate-500">이 역할에 소속된 직원이 없습니다.</p>
                       )}
                     </div>
 
                     {/* Permissions */}
                     <div className="p-4 space-y-3 max-h-[500px] overflow-y-auto">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-medium text-slate-600">권한 목록</h3>
-                        <span className="text-xs text-slate-400">
-                          체크박스를 클릭하여 권한을 설정하세요
-                        </span>
-                      </div>
-                      {PERMISSION_GROUPS.map((group) => {
+                      {FEATURE_PERMISSION_GROUPS.map((group) => {
                         const isExpanded = expandedGroups.includes(group.id);
                         const groupPermissions = group.permissions.map(p => rolePermissions[p.id] ?? false);
                         const allEnabled = groupPermissions.every(p => p);
@@ -750,7 +1030,7 @@ export default function AdminRolesPage() {
                               </button>
                               <div className="flex items-center gap-2">
                                 <button
-                                  onClick={() => handleToggleAllPermissions(group.id, !allEnabled)}
+                                  onClick={() => handleToggleAllFeaturePermissions(group.id, !allEnabled)}
                                   className={`px-2 py-1 text-xs rounded-lg transition-colors ${
                                     allEnabled
                                       ? "bg-violet-100 text-violet-700 hover:bg-violet-200"
@@ -814,9 +1094,7 @@ export default function AdminRolesPage() {
                 ) : (
                   <div className="p-12 text-center">
                     <Eye className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                    <p className="text-slate-500">
-                      역할을 선택하여 상세 정보를 확인하세요
-                    </p>
+                    <p className="text-slate-500">역할을 선택하여 기능 권한을 설정하세요</p>
                   </div>
                 )}
               </div>

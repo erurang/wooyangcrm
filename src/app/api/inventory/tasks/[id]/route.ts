@@ -1,6 +1,76 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
+// VAPID 설정 (동적으로 web-push 로드)
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@wooyang.com";
+
+// web-push 인스턴스를 lazy하게 가져오기
+let webPushInstance: typeof import("web-push") | null = null;
+
+async function getWebPush() {
+  if (!vapidPublicKey || !vapidPrivateKey) {
+    return null;
+  }
+  if (!webPushInstance) {
+    try {
+      webPushInstance = await import("web-push");
+      webPushInstance.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+    } catch (e) {
+      console.error("web-push 로드 실패:", e);
+      return null;
+    }
+  }
+  return webPushInstance;
+}
+
+/**
+ * PWA 푸시 발송
+ */
+async function sendPushToUser(userId: string, title: string, body: string, url: string, tag: string, notificationId?: number) {
+  const webPush = await getWebPush();
+  if (!webPush) return;
+
+  try {
+    const { data: subscriptions } = await supabase
+      .from("push_subscriptions")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (!subscriptions || subscriptions.length === 0) return;
+
+    const payload = JSON.stringify({
+      title,
+      body,
+      icon: "/icons/icon-192x192.png",
+      badge: "/icons/icon-192x192.png",
+      url,
+      tag,
+      notificationId,
+    });
+
+    for (const sub of subscriptions) {
+      try {
+        await webPush.sendNotification(
+          {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth },
+          },
+          payload
+        );
+      } catch (err: unknown) {
+        const error = err as { statusCode?: number };
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("푸시 발송 오류:", e);
+  }
+}
+
 // GET: 단일 재고 작업 조회
 export async function GET(
   request: Request,
@@ -179,9 +249,13 @@ export async function PATCH(
     const companyName = oldData.company_id ? await getCompanyName(oldData.company_id) : "거래처";
     const changerName = user_id ? await getUserName(user_id) : "사용자";
 
+    // 재고 탭 URL
+    const inventoryUrl = isInbound ? "/inventory?tab=inbound" : "/inventory?tab=outbound";
+
     // 알림 생성 (담당자 배정 시) - 상세 정보 포함
     if (assigned_to && assigned_to !== oldData.assigned_to) {
       const notifType = isInbound ? "inbound_assignment" : "outbound_assignment";
+      const notifTitle = `${taskTypeText} 담당 배정`;
       let message = `${changerName}님이 ${taskTypeText} 작업을 배정했습니다.\n`;
       message += `• 문서번호: ${oldData.document_number}\n`;
       message += `• 거래처: ${companyName}`;
@@ -189,14 +263,21 @@ export async function PATCH(
         message += `\n• 예정일: ${expected_date || oldData.expected_date}`;
       }
 
-      await supabase.from("notifications").insert({
-        user_id: assigned_to,
-        type: notifType,
-        title: `${taskTypeText} 담당 배정`,
-        message,
-        related_id: id,
-        related_type: isInbound ? "inbound" : "outbound",
-      });
+      const { data: createdNotif } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: assigned_to,
+          type: notifType,
+          title: notifTitle,
+          message,
+          related_id: id,
+          related_type: isInbound ? "inbound" : "outbound",
+        })
+        .select("id")
+        .single();
+
+      // PWA 푸시 발송 (notification_id 포함)
+      await sendPushToUser(assigned_to, notifTitle, message, inventoryUrl, notifType, createdNotif?.id);
     }
 
     // 알림 생성 (예정일 변경 시, 담당자에게)
@@ -206,16 +287,24 @@ export async function PATCH(
       oldData.assigned_to !== user_id
     ) {
       const notifType = isInbound ? "inbound_date_change" : "outbound_date_change";
+      const notifTitle = `${taskTypeText} 예정일 변경`;
       const message = `${changerName}님이 ${taskTypeText} 예정일을 변경했습니다.\n• 문서번호: ${oldData.document_number}\n• 거래처: ${companyName}\n• 변경: ${oldData.expected_date || "미정"} → ${expected_date}`;
 
-      await supabase.from("notifications").insert({
-        user_id: oldData.assigned_to,
-        type: notifType,
-        title: `${taskTypeText} 예정일 변경`,
-        message,
-        related_id: id,
-        related_type: isInbound ? "inbound" : "outbound",
-      });
+      const { data: createdNotif } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: oldData.assigned_to,
+          type: notifType,
+          title: notifTitle,
+          message,
+          related_id: id,
+          related_type: isInbound ? "inbound" : "outbound",
+        })
+        .select("id")
+        .single();
+
+      // PWA 푸시 발송 (notification_id 포함)
+      await sendPushToUser(oldData.assigned_to, notifTitle, message, inventoryUrl, notifType, createdNotif?.id);
     }
 
     // 알림 생성 (완료 시, 지정자에게)
@@ -223,22 +312,31 @@ export async function PATCH(
       // 본인이 지정자가 아닌 경우에만 알림
       if (oldData.assigned_by !== user_id) {
         const notifType = isInbound ? "inbound_confirmed" : "outbound_confirmed";
+        const notifTitle = `${taskTypeText} 확인 완료`;
         const message = `${changerName}님이 ${taskTypeText}를 확인했습니다.\n• 문서번호: ${oldData.document_number}\n• 거래처: ${companyName}`;
 
-        await supabase.from("notifications").insert({
-          user_id: oldData.assigned_by,
-          type: notifType,
-          title: `${taskTypeText} 확인 완료`,
-          message,
-          related_id: id,
-          related_type: isInbound ? "inbound" : "outbound",
-        });
+        const { data: createdNotif } = await supabase
+          .from("notifications")
+          .insert({
+            user_id: oldData.assigned_by,
+            type: notifType,
+            title: notifTitle,
+            message,
+            related_id: id,
+            related_type: isInbound ? "inbound" : "outbound",
+          })
+          .select("id")
+          .single();
+
+        // PWA 푸시 발송 (notification_id 포함)
+        await sendPushToUser(oldData.assigned_by, notifTitle, message, inventoryUrl, notifType, createdNotif?.id);
       }
     }
 
     // 알림 생성 (취소 시, 지정자/담당자에게)
     if (changedFields.includes("status") && status === "canceled") {
       const notifType = isInbound ? "inbound_canceled" : "outbound_canceled";
+      const notifTitle = `${taskTypeText} 취소`;
       let message = `${changerName}님이 ${taskTypeText}를 취소했습니다.\n• 문서번호: ${oldData.document_number}\n• 거래처: ${companyName}`;
       if (cancel_reason) {
         message += `\n• 사유: ${cancel_reason}`;
@@ -253,16 +351,23 @@ export async function PATCH(
         recipientIds.add(oldData.assigned_to);
       }
 
-      // 알림 생성
+      // 알림 생성 + PWA 푸시 발송
       for (const recipientId of recipientIds) {
-        await supabase.from("notifications").insert({
-          user_id: recipientId,
-          type: notifType,
-          title: `${taskTypeText} 취소`,
-          message,
-          related_id: id,
-          related_type: isInbound ? "inbound" : "outbound",
-        });
+        const { data: createdNotif } = await supabase
+          .from("notifications")
+          .insert({
+            user_id: recipientId,
+            type: notifType,
+            title: notifTitle,
+            message,
+            related_id: id,
+            related_type: isInbound ? "inbound" : "outbound",
+          })
+          .select("id")
+          .single();
+
+        // PWA 푸시 발송 (notification_id 포함)
+        await sendPushToUser(recipientId, notifTitle, message, inventoryUrl, notifType, createdNotif?.id);
       }
     }
 

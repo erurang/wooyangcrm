@@ -1,6 +1,30 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
+// VAPID 설정 (동적으로 web-push 로드)
+const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@wooyang.com";
+
+// web-push 인스턴스를 lazy하게 가져오기
+let webPushInstance: typeof import("web-push") | null = null;
+
+async function getWebPush() {
+  if (!vapidPublicKey || !vapidPrivateKey) {
+    return null;
+  }
+  if (!webPushInstance) {
+    try {
+      webPushInstance = await import("web-push");
+      webPushInstance.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+    } catch (e) {
+      console.error("web-push 로드 실패:", e);
+      return null;
+    }
+  }
+  return webPushInstance;
+}
+
 interface NotificationData {
   user_id: string;
   type: string;
@@ -10,7 +34,53 @@ interface NotificationData {
   related_type: string;
 }
 
-// 알림 생성 (중복 방지)
+/**
+ * PWA 푸시 발송
+ */
+async function sendPushToUser(userId: string, title: string, body: string, url: string, notificationId?: number) {
+  const webPush = await getWebPush();
+  if (!webPush) return;
+
+  try {
+    const { data: subscriptions } = await supabase
+      .from("push_subscriptions")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (!subscriptions || subscriptions.length === 0) return;
+
+    const payload = JSON.stringify({
+      title,
+      body,
+      icon: "/icons/icon-192x192.png",
+      badge: "/icons/icon-192x192.png",
+      url,
+      tag: "scheduled-notification",
+      notificationId,
+    });
+
+    for (const sub of subscriptions) {
+      try {
+        await webPush.sendNotification(
+          {
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth },
+          },
+          payload
+        );
+      } catch (err: unknown) {
+        const error = err as { statusCode?: number };
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("푸시 발송 오류:", e);
+  }
+}
+
+// 알림 생성 (중복 방지 + PWA 푸시)
 async function createNotificationIfNotExists(data: NotificationData) {
   const today = new Date().toISOString().split("T")[0];
 
@@ -29,15 +99,31 @@ async function createNotificationIfNotExists(data: NotificationData) {
     return false;
   }
 
-  const { error } = await supabase.from("notifications").insert([{
-    ...data,
-    read: false,
-  }]);
+  // 1. DB 알림 생성
+  const { data: createdNotif, error } = await supabase
+    .from("notifications")
+    .insert([{
+      ...data,
+      read: false,
+    }])
+    .select("id")
+    .single();
 
   if (error) {
     console.error("알림 생성 실패:", error);
     return false;
   }
+
+  // 2. PWA 푸시 발송 (notification_id 포함)
+  let url = "/";
+  if (data.related_type === "document") {
+    url = `/documents/${data.related_id}`;
+  } else if (data.related_type === "consultation") {
+    url = `/consultations`;
+  } else if (data.related_type === "todo") {
+    url = `/`;
+  }
+  await sendPushToUser(data.user_id, data.title, data.message, url, createdNotif?.id);
 
   console.log(`알림 생성 완료: ${data.title} - ${data.message}`);
   return true;

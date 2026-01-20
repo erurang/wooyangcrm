@@ -13,6 +13,8 @@ export interface User {
   role_id?: string;
   level: string;
   position: string;
+  team_id?: string;
+  team?: Team;
   works_email?: string;
   created_at?: string;
   updated_at?: string;
@@ -25,6 +27,8 @@ export interface LoginUser {
   role: string;
   level: string;
   position: string;
+  team_id?: string;
+  team?: Team;
   worksEmail: string;
 }
 
@@ -32,6 +36,40 @@ export interface Role {
   id: string;
   role_name: string;
   description?: string;
+}
+
+/**
+ * Department (부서) 관련 타입
+ */
+export interface Department {
+  id: string;
+  name: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+  teams?: Team[];
+}
+
+/**
+ * Team (팀) 관련 타입
+ */
+export interface Team {
+  id: string;
+  department_id: string;
+  name: string;
+  description?: string;
+  allowed_menus: string[];
+  sort_order: number;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+  department?: Department;
+}
+
+export interface TeamWithDepartment extends Team {
+  department: Department;
 }
 
 /**
