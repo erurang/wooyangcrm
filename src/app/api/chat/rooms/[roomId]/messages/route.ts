@@ -234,7 +234,8 @@ export async function POST(
       .eq("room_id", roomId)
       .eq("user_id", sender_id);
 
-    // 다른 참여자들에게 알림 발송 (음소거 제외)
+    // PWA 푸시 알림 발송 (notifications 테이블에는 기록하지 않음)
+    // 안읽은 갯수는 chat_participants.last_read_at으로 관리
     const { data: otherParticipants } = await supabase
       .from("chat_participants")
       .select("user_id, is_muted")
@@ -242,33 +243,69 @@ export async function POST(
       .neq("user_id", sender_id)
       .is("left_at", null);
 
-    // 대화방 이름 조회
-    const { data: room } = await supabase
-      .from("chat_rooms")
-      .select("name, type")
-      .eq("id", roomId)
-      .single();
-
-    const senderName = newMessage.sender?.name || "사용자";
-    const roomName = room?.name || (room?.type === "direct" ? senderName : "그룹 채팅");
-    const messagePreview = content?.length > 30 ? content.substring(0, 30) + "..." : content;
-
-    // 알림 생성 (비동기로 처리, 실패해도 메시지 전송은 성공)
     if (otherParticipants && otherParticipants.length > 0) {
-      const notifications = otherParticipants
-        .filter((p) => !p.is_muted) // 음소거한 사용자 제외
-        .map((p) => ({
-          user_id: p.user_id,
-          type: "chat_message",
-          title: roomName,
-          message: `${senderName}: ${messagePreview || "파일을 보냈습니다"}`,
-          related_id: roomId,
-          related_type: "chat_room",
-          read: false,
-        }));
+      // 대화방 이름 조회
+      const { data: room } = await supabase
+        .from("chat_rooms")
+        .select("name, type")
+        .eq("id", roomId)
+        .single();
 
-      if (notifications.length > 0) {
-        supabase.from("notifications").insert(notifications).then(() => {});
+      const senderName = newMessage.sender?.name || "사용자";
+      const roomName = room?.name || (room?.type === "direct" ? senderName : "그룹 채팅");
+      const messagePreview = content?.length > 50 ? content.substring(0, 50) + "..." : content;
+
+      // 음소거하지 않은 참여자들에게 푸시 알림 발송
+      const recipientIds = otherParticipants
+        .filter((p) => !p.is_muted)
+        .map((p) => p.user_id);
+
+      if (recipientIds.length > 0) {
+        // 각 수신자의 푸시 구독 정보 조회 및 발송 (비동기)
+        (async () => {
+          try {
+            const { data: subscriptions } = await supabase
+              .from("push_subscriptions")
+              .select("*")
+              .in("user_id", recipientIds);
+
+            if (subscriptions && subscriptions.length > 0) {
+              const webPush = await import("web-push").catch(() => null);
+              if (webPush && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+                webPush.setVapidDetails(
+                  process.env.VAPID_SUBJECT || "mailto:admin@wooyang.com",
+                  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+                  process.env.VAPID_PRIVATE_KEY
+                );
+
+                const payload = JSON.stringify({
+                  title: roomName,
+                  body: `${senderName}: ${messagePreview || "파일을 보냈습니다"}`,
+                  icon: "/icons/icon-192x192.png",
+                  badge: "/icons/icon-192x192.png",
+                  url: `/chat?roomId=${roomId}`,
+                  tag: `chat-${roomId}`,
+                });
+
+                for (const sub of subscriptions) {
+                  try {
+                    await webPush.sendNotification(
+                      { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+                      payload
+                    );
+                  } catch (err: unknown) {
+                    const error = err as { statusCode?: number };
+                    if (error.statusCode === 410 || error.statusCode === 404) {
+                      await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+                    }
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            console.error("푸시 알림 발송 오류:", e);
+          }
+        })();
       }
     }
 

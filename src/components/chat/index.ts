@@ -8,3 +8,4 @@ export { default as ChatSearch } from "./ChatSearch";
 export { default as ChatInviteModal } from "./ChatInviteModal";
 export { default as ChatRoomInfo } from "./ChatRoomInfo";
 export { default as ChatBell } from "./ChatBell";
+export { default as ChatRoomSettings } from "./ChatRoomSettings";

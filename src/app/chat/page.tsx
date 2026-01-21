@@ -202,6 +202,11 @@ export default function ChatPage() {
                   onBack={isMobileView ? handleBack : undefined}
                   onOpenInfo={() => setRightPanelMode("info")}
                   onOpenSearch={() => setRightPanelMode("search")}
+                  onLeaveRoom={handleLeaveRoom}
+                  onSettingsChange={() => {
+                    mutateRoom();
+                    mutateRooms();
+                  }}
                 />
               </div>
 

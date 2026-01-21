@@ -23,7 +23,7 @@ export async function GET(
     // 참여자인지 확인
     const { data: participation, error: partError } = await supabase
       .from("chat_participants")
-      .select("id, last_read_at, role")
+      .select("id, last_read_at, role, notification_setting, is_pinned")
       .eq("room_id", roomId)
       .eq("user_id", userId)
       .is("left_at", null)
@@ -63,6 +63,8 @@ export async function GET(
       participants: activeParticipants,
       my_role: participation.role,
       my_last_read_at: participation.last_read_at,
+      my_notification_setting: participation.notification_setting || "all",
+      my_is_pinned: participation.is_pinned || false,
     });
   } catch (error) {
     console.error("대화방 정보 조회 실패:", error);

@@ -19,6 +19,11 @@ export type ChatMessageType = "text" | "file" | "image" | "system";
  */
 export type ChatParticipantRole = "admin" | "member";
 
+/**
+ * 알림 설정
+ */
+export type ChatNotificationSetting = "all" | "mentions" | "none";
+
 // ================================
 // 기본 인터페이스
 // ================================
@@ -46,6 +51,9 @@ export interface ChatRoomWithRelations extends ChatRoom {
   unread_count?: number;
   // 1:1 대화의 경우 상대방 정보
   other_user?: User;
+  // 내 참여 정보
+  my_notification_setting?: ChatNotificationSetting;
+  my_is_pinned?: boolean;
 }
 
 /**
@@ -58,6 +66,8 @@ export interface ChatParticipant {
   joined_at: string;
   last_read_at: string | null;
   is_muted: boolean;
+  notification_setting: ChatNotificationSetting;
+  is_pinned: boolean;
   role: ChatParticipantRole;
   left_at: string | null;
 }
@@ -280,6 +290,15 @@ export const MESSAGE_TYPE_LABELS: Record<ChatMessageType, string> = {
   file: "파일",
   image: "이미지",
   system: "시스템",
+};
+
+/**
+ * 알림 설정 라벨
+ */
+export const NOTIFICATION_SETTING_LABELS: Record<ChatNotificationSetting, string> = {
+  all: "모든 메시지 알림",
+  mentions: "내가 멘션된 메시지만 알림",
+  none: "알림 받지 않기",
 };
 
 /**

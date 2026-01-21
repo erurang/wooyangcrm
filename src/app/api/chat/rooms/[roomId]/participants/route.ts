@@ -41,7 +41,7 @@ export async function GET(
       .from("chat_participants")
       .select(
         `
-        id, user_id, role, joined_at, last_read_at, is_muted,
+        id, user_id, role, joined_at, last_read_at, is_muted, notification_setting, is_pinned,
         user:users(id, name, position, level)
       `
       )
@@ -213,7 +213,7 @@ export async function POST(
 }
 
 /**
- * PATCH /api/chat/rooms/[roomId]/participants - 참여자 설정 변경 (음소거 등)
+ * PATCH /api/chat/rooms/[roomId]/participants - 참여자 설정 변경 (알림 설정, 핀 등)
  */
 export async function PATCH(
   req: NextRequest,
@@ -222,7 +222,7 @@ export async function PATCH(
   try {
     const { roomId } = await params;
     const body = await req.json();
-    const { user_id, is_muted } = body;
+    const { user_id, is_muted, notification_setting, is_pinned } = body;
 
     if (!user_id) {
       return NextResponse.json(
@@ -231,12 +231,23 @@ export async function PATCH(
       );
     }
 
+    // 업데이트할 필드 구성
+    const updateData: Record<string, unknown> = {};
+    if (is_muted !== undefined) updateData.is_muted = is_muted;
+    if (notification_setting !== undefined) updateData.notification_setting = notification_setting;
+    if (is_pinned !== undefined) updateData.is_pinned = is_pinned;
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: "변경할 필드가 없습니다." },
+        { status: 400 }
+      );
+    }
+
     // 본인 참여 정보 업데이트
     const { data: updatedParticipation, error: updateError } = await supabase
       .from("chat_participants")
-      .update({
-        is_muted: is_muted !== undefined ? is_muted : undefined,
-      })
+      .update(updateData)
       .eq("room_id", roomId)
       .eq("user_id", user_id)
       .is("left_at", null)

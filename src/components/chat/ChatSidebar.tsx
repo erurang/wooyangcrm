@@ -138,6 +138,7 @@ interface ChatRoomItemProps {
 function ChatRoomItem({ room, currentUserId, isActive, onClick }: ChatRoomItemProps) {
   const displayName = getChatRoomDisplayName(room, currentUserId);
   const unreadCount = room.unread_count || 0;
+  const isPinned = room.my_is_pinned || false;
 
   // 프로필 이미지 또는 이니셜
   const getInitials = (name: string) => {
@@ -192,9 +193,16 @@ function ChatRoomItem({ room, currentUserId, isActive, onClick }: ChatRoomItemPr
       {/* 대화 정보 */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <span className={`font-medium truncate ${isActive ? "text-blue-600" : "text-gray-900"}`}>
-            {displayName}
-          </span>
+          <div className="flex items-center gap-1 min-w-0">
+            {isPinned && (
+              <svg className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+            )}
+            <span className={`font-medium truncate ${isActive ? "text-blue-600" : "text-gray-900"}`}>
+              {displayName}
+            </span>
+          </div>
           {room.last_message_at && (
             <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
               {formatMessageTime(room.last_message_at)}

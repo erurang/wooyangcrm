@@ -26,6 +26,7 @@ export default function ChatInput({
   const [isSending, setIsSending] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<Array<{ id: string; name: string; preview?: string }>>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isComposing, setIsComposing] = useState(false); // 한글 조합 중 여부
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -47,24 +48,34 @@ export default function ChatInput({
   // 메시지 전송
   const handleSend = useCallback(async () => {
     const trimmedMessage = message.trim();
-    if ((!trimmedMessage && pendingFiles.length === 0) || isSending || disabled) return;
+    const filesToSend = [...pendingFiles];
+    const replyToId = replyTo?.id;
+
+    if ((!trimmedMessage && filesToSend.length === 0) || isSending || disabled) return;
+
+    // 즉시 입력 초기화 (사용자가 바로 다음 메시지를 입력할 수 있도록)
+    setMessage("");
+    setPendingFiles([]);
+    onTyping(false);
+    onCancelReply?.();
+
+    // 텍스트에어리어 높이 초기화
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
 
     setIsSending(true);
     try {
       await onSend(
         trimmedMessage,
-        replyTo?.id,
-        pendingFiles.map((f) => f.id)
+        replyToId,
+        filesToSend.map((f) => f.id)
       );
-      setMessage("");
-      setPendingFiles([]);
-      onTyping(false);
-      onCancelReply?.();
-
-      // 텍스트에어리어 높이 초기화
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-      }
+    } catch (error) {
+      console.error("메시지 전송 실패:", error);
+      // 실패 시 메시지 복원
+      setMessage(trimmedMessage);
+      setPendingFiles(filesToSend);
     } finally {
       setIsSending(false);
     }
@@ -73,12 +84,15 @@ export default function ChatInput({
   // Enter 키로 전송 (Shift+Enter는 줄바꿈)
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      // 한글 조합 중이면 전송하지 않음
+      if (isComposing) return;
+
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         handleSend();
       }
     },
-    [handleSend]
+    [handleSend, isComposing]
   );
 
   // 파일 선택
@@ -204,6 +218,8 @@ export default function ChatInput({
             value={message}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={() => setIsComposing(false)}
             placeholder={placeholder}
             disabled={disabled}
             rows={1}

@@ -35,11 +35,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 파일 크기 제한 (10MB)
-    const maxSize = 10 * 1024 * 1024;
+    // 파일 크기 제한 (100MB)
+    const maxSize = 100 * 1024 * 1024;
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: "파일 크기는 10MB를 초과할 수 없습니다." },
+        { error: "파일 크기는 100MB를 초과할 수 없습니다." },
         { status: 400 }
       );
     }

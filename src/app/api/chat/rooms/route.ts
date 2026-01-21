@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     // 내가 참여중인 대화방 ID 조회
     const { data: participations, error: partError } = await supabase
       .from("chat_participants")
-      .select("room_id, last_read_at")
+      .select("room_id, last_read_at, notification_setting, is_pinned")
       .eq("user_id", userId)
       .is("left_at", null);
 
@@ -34,6 +34,12 @@ export async function GET(req: NextRequest) {
     const roomIds = participations.map((p) => p.room_id);
     const lastReadMap = new Map(
       participations.map((p) => [p.room_id, p.last_read_at])
+    );
+    const notificationSettingMap = new Map(
+      participations.map((p) => [p.room_id, p.notification_setting || "all"])
+    );
+    const isPinnedMap = new Map(
+      participations.map((p) => [p.room_id, p.is_pinned || false])
     );
 
     // 대화방 목록 조회
@@ -97,9 +103,21 @@ export async function GET(req: NextRequest) {
           ...room,
           unread_count: unreadCount,
           other_user: otherUser,
+          my_notification_setting: notificationSettingMap.get(room.id) || "all",
+          my_is_pinned: isPinnedMap.get(room.id) || false,
         };
       })
     );
+
+    // 핀된 방을 먼저, 그 다음 최근 메시지 순으로 정렬
+    roomsWithUnread.sort((a, b) => {
+      if (a.my_is_pinned && !b.my_is_pinned) return -1;
+      if (!a.my_is_pinned && b.my_is_pinned) return 1;
+      // 둘 다 핀 되었거나 안 되었으면 last_message_at 순
+      const aTime = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
+      const bTime = b.last_message_at ? new Date(b.last_message_at).getTime() : 0;
+      return bTime - aTime;
+    });
 
     return NextResponse.json({
       rooms: roomsWithUnread,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { ChatMessageWithRelations, ChatReactionGroup } from "@/types/chat";
 import { COMMON_EMOJIS, formatFileSize, isImageFile } from "@/types/chat";
 
@@ -9,10 +9,12 @@ interface ChatMessageProps {
   isOwn: boolean;
   isRead?: boolean;
   showAvatar?: boolean;
+  isHighlighted?: boolean;
   onReply?: (message: ChatMessageWithRelations) => void;
   onEdit?: (message: ChatMessageWithRelations) => void;
   onDelete?: (messageId: string) => void;
   onReaction?: (messageId: string, emoji: string) => void;
+  onScrollToMessage?: (messageId: string) => void;
 }
 
 export default function ChatMessage({
@@ -20,13 +22,41 @@ export default function ChatMessage({
   isOwn,
   isRead = false,
   showAvatar = true,
+  isHighlighted = false,
   onReply,
   onEdit,
   onDelete,
   onReaction,
+  onScrollToMessage,
 }: ChatMessageProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+
+  // 우클릭 메뉴
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  }, []);
+
+  // 메시지 복사
+  const handleCopy = useCallback(() => {
+    if (message.content) {
+      navigator.clipboard.writeText(message.content);
+    }
+    setContextMenu(null);
+  }, [message.content]);
+
+  // 답장
+  const handleReply = useCallback(() => {
+    onReply?.(message);
+    setContextMenu(null);
+  }, [message, onReply]);
+
+  // 컨텍스트 메뉴 닫기
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
+  }, []);
 
   // 시스템 메시지
   if (message.message_type === "system") {
@@ -56,8 +86,73 @@ export default function ChatMessage({
   });
 
   return (
+    <>
+    {/* 우클릭 컨텍스트 메뉴 */}
+    {contextMenu && (
+      <>
+        <div
+          className="fixed inset-0 z-50"
+          onClick={closeContextMenu}
+        />
+        <div
+          className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[120px]"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+        >
+          <button
+            onClick={handleCopy}
+            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            복사
+          </button>
+          <button
+            onClick={handleReply}
+            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+            </svg>
+            답장
+          </button>
+          {isOwn && (
+            <>
+              <hr className="my-1 border-gray-200" />
+              <button
+                onClick={() => {
+                  onEdit?.(message);
+                  setContextMenu(null);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                수정
+              </button>
+              <button
+                onClick={() => {
+                  onDelete?.(message.id);
+                  setContextMenu(null);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                삭제
+              </button>
+            </>
+          )}
+        </div>
+      </>
+    )}
     <div
-      className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-2 group`}
+      id={`message-${message.id}`}
+      className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-2 group transition-all duration-500 rounded-lg ${
+        isHighlighted ? "bg-yellow-100 -mx-2 px-2 py-1" : ""
+      }`}
       onMouseLeave={() => {
         setShowMenu(false);
         setShowEmojiPicker(false);
@@ -90,16 +185,23 @@ export default function ChatMessage({
         <div className={`relative flex items-end gap-1 ${isOwn ? "flex-row-reverse" : ""}`}>
           {/* 메시지 버블 */}
           <div
-            className={`relative px-4 py-2 rounded-2xl ${
+            className={`relative px-4 py-2 rounded-2xl cursor-pointer ${
               isOwn
                 ? "bg-blue-600 text-white rounded-br-md"
                 : "bg-gray-100 text-gray-900 rounded-bl-md"
             }`}
+            onContextMenu={handleContextMenu}
           >
             {/* 답장 대상 표시 */}
             {message.reply_to && (
               <div
-                className={`mb-2 pb-2 border-b ${
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (message.reply_to?.id) {
+                    onScrollToMessage?.(message.reply_to.id);
+                  }
+                }}
+                className={`mb-2 pb-2 border-b cursor-pointer hover:opacity-80 transition-opacity ${
                   isOwn ? "border-blue-400/50" : "border-gray-200"
                 }`}
               >
@@ -193,12 +295,12 @@ export default function ChatMessage({
 
           {/* 시간 + 읽음 표시 */}
           <div className={`flex flex-col items-end gap-0.5 ${isOwn ? "mr-1" : "ml-1"}`}>
-            <span className="text-xs text-gray-400">{messageTime}</span>
             {isOwn && (
-              <span className={`text-xs ${isRead ? "text-blue-500" : "text-gray-300"}`}>
-                {isRead ? "✓✓" : "✓"}
+              <span className={`text-xs ${isRead ? "text-blue-500" : "text-gray-400"}`}>
+                {isRead ? "읽음" : "안읽음"}
               </span>
             )}
+            <span className="text-xs text-gray-400">{messageTime}</span>
           </div>
 
           {/* 액션 버튼 (호버 시) */}
@@ -326,5 +428,6 @@ export default function ChatMessage({
         )}
       </div>
     </div>
+    </>
   );
 }

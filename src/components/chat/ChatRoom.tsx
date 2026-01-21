@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import { useChatMessages, useMarkAsRead, useTypingIndicator } from "@/hooks/chat";
-import type { ChatRoomWithRelations, ChatMessageWithRelations, ChatFile } from "@/types/chat";
+import type { ChatRoomWithRelations, ChatMessageWithRelations, ChatFile, ChatNotificationSetting } from "@/types/chat";
 import { getChatRoomDisplayName, formatMessageDate } from "@/types/chat";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
+import ChatRoomSettings from "./ChatRoomSettings";
 
 interface ChatRoomProps {
   room: ChatRoomWithRelations;
@@ -14,6 +15,8 @@ interface ChatRoomProps {
   onBack?: () => void;
   onOpenInfo?: () => void;
   onOpenSearch?: () => void;
+  onLeaveRoom?: () => void;
+  onSettingsChange?: () => void;
 }
 
 export default function ChatRoom({
@@ -22,10 +25,13 @@ export default function ChatRoom({
   onBack,
   onOpenInfo,
   onOpenSearch,
+  onLeaveRoom,
+  onSettingsChange,
 }: ChatRoomProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [replyTo, setReplyTo] = useState<ChatMessageWithRelations | null>(null);
   const [editingMessage, setEditingMessage] = useState<ChatMessageWithRelations | null>(null);
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
 
   const {
     messages,
@@ -123,6 +129,38 @@ export default function ChatRoom({
     },
     [room.id, currentUserId, mutate]
   );
+
+  // 메시지로 스크롤 및 하이라이트
+  const handleScrollToMessage = useCallback((messageId: string) => {
+    const messageElement = document.getElementById(`message-${messageId}`);
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightedMessageId(messageId);
+      // 2초 후 하이라이트 해제
+      setTimeout(() => {
+        setHighlightedMessageId(null);
+      }, 2000);
+    }
+  }, []);
+
+  // 대화방 나가기
+  const handleLeaveRoom = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/chat/rooms/${room.id}?userId=${currentUserId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        onLeaveRoom?.();
+      } else {
+        const data = await res.json();
+        alert(data.error || "대화방 나가기에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("대화방 나가기 실패:", error);
+      alert("대화방 나가기에 실패했습니다.");
+    }
+  }, [room.id, currentUserId, onLeaveRoom]);
 
   // 메시지 그룹화 (날짜별, 연속 메시지)
   const groupedMessages = messages.reduce(
@@ -240,6 +278,14 @@ export default function ChatRoom({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </button>
+          <ChatRoomSettings
+            roomId={room.id}
+            currentUserId={currentUserId}
+            currentNotificationSetting={(room.my_notification_setting as ChatNotificationSetting) || "all"}
+            isPinned={room.my_is_pinned || false}
+            onLeaveRoom={handleLeaveRoom}
+            onSettingsChange={() => onSettingsChange?.()}
+          />
         </div>
       </div>
 
@@ -278,10 +324,12 @@ export default function ChatRoom({
               isOwn={item.message.sender_id === currentUserId}
               isRead={getReadStatus(item.message)}
               showAvatar={item.showAvatar}
+              isHighlighted={highlightedMessageId === item.message.id}
               onReply={setReplyTo}
               onEdit={setEditingMessage}
               onDelete={deleteMessage}
               onReaction={handleReaction}
+              onScrollToMessage={handleScrollToMessage}
             />
           );
         })}
