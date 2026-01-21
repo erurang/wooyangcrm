@@ -14,7 +14,14 @@ interface YearlyComparisonData {
   previousYear: YearlyData;
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch");
+  const data = await res.json();
+  // 에러 응답인 경우 throw
+  if (data.error) throw new Error(data.error);
+  return data;
+};
 
 export function useYearlyComparison(userId: string | undefined, year?: number) {
   const currentYear = year || new Date().getFullYear();

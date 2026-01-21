@@ -44,7 +44,7 @@ interface UseFormValidationReturn<T> {
  *   ]
  * });
  */
-export function useFormValidation<T extends Record<string, any>>(
+export function useFormValidation<T extends Record<string, unknown>>(
   rules: ValidationRules<T>
 ): UseFormValidationReturn<T> {
   const [errors, setErrors] = useState<FormErrors<T>>({});
@@ -154,7 +154,7 @@ export const validators = {
     message: message || `최대 ${max}자까지 입력 가능합니다.`,
   }),
 
-  dateRange: <T extends Record<string, any>>(
+  dateRange: <T extends Record<string, unknown>>(
     startField: keyof T,
     endField: keyof T,
     message = "시작일은 종료일보다 앞이어야 합니다."
@@ -179,7 +179,7 @@ export const validators = {
     message: message || `${min}에서 ${max} 사이의 값을 입력해주세요.`,
   }),
 
-  priceRange: <T extends Record<string, any>>(
+  priceRange: <T extends Record<string, unknown>>(
     minField: keyof T,
     maxField: keyof T,
     message = "최소 가격은 최대 가격보다 작아야 합니다."

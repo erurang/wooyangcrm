@@ -47,16 +47,28 @@ export async function GET(request: NextRequest) {
     const ids = consultationIds.map(c => c.id);
 
     // 2. 해당 상담에 연결된 문서들 가져옴
-    const { data: documents, error } = await supabase
-      .from("documents")
-      .select("id, type, status, created_at, content, consultation_id")
-      .in("consultation_id", ids)
-      .in("type", ["estimate", "order"])
-      .eq("status", "completed")
-      .gte("created_at", `${previousYear}-01-01`)
-      .lt("created_at", `${currentYear + 1}-01-01`);
+    // Supabase .in() 쿼리는 URL 길이 제한이 있으므로 배치 처리
+    const BATCH_SIZE = 100;
+    const allDocuments: (DocumentRecord & { consultation_id: string })[] = [];
 
-    if (error) throw error;
+    for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+      const batchIds = ids.slice(i, i + BATCH_SIZE);
+      const { data: batchDocuments, error } = await supabase
+        .from("documents")
+        .select("id, type, status, created_at, content, consultation_id")
+        .in("consultation_id", batchIds)
+        .in("type", ["estimate", "order"])
+        .eq("status", "completed")
+        .gte("created_at", `${previousYear}-01-01`)
+        .lt("created_at", `${currentYear + 1}-01-01`);
+
+      if (error) throw error;
+      if (batchDocuments) {
+        allDocuments.push(...(batchDocuments as (DocumentRecord & { consultation_id: string })[]));
+      }
+    }
+
+    const documents = allDocuments;
 
     // Initialize monthly data
     const monthlyData: Record<number, Record<number, { sales: number; purchases: number }>> = {
@@ -71,7 +83,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Process documents
-    (documents as (DocumentRecord & { consultation_id: string })[] | null)?.forEach((doc) => {
+    documents.forEach((doc) => {
       const createdAt = new Date(doc.created_at);
       const year = createdAt.getFullYear();
       const month = createdAt.getMonth() + 1;

@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("consultations")
       .select(
-        "id, date, title, content, contact_method, follow_up_date, user_id, documents(id, type, document_number), created_at",
+        "id, date, title, content, contact_method, follow_up_date, user_id, documents(id, type, document_number, status), created_at",
         { count: "exact" }
       )
       .eq("company_id", companyId)

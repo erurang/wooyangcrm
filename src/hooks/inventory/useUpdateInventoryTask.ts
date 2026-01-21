@@ -48,11 +48,11 @@ export function useUpdateInventoryTask() {
   const assignTask = async (
     taskId: string,
     assigned_to: string,
-    assigned_by: string
+    user_id: string
   ): Promise<UpdateResult> => {
     return updateTask(taskId, {
       assigned_to,
-      user_id: assigned_by,
+      user_id,
     });
   };
 

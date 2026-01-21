@@ -3,13 +3,44 @@ import Image from "next/image";
 import React from "react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 
+interface DocumentItem {
+  name: string;
+  spec: string;
+  quantity: number;
+  unit_price: number;
+  amount?: number;
+}
+
+interface DocumentContent {
+  items?: DocumentItem[];
+  total_amount?: number;
+}
+
+interface Document {
+  date: string;
+  document_number: string;
+  company_name: string;
+  contact_name: string;
+  contact_level: string;
+  valid_until?: string;
+  delivery_term?: string;
+  delivery_date?: string;
+  payment_method: string;
+  delivery_place?: string;
+  user_name: string;
+  user_level: string;
+  content: DocumentContent;
+  total_amount: number;
+  notes: string;
+}
+
 interface DocumentModalProps {
-  document: any; // 문서 전체를 prop으로 받음
-  onClose: () => void; // 모달을 닫을 때 호출되는 함수
+  document: Document;
+  onClose: () => void;
   company_fax: string;
   type: string;
-  koreanAmount: any;
-  company_phone?: any;
+  koreanAmount: (amount: number) => string;
+  company_phone?: string;
 }
 
 const DocumentModal: React.FC<DocumentModalProps> = ({
@@ -274,7 +305,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             
             ${document.content.items
               ?.map(
-                (item: any, index: number) =>
+                (item: DocumentItem, index: number) =>
                   `<tr style="background-color: white; text-align: center;">
                 <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; solid black;">${
                   index + 1
@@ -584,7 +615,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             
             ${document.content.items
               ?.map(
-                (item: any, index: number) =>
+                (item: DocumentItem, index: number) =>
                   `<tr style="background-color: white; text-align: center;">
                 <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; solid black;">${
                   index + 1
@@ -878,7 +909,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             
             ${document.content.items
               ?.map(
-                (item: any, index: number) =>
+                (item: DocumentItem, index: number) =>
                   `<tr style="background-color: white; text-align: center;">
                 <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; solid black;">${
                   index + 1
@@ -1110,7 +1141,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                 </thead>
                 <tbody className="border-black border-2">
-                  {document.content.items?.map((item: any, index: any) => (
+                  {document.content.items?.map((item: DocumentItem, index: number) => (
                     <tr
                       className="hover:bg-gray-50 border-b-[1px] border-black"
                       key={index}
@@ -1316,7 +1347,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                 </thead>
                 <tbody className="border-black border-2">
-                  {document.content.items?.map((item: any, index: any) => (
+                  {document.content.items?.map((item: DocumentItem, index: number) => (
                     <tr
                       className="hover:bg-gray-50 border-b-[1px] border-black"
                       key={index}
@@ -1512,7 +1543,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   </tr>
                 </thead>
                 <tbody className="border-black border-2">
-                  {document.content.items?.map((item: any, index: any) => (
+                  {document.content.items?.map((item: DocumentItem, index: number) => (
                     <tr
                       className="hover:bg-gray-50 border-b-[1px] border-black"
                       key={index}

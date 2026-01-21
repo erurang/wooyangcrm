@@ -3,6 +3,7 @@
 import { Edit, Trash2, ChevronLeft, ChevronRight, Phone, Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import EmptyState from "@/components/ui/EmptyState";
+import { useIsDesktop } from "@/hooks/useMediaQuery";
 
 interface Contact {
   contact_name: string;
@@ -57,6 +58,7 @@ export default function CompaniesTable({
   hasSearchQuery = false,
 }: CompaniesTableProps) {
   const router = useRouter();
+  const isDesktop = useIsDesktop();
 
   const paginationNumbers = () => {
     const pageNumbers: (number | string)[] = [];
@@ -108,8 +110,9 @@ export default function CompaniesTable({
           </div>
         ) : companies && companies.length > 0 ? (
           <>
-            {/* 모바일: 카드 레이아웃 */}
-            <div className="sm:hidden divide-y divide-slate-100">
+            {/* 모바일: 카드 레이아웃 - JS 기반 조건부 렌더링 */}
+            {!isDesktop && (
+            <div className="divide-y divide-slate-100">
               {companies.map((company: Company) => (
                 <div
                   key={company.id}
@@ -173,9 +176,11 @@ export default function CompaniesTable({
                 </div>
               ))}
             </div>
+            )}
 
-            {/* 데스크탑: 테이블 레이아웃 */}
-            <div className="hidden sm:block overflow-x-auto">
+            {/* 데스크탑: 테이블 레이아웃 - JS 기반 조건부 렌더링 */}
+            {isDesktop && (
+            <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
@@ -271,6 +276,7 @@ export default function CompaniesTable({
                 </tbody>
               </table>
             </div>
+            )}
           </>
         ) : (
           <EmptyState

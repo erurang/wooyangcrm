@@ -7,7 +7,33 @@ interface Document {
   id: string;
   type: "estimate" | "requestQuote" | "order";
   document_number: string;
+  status?: "pending" | "completed" | "canceled";
 }
+
+// 상태 배지 스타일
+const getStatusStyle = (status?: string) => {
+  switch (status) {
+    case "completed":
+      return "bg-emerald-500 text-white";
+    case "canceled":
+      return "bg-slate-400 text-white";
+    case "pending":
+    default:
+      return "bg-amber-500 text-white";
+  }
+};
+
+const getStatusLabel = (status?: string) => {
+  switch (status) {
+    case "completed":
+      return "완료";
+    case "canceled":
+      return "취소";
+    case "pending":
+    default:
+      return "진행";
+  }
+};
 
 interface Consultation {
   id: string;
@@ -165,9 +191,12 @@ export default function FollowTable({
                               <span
                                 key={doc.id}
                                 onClick={() => onDocumentClick(doc)}
-                                className="inline-flex items-center px-2 py-1 bg-orange-50 text-orange-700 text-xs rounded-lg cursor-pointer active:bg-orange-100 sm:hover:bg-orange-100 transition-colors"
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-700 text-xs rounded-lg cursor-pointer active:bg-orange-100 sm:hover:bg-orange-100 transition-colors"
                               >
                                 {doc.document_number}
+                                <span className={`px-1 py-0.5 text-[10px] rounded ${getStatusStyle(doc.status)}`}>
+                                  {getStatusLabel(doc.status)}
+                                </span>
                               </span>
                             ))}
                           </div>

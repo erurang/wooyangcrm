@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import SnackbarComponent from "@/components/Snackbar";
+import ErrorState from "@/components/ui/ErrorState";
 import {
   CompanyFormModal,
   CompanyDeleteModal,
@@ -140,6 +141,19 @@ export default function CompanySearchPage() {
     setContactTerm("");
     setCurrentPage(1);
   };
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <ErrorState
+          type="server"
+          title="거래처 목록을 불러올 수 없습니다"
+          message="서버와의 연결에 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+          onRetry={refreshCompanies}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">

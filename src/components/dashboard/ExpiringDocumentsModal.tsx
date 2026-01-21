@@ -215,17 +215,17 @@ export default function ExpiringDocumentsModal({
           </div>
 
           {/* Content - 3 Column Split View */}
-          <div className="flex-1 overflow-hidden grid grid-cols-3 divide-x divide-slate-200">
+          <div className="flex-1 min-h-0 overflow-hidden grid grid-cols-3 divide-x divide-slate-200">
             {/* Left: 임박 (매출+매입) */}
-            <div className="flex flex-col h-full">
-              <div className="flex items-center gap-2 px-4 py-3 bg-amber-50 border-b border-slate-200">
+            <div className="flex flex-col min-h-0 h-full">
+              <div className="flex-shrink-0 flex items-center gap-2 px-4 py-3 bg-amber-50 border-b border-slate-200">
                 <Clock className="h-4 w-4 text-amber-600" />
                 <h3 className="text-sm font-semibold text-amber-800">임박</h3>
                 <span className="px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded-full">
                   {upcomingAll.length}
                 </span>
               </div>
-              <div className="flex-1 overflow-y-auto p-3">
+              <div className="flex-1 min-h-0 overflow-y-auto p-3">
                 {isLoading ? (
                   <LoadingState />
                 ) : (
@@ -241,15 +241,15 @@ export default function ExpiringDocumentsModal({
             </div>
 
             {/* Center: 만료 매출 (견적서) */}
-            <div className="flex flex-col h-full">
-              <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border-b border-slate-200">
+            <div className="flex flex-col min-h-0 h-full">
+              <div className="flex-shrink-0 flex items-center gap-2 px-4 py-3 bg-green-50 border-b border-slate-200">
                 <TrendingUp className="h-4 w-4 text-green-600" />
                 <h3 className="text-sm font-semibold text-green-800">만료 (매출)</h3>
                 <span className="px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">
                   {expiredEstimates.length}
                 </span>
               </div>
-              <div className="flex-1 overflow-y-auto p-3">
+              <div className="flex-1 min-h-0 overflow-y-auto p-3">
                 {isLoading ? (
                   <LoadingState />
                 ) : (
@@ -264,15 +264,15 @@ export default function ExpiringDocumentsModal({
             </div>
 
             {/* Right: 만료 매입 (발주서) */}
-            <div className="flex flex-col h-full">
-              <div className="flex items-center gap-2 px-4 py-3 bg-purple-50 border-b border-slate-200">
+            <div className="flex flex-col min-h-0 h-full">
+              <div className="flex-shrink-0 flex items-center gap-2 px-4 py-3 bg-purple-50 border-b border-slate-200">
                 <TrendingDown className="h-4 w-4 text-purple-600" />
                 <h3 className="text-sm font-semibold text-purple-800">만료 (매입)</h3>
                 <span className="px-1.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">
                   {expiredOrders.length}
                 </span>
               </div>
-              <div className="flex-1 overflow-y-auto p-3">
+              <div className="flex-1 min-h-0 overflow-y-auto p-3">
                 {isLoading ? (
                   <LoadingState />
                 ) : (

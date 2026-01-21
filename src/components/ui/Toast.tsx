@@ -93,7 +93,7 @@ interface ToastContainerProps {
 export function ToastContainer({
   toasts,
   onClose,
-  position = "top-right",
+  position = "bottom-right",
 }: ToastContainerProps) {
   const positionClasses: Record<string, string> = {
     "top-right": "top-4 right-4",

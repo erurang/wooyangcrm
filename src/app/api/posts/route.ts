@@ -32,7 +32,8 @@ export async function GET(req: NextRequest) {
       `
       *,
       user:users!posts_user_id_fkey(id, name, level),
-      category:post_categories!posts_category_id_fkey(id, name)
+      category:post_categories!posts_category_id_fkey(id, name),
+      post_comments(count)
     `,
       { count: "exact" }
     )
@@ -68,21 +69,18 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // 댓글 수 가져오기 (삭제되지 않은 댓글만)
-  const postsWithCommentCount = await Promise.all(
-    (posts || []).map(async (post) => {
-      const { count: commentsCount } = await supabase
-        .from("post_comments")
-        .select("*", { count: "exact", head: true })
-        .eq("post_id", post.id)
-        .is("deleted_at", null);
+  // 댓글 수 변환 (JOIN으로 가져온 데이터에서 추출)
+  const postsWithCommentCount = (posts || []).map((post) => {
+    const commentsData = post.post_comments as { count: number }[] | null;
+    const commentsCount = commentsData?.[0]?.count ?? 0;
 
-      return {
-        ...post,
-        comments_count: commentsCount || 0,
-      };
-    })
-  );
+    // post_comments 필드 제거하고 comments_count로 변환
+    const { post_comments, ...postData } = post;
+    return {
+      ...postData,
+      comments_count: commentsCount,
+    };
+  });
 
   const totalCount = count ?? 0;
   const totalPages = Math.ceil(totalCount / limit);

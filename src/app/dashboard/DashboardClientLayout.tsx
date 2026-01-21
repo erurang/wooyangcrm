@@ -1,6 +1,7 @@
 "use client";
 
 import { DashboardProvider } from "@/context/dashboard";
+import { DateFilterProvider } from "@/context/dateFilter";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   return (
@@ -18,8 +19,10 @@ export default function DashboardClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <DashboardProvider>
-      <DashboardLayoutContent>{children}</DashboardLayoutContent>
-    </DashboardProvider>
+    <DateFilterProvider>
+      <DashboardProvider>
+        <DashboardLayoutContent>{children}</DashboardLayoutContent>
+      </DashboardProvider>
+    </DateFilterProvider>
   );
 }

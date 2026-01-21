@@ -45,6 +45,7 @@ import { isOverdue } from "@/types/inventory";
 import { AlertTriangle } from "lucide-react";
 import { CircularProgress } from "@mui/material";
 import DocumentDetailModal from "@/components/inventory/DocumentDetailModal";
+import ErrorState from "@/components/ui/ErrorState";
 
 // 기본 필드 템플릿
 const getDefaultFields = (
@@ -142,6 +143,13 @@ export default function InboundPage() {
 
   // 체크박스 선택
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // 일괄 작업 모달
+  const [bulkAssignModalOpen, setBulkAssignModalOpen] = useState(false);
+  const [bulkStatusModalOpen, setBulkStatusModalOpen] = useState(false);
+  const [bulkDateModalOpen, setBulkDateModalOpen] = useState(false);
+  const [bulkDate, setBulkDate] = useState("");
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
 
   // 담당자 변경 모달
   const [assignModalOpen, setAssignModalOpen] = useState(false);
@@ -276,6 +284,73 @@ export default function InboundPage() {
       setSelectedIds(new Set());
     } else {
       setSelectedIds(new Set(taskIds));
+    }
+  };
+
+  // 일괄 담당자 변경
+  const handleBulkAssign = async (userId: string) => {
+    if (!loginUser || selectedIds.size === 0) return;
+    setIsBulkUpdating(true);
+
+    let successCount = 0;
+    for (const taskId of selectedIds) {
+      const result = await assignTask(taskId, userId, loginUser.id);
+      if (result.success) successCount++;
+    }
+
+    setIsBulkUpdating(false);
+    setBulkAssignModalOpen(false);
+
+    if (successCount > 0) {
+      handleRefresh();
+      setSelectedIds(new Set());
+    }
+  };
+
+  // 일괄 상태 변경
+  const handleBulkStatusChange = async (status: InventoryTaskStatus) => {
+    if (!loginUser || selectedIds.size === 0) return;
+    setIsBulkUpdating(true);
+
+    let successCount = 0;
+    for (const taskId of selectedIds) {
+      const result = await updateTask(taskId, {
+        status,
+        user_id: loginUser.id,
+      });
+      if (result.success) successCount++;
+    }
+
+    setIsBulkUpdating(false);
+    setBulkStatusModalOpen(false);
+
+    if (successCount > 0) {
+      handleRefresh();
+      setSelectedIds(new Set());
+    }
+  };
+
+  // 일괄 예정일 변경
+  const handleBulkDateChange = async () => {
+    if (!loginUser || selectedIds.size === 0 || !bulkDate) return;
+    setIsBulkUpdating(true);
+
+    let successCount = 0;
+    for (const taskId of selectedIds) {
+      const result = await updateTask(taskId, {
+        expected_date: bulkDate,
+        user_id: loginUser.id,
+      });
+      if (result.success) successCount++;
+    }
+
+    setIsBulkUpdating(false);
+    setBulkDateModalOpen(false);
+    setBulkDate("");
+
+    if (successCount > 0) {
+      handleRefresh();
+      setSelectedIds(new Set());
     }
   };
 
@@ -593,17 +668,13 @@ export default function InboundPage() {
   // 에러 상태
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-        <div className="flex flex-col items-center justify-center h-64 text-red-600">
-          <AlertCircle className="h-12 w-12 mb-2" />
-          <p>데이터를 불러오는데 실패했습니다</p>
-          <button
-            onClick={() => handleRefresh()}
-            className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
-          >
-            다시 시도
-          </button>
-        </div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <ErrorState
+          type="server"
+          title="입고 데이터를 불러올 수 없습니다"
+          message="서버와의 연결에 문제가 발생했습니다."
+          onRetry={handleRefresh}
+        />
       </div>
     );
   }
@@ -736,9 +807,9 @@ export default function InboundPage() {
       </div>
 
       <div className="p-4">
-        {/* 선택 인쇄 버튼 */}
+        {/* 선택 작업 버튼 */}
         {selectedIds.size > 0 && (
-          <div className="mb-4 flex items-center gap-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+          <div className="mb-4 flex items-center gap-3 p-3 bg-emerald-50 rounded-lg border border-emerald-200 flex-wrap">
             <span className="text-sm text-emerald-700 font-medium">
               {selectedIds.size}개 선택됨
             </span>
@@ -747,7 +818,28 @@ export default function InboundPage() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
             >
               <Printer className="h-4 w-4" />
-              선택 명세서 인쇄
+              명세서 인쇄
+            </button>
+            <button
+              onClick={() => setBulkAssignModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
+              <UserCheck className="h-4 w-4" />
+              담당자 일괄 변경
+            </button>
+            <button
+              onClick={() => setBulkStatusModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+            >
+              <CheckCircle className="h-4 w-4" />
+              상태 일괄 변경
+            </button>
+            <button
+              onClick={() => setBulkDateModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-colors"
+            >
+              <Calendar className="h-4 w-4" />
+              예정일 일괄 변경
             </button>
             <button
               onClick={() => setSelectedIds(new Set())}
@@ -1227,6 +1319,174 @@ export default function InboundPage() {
                   {isUpdating ? "저장 중..." : "저장"}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 일괄 담당자 변경 모달 */}
+      {bulkAssignModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <h3 className="font-semibold text-gray-900">
+                담당자 일괄 변경 ({selectedIds.size}개)
+              </h3>
+              <button
+                onClick={() => setBulkAssignModalOpen(false)}
+                disabled={isBulkUpdating}
+                className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-4 space-y-2 max-h-80 overflow-y-auto">
+              {isBulkUpdating ? (
+                <div className="flex flex-col items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <p className="mt-2 text-sm text-slate-600">변경 중...</p>
+                </div>
+              ) : (
+                users.map((user: { id: string; name: string; level?: string }) => (
+                  <button
+                    key={user.id}
+                    onClick={() => handleBulkAssign(user.id)}
+                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="h-4 w-4 text-blue-500" />
+                      <span className="font-medium">
+                        {user.name} {user.level}
+                      </span>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 일괄 상태 변경 모달 */}
+      {bulkStatusModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <h3 className="font-semibold text-gray-900">
+                상태 일괄 변경 ({selectedIds.size}개)
+              </h3>
+              <button
+                onClick={() => setBulkStatusModalOpen(false)}
+                disabled={isBulkUpdating}
+                className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-4 space-y-2">
+              {isBulkUpdating ? (
+                <div className="flex flex-col items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                  <p className="mt-2 text-sm text-slate-600">변경 중...</p>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => handleBulkStatusChange("pending")}
+                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-yellow-50 hover:border-yellow-300 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-yellow-500" />
+                      <span className="font-medium">대기</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleBulkStatusChange("assigned")}
+                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="h-4 w-4 text-blue-500" />
+                      <span className="font-medium">배정됨</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleBulkStatusChange("completed")}
+                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-emerald-500" />
+                      <span className="font-medium">완료</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => handleBulkStatusChange("canceled")}
+                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-red-50 hover:border-red-300 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <XCircle className="h-4 w-4 text-red-500" />
+                      <span className="font-medium">취소</span>
+                    </div>
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 예정일 일괄 변경 모달 */}
+      {bulkDateModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <h3 className="font-semibold text-gray-900">
+                예정일 일괄 변경 ({selectedIds.size}개)
+              </h3>
+              <button
+                onClick={() => {
+                  setBulkDateModalOpen(false);
+                  setBulkDate("");
+                }}
+                disabled={isBulkUpdating}
+                className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              {isBulkUpdating ? (
+                <div className="flex flex-col items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
+                  <p className="mt-2 text-sm text-slate-600">변경 중...</p>
+                </div>
+              ) : (
+                <>
+                  <input
+                    type="date"
+                    value={bulkDate}
+                    onChange={(e) => setBulkDate(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setBulkDateModalOpen(false);
+                        setBulkDate("");
+                      }}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                    >
+                      취소
+                    </button>
+                    <button
+                      onClick={handleBulkDateChange}
+                      disabled={!bulkDate}
+                      className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      변경
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

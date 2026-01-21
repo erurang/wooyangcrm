@@ -192,7 +192,10 @@ export async function PATCH(
 
     if (assigned_to !== undefined && assigned_to !== oldData.assigned_to) {
       updateData.assigned_to = assigned_to;
-      updateData.assigned_by = user_id;
+      // 지정자가 없을 때만 자동 설정 (최초 배정 시)
+      if (!oldData.assigned_by) {
+        updateData.assigned_by = user_id;
+      }
       updateData.assigned_at = new Date().toISOString();
       updateData.status = "assigned";
       changedFields.push("assigned_to");

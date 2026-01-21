@@ -12,6 +12,7 @@ import { useFollowUpList } from "@/hooks/consultations/follow/useFollowUpList";
 import { FollowSearchFilter, FollowTable } from "@/components/consultations/follow";
 import { RecentTableControls, RecentDocumentModal } from "@/components/consultations/recent";
 import { ConsultationPagination } from "@/components/consultations/search";
+import ErrorState from "@/components/ui/ErrorState";
 
 interface Document {
   id: string;
@@ -152,7 +153,7 @@ export default function FollowUpConsultations() {
   const debounceStartDate = useDebounce(startDate, 300);
   const debounceEndDate = useDebounce(endDate, 300);
 
-  const { consultations, totalPages, isLoading: isConsultationsLoading } = useFollowUpList({
+  const { consultations, totalPages, isLoading: isConsultationsLoading, isError, mutate } = useFollowUpList({
     page: currentPage,
     limit: consultationsPerPage,
     selectedUser,
@@ -216,6 +217,19 @@ export default function FollowUpConsultations() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <ErrorState
+          type="server"
+          title="팔로업 목록을 불러올 수 없습니다"
+          message="서버와의 연결에 문제가 발생했습니다."
+          onRetry={() => mutate()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-sm text-slate-800">

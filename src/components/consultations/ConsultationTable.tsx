@@ -11,6 +11,31 @@ import DocumentModal from "@/components/documents/preview/DocumentModal";
 import { numberToKorean } from "@/lib/numberToKorean";
 import { supabase } from "@/lib/supabaseClient";
 
+// 상태 배지 스타일
+const getStatusStyle = (status?: string) => {
+  switch (status) {
+    case "completed":
+      return "bg-emerald-500 text-white";
+    case "canceled":
+      return "bg-slate-400 text-white";
+    case "pending":
+    default:
+      return "bg-amber-500 text-white";
+  }
+};
+
+const getStatusLabel = (status?: string) => {
+  switch (status) {
+    case "completed":
+      return "완료";
+    case "canceled":
+      return "취소";
+    case "pending":
+    default:
+      return "진행";
+  }
+};
+
 // 문서 모달용 타입
 interface DocumentForModal {
   id: string;
@@ -403,9 +428,12 @@ export default function ConsultationTable({
                               <span
                                 key={doc.id}
                                 onClick={() => doc.id && openDocumentModal(doc.id)}
-                                className="px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
                               >
                                 {doc.document_number || "번호없음"}
+                                <span className={`px-1 py-0.5 text-[10px] rounded ${getStatusStyle(doc.status)}`}>
+                                  {getStatusLabel(doc.status)}
+                                </span>
                               </span>
                             ))}
                         </div>
@@ -429,9 +457,12 @@ export default function ConsultationTable({
                               <span
                                 key={doc.id}
                                 onClick={() => doc.id && openDocumentModal(doc.id)}
-                                className="px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
                               >
                                 {doc.document_number || "번호없음"}
+                                <span className={`px-1 py-0.5 text-[10px] rounded ${getStatusStyle(doc.status)}`}>
+                                  {getStatusLabel(doc.status)}
+                                </span>
                               </span>
                             ))}
                         </div>
@@ -455,9 +486,12 @@ export default function ConsultationTable({
                               <span
                                 key={doc.id}
                                 onClick={() => doc.id && openDocumentModal(doc.id)}
-                                className="px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
                               >
                                 {doc.document_number || "번호없음"}
+                                <span className={`px-1 py-0.5 text-[10px] rounded ${getStatusStyle(doc.status)}`}>
+                                  {getStatusLabel(doc.status)}
+                                </span>
                               </span>
                             ))}
                         </div>

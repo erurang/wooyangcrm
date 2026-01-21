@@ -28,7 +28,7 @@ export async function GET(request: Request) {
           created_at,
           companies (id, name, fax, phone),
           users(id, name, level),
-          documents (type, id, document_number, content, user_id, created_at, payment_method, notes, valid_until, delivery_date, total_amount, delivery_term, delivery_place, companies (id, name)),
+          documents (type, id, document_number, status, content, user_id, created_at, payment_method, notes, valid_until, delivery_date, total_amount, delivery_term, delivery_place, companies (id, name)),
           contacts_consultations (contacts (contact_name, level, mobile))
         `,
         { count: "exact" }

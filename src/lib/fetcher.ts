@@ -1,7 +1,7 @@
-export const fetcher = async (
+export const fetcher = async <T = unknown>(
   url: string,
-  { arg }: { arg: { method?: string; body?: any } }
-) => {
+  { arg }: { arg: { method?: string; body?: unknown } }
+): Promise<T> => {
   const res = await fetch(url, {
     method: arg?.method || "GET",
     headers: {
@@ -14,6 +14,6 @@ export const fetcher = async (
     throw new Error(`API 요청 실패: ${res.status}`);
   }
 
-  const data = await res.json();
+  const data: T = await res.json();
   return data;
 };

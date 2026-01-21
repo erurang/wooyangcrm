@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Edit, Trash2, Building2, User, Phone, Mail } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
+import { useIsDesktop } from "@/hooks/useMediaQuery";
 
 interface Contact {
   id: string;
@@ -46,6 +47,7 @@ export default function ContactsTable({
   onPageChange,
 }: ContactsTableProps) {
   const router = useRouter();
+  const isDesktop = useIsDesktop();
 
   // 로딩 상태
   if (isLoading) {
@@ -103,8 +105,9 @@ export default function ContactsTable({
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        {/* 모바일: 카드 레이아웃 */}
-        <div className="sm:hidden divide-y divide-slate-100">
+        {/* 모바일: 카드 레이아웃 - JS 기반 조건부 렌더링 */}
+        {!isDesktop && (
+        <div className="divide-y divide-slate-100">
           {contacts.map((contact: Contact) => (
             <div
               key={contact.id}
@@ -181,9 +184,11 @@ export default function ContactsTable({
             </div>
           ))}
         </div>
+        )}
 
-        {/* 데스크탑: 테이블 레이아웃 */}
-        <div className="hidden sm:block overflow-x-auto">
+        {/* 데스크탑: 테이블 레이아웃 - JS 기반 조건부 렌더링 */}
+        {isDesktop && (
+        <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
@@ -299,6 +304,7 @@ export default function ContactsTable({
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </div>
   );

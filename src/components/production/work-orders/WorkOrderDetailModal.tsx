@@ -829,46 +829,50 @@ export default function WorkOrderDetailModal({
                       <FileText className="h-4 w-4" />
                       첨부파일 ({files.length})
                     </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      className="hidden"
-                      onChange={handleFileUpload}
-                    />
-                  </div>
-                  {/* 드래그 앤 드롭 영역 */}
-                  <div
-                    onDragOver={handleFileDragOver}
-                    onDragEnter={handleFileDragEnter}
-                    onDragLeave={handleFileDragLeave}
-                    onDrop={handleFileDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`relative border-2 border-dashed rounded-lg p-3 mb-2 text-center cursor-pointer transition-all ${
-                      isDraggingFile
-                        ? "border-purple-500 bg-purple-50"
-                        : "border-slate-200 hover:border-purple-300 hover:bg-slate-50"
-                    }`}
-                  >
-                    {uploading ? (
-                      <div className="flex flex-col items-center gap-1 text-slate-500">
-                        <Loader2 className="h-6 w-6 animate-spin" />
-                        <p className="text-xs">업로드 중...</p>
-                      </div>
-                    ) : isDraggingFile ? (
-                      <div className="flex flex-col items-center gap-1 text-purple-600">
-                        <Upload className="h-6 w-6" />
-                        <p className="text-xs font-medium">파일을 여기에 놓으세요</p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-1 text-slate-400">
-                        <Upload className="h-6 w-6" />
-                        <p className="text-xs">
-                          <span className="font-medium text-purple-600">파일 선택</span> 또는 드래그
-                        </p>
-                      </div>
+                    {viewMode === "edit" && (
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        className="hidden"
+                        onChange={handleFileUpload}
+                      />
                     )}
                   </div>
+                  {/* 드래그 앤 드롭 영역 - 수정 모드에서만 표시 */}
+                  {viewMode === "edit" && (
+                    <div
+                      onDragOver={handleFileDragOver}
+                      onDragEnter={handleFileDragEnter}
+                      onDragLeave={handleFileDragLeave}
+                      onDrop={handleFileDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`relative border-2 border-dashed rounded-lg p-3 mb-2 text-center cursor-pointer transition-all ${
+                        isDraggingFile
+                          ? "border-purple-500 bg-purple-50"
+                          : "border-slate-200 hover:border-purple-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      {uploading ? (
+                        <div className="flex flex-col items-center gap-1 text-slate-500">
+                          <Loader2 className="h-6 w-6 animate-spin" />
+                          <p className="text-xs">업로드 중...</p>
+                        </div>
+                      ) : isDraggingFile ? (
+                        <div className="flex flex-col items-center gap-1 text-purple-600">
+                          <Upload className="h-6 w-6" />
+                          <p className="text-xs font-medium">파일을 여기에 놓으세요</p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 text-slate-400">
+                          <Upload className="h-6 w-6" />
+                          <p className="text-xs">
+                            <span className="font-medium text-purple-600">파일 선택</span> 또는 드래그
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {files.length > 0 && (
                     <div className="space-y-2 max-h-40 overflow-y-auto">
                       {files.map((file) => (

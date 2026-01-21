@@ -27,6 +27,7 @@ import { useUpdateDocumentStatus } from "@/hooks/documents/details/useUpdateDocu
 import DocumentModal from "@/components/documents/preview/DocumentModal";
 import DocumentStatusChangeModal from "@/components/documents/details/DocumentStatusChangeModal";
 import { numberToKorean } from "@/lib/numberToKorean";
+import type { Document } from "@/types/document";
 
 type ReviewStatus = "all" | "expired" | "canceled" | "stale" | "pending" | "completed";
 type DocType = "all" | "estimate" | "order" | "requestQuote";
@@ -54,14 +55,14 @@ export default function DocumentsReviewPage() {
   const [showFilters, setShowFilters] = useState(false);
 
   // 문서 모달
-  const [selectedDocument, setSelectedDocument] = useState<any | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
 
   // 하이라이트 문서 (별도 조회)
-  const [highlightedDoc, setHighlightedDoc] = useState<any | null>(null);
+  const [highlightedDoc, setHighlightedDoc] = useState<Document | null>(null);
   const [highlightFetched, setHighlightFetched] = useState(false);
 
   // 상태 변경 모달
-  const [statusChangeDoc, setStatusChangeDoc] = useState<any | null>(null);
+  const [statusChangeDoc, setStatusChangeDoc] = useState<Document | null>(null);
   const [changedStatus, setChangedStatus] = useState("");
   const [statusReason, setStatusReason] = useState({
     canceled: { reason: "", amount: 0 },
@@ -157,7 +158,7 @@ export default function DocumentsReviewPage() {
   // 표시할 문서 목록 (하이라이트 문서가 목록에 없으면 맨 위에 추가)
   const displayDocuments = useMemo(() => {
     if (!highlightedDoc) return documents;
-    const exists = documents.some((doc: any) => doc.id === highlightedDoc.id);
+    const exists = documents.some((doc: Document) => doc.id === highlightedDoc.id);
     if (exists) return documents;
     return [highlightedDoc, ...documents];
   }, [documents, highlightedDoc]);
@@ -226,12 +227,12 @@ export default function DocumentsReviewPage() {
   };
 
   // 문서 모달 열기
-  const openDocumentModal = (doc: any) => {
+  const openDocumentModal = (doc: Document) => {
     setSelectedDocument(doc);
   };
 
   // 상담 페이지로 이동
-  const goToConsultation = (doc: any) => {
+  const goToConsultation = (doc: Document) => {
     router.push(
       `/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&highlight=${doc.id}`
     );
@@ -429,7 +430,7 @@ export default function DocumentsReviewPage() {
             <div className="flex flex-wrap gap-2">
               {(() => {
                 const userStats: Record<string, { name: string; count: number; amount: number }> = {};
-                documents.forEach((doc: any) => {
+                documents.forEach((doc: Document) => {
                   if (doc.status !== "completed") {
                     const key = doc.user_id || "unknown";
                     if (!userStats[key]) {
@@ -588,7 +589,7 @@ export default function DocumentsReviewPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {displayDocuments.map((doc: any) => (
+                  {displayDocuments.map((doc: Document) => (
                     <tr
                       key={doc.id}
                       id={`doc-row-${doc.id}`}

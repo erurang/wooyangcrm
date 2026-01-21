@@ -43,6 +43,21 @@ export default function SalesComparisonChart({
     );
   }
 
+  // 데이터 유효성 검사
+  if (!currentYear?.year || !previousYear?.year) {
+    return (
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
+        <div className="flex items-center mb-3">
+          <TrendingUp className="h-4 w-4 text-emerald-600 mr-2" />
+          <h2 className="text-sm font-semibold text-slate-800">매출/매입 추이</h2>
+        </div>
+        <div className="h-[250px] flex items-center justify-center text-slate-400 text-sm">
+          데이터를 불러올 수 없습니다
+        </div>
+      </div>
+    );
+  }
+
   const series = [
     {
       name: `${currentYear.year}년 매출`,

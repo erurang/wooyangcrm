@@ -215,7 +215,7 @@ export async function POST(
           Array.from(notificationTargets),
           notifTitle,
           notifMessage,
-          `/production/work-orders/${id}`,
+          `/production?view=${id}`,
           "work_order_comment",
           notificationIdMap
         );

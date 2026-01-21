@@ -20,14 +20,14 @@ export interface DocumentItem {
 export interface DocumentContent {
   items: DocumentItem[];
   // Legacy fallback fields (마이그레이션 전 데이터 호환용)
-  company_name?: string;
-  notes?: string;
-  total_amount?: number;
-  valid_until?: string;
-  delivery_term?: string;
-  delivery_place?: string;
-  delivery_date?: string;
-  payment_method?: string;
+  company_name?: string | null;
+  notes?: string | null;
+  total_amount?: number | null;
+  valid_until?: string | null;
+  delivery_term?: string | null;
+  delivery_place?: string | null;
+  delivery_date?: string | null;
+  payment_method?: string | null;
 }
 
 export interface Document {
@@ -59,6 +59,9 @@ export interface Document {
   total_amount: number;
   delivery_term: string | null;
   delivery_place: string | null;
+  // 리뷰/상태 관련
+  review_reason?: string | null;
+  status_reason?: StatusReason | null;
 }
 
 export interface NewDocument {

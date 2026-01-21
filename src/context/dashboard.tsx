@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { useDateRange } from "@/hooks/dashboard/useDateRange";
 import { useDashboardData } from "@/hooks/dashboard/useDashboardData";
 import { useUserDetail } from "@/hooks/useUserDetail";
 import { useUserTransactions } from "@/hooks/reports/userDetail/useUserTransactions";
@@ -9,6 +8,7 @@ import { useUserDocumentList } from "@/hooks/reports/userDetail/documents/useUse
 import { useLoginLogs } from "@/hooks/dashboard/useLoginLogs";
 import { useClientSummary } from "@/hooks/dashboard/useClientSummary";
 import { useLoginUser } from "@/context/login";
+import { useDateFilter } from "@/context/dateFilter";
 import type { DateFilterType } from "@/types/dateFilter";
 import type { DashboardUserData } from "@/types/dashboard";
 
@@ -81,20 +81,19 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const loginUser = useLoginUser();
   const userId = loginUser?.id || "";
 
-  // Date filter
+  // Date filter (from shared context)
   const {
     dateFilter,
     selectedYear,
     selectedQuarter,
     selectedMonth,
-    dateRange,
+    startDate,
+    endDate,
     setDateFilter,
     setSelectedYear,
     setSelectedQuarter,
     setSelectedMonth,
-  } = useDateRange();
-
-  const { startDate, endDate } = dateRange;
+  } = useDateFilter();
 
   // Data hooks
   const { user } = useUserDetail(userId);

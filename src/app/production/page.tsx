@@ -18,18 +18,44 @@ import { useLoginUser } from "@/context/login";
 import { useWorkOrders, useMyWorkOrders } from "@/hooks/production/useWorkOrders";
 import { useLowStockProducts, useFinishedProducts, useRawMaterials } from "@/hooks/production/useProducts";
 import { useProductionRecords } from "@/hooks/production/useProductionRecords";
+import ProductionDashboardSkeleton from "@/components/skeleton/ProductionDashboardSkeleton";
+import ErrorState from "@/components/ui/ErrorState";
 
 export default function ProductionDashboardPage() {
   const router = useRouter();
   const user = useLoginUser();
 
   // Data hooks
-  const { workOrders } = useWorkOrders();
-  const { workOrders: myWorkOrders } = useMyWorkOrders(user?.id);
-  const { products: lowStockProducts } = useLowStockProducts();
-  const { products: finishedProducts } = useFinishedProducts({ is_active: true });
-  const { products: rawMaterials } = useRawMaterials({ is_active: true });
-  const { records: productionRecords } = useProductionRecords();
+  const { workOrders, isLoading: isLoadingWorkOrders, isError: isErrorWorkOrders, refresh: refreshWorkOrders } = useWorkOrders();
+  const { workOrders: myWorkOrders, isLoading: isLoadingMyWorkOrders } = useMyWorkOrders(user?.id);
+  const { products: lowStockProducts, isLoading: isLoadingLowStock, isError: isErrorLowStock, refresh: refreshLowStock } = useLowStockProducts();
+  const { products: finishedProducts, isLoading: isLoadingFinished } = useFinishedProducts({ is_active: true });
+  const { products: rawMaterials, isLoading: isLoadingRaw } = useRawMaterials({ is_active: true });
+  const { records: productionRecords, isLoading: isLoadingRecords } = useProductionRecords();
+
+  // 전체 로딩/에러 상태
+  const isLoading = isLoadingWorkOrders || isLoadingMyWorkOrders || isLoadingLowStock || isLoadingFinished || isLoadingRaw || isLoadingRecords;
+  const isError = isErrorWorkOrders || isErrorLowStock;
+
+  if (isLoading) {
+    return <ProductionDashboardSkeleton />;
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <ErrorState
+          type="server"
+          title="생산관리 데이터를 불러올 수 없습니다"
+          message="서버와의 연결에 문제가 발생했습니다."
+          onRetry={() => {
+            refreshWorkOrders?.();
+            refreshLowStock?.();
+          }}
+        />
+      </div>
+    );
+  }
 
   // Stats
   const pendingWorkOrders = workOrders.filter((wo) => wo.status === "pending").length;

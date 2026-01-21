@@ -35,7 +35,7 @@ export function useFollowUpList({
   // ✅ companyIds가 있을 때만 추가
   companyIds.forEach((id) => queryParams.append("companyIds", id));
 
-  const { data, error } = useSWR(
+  const { data, error, mutate } = useSWR(
     `/api/consultations/follow?${queryParams.toString()}`,
     fetcher
   );
@@ -45,5 +45,6 @@ export function useFollowUpList({
     totalPages: Math.max(1, Math.ceil((data?.total || 0) / limit)),
     isLoading: !data && !error,
     isError: error,
+    mutate,
   };
 }
