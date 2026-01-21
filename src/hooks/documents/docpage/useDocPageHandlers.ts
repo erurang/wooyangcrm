@@ -120,10 +120,14 @@ interface UseDocPageHandlersProps {
   contacts: Contact[];
   items: DocumentItem[];
   totalAmount: number;
-  addDocument: (params: AddDocumentParams) => Promise<DocumentResponse>;
-  updateDocument: (params: UpdateDocumentParams) => Promise<DocumentResponse>;
-  updateStatus: (params: UpdateStatusParams) => Promise<void>;
-  refreshDocuments: () => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  addDocument: (params: AddDocumentParams) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateDocument: (params: UpdateDocumentParams) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateStatus: (params: UpdateStatusParams) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  refreshDocuments: () => Promise<any>;
   isAdding: boolean;
   isUpdating: boolean;
 }

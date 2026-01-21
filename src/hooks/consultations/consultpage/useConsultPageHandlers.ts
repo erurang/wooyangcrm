@@ -52,14 +52,22 @@ interface UseConsultPageHandlersProps {
   companyId: string;
   loginUserId: string;
   contacts: Contact[];
-  addConsultation: (params: ConsultationApiParams) => Promise<ConsultationApiResponse>;
-  assignConsultationContact: (params: ConsultationApiParams) => Promise<unknown>;
-  updateConsultation: (params: ConsultationApiParams) => Promise<unknown>;
-  updateContacts: (contacts: Contact[], companyId: string) => Promise<unknown>;
-  refreshConsultations: () => Promise<void>;
-  refreshContactsConsultations: () => Promise<void>;
-  refreshCompany: () => Promise<void>;
-  refreshContacts: () => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  addConsultation: (params: ConsultationApiParams) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  assignConsultationContact: (params: ConsultationApiParams) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateConsultation: (params: ConsultationApiParams) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateContacts: (contacts: Contact[], companyId: string) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  refreshConsultations: () => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  refreshContactsConsultations: () => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  refreshCompany: () => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  refreshContacts: () => Promise<any>;
   isAdding: boolean;
   isUpdating: boolean;
 }

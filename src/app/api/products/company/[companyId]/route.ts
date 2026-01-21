@@ -19,6 +19,7 @@ interface DocumentRecord {
     company_name?: string;
   };
   created_at: string;
+  date: string | null;
   status: string;
   type: string;
 }
@@ -53,11 +54,11 @@ export async function GET(
     // 해당 거래처의 모든 견적서/발주서 조회
     const { data, error } = await supabase
       .from("documents")
-      .select(`id, document_number, company_id, content, created_at, status, type`)
+      .select(`id, document_number, company_id, content, created_at, date, status, type`)
       .eq("company_id", companyId)
       .in("type", ["estimate", "order"])
       .in("status", ["pending", "completed"])
-      .order("created_at", { ascending: false });
+      .order("date", { ascending: false, nullsFirst: false });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
@@ -111,14 +112,17 @@ export async function GET(
         const group = groupedMap.get(groupKey)!;
         group.recordCount++;
 
+        // 문서 날짜 (date 우선, 없으면 created_at 사용)
+        const docDate = doc.date || doc.created_at;
+
         // 가격 통계 업데이트
         if (unitPrice < group.minPrice) group.minPrice = unitPrice;
         if (unitPrice > group.maxPrice) group.maxPrice = unitPrice;
 
         // 최신 가격 업데이트
-        if (!group.latestDate || doc.created_at > group.latestDate) {
+        if (!group.latestDate || docDate > group.latestDate) {
           group.latestPrice = unitPrice;
-          group.latestDate = doc.created_at;
+          group.latestDate = docDate;
         }
 
         // 가격 히스토리 추가
@@ -126,7 +130,7 @@ export async function GET(
           price: unitPrice,
           quantity: String(item.quantity || ""),
           unit: item.unit || "개",
-          date: doc.created_at,
+          date: docDate,
           documentNumber: doc.document_number,
           documentId: doc.id,
           type: doc.type,

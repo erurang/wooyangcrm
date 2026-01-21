@@ -14,8 +14,8 @@ import {
   DocumentPagination,
   DocumentInfoCard,
   EstimateModal,
-  SimpleToast,
 } from "@/components/upload/documents";
+import SnackbarComponent from "@/components/Snackbar";
 
 interface Item {
   name: string;
@@ -193,13 +193,9 @@ export default function ExcelEstimatePage() {
         amount: item.amount,
       }));
 
+      // content는 items만 포함 (API 스키마 변경에 맞춤)
       const content = {
         items: itemsData,
-        company_name: currentDoc.company_name,
-        total_amount: currentDoc.total_amount,
-        payment_method: currentDoc.payment_method,
-        notes: currentDoc.notes,
-        delivery_date: currentDoc.delivery_date,
       };
 
       const addedConsultation = await addConsultation({
@@ -210,6 +206,8 @@ export default function ExcelEstimatePage() {
           content: `경영박사 엑셀파일 업로드 / ${currentDoc?.notes}`,
           follow_up_date: null,
           user_id: selectedUserId,
+          title: `[엑셀업로드] ${currentDoc?.company_name} 견적`,
+          contact_method: "other",
         },
       });
 
@@ -233,6 +231,11 @@ export default function ExcelEstimatePage() {
           company_id: company.id,
           type,
           contact_id: selectedContactId,
+          status: "completed",
+          // 분리된 필드들 (스키마 변경에 맞춤)
+          notes: currentDoc.notes || null,
+          delivery_date: `20${currentDoc?.delivery_date.replaceAll(".", "-")}`,
+          total_amount: currentDoc.total_amount,
         },
       });
 
@@ -287,8 +290,9 @@ export default function ExcelEstimatePage() {
         isUploading={isUploading}
       />
 
-      <SimpleToast
+      <SnackbarComponent
         message={snackbarMessage}
+        severity="info"
         onClose={() => setSnackbarMessage("")}
       />
     </div>

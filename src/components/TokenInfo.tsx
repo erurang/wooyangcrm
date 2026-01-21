@@ -1,10 +1,9 @@
 "use client";
 
 import { useSetLoginUser } from "@/context/login";
-import { sendKakaoMessage } from "@/lib/sendKakaoMessage";
 import { createSupabaseClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function TokenInfo() {
   const router = useRouter();
@@ -12,6 +11,7 @@ export default function TokenInfo() {
   const setLoginUser = useSetLoginUser();
   const [userData, setUserData] = useState<any>(null);
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
     async function fetchTokenInfo() {
@@ -26,6 +26,11 @@ export default function TokenInfo() {
         if (!res.ok) {
           setUserData(null);
           setRemainingTime(null);
+          // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
+          if (!hasRedirected.current) {
+            hasRedirected.current = true;
+            router.push("/login");
+          }
           return;
         }
 
@@ -37,7 +42,8 @@ export default function TokenInfo() {
     }
 
     fetchTokenInfo();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   async function handleLogout() {
     try {
@@ -87,6 +93,11 @@ export default function TokenInfo() {
 
     if (timeLeft <= 0) {
       setRemainingTime("⏳ 세션 만료됨");
+      // 세션이 만료되면 로그인 페이지로 리다이렉트
+      if (!hasRedirected.current) {
+        hasRedirected.current = true;
+        router.push("/login");
+      }
     } else {
       const hours = Math.floor(timeLeft / 3600)
         .toString()

@@ -97,13 +97,14 @@ interface Contact {
 interface Company {
   id: string;
   name: string;
-  address: string;
-  phone: string;
-  email: string;
-  fax: string;
-  notes: string;
-  business_number: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  fax?: string;
+  notes?: string;
+  business_number?: string;
   parcel?: string;
+  industry?: string[];
 }
 
 interface CompanyInfoCardProps {

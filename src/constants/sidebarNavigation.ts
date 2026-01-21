@@ -55,6 +55,7 @@ import {
   UserCog,
   Gauge,
   Factory,
+  FileSignature,
 } from "lucide-react";
 
 export interface SidebarSubItem {
@@ -163,6 +164,17 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
       { id: "myPosts", title: "내 글", path: "/profile/posts" },
     ],
   },
+  {
+    id: "approvals",
+    title: "결재",
+    icon: FileSignature,
+    subItems: [
+      { id: "pending", title: "결재 대기", path: "/approvals?tab=pending" },
+      { id: "requested", title: "내가 기안", path: "/approvals?tab=requested" },
+      { id: "completed", title: "완료 문서", path: "/approvals?tab=approved" },
+      { id: "new", title: "새 결재", path: "/approvals/new" },
+    ],
+  },
 ];
 
 // Research role menu
@@ -258,8 +270,8 @@ export const ADMIN_SECURITY_SIDEBAR_ITEM: SidebarMenuItem = {
 };
 
 // Position-based menu restrictions (레거시 지원)
-// "생산관리" position can only see: dashboard, production, inventory, board
-const PRODUCTION_ALLOWED_MENUS = ["dashboard", "production", "inventory", "board"];
+// "생산관리" position can only see: dashboard, production, inventory, board, approvals
+const PRODUCTION_ALLOWED_MENUS = ["dashboard", "production", "inventory", "board", "approvals"];
 
 // Build sidebar menu based on user role, team's allowed_menus, and role-based sidebar permissions
 export function buildSidebarMenu(
@@ -348,6 +360,7 @@ export const MENU_ICONS: Record<string, LucideIcon> = {
   inventory: Package,
   production: Factory,
   board: Newspaper,
+  approvals: FileSignature,
   research: Beaker,
   management: ChartBar,
   admin: Settings,

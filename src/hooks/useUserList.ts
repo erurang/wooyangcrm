@@ -1,8 +1,16 @@
 import { fetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 
+interface User {
+  id: string;
+  name: string;
+  email?: string;
+  level: string;
+  role?: string;
+}
+
 export function useUsersList() {
-  const { data, error, isValidating, mutate } = useSWR(
+  const { data, error, isValidating, mutate } = useSWR<User[]>(
     "/api/users/list",
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
@@ -15,6 +23,7 @@ export function useUsersList() {
     users: data || [],
     isLoading: !data && !error,
     isError: !!error,
+    isValidating,
     refreshUsers: mutate,
   };
 }

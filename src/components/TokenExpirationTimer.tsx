@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function TokenExpirationTimer() {
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
+  const router = useRouter();
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
     async function fetchTokenExpiration() {
@@ -15,6 +18,11 @@ export default function TokenExpirationTimer() {
 
         if (!res.ok) {
           setRemainingTime("토큰 없음");
+          // 토큰이 없으면 로그인 페이지로 리다이렉트
+          if (!hasRedirected.current) {
+            hasRedirected.current = true;
+            router.push("/login");
+          }
           return;
         }
 
@@ -29,6 +37,11 @@ export default function TokenExpirationTimer() {
 
           if (timeLeft <= 0) {
             setRemainingTime("토큰 만료됨");
+            // 토큰이 만료되면 로그인 페이지로 리다이렉트
+            if (!hasRedirected.current) {
+              hasRedirected.current = true;
+              router.push("/login");
+            }
           } else {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
@@ -47,7 +60,7 @@ export default function TokenExpirationTimer() {
     }
 
     fetchTokenExpiration();
-  }, []);
+  }, [router]);
 
   return (
     <div className="text-sm opacity-70 text-[#333] px-6">

@@ -232,7 +232,9 @@ export default function ContactDetailClient() {
           <h3 className="text-lg font-semibold text-red-700 mb-2">
             오류가 발생했습니다
           </h3>
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">
+            {error instanceof Error ? error.message : String(error)}
+          </p>
           <button
             onClick={() => router.back()}
             className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"

@@ -13,6 +13,7 @@ export async function POST(request: Request) {
       type,
       contact_id,
       date,
+      status,
       // 분리된 필드들
       notes,
       valid_until,
@@ -32,10 +33,32 @@ export async function POST(request: Request) {
     // content는 items만 포함
     const contentData = content?.items ? { items: content.items } : { items: [] };
 
+    // document_number 자동 생성 (예: EST-20250121-001)
+    const typePrefix = type === "estimate" ? "EST" : type === "order" ? "ORD" : type === "requestQuote" ? "RQ" : "DOC";
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10).replace(/-/g, "");
+
+    // 오늘 날짜의 마지막 문서 번호 조회
+    const { data: lastDoc } = await supabase
+      .from("documents")
+      .select("document_number")
+      .like("document_number", `${typePrefix}-${dateStr}-%`)
+      .order("document_number", { ascending: false })
+      .limit(1)
+      .single();
+
+    let seq = 1;
+    if (lastDoc?.document_number) {
+      const lastSeq = parseInt(lastDoc.document_number.split("-").pop() || "0", 10);
+      seq = lastSeq + 1;
+    }
+    const document_number = `${typePrefix}-${dateStr}-${seq.toString().padStart(3, "0")}`;
+
     const { data, error } = await supabase
       .from("documents")
       .insert([
         {
+          document_number,
           content: contentData,
           user_id,
           payment_method,
@@ -43,6 +66,7 @@ export async function POST(request: Request) {
           company_id,
           type,
           date,
+          status: status || "pending",
           // 분리된 컬럼들
           notes: notes || null,
           valid_until: valid_until || null,

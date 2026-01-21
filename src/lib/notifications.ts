@@ -67,6 +67,13 @@ export type NotificationType =
   | "work_order_progress"     // 작업지시 진행 상황
   | "work_order_completed"    // 작업지시 완료
   | "work_order_file"         // 작업지시 파일 추가
+  // 결재 관련
+  | "approval_request"        // 결재 요청 (결재자에게)
+  | "approval_approved"       // 결재 승인됨 (기안자에게)
+  | "approval_rejected"       // 결재 반려됨 (기안자에게)
+  | "approval_delegated"      // 결재 위임됨 (위임받은자에게)
+  | "approval_withdrawn"      // 결재 회수됨 (결재자에게)
+  | "approval_completed"      // 결재 완료 (기안자에게)
   // 시스템
   | "system";
 
@@ -79,7 +86,8 @@ export type RelatedType =
   | "inventory_task"
   | "work_order"
   | "inbound"
-  | "outbound";
+  | "outbound"
+  | "approval";
 
 // 알림 카테고리 정의 (타입별로 그룹핑)
 export const NOTIFICATION_TYPE_TO_CATEGORY: Record<NotificationType, string> = {
@@ -118,6 +126,13 @@ export const NOTIFICATION_TYPE_TO_CATEGORY: Record<NotificationType, string> = {
   work_order_progress: "workOrders",
   work_order_completed: "workOrders",
   work_order_file: "workOrders",
+  // 결재 관련
+  approval_request: "approvals",
+  approval_approved: "approvals",
+  approval_rejected: "approvals",
+  approval_delegated: "approvals",
+  approval_withdrawn: "approvals",
+  approval_completed: "approvals",
   // 시스템
   system: "system",
 };
@@ -155,6 +170,13 @@ const PUSH_ENABLED_TYPES: Set<NotificationType> = new Set([
   "work_order_deadline",
   "work_order_completed",
   "work_order_file",
+  // 결재 관련
+  "approval_request",
+  "approval_approved",
+  "approval_rejected",
+  "approval_delegated",
+  "approval_withdrawn",
+  "approval_completed",
   // 시스템
   "system",
 ]);
@@ -306,6 +328,7 @@ export async function getUserNotificationSettings(userId: string): Promise<Recor
       workOrders: true,
       consultations: true,
       todos: true,
+      approvals: true,
       system: true,
     } : data.settings;
 
@@ -322,6 +345,7 @@ export async function getUserNotificationSettings(userId: string): Promise<Recor
       workOrders: true,
       consultations: true,
       todos: true,
+      approvals: true,
       system: true,
     };
   }
@@ -449,6 +473,8 @@ function getNotificationUrl(relatedType: RelatedType, relatedId: string): string
       return `/inventory?tab=inbound`;
     case "outbound":
       return `/inventory?tab=outbound`;
+    case "approval":
+      return `/approvals/${relatedId}`;
     default:
       return "/";
   }
@@ -1022,5 +1048,137 @@ export async function notifyPostReply(params: {
     message: `${replierName}님이 "${postTitle}" 게시글의 회원님 댓글에 답글을 남겼습니다.\n"${preview}"`,
     relatedId: `${postId}:${replyId}`,
     relatedType: "post",
+  });
+}
+
+// ================================
+// 결재 관련 알림
+// ================================
+
+/**
+ * 결재 요청 알림 (결재자에게)
+ */
+export async function notifyApprovalRequest(params: {
+  approvalId: string;
+  approverIds: string[];
+  requesterId: string;
+  title: string;
+  categoryName: string;
+}): Promise<void> {
+  const { approvalId, approverIds, requesterId, title, categoryName } = params;
+  const requesterName = await getUserName(requesterId);
+
+  await createBulkNotifications({
+    userIds: approverIds,
+    type: "approval_request",
+    title: "결재 요청",
+    message: `${requesterName}님이 "${title}" 결재를 요청했습니다.\n• 분류: ${categoryName}`,
+    relatedId: approvalId,
+    relatedType: "approval",
+  });
+}
+
+/**
+ * 결재 승인 알림 (기안자에게)
+ */
+export async function notifyApprovalApproved(params: {
+  approvalId: string;
+  requesterId: string;
+  approverId: string;
+  title: string;
+  isCompleted: boolean;
+  comment?: string;
+}): Promise<void> {
+  const { approvalId, requesterId, approverId, title, isCompleted, comment } = params;
+  const approverName = await getUserName(approverId);
+
+  let message = `${approverName}님이 "${title}" 결재를 승인했습니다.`;
+  if (isCompleted) {
+    message = `"${title}" 결재가 최종 승인되었습니다.`;
+  }
+  if (comment) {
+    message += `\n• 의견: ${comment}`;
+  }
+
+  await createNotification({
+    userId: requesterId,
+    type: isCompleted ? "approval_completed" : "approval_approved",
+    title: isCompleted ? "결재 완료" : "결재 승인",
+    message,
+    relatedId: approvalId,
+    relatedType: "approval",
+  });
+}
+
+/**
+ * 결재 반려 알림 (기안자에게)
+ */
+export async function notifyApprovalRejected(params: {
+  approvalId: string;
+  requesterId: string;
+  rejecterId: string;
+  title: string;
+  reason: string;
+}): Promise<void> {
+  const { approvalId, requesterId, rejecterId, title, reason } = params;
+  const rejecterName = await getUserName(rejecterId);
+
+  await createNotification({
+    userId: requesterId,
+    type: "approval_rejected",
+    title: "결재 반려",
+    message: `${rejecterName}님이 "${title}" 결재를 반려했습니다.\n• 사유: ${reason}`,
+    relatedId: approvalId,
+    relatedType: "approval",
+  });
+}
+
+/**
+ * 결재 위임 알림 (위임받은 자에게)
+ */
+export async function notifyApprovalDelegated(params: {
+  approvalId: string;
+  delegatedToId: string;
+  delegatorId: string;
+  title: string;
+  reason?: string;
+}): Promise<void> {
+  const { approvalId, delegatedToId, delegatorId, title, reason } = params;
+  const delegatorName = await getUserName(delegatorId);
+
+  let message = `${delegatorName}님이 "${title}" 결재를 위임했습니다.`;
+  if (reason) {
+    message += `\n• 사유: ${reason}`;
+  }
+
+  await createNotification({
+    userId: delegatedToId,
+    type: "approval_delegated",
+    title: "결재 위임",
+    message,
+    relatedId: approvalId,
+    relatedType: "approval",
+  });
+}
+
+/**
+ * 결재 회수 알림 (결재자들에게)
+ */
+export async function notifyApprovalWithdrawn(params: {
+  approvalId: string;
+  approverIds: string[];
+  requesterId: string;
+  title: string;
+}): Promise<void> {
+  const { approvalId, approverIds, requesterId, title } = params;
+  const requesterName = await getUserName(requesterId);
+
+  await createBulkNotifications({
+    userIds: approverIds.filter(id => id !== requesterId),
+    type: "approval_withdrawn",
+    title: "결재 회수",
+    message: `${requesterName}님이 "${title}" 결재를 회수했습니다.`,
+    relatedId: approvalId,
+    relatedType: "approval",
   });
 }

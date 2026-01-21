@@ -28,24 +28,15 @@ export default function UsersListPage() {
   const router = useRouter();
   const loginUser = useLoginUser();
 
-  if (loginUser?.role !== "admin") {
-    router.push(`/reports/performance/${loginUser?.id}`);
-    return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
-        <div className="flex flex-col items-center justify-center text-slate-400">
-          <Users className="w-12 h-12 mb-4" />
-          <p>잘못된 접근입니다</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Hooks는 조건문 이전에 호출되어야 함 (React Rules of Hooks)
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState<"year" | "quarter" | "month">("year");
 
   // 직원 목록 가져오기
   const { users, isLoading } = useUsersList();
-  const userIds = (users as User[]).map((user) => user.id);
+  const userIds = (users as User[])
+    .map((user) => user.id)
+    .filter((id): id is string => !!id);
 
   // 날짜 필터링 설정
   const today = new Date();
@@ -70,9 +61,22 @@ export default function UsersListPage() {
   // 상담 개수 가져오기
   const { documents, isLoading: isConsultationsLoading } = useUserDocumentsCount(userIds, startDate, endDate);
 
-  // 검색 필터 적용
+  // admin이 아니면 리다이렉트
+  if (loginUser?.role !== "admin") {
+    router.push(`/reports/performance/${loginUser?.id}`);
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+        <div className="flex flex-col items-center justify-center text-slate-400">
+          <Users className="w-12 h-12 mb-4" />
+          <p>잘못된 접근입니다</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 검색 필터 적용 (id가 없는 유저 제외)
   const filteredUsers = (users as User[]).filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    user.id && user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // 기간 라벨
@@ -160,14 +164,36 @@ export default function UsersListPage() {
       ) : filteredUsers.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredUsers.map((user) => {
-            const userSales = salesSummary?.[user.id] || {
-              estimates: { pending: 0, completed: 0, canceled: 0, total: 0 },
-              orders: { pending: 0, completed: 0, canceled: 0, total: 0 },
+            const rawUserSales = salesSummary?.[user.id];
+            const userSales = {
+              estimates: {
+                pending: rawUserSales?.estimates?.pending ?? 0,
+                completed: rawUserSales?.estimates?.completed ?? 0,
+                canceled: rawUserSales?.estimates?.canceled ?? 0,
+                total: rawUserSales?.estimates?.total ?? 0,
+              },
+              orders: {
+                pending: rawUserSales?.orders?.pending ?? 0,
+                completed: rawUserSales?.orders?.completed ?? 0,
+                canceled: rawUserSales?.orders?.canceled ?? 0,
+                total: rawUserSales?.orders?.total ?? 0,
+              },
             };
 
-            const userConsultations = documents?.[user.id] || {
-              estimates: { pending: 0, completed: 0, canceled: 0, total: 0 },
-              orders: { pending: 0, completed: 0, canceled: 0, total: 0 },
+            const rawUserConsultations = documents?.[user.id];
+            const userConsultations = {
+              estimates: {
+                pending: rawUserConsultations?.estimates?.pending ?? 0,
+                completed: rawUserConsultations?.estimates?.completed ?? 0,
+                canceled: rawUserConsultations?.estimates?.canceled ?? 0,
+                total: rawUserConsultations?.estimates?.total ?? 0,
+              },
+              orders: {
+                pending: rawUserConsultations?.orders?.pending ?? 0,
+                completed: rawUserConsultations?.orders?.completed ?? 0,
+                canceled: rawUserConsultations?.orders?.canceled ?? 0,
+                total: rawUserConsultations?.orders?.total ?? 0,
+              },
             };
 
             return (
