@@ -34,6 +34,14 @@ export const BASE_MENU_SECTIONS: NavMenuSection[] = [
     ],
   },
   {
+    title: "커뮤니케이션",
+    items: [
+      { id: "messenger", title: "메신저", path: "/chat" },
+      { id: "board", title: "게시판", path: "/board" },
+      { id: "approvals", title: "결재", path: "/approvals" },
+    ],
+  },
+  {
     title: "거래처 관리",
     items: [
       { id: "customers", title: "거래처 검색", path: "/manage/customers" },

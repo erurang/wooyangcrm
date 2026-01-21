@@ -95,6 +95,8 @@ function getNotificationUrl(type: string, relatedId: string | null, relatedType:
       return `/board/${relatedId}`;
     case "inventory_task":
       return "/inventory";
+    case "chat_room":
+      return `/chat?roomId=${relatedId}`;
     default:
       return "/";
   }
@@ -185,6 +187,9 @@ export async function POST(request: Request) {
       "work_order_progress",     // 작업지시 진행 상황
       "work_order_completed",    // 작업지시 완료
       "work_order_file",         // 작업지시 파일 추가
+      // 채팅 관련
+      "chat_message",            // 새 채팅 메시지
+      "chat_invite",             // 채팅방 초대
       // 시스템
       "system",
     ];

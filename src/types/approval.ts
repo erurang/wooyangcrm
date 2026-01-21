@@ -233,6 +233,8 @@ export interface ApprovalRequestFormData {
   lines: ApprovalLineFormData[];
   share_scope: "all" | "partial";
   share_users?: string[];           // 일부 공유 시 사용자 ID 목록
+  related_document_id?: string;     // 관련 문서 ID (견적서/발주서)
+  related_consultation_id?: string; // 관련 상담 ID
 }
 
 /**

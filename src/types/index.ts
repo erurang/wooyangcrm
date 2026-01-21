@@ -16,6 +16,7 @@ export interface User {
   team_id?: string;
   team?: Team;
   works_email?: string;
+  profile_image?: string;
   created_at?: string;
   updated_at?: string;
 }

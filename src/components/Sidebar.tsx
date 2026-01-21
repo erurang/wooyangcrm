@@ -10,6 +10,7 @@ import SnackbarComponent from "./Snackbar";
 import { useFavorites } from "@/hooks/favorites/useFavorites";
 import MobileSidebar from "./navigation/MobileSidebar";
 import NotificationBell from "./notifications/NotificationBell";
+import ChatBell from "./chat/ChatBell";
 import {
   buildMenuSections,
   convertToMainMenu,
@@ -172,6 +173,7 @@ export default function Header() {
 
             {/* Desktop User Info */}
             <div className="hidden lg:flex items-center space-x-3">
+              <ChatBell userId={user?.id || null} />
               <NotificationBell userId={user?.id} />
               <Link
                 href="/profile"

@@ -16,6 +16,7 @@ import {
   UserCheck,
   UserX,
   MessageSquare,
+  MessageCircle,
   CalendarClock,
   Clock,
   Receipt,
@@ -174,6 +175,12 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
       { id: "completed", title: "완료 문서", path: "/approvals?tab=approved" },
       { id: "new", title: "새 결재", path: "/approvals/new" },
     ],
+  },
+  {
+    id: "messenger",
+    title: "메신저",
+    icon: MessageCircle,
+    path: "/chat",
   },
 ];
 
@@ -361,6 +368,7 @@ export const MENU_ICONS: Record<string, LucideIcon> = {
   production: Factory,
   board: Newspaper,
   approvals: FileSignature,
+  messenger: MessageCircle,
   research: Beaker,
   management: ChartBar,
   admin: Settings,

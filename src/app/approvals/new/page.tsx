@@ -13,6 +13,9 @@ import {
   Users,
   Search,
   GripVertical,
+  Link2,
+  MessageSquare,
+  ShoppingCart,
 } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import { useApprovalCategories, useCreateApproval } from "@/hooks/approvals";
@@ -26,6 +29,21 @@ interface User {
   position?: string;
   level?: string;
   team?: { name: string; department?: { name: string } };
+}
+
+interface RelatedDocument {
+  id: string;
+  document_number: string;
+  type: string;
+  company_name: string;
+  created_at: string;
+}
+
+interface RelatedConsultation {
+  id: string;
+  title: string;
+  company_name: string;
+  created_at: string;
 }
 
 export default function NewApprovalPage() {
@@ -49,6 +67,17 @@ export default function NewApprovalPage() {
   const [userSearchTerm, setUserSearchTerm] = useState("");
   const [userSearchResults, setUserSearchResults] = useState<User[]>([]);
   const [searchMode, setSearchMode] = useState<"approver" | "share" | null>(null);
+
+  // 관련 문서/상담
+  const [relatedDocument, setRelatedDocument] = useState<RelatedDocument | null>(null);
+  const [relatedConsultation, setRelatedConsultation] = useState<RelatedConsultation | null>(null);
+  const [relatedSearchTerm, setRelatedSearchTerm] = useState("");
+  const [relatedSearchType, setRelatedSearchType] = useState<"document" | "consultation">("document");
+  const [relatedSearchResults, setRelatedSearchResults] = useState<{
+    documents: RelatedDocument[];
+    consultations: RelatedConsultation[];
+  }>({ documents: [], consultations: [] });
+  const [isRelatedSearching, setIsRelatedSearching] = useState(false);
 
   // 사용자 검색
   useEffect(() => {
@@ -89,6 +118,32 @@ export default function NewApprovalPage() {
       setUserSearchResults([]);
     }
   }, [userSearchTerm, searchMode]);
+
+  // 관련 문서/상담 검색
+  useEffect(() => {
+    if (relatedSearchTerm && relatedSearchTerm.length >= 2) {
+      const searchRelated = async () => {
+        setIsRelatedSearching(true);
+        try {
+          const response = await fetch(
+            `/api/search/related?keyword=${encodeURIComponent(relatedSearchTerm)}&type=${relatedSearchType}`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setRelatedSearchResults(data);
+          }
+        } catch (error) {
+          console.error("관련 문서 검색 오류:", error);
+        } finally {
+          setIsRelatedSearching(false);
+        }
+      };
+      const debounceTimer = setTimeout(searchRelated, 300);
+      return () => clearTimeout(debounceTimer);
+    } else {
+      setRelatedSearchResults({ documents: [], consultations: [] });
+    }
+  }, [relatedSearchTerm, relatedSearchType]);
 
   // 결재자 추가
   const handleAddApprover = (selectedUser: User, lineType: ApprovalLineType) => {
@@ -171,6 +226,8 @@ export default function NewApprovalPage() {
       requester_team_id: user.team_id,
       requester_department: user.team?.department?.name || user.team?.name,
       is_draft: true,
+      related_document_id: relatedDocument?.id,
+      related_consultation_id: relatedConsultation?.id,
     });
 
     if (result) {
@@ -218,6 +275,8 @@ export default function NewApprovalPage() {
       requester_team_id: user.team_id,
       requester_department: user.team?.department?.name || user.team?.name,
       is_draft: false,
+      related_document_id: relatedDocument?.id,
+      related_consultation_id: relatedConsultation?.id,
     });
 
     if (result) {
@@ -319,6 +378,195 @@ export default function NewApprovalPage() {
               className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
+        </div>
+
+        {/* 관련 문서 연결 */}
+        <div className="bg-white rounded-xl shadow-sm p-4 lg:p-6 mb-4">
+          <h2 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <Link2 className="w-5 h-5 text-slate-600" />
+            관련 문서 연결
+            <span className="text-xs font-normal text-slate-400">(선택사항)</span>
+          </h2>
+
+          {/* 검색 타입 선택 */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setRelatedSearchType("document")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                relatedSearchType === "document"
+                  ? "bg-blue-50 text-blue-700 border border-blue-300"
+                  : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              문서
+            </button>
+            <button
+              onClick={() => setRelatedSearchType("consultation")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                relatedSearchType === "consultation"
+                  ? "bg-purple-50 text-purple-700 border border-purple-300"
+                  : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              상담
+            </button>
+          </div>
+
+          {/* 선택된 문서/상담 표시 */}
+          {relatedDocument && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-blue-600" />
+                <div>
+                  <span className="font-medium text-slate-800">
+                    {relatedDocument.document_number}
+                  </span>
+                  <span className="text-sm text-slate-500 ml-2">
+                    ({relatedDocument.type === "estimate" ? "견적서" : relatedDocument.type === "order" ? "발주서" : relatedDocument.type})
+                  </span>
+                  <p className="text-xs text-slate-500">
+                    {relatedDocument.company_name}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setRelatedDocument(null)}
+                className="p-1 hover:bg-blue-100 rounded"
+              >
+                <X className="w-4 h-4 text-slate-500" />
+              </button>
+            </div>
+          )}
+
+          {relatedConsultation && (
+            <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <MessageSquare className="w-5 h-5 text-purple-600" />
+                <div>
+                  <span className="font-medium text-slate-800">
+                    {relatedConsultation.title}
+                  </span>
+                  <p className="text-xs text-slate-500">
+                    {relatedConsultation.company_name}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setRelatedConsultation(null)}
+                className="p-1 hover:bg-purple-100 rounded"
+              >
+                <X className="w-4 h-4 text-slate-500" />
+              </button>
+            </div>
+          )}
+
+          {/* 검색 입력 */}
+          <div className="relative">
+            <div className="flex items-center gap-2">
+              <Search className="w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                value={relatedSearchTerm}
+                onChange={(e) => setRelatedSearchTerm(e.target.value)}
+                placeholder={
+                  relatedSearchType === "document"
+                    ? "문서번호 또는 회사명으로 검색..."
+                    : "상담 제목 또는 회사명으로 검색..."
+                }
+                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {relatedSearchTerm && (
+                <button
+                  onClick={() => {
+                    setRelatedSearchTerm("");
+                    setRelatedSearchResults({ documents: [], consultations: [] });
+                  }}
+                  className="p-2 hover:bg-slate-100 rounded"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* 검색 결과 */}
+            {(relatedSearchResults.documents.length > 0 ||
+              relatedSearchResults.consultations.length > 0) && (
+              <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-10">
+                {relatedSearchType === "document" &&
+                  relatedSearchResults.documents.map((doc) => (
+                    <button
+                      key={doc.id}
+                      onClick={() => {
+                        setRelatedDocument(doc);
+                        setRelatedSearchTerm("");
+                        setRelatedSearchResults({ documents: [], consultations: [] });
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-blue-500" />
+                        <span className="font-medium text-slate-800">
+                          {doc.document_number}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded ${
+                            doc.type === "estimate"
+                              ? "bg-blue-100 text-blue-700"
+                              : doc.type === "order"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          {doc.type === "estimate" ? "견적" : doc.type === "order" ? "발주" : doc.type}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 ml-6">
+                        {doc.company_name} ·{" "}
+                        {new Date(doc.created_at).toLocaleDateString("ko-KR")}
+                      </p>
+                    </button>
+                  ))}
+
+                {relatedSearchType === "consultation" &&
+                  relatedSearchResults.consultations.map((con) => (
+                    <button
+                      key={con.id}
+                      onClick={() => {
+                        setRelatedConsultation(con);
+                        setRelatedSearchTerm("");
+                        setRelatedSearchResults({ documents: [], consultations: [] });
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-purple-500" />
+                        <span className="font-medium text-slate-800">
+                          {con.title}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 ml-6">
+                        {con.company_name} ·{" "}
+                        {new Date(con.created_at).toLocaleDateString("ko-KR")}
+                      </p>
+                    </button>
+                  ))}
+              </div>
+            )}
+
+            {/* 로딩 표시 */}
+            {isRelatedSearching && (
+              <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg p-4 flex items-center justify-center">
+                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <span className="ml-2 text-sm text-slate-500">검색 중...</span>
+              </div>
+            )}
+          </div>
+
+          <p className="text-xs text-slate-400 mt-3">
+            관련 견적서, 발주서 또는 상담을 연결하면 결재 문서에서 바로 확인할 수 있습니다.
+          </p>
         </div>
 
         {/* 결재선 */}

@@ -12,9 +12,13 @@ import {
   ChevronDown,
   CheckCircle,
   XCircle,
+  Link2,
+  MessageSquare,
+  ExternalLink,
 } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import { useApprovalDetail, useApprovalAction } from "@/hooks/approvals";
+import useSWR from "swr";
 import type { ApprovalLine, ApprovalRequestWithRelations } from "@/types/approval";
 import {
   APPROVAL_REQUEST_STATUS_LABELS,
@@ -35,6 +39,25 @@ export default function ApprovalDetailPage({ params }: PageProps) {
   const { approval, isLoading, mutate } = useApprovalDetail(id);
   const { approve, reject, delegate, withdraw, isLoading: isActionLoading } =
     useApprovalAction();
+
+  // 관련 문서/상담 데이터 fetcher
+  const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+  // 관련 문서 조회
+  const { data: relatedDocument } = useSWR(
+    approval?.related_document_id
+      ? `/api/documents/${approval.related_document_id}`
+      : null,
+    fetcher
+  );
+
+  // 관련 상담 조회
+  const { data: relatedConsultation } = useSWR(
+    approval?.related_consultation_id
+      ? `/api/consultations/${approval.related_consultation_id}`
+      : null,
+    fetcher
+  );
 
   // UI 상태
   const [showApprovalSummary, setShowApprovalSummary] = useState(true);
@@ -256,6 +279,78 @@ export default function ApprovalDetailPage({ params }: PageProps) {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 관련 문서/상담 */}
+              {(relatedDocument || relatedConsultation) && (
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
+                    <Link2 className="w-3 h-3" />
+                    관련 문서
+                  </h3>
+                  <div className="space-y-2">
+                    {relatedDocument && (
+                      <a
+                        href={`/consultations/${relatedDocument.consultation_id || ""}`}
+                        className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-blue-600" />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm text-slate-800">
+                                {relatedDocument.document_number}
+                              </span>
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded ${
+                                  relatedDocument.type === "estimate"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : relatedDocument.type === "order"
+                                    ? "bg-emerald-100 text-emerald-700"
+                                    : "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {relatedDocument.type === "estimate"
+                                  ? "견적서"
+                                  : relatedDocument.type === "order"
+                                  ? "발주서"
+                                  : relatedDocument.type}
+                              </span>
+                            </div>
+                            {relatedDocument.company?.name && (
+                              <p className="text-xs text-slate-500">
+                                {relatedDocument.company.name}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-slate-400" />
+                      </a>
+                    )}
+
+                    {relatedConsultation && (
+                      <a
+                        href={`/consultations/${relatedConsultation.id}`}
+                        className="flex items-center justify-between p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <MessageSquare className="w-5 h-5 text-purple-600" />
+                          <div>
+                            <span className="font-medium text-sm text-slate-800">
+                              {relatedConsultation.title || "상담 내역"}
+                            </span>
+                            {relatedConsultation.company?.name && (
+                              <p className="text-xs text-slate-500">
+                                {relatedConsultation.company.name}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-slate-400" />
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
