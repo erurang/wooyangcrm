@@ -244,15 +244,15 @@ export default function ContactsEditModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4"
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-lg shadow-xl w-full max-w-4xl overflow-hidden"
+            className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
           >
-            <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center justify-between p-4 border-b shrink-0">
               <div className="flex items-center gap-2">
                 <Users size={20} className="text-blue-600" />
                 <h3 className="text-lg font-semibold text-gray-900">
@@ -267,7 +267,7 @@ export default function ContactsEditModal({
               </button>
             </div>
 
-            <div className="p-4">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-600">
                   담당자 정보를 관리합니다. 드래그하여 순서를 변경할 수 있습니다.
@@ -292,7 +292,7 @@ export default function ContactsEditModal({
                   )}
                   strategy={verticalListSortingStrategy}
                 >
-                  <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                  <div className="space-y-2">
                     {contacts?.map((contact: Contact, index: number) => {
                       if (!contact.resign)
                         return (
@@ -343,7 +343,7 @@ export default function ContactsEditModal({
               )}
             </div>
 
-            <div className="flex justify-end items-center gap-3 px-4 py-3 bg-gray-50 border-t">
+            <div className="flex justify-end items-center gap-3 px-4 py-3 bg-gray-50 border-t shrink-0">
               <button
                 onClick={handleCancel}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
