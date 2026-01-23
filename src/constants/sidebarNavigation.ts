@@ -74,10 +74,11 @@ export interface SidebarMenuItem {
   roles?: string[]; // Required roles (empty = all users)
 }
 
-// Dashboard - 홈 + 성과지표
+// Dashboard - 홈 + 성과지표 + 업무일지
 export const DASHBOARD_SUB_ITEMS: SidebarSubItem[] = [
   { id: "home", title: "홈", path: "/dashboard" },
   { id: "performance", title: "성과지표", path: "/reports/performance/__USER_ID__" },
+  { id: "daily-report", title: "업무일지", path: "/reports/daily" },
 ];
 
 // Base menu items (available to all users)
