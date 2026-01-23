@@ -134,6 +134,18 @@ export default function WorkOrderDetailModal({
     user.name?.toLowerCase().includes(mentionSearch.toLowerCase())
   );
 
+  // 파일 아이콘 함수
+  const getFileIcon = (fileName: string) => {
+    const ext = fileName.split(".").pop()?.toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext || "")) return "🖼️";
+    if (["pdf"].includes(ext || "")) return "📄";
+    if (["doc", "docx"].includes(ext || "")) return "📝";
+    if (["xls", "xlsx"].includes(ext || "")) return "📊";
+    if (["ppt", "pptx"].includes(ext || "")) return "📽️";
+    if (["zip", "rar", "7z"].includes(ext || "")) return "🗜️";
+    return "📎";
+  };
+
   // Load work order data into form
   useEffect(() => {
     if (workOrder) {
@@ -829,59 +841,56 @@ export default function WorkOrderDetailModal({
                       <FileText className="h-4 w-4" />
                       첨부파일 ({files.length})
                     </div>
-                    {viewMode === "edit" && (
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        multiple
-                        className="hidden"
-                        onChange={handleFileUpload}
-                      />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                  </div>
+                  {/* 드래그 앤 드롭 영역 */}
+                  <div
+                    onDragOver={handleFileDragOver}
+                    onDragEnter={handleFileDragEnter}
+                    onDragLeave={handleFileDragLeave}
+                    onDrop={handleFileDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
+                      isDraggingFile
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                    }`}
+                  >
+                    {uploading ? (
+                      <div className="flex flex-col items-center gap-2 text-gray-500">
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <p className="text-sm">업로드 중...</p>
+                      </div>
+                    ) : isDraggingFile ? (
+                      <div className="flex flex-col items-center gap-2 text-blue-600">
+                        <Upload className="h-8 w-8" />
+                        <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1 text-gray-500">
+                        <FileText className="h-6 w-6" />
+                        <p className="text-sm">
+                          <span className="font-medium text-blue-600">파일 선택</span>
+                          <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
+                        </p>
+                      </div>
                     )}
                   </div>
-                  {/* 드래그 앤 드롭 영역 - 수정 모드에서만 표시 */}
-                  {viewMode === "edit" && (
-                    <div
-                      onDragOver={handleFileDragOver}
-                      onDragEnter={handleFileDragEnter}
-                      onDragLeave={handleFileDragLeave}
-                      onDrop={handleFileDrop}
-                      onClick={() => fileInputRef.current?.click()}
-                      className={`relative border-2 border-dashed rounded-lg p-3 mb-2 text-center cursor-pointer transition-all ${
-                        isDraggingFile
-                          ? "border-purple-500 bg-purple-50"
-                          : "border-slate-200 hover:border-purple-300 hover:bg-slate-50"
-                      }`}
-                    >
-                      {uploading ? (
-                        <div className="flex flex-col items-center gap-1 text-slate-500">
-                          <Loader2 className="h-6 w-6 animate-spin" />
-                          <p className="text-xs">업로드 중...</p>
-                        </div>
-                      ) : isDraggingFile ? (
-                        <div className="flex flex-col items-center gap-1 text-purple-600">
-                          <Upload className="h-6 w-6" />
-                          <p className="text-xs font-medium">파일을 여기에 놓으세요</p>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-1 text-slate-400">
-                          <Upload className="h-6 w-6" />
-                          <p className="text-xs">
-                            <span className="font-medium text-purple-600">파일 선택</span> 또는 드래그
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
                   {files.length > 0 && (
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                    <div className="space-y-2 max-h-40 overflow-y-auto mt-3">
                       {files.map((file) => (
                         <div
                           key={file.id}
                           className="flex items-center justify-between p-2 bg-slate-50 rounded-lg"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <FileText className="h-4 w-4 text-slate-400 flex-shrink-0" />
+                            <span className="text-lg flex-shrink-0">{getFileIcon(file.file_name)}</span>
                             <div className="min-w-0">
                               <p className="text-sm font-medium text-slate-700 truncate">
                                 {file.file_name}

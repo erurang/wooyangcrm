@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { CircularProgress } from "@mui/material";
-import { Download, Trash2, User, Calendar, FileText, X, History, ChevronDown, ChevronUp } from "lucide-react";
+import { Download, Trash2, User, Calendar, FileText, X, History, ChevronDown, ChevronUp, Upload } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useGlobalToast } from "@/context/toast";
 import dayjs from "dayjs";
@@ -528,27 +528,37 @@ export default function FileUpload({
       {/* 파일 선택 영역 */}
       {!showUploadForm && (
         <div
-          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+          className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
             dragging
               ? "border-blue-500 bg-blue-50"
-              : "border-gray-300 hover:border-gray-400"
+              : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
         >
           <input
             ref={fileInputRef}
             type="file"
             multiple
-            className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+            className="hidden"
             onChange={(e) => handleFileSelect(e.target.files)}
           />
-          <div className="text-gray-500">
-            <FileText className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-            <p className="font-medium">파일을 드래그하거나 클릭하여 업로드</p>
-            <p className="text-sm mt-1">여러 파일을 한번에 업로드할 수 있습니다</p>
-          </div>
+          {dragging ? (
+            <div className="flex flex-col items-center gap-2 text-blue-600">
+              <Upload className="h-8 w-8" />
+              <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-1 text-gray-500">
+              <FileText className="h-6 w-6" />
+              <p className="text-sm">
+                <span className="font-medium text-blue-600">파일 선택</span>
+                <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

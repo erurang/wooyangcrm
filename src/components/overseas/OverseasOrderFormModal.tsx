@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CircularProgress } from "@mui/material";
-import { X, AlertCircle, Plus, Trash2, Paperclip, Upload, FileText, Download } from "lucide-react";
+import { X, AlertCircle, Plus, Trash2, Paperclip, Upload, FileText, Download, Users, UserCheck } from "lucide-react";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useUsersList } from "@/hooks/useUserList";
@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useLoginUser } from "@/context/login";
 import { useGlobalToast } from "@/context/toast";
 import dayjs from "dayjs";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import {
   OverseasOrderFormData,
   OverseasOrderItem,
@@ -303,21 +304,55 @@ export default function OverseasOrderFormModal({
   };
 
   // 드래그 & 드롭
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setDragging(true);
-  };
-  const handleDragLeave = () => setDragging(false);
-  const handleDrop = (e: React.DragEvent) => {
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    // 자식 요소로 이동할 때는 무시
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setDragging(false);
     handleFileSelect(e.dataTransfer.files);
-  };
+  }, []);
 
   // 파일 타입 라벨
   const getFileTypeLabel = (type: string) => {
     const option = FILE_TYPE_OPTIONS.find((o) => o.value === type);
     return option?.label || type;
+  };
+
+  // 파일 확장자 아이콘
+  const getFileIcon = (fileName: string) => {
+    const ext = fileName.split(".").pop()?.toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext || "")) {
+      return "image";
+    } else if (["pdf"].includes(ext || "")) {
+      return "pdf";
+    } else if (["doc", "docx"].includes(ext || "")) {
+      return "doc";
+    } else if (["xls", "xlsx"].includes(ext || "")) {
+      return "excel";
+    } else if (["ppt", "pptx"].includes(ext || "")) {
+      return "ppt";
+    } else if (["zip", "rar", "7z"].includes(ext || "")) {
+      return "archive";
+    }
+    return "file";
   };
 
   // 총금액 계산
@@ -591,22 +626,15 @@ export default function OverseasOrderFormModal({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     통화
                   </label>
-                  <select
+                  <HeadlessSelect
                     value={formData.currency}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        "currency",
-                        e.target.value as CurrencyType
-                      )
-                    }
-                    className={getInputClass(false)}
-                  >
-                    {CURRENCY_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => handleFieldChange("currency", val as CurrencyType)}
+                    options={CURRENCY_OPTIONS.map((opt) => ({
+                      value: opt.value,
+                      label: opt.label,
+                    }))}
+                    placeholder="통화 선택"
+                  />
                 </div>
               </div>
 
@@ -648,21 +676,20 @@ export default function OverseasOrderFormModal({
                     상대 담당자 (거래처)
                   </label>
                   {contacts.length > 0 ? (
-                    <select
+                    <HeadlessSelect
                       value={formData.contact_name}
-                      onChange={(e) =>
-                        handleFieldChange("contact_name", e.target.value)
-                      }
-                      className={getInputClass(false)}
-                    >
-                      <option value="">선택안함</option>
-                      {contacts.map((contact) => (
-                        <option key={contact.id || contact.name} value={contact.name}>
-                          {contact.name}
-                          {contact.position && ` (${contact.position})`}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => handleFieldChange("contact_name", val)}
+                      options={[
+                        { value: "", label: "선택안함" },
+                        ...contacts.map((contact) => ({
+                          value: contact.name,
+                          label: contact.name,
+                          sublabel: contact.position ? `(${contact.position})` : undefined,
+                        })),
+                      ]}
+                      placeholder="담당자 선택"
+                      icon={<Users className="h-4 w-4" />}
+                    />
                   ) : (
                     <input
                       type="text"
@@ -681,20 +708,19 @@ export default function OverseasOrderFormModal({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     오더 담당자
                   </label>
-                  <select
+                  <HeadlessSelect
                     value={formData.user_id}
-                    onChange={(e) =>
-                      handleFieldChange("user_id", e.target.value)
-                    }
-                    className={getInputClass(false)}
-                  >
-                    <option value="">선택안함</option>
-                    {users.map((user: { id: string; name: string }) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => handleFieldChange("user_id", val)}
+                    options={[
+                      { value: "", label: "선택안함" },
+                      ...users.map((user: { id: string; name: string }) => ({
+                        value: user.id,
+                        label: user.name,
+                      })),
+                    ]}
+                    placeholder="담당자 선택"
+                    icon={<UserCheck className="h-4 w-4" />}
+                  />
                 </div>
               </div>
 
@@ -903,22 +929,15 @@ export default function OverseasOrderFormModal({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     운송방법
                   </label>
-                  <select
+                  <HeadlessSelect
                     value={formData.shipping_method}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        "shipping_method",
-                        e.target.value as ShippingMethodType | ""
-                      )
-                    }
-                    className={getInputClass(false)}
-                  >
-                    {SHIPPING_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => handleFieldChange("shipping_method", val as ShippingMethodType | "")}
+                    options={SHIPPING_OPTIONS.map((opt) => ({
+                      value: opt.value,
+                      label: opt.label,
+                    }))}
+                    placeholder="운송방법 선택"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -990,38 +1009,41 @@ export default function OverseasOrderFormModal({
                     {/* 드래그 앤 드롭 영역 */}
                     {!showUploadForm && (
                       <div
-                        className={`p-4 text-center transition-colors ${
-                          dragging
-                            ? "border-2 border-dashed border-blue-500 bg-blue-50"
-                            : "bg-gray-50"
-                        }`}
                         onDragOver={handleDragOver}
+                        onDragEnter={handleDragEnter}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
+                        onClick={() => fileInputRef.current?.click()}
+                        className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
+                          dragging
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                        }`}
                       >
-                        <div className="flex items-center justify-center gap-3">
-                          <Upload size={18} className="text-gray-400" />
-                          <span className="text-sm text-gray-500">
-                            파일을 끌어다 놓거나
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                          >
-                            파일 선택
-                          </button>
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            multiple
-                            className="hidden"
-                            onChange={(e) => handleFileSelect(e.target.files)}
-                          />
-                        </div>
-                        <p className="text-[10px] text-gray-400 mt-1">
-                          PI, OC, B/L, CI, PL, 송금증빙 등
-                        </p>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => handleFileSelect(e.target.files)}
+                        />
+                        {dragging ? (
+                          <div className="flex flex-col items-center gap-2 text-blue-600">
+                            <Upload className="h-8 w-8" />
+                            <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-1 text-gray-500">
+                            <FileText className="h-6 w-6" />
+                            <p className="text-sm">
+                              <span className="font-medium text-blue-600">파일 선택</span>
+                              <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
+                            </p>
+                            <p className="text-[10px] text-gray-400 mt-1">
+                              PI, OC, B/L, CI, PL, 송금증빙 등
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -1034,17 +1056,15 @@ export default function OverseasOrderFormModal({
                               {pendingFiles.map((f) => f.name).join(", ")}
                             </div>
                           </div>
-                          <select
+                          <HeadlessSelect
                             value={fileType}
-                            onChange={(e) => setFileType(e.target.value)}
-                            className="px-2 py-1 text-xs border rounded focus:ring-1 focus:ring-blue-500"
-                          >
-                            {FILE_TYPE_OPTIONS.map((opt) => (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(val) => setFileType(val)}
+                            options={FILE_TYPE_OPTIONS.map((opt) => ({
+                              value: opt.value,
+                              label: opt.label,
+                            }))}
+                            placeholder="파일 종류"
+                          />
                           <button
                             type="button"
                             onClick={cancelUpload}

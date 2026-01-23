@@ -339,14 +339,14 @@ export default function ConsultationFormModal({
                   </label>
                   <HeadlessSelect
                     value={formData.user_id}
-                    onChange={() => {}}
+                    onChange={(val) => isAddMode && handleFieldChange("user_id", val)}
                     options={users.map((user) => ({
                       value: user.id,
                       label: `${user.name} ${user.level}`,
                     }))}
                     placeholder="상담자"
                     icon={<UserCheck className="h-4 w-4" />}
-                    disabled
+                    disabled={!isAddMode}
                   />
                 </div>
               </div>
@@ -397,7 +397,7 @@ export default function ConsultationFormModal({
                   placeholder="상담 내용을 입력하세요..."
                   value={formData.content}
                   onChange={(e) => handleFieldChange("content", e.target.value)}
-                  className={`${getInputClass(!!errors.content)} resize-none`}
+                  className={`${getInputClass(!!errors.content)} resize-y min-h-[120px]`}
                   rows={5}
                 />
                 {errors.content ? (

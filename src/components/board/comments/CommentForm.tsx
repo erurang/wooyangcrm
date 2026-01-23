@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, AtSign, Paperclip, X, FileText, Link2 } from "lucide-react";
+import { Send, AtSign, Paperclip, X, Link2 } from "lucide-react";
 import useSWR from "swr";
 import ReferenceSelector from "@/components/board/ReferenceSelector";
 import type { CreateReferenceData } from "@/types/post";
@@ -19,6 +19,17 @@ interface CommentFormProps {
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+const getFileIcon = (fileName: string) => {
+  const ext = fileName.split(".").pop()?.toLowerCase();
+  if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext || "")) return "🖼️";
+  if (["pdf"].includes(ext || "")) return "📄";
+  if (["doc", "docx"].includes(ext || "")) return "📝";
+  if (["xls", "xlsx"].includes(ext || "")) return "📊";
+  if (["ppt", "pptx"].includes(ext || "")) return "📽️";
+  if (["zip", "rar", "7z"].includes(ext || "")) return "🗜️";
+  return "📎";
+};
 
 // @멘션을 파란색으로 하이라이트하는 함수
 export function highlightMentions(text: string): React.ReactNode[] {
@@ -347,40 +358,22 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
         {/* 첨부된 파일 목록 */}
         {attachedFiles.length > 0 && (
           <div className="px-3 pb-2 space-y-2 border-t border-gray-100 pt-2">
-            <div className="flex items-center gap-1 text-xs text-gray-500">
-              <Paperclip className="w-3 h-3" />
-              <span>첨부파일 ({attachedFiles.length})</span>
-            </div>
             {attachedFiles.map((file, index) => (
               <div
                 key={index}
-                className="flex items-start gap-2 px-2 py-2 bg-gray-50 rounded-md"
+                className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg"
               >
-                <FileText className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                <span className="text-lg">{getFileIcon(file.name)}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                    <span className="text-xs text-gray-400">({(file.size / 1024).toFixed(1)} KB)</span>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="파일 설명 (선택)"
-                    value={fileDescriptions[file.name] || ""}
-                    onChange={(e) =>
-                      setFileDescriptions((prev) => ({
-                        ...prev,
-                        [file.name]: e.target.value,
-                      }))
-                    }
-                    className="w-full mt-1 px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
+                  <p className="text-sm font-medium text-gray-700 truncate">{file.name}</p>
+                  <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => removeFile(index)}
-                  className="p-1 text-gray-400 hover:text-red-500 flex-shrink-0"
+                  className="p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             ))}

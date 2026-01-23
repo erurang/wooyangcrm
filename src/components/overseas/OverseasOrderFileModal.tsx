@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Dialog, DialogTitle, DialogContent, IconButton, CircularProgress } from "@mui/material";
 import { X, Download, Trash2, Upload, FileText, Calendar, User } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { supabase } from "@/lib/supabaseClient";
 import { useLoginUser } from "@/context/login";
 import { useGlobalToast } from "@/context/toast";
@@ -333,17 +334,16 @@ export default function OverseasOrderFileModal({
               {/* 파일 타입 선택 */}
               <div>
                 <label className="block text-xs text-gray-500 mb-1">문서 종류</label>
-                <select
+                <HeadlessSelect
                   value={fileType}
-                  onChange={(e) => setFileType(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
-                >
-                  {FILE_TYPE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) => setFileType(value)}
+                  options={FILE_TYPE_OPTIONS.map((opt) => ({
+                    value: opt.value,
+                    label: opt.label,
+                  }))}
+                  placeholder="선택하세요"
+                  icon={<FileText className="h-4 w-4" />}
+                />
               </div>
 
               {/* 설명 */}

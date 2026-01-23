@@ -522,31 +522,41 @@ export default function PostFileUpload({
       {/* 파일 선택 영역 */}
       {(!postId || !showUploadForm) && (
         <div
-          className={`relative border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+          className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
             dragging
               ? "border-blue-500 bg-blue-50"
-              : "border-gray-300 hover:border-gray-400"
+              : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
+          onClick={() => !uploading && document.getElementById('post-file-input')?.click()}
         >
           <input
+            id="post-file-input"
             type="file"
             multiple
-            className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+            className="hidden"
             onChange={(e) => handleFileSelect(e.target.files)}
             disabled={uploading}
           />
           {uploading ? (
-            <div className="flex items-center justify-center gap-2 text-gray-500">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>업로드 중...</span>
+            <div className="flex flex-col items-center gap-2 text-gray-500">
+              <Loader2 className="h-6 w-6 animate-spin" />
+              <p className="text-sm">업로드 중...</p>
+            </div>
+          ) : dragging ? (
+            <div className="flex flex-col items-center gap-2 text-blue-600">
+              <Upload className="h-8 w-8" />
+              <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-1 text-gray-500">
-              <Upload className="w-6 h-6" />
-              <p className="text-sm">파일을 드래그하거나 클릭하여 업로드</p>
+              <FileText className="h-6 w-6" />
+              <p className="text-sm">
+                <span className="font-medium text-blue-600">파일 선택</span>
+                <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
+              </p>
             </div>
           )}
         </div>

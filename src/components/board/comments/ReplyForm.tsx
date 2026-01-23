@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, AtSign, Paperclip, X, FileText, Link2 } from "lucide-react";
+import { Send, AtSign, Paperclip, X, Link2 } from "lucide-react";
 import useSWR from "swr";
 import ReferenceSelector from "@/components/board/ReferenceSelector";
 import type { CreateReferenceData } from "@/types/post";
@@ -21,6 +21,17 @@ interface ReplyFormProps {
 }
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+const getFileIcon = (fileName: string) => {
+  const ext = fileName.split(".").pop()?.toLowerCase();
+  if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext || "")) return "🖼️";
+  if (["pdf"].includes(ext || "")) return "📄";
+  if (["doc", "docx"].includes(ext || "")) return "📝";
+  if (["xls", "xlsx"].includes(ext || "")) return "📊";
+  if (["ppt", "pptx"].includes(ext || "")) return "📽️";
+  if (["zip", "rar", "7z"].includes(ext || "")) return "🗜️";
+  return "📎";
+};
 
 export default function ReplyForm({ onSubmit, onCancel, isLoading = false, placeholder = "답글을 입력하세요..." }: ReplyFormProps) {
   const [content, setContent] = useState("");
@@ -284,21 +295,23 @@ export default function ReplyForm({ onSubmit, onCancel, isLoading = false, place
 
         {/* 첨부된 파일 목록 */}
         {attachedFiles.length > 0 && (
-          <div className="px-2.5 pb-2 space-y-1 border-t border-gray-100 pt-2">
+          <div className="px-3 pb-2 space-y-2 border-t border-gray-100 pt-2">
             {attachedFiles.map((file, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 px-2 py-1 bg-gray-50 rounded text-xs"
+                className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg"
               >
-                <FileText className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                <span className="text-gray-700 truncate flex-1">{file.name}</span>
-                <span className="text-gray-400">({(file.size / 1024).toFixed(1)} KB)</span>
+                <span className="text-lg">{getFileIcon(file.name)}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-700 truncate">{file.name}</p>
+                  <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+                </div>
                 <button
                   type="button"
                   onClick={() => removeFile(index)}
-                  className="p-0.5 text-gray-400 hover:text-red-500"
+                  className="p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
                 >
-                  <X className="w-3 h-3" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             ))}
