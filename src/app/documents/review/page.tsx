@@ -12,7 +12,6 @@ import {
   User,
   Building,
   Calendar,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -20,6 +19,7 @@ import {
   BarChart3,
   TrendingDown,
 } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { useLoginUser } from "@/context/login";
 import { useDocumentsReview } from "@/hooks/documents/useDocumentsReview";
 import { useUsersList } from "@/hooks/useUserList";
@@ -473,31 +473,32 @@ export default function DocumentsReviewPage() {
           className="bg-white rounded-lg px-3 py-2.5 shadow-sm border border-slate-200 mx-2"
         >
           <div className="flex flex-wrap items-center gap-2">
-            <select
+            <HeadlessSelect
               value={docType}
-              onChange={(e) => { setDocType(e.target.value as DocType); setCurrentPage(1); }}
-              className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="all">전체 유형</option>
-              <option value="estimate">견적서</option>
-              <option value="order">발주서</option>
-              <option value="requestQuote">의뢰서</option>
-            </select>
+              onChange={(val) => { setDocType(val as DocType); setCurrentPage(1); }}
+              options={[
+                { value: "all", label: "전체 유형" },
+                { value: "estimate", label: "견적서" },
+                { value: "order", label: "발주서" },
+                { value: "requestQuote", label: "의뢰서" },
+              ]}
+              placeholder="전체 유형"
+              className="min-w-[120px]"
+              focusClass="focus:ring-indigo-500"
+            />
 
-            <div className="relative">
-              <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-              <select
-                value={selectedUserId}
-                onChange={(e) => { setSelectedUserId(e.target.value); setCurrentPage(1); }}
-                className="appearance-none pl-8 pr-7 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-              >
-                <option value="">전체 담당자</option>
-                {allUsers.map((user) => (
-                  <option key={user.id} value={user.id}>{user.name}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-            </div>
+            <HeadlessSelect
+              value={selectedUserId}
+              onChange={(val) => { setSelectedUserId(val); setCurrentPage(1); }}
+              options={[
+                { value: "", label: "전체 담당자" },
+                ...allUsers.map((user) => ({ value: user.id, label: user.name })),
+              ]}
+              placeholder="전체 담당자"
+              icon={<User className="w-3.5 h-3.5" />}
+              className="min-w-[130px]"
+              focusClass="focus:ring-indigo-500"
+            />
 
             <div className="relative">
               <Building className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />

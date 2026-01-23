@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Search, X, Filter, ChevronDown } from "lucide-react";
+import { Search, X, Filter, ChevronDown, FileText } from "lucide-react";
 import type { ApprovalCategory, ApprovalFilters as FilterType } from "@/types/approval";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 
 interface ApprovalFiltersProps {
   categories: ApprovalCategory[];
@@ -79,18 +80,21 @@ export default function ApprovalFilters({
             {/* 카테고리 필터 */}
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-500">문서 유형:</span>
-              <select
-                value={filters.category_id || ""}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-              >
-                <option value="">전체</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              <div className="min-w-[120px]">
+                <HeadlessSelect
+                  value={filters.category_id || ""}
+                  onChange={(value) => handleCategoryChange(value)}
+                  options={[
+                    { value: "", label: "전체" },
+                    ...categories.map((category) => ({
+                      value: category.id,
+                      label: category.name,
+                    })),
+                  ]}
+                  placeholder="전체"
+                  icon={<FileText className="h-4 w-4" />}
+                />
+              </div>
             </div>
 
             {/* 초기화 버튼 */}

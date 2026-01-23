@@ -42,6 +42,7 @@ interface ModalDocument {
   delivery_term?: string | null;
   delivery_place?: string | null;
   delivery_date?: string | null;
+  delivery_date_note?: string | null; // 납기일 표시용 비고 (빠른시일내 등)
 }
 
 interface DocumentModalProps {
@@ -99,6 +100,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
       delivery_term: document.delivery_term,
       delivery_place: document.delivery_place,
       delivery_date: document.delivery_date,
+      delivery_date_note: document.delivery_date_note,
     };
 
     printDocument(type, printData, {

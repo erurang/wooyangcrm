@@ -7,9 +7,9 @@ import {
   Users,
   FileText,
   Calendar,
-  ChevronDown,
   Factory,
 } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import StatisticsTab from "@/components/reports/tabs/StatisticsTab";
 import CompaniesTab from "@/components/reports/tabs/CompaniesTab";
 import EmployeesTab from "@/components/reports/tabs/EmployeesTab";
@@ -102,55 +102,43 @@ export default function ReportsPage() {
             </div>
 
             {/* 연도 선택 */}
-            <div className="relative">
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {YEARS.map((year) => (
-                  <option key={year} value={year}>
-                    {year}년
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            </div>
+            <HeadlessSelect
+              value={String(selectedYear)}
+              onChange={(val) => setSelectedYear(Number(val))}
+              options={YEARS.map((year) => ({
+                value: String(year),
+                label: `${year}년`,
+              }))}
+              placeholder="연도 선택"
+              className="w-28"
+            />
 
             {/* 분기 선택 (분기 필터일 때만) */}
             {dateFilter === "quarter" && (
-              <div className="relative">
-                <select
-                  value={selectedQuarter}
-                  onChange={(e) => setSelectedQuarter(Number(e.target.value))}
-                  className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {QUARTERS.map((q) => (
-                    <option key={q} value={q}>
-                      {q}분기
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-              </div>
+              <HeadlessSelect
+                value={String(selectedQuarter)}
+                onChange={(val) => setSelectedQuarter(Number(val))}
+                options={QUARTERS.map((q) => ({
+                  value: String(q),
+                  label: `${q}분기`,
+                }))}
+                placeholder="분기 선택"
+                className="w-24"
+              />
             )}
 
             {/* 월 선택 (월간 필터일 때만) */}
             {dateFilter === "month" && (
-              <div className="relative">
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                  className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {MONTHS.map((m) => (
-                    <option key={m} value={m}>
-                      {m}월
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-              </div>
+              <HeadlessSelect
+                value={String(selectedMonth)}
+                onChange={(val) => setSelectedMonth(Number(val))}
+                options={MONTHS.map((m) => ({
+                  value: String(m),
+                  label: `${m}월`,
+                }))}
+                placeholder="월 선택"
+                className="w-24"
+              />
             )}
 
             {/* 현재 기간 표시 */}

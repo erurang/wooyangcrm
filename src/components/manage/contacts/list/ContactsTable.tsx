@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Edit, Trash2, Building2, User, Phone, Mail } from "lucide-react";
+import { Edit, Trash2, Building2, User, Phone, Mail, List } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 
 interface Contact {
   id: string;
@@ -87,19 +88,24 @@ export default function ContactsTable({
         {onPerPageChange && onPageChange && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-slate-500 hidden sm:inline">표시:</span>
-            <select
-              value={perPage}
-              onChange={(e) => {
-                onPerPageChange(Number(e.target.value));
-                onPageChange(1);
-              }}
-              className="border border-slate-200 rounded-lg px-2 py-2 sm:py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white"
-            >
-              <option value="10">10개</option>
-              <option value="20">20개</option>
-              <option value="30">30개</option>
-              <option value="50">50개</option>
-            </select>
+            <div className="min-w-[80px]">
+              <HeadlessSelect
+                value={String(perPage)}
+                onChange={(value) => {
+                  onPerPageChange(Number(value));
+                  onPageChange(1);
+                }}
+                options={[
+                  { value: "10", label: "10개" },
+                  { value: "20", label: "20개" },
+                  { value: "30", label: "30개" },
+                  { value: "50", label: "50개" },
+                ]}
+                placeholder="20개"
+                icon={<List className="h-4 w-4" />}
+                focusClass="focus:ring-2 focus:ring-violet-500"
+              />
+            </div>
           </div>
         )}
       </div>

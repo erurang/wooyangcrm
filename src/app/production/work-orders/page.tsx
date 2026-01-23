@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Search, Filter, ClipboardList, Users, CheckCircle2, Clock, AlertTriangle, XCircle, CalendarClock, TrendingUp } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { useLoginUser } from "@/context/login";
 import { useWorkOrders, useMyWorkOrders } from "@/hooks/production/useWorkOrders";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -155,18 +156,20 @@ export default function WorkOrdersPage() {
 
           {/* Status Filter */}
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-slate-400" />
-            <select
+            <HeadlessSelect
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-              className="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white"
-            >
-              <option value="all">전체 상태</option>
-              <option value="pending">대기</option>
-              <option value="in_progress">진행중</option>
-              <option value="completed">완료</option>
-              <option value="canceled">취소됨</option>
-            </select>
+              onChange={(val) => setStatusFilter(val as StatusFilter)}
+              options={[
+                { value: "all", label: "전체 상태" },
+                { value: "pending", label: "대기" },
+                { value: "in_progress", label: "진행중" },
+                { value: "completed", label: "완료" },
+                { value: "canceled", label: "취소됨" },
+              ]}
+              placeholder="상태 선택"
+              icon={<Filter className="h-4 w-4" />}
+              focusClass="focus:ring-purple-500"
+            />
           </div>
         </div>
       </div>

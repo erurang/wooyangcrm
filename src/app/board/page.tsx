@@ -13,6 +13,7 @@ import PostPagination from "@/components/board/PostPagination";
 import PostFormModal from "@/components/board/modals/PostFormModal";
 import DeletePostModal from "@/components/board/modals/DeletePostModal";
 import BoardDashboard from "@/components/board/BoardDashboard";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import type { PostWithAuthor, CreatePostData, UpdatePostData, CreateUserTagData } from "@/types/post";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -317,19 +318,22 @@ export default function BoardPage() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-slate-500">표시:</span>
-              <select
-                value={postsPerPage}
-                onChange={(e) => {
-                  setPostsPerPage(Number(e.target.value));
+              <HeadlessSelect
+                value={String(postsPerPage)}
+                onChange={(val) => {
+                  setPostsPerPage(Number(val));
                   setCurrentPage(1);
                 }}
-                className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
-              >
-                <option value="10">10개</option>
-                <option value="20">20개</option>
-                <option value="30">30개</option>
-                <option value="50">50개</option>
-              </select>
+                options={[
+                  { value: "10", label: "10개" },
+                  { value: "20", label: "20개" },
+                  { value: "30", label: "30개" },
+                  { value: "50", label: "50개" },
+                ]}
+                placeholder="선택"
+                focusClass="focus:ring-amber-500"
+                className="w-24"
+              />
             </div>
           </div>
 

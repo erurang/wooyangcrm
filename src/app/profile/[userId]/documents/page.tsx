@@ -13,6 +13,7 @@ import {
   FileText,
   ShoppingCart,
 } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import dayjs from "dayjs";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
@@ -222,17 +223,17 @@ export default function UserDocumentsPage() {
           </div>
 
           {/* 상태 필터 */}
-          <select
+          <HeadlessSelect
             value={docStatus}
-            onChange={(e) => handleStatusChange(e.target.value as DocStatus)}
-            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            {Object.entries(docStatusLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => handleStatusChange(val as DocStatus)}
+            options={Object.entries(docStatusLabels).map(([value, label]) => ({
+              value,
+              label,
+            }))}
+            placeholder="전체"
+            className="min-w-[100px]"
+            focusClass="focus:ring-indigo-500"
+          />
         </div>
       </div>
 

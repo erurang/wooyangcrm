@@ -3,6 +3,7 @@
 import { Edit, Trash2, ChevronLeft, ChevronRight, Globe, ExternalLink, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import EmptyState from "@/components/ui/EmptyState";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { OverseasCompany } from "@/types/overseas";
 
 interface OverseasCompanyTableProps {
@@ -61,19 +62,21 @@ export default function OverseasCompanyTable({
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-slate-500">표시:</span>
-          <select
-            value={companiesPerPage}
-            onChange={(e) => {
-              onPerPageChange(Number(e.target.value));
+          <HeadlessSelect
+            value={String(companiesPerPage)}
+            onChange={(val) => {
+              onPerPageChange(Number(val));
               onPageChange(1);
             }}
-            className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white"
-          >
-            <option value="10">10개</option>
-            <option value="20">20개</option>
-            <option value="30">30개</option>
-            <option value="50">50개</option>
-          </select>
+            options={[
+              { value: "10", label: "10개" },
+              { value: "20", label: "20개" },
+              { value: "30", label: "30개" },
+              { value: "50", label: "50개" },
+            ]}
+            className="w-24"
+            focusClass="focus:ring-teal-500"
+          />
         </div>
       </div>
 

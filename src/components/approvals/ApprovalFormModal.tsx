@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Plus, Search, GripVertical, Upload, FileText, Users, Save, Send, ChevronDown, ChevronUp, CreditCard, Wallet, Trash2 } from "lucide-react";
+import { X, Plus, Search, GripVertical, Upload, FileText, Users, Save, Send, ChevronDown, ChevronUp, CreditCard, Wallet, Trash2, FileCheck, Tag } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { useLoginUser } from "@/context/login";
 import { useApprovalCategories, useCreateApproval } from "@/hooks/approvals";
 import { supabase } from "@/lib/supabaseClient";
@@ -325,16 +326,17 @@ export default function ApprovalFormModal({
                 <label className="block text-xs font-medium text-slate-500 mb-1.5">
                   문서 분류 <span className="text-red-500">*</span>
                 </label>
-                <select
+                <HeadlessSelect
                   value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                >
-                  <option value="">선택</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
+                  onChange={(value) => setCategoryId(value)}
+                  options={categories.map((cat) => ({
+                    value: cat.id,
+                    label: cat.name,
+                  }))}
+                  placeholder="선택"
+                  icon={<FileCheck className="h-4 w-4" />}
+                  focusClass="focus:ring-2 focus:ring-blue-500"
+                />
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1.5">
@@ -424,19 +426,20 @@ export default function ApprovalFormModal({
                               </div>
                               <div>
                                 <label className="block text-[11px] text-slate-500 mb-1">비용 항목</label>
-                                <select
+                                <HeadlessSelect
                                   value={item.category}
-                                  onChange={(e) => handleExpenseItemChange(index, "category", e.target.value)}
-                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                                >
-                                  <option value="">선택</option>
-                                  <option value="식비">식비</option>
-                                  <option value="교통비">교통비</option>
-                                  <option value="접대비">접대비</option>
-                                  <option value="회의비">회의비</option>
-                                  <option value="소모품비">소모품비</option>
-                                  <option value="기타">기타</option>
-                                </select>
+                                  onChange={(value) => handleExpenseItemChange(index, "category", value)}
+                                  options={[
+                                    { value: "식비", label: "식비" },
+                                    { value: "교통비", label: "교통비" },
+                                    { value: "접대비", label: "접대비" },
+                                    { value: "회의비", label: "회의비" },
+                                    { value: "소모품비", label: "소모품비" },
+                                    { value: "기타", label: "기타" },
+                                  ]}
+                                  placeholder="선택"
+                                  icon={<Tag className="h-4 w-4" />}
+                                />
                               </div>
                             </div>
                             <div>
@@ -553,15 +556,16 @@ export default function ApprovalFormModal({
                     <span className="w-6 h-6 flex items-center justify-center bg-blue-500 text-white rounded-full text-xs font-medium">
                       {line.line_order}
                     </span>
-                    <select
+                    <HeadlessSelect
                       value={line.line_type}
-                      onChange={(e) => handleLineTypeChange(index, e.target.value as ApprovalLineType)}
-                      className="px-2 py-1 border border-slate-200 rounded text-xs bg-white"
-                    >
-                      <option value="approval">결재</option>
-                      <option value="review">검토</option>
-                      <option value="reference">참조</option>
-                    </select>
+                      onChange={(value) => handleLineTypeChange(index, value as ApprovalLineType)}
+                      options={[
+                        { value: "approval", label: "결재" },
+                        { value: "review", label: "검토" },
+                        { value: "reference", label: "참조" },
+                      ]}
+                      placeholder="선택"
+                    />
                     <div className="flex-1 min-w-0">
                       <span className="text-sm font-medium text-slate-700 truncate">
                         {line.user?.name}

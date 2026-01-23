@@ -1,5 +1,8 @@
 "use client";
 
+import { List } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
+
 interface RecentTableControlsProps {
   isLoading: boolean;
   currentPage: number;
@@ -28,16 +31,21 @@ export default function RecentTableControls({
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-slate-500">표시:</span>
-        <select
-          value={perPage}
-          onChange={(e) => onPerPageChange(Number(e.target.value))}
-          className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-white"
-        >
-          <option value="5">5개</option>
-          <option value="10">10개</option>
-          <option value="15">15개</option>
-          <option value="20">20개</option>
-        </select>
+        <div className="w-[100px]">
+          <HeadlessSelect
+            value={perPage.toString()}
+            onChange={(val) => onPerPageChange(Number(val))}
+            options={[
+              { value: "5", label: "5개" },
+              { value: "10", label: "10개" },
+              { value: "15", label: "15개" },
+              { value: "20", label: "20개" },
+            ]}
+            placeholder="10개"
+            icon={<List className="h-4 w-4" />}
+            focusClass="focus:ring-cyan-500"
+          />
+        </div>
       </div>
     </div>
   );

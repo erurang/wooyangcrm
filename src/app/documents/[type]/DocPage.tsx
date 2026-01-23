@@ -19,6 +19,7 @@ import {
 } from "@/hooks/documents/docpage";
 import { DocDeleteModal } from "@/components/documents/docpage";
 import { numberToKorean } from "@/lib/numberToKorean";
+import { useUsersList } from "@/hooks/useUserList";
 import type { Document, Contact, StatusReason } from "@/types/document";
 
 const ESTIMATE_PAYMENT_METHODS = [
@@ -28,24 +29,33 @@ const ESTIMATE_PAYMENT_METHODS = [
   "협의",
 ];
 
-const getInitialDocument = (id: string) => ({
-  id,
-  date: new Date().toISOString().split("T")[0],
-  company_name: "",
-  contact: "",
-  phone: "",
-  fax: "",
-  created_at: new Date().toISOString().split("T")[0],
-  valid_until: new Date(new Date().setDate(new Date().getDate() + 14))
-    .toISOString()
-    .split("T")[0],
-  payment_method: "",
-  notes: "",
-  delivery_term: "",
-  delivery_place: "",
-  status: "",
-  delivery_date: new Date().toISOString().split("T")[0],
-});
+const getInitialDocument = (id: string, type?: string) => {
+  // 발주서일 때 기본 납기표시를 "빠른시일내"로, 납기일을 +7일로 설정
+  const isOrder = type === "order";
+  const deliveryDate = isOrder
+    ? new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split("T")[0]
+    : new Date().toISOString().split("T")[0];
+
+  return {
+    id,
+    date: new Date().toISOString().split("T")[0],
+    company_name: "",
+    contact: "",
+    phone: "",
+    fax: "",
+    created_at: new Date().toISOString().split("T")[0],
+    valid_until: new Date(new Date().setDate(new Date().getDate() + 30))
+      .toISOString()
+      .split("T")[0],
+    payment_method: "",
+    notes: "",
+    delivery_term: "",
+    delivery_place: "",
+    status: "",
+    delivery_date: deliveryDate,
+    delivery_date_note: (isOrder || type === "estimate") ? "빠른시일내" : "",
+  };
+};
 
 const DocPage = () => {
   const user = useLoginUser();
@@ -105,6 +115,7 @@ const DocPage = () => {
   const { addDocument, isAdding } = useAddDocument();
   const { updateDocument, isUpdating } = useUpdateDocument();
   const { trigger: updateStatus } = useUpdateDocumentStatus();
+  const { users } = useUsersList();
 
   // 커스텀 훅 - 핸들러
   const {
@@ -166,6 +177,20 @@ const DocPage = () => {
     }
   }, [company, newDocument.company_name]);
 
+  // 발주서/견적서일 때 기본 납기표시 설정
+  useEffect(() => {
+    if ((type === "order" || type === "estimate") && !newDocument.delivery_date_note) {
+      const deliveryDate = new Date(new Date().setDate(new Date().getDate() + 7))
+        .toISOString()
+        .split("T")[0];
+      setNewDocument((prev) => ({
+        ...prev,
+        delivery_date_note: "빠른시일내",
+        delivery_date: prev.delivery_date || deliveryDate,
+      }));
+    }
+  }, [type]);
+
   // 수정 모달 열기
   const handleEditModal = (document: Document) => {
     setNewDocument({
@@ -181,6 +206,7 @@ const DocPage = () => {
       delivery_term: document.delivery_term || "",
       delivery_place: document.delivery_place || "",
       delivery_date: document.delivery_date || "",
+      delivery_date_note: document.delivery_date_note || "",
       status: document.status,
     });
     setItemsFromDocument(document.content.items);
@@ -190,16 +216,22 @@ const DocPage = () => {
   // 수정 모달 닫기
   const handleEditCloseModal = () => {
     setOpenEditModal(false);
+    const isOrderOrEstimate = type === "order" || type === "estimate";
+    const deliveryDate = isOrderOrEstimate
+      ? new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split("T")[0]
+      : new Date().toISOString().split("T")[0];
     setNewDocument({
       ...newDocument,
       delivery_place: "",
       delivery_term: "",
       payment_method: "",
-      valid_until: new Date(new Date().setDate(new Date().getDate() + 14))
+      valid_until: new Date(new Date().setDate(new Date().getDate() + 30))
         .toISOString()
         .split("T")[0],
       contact: "",
       notes: "",
+      delivery_date: deliveryDate,
+      delivery_date_note: isOrderOrEstimate ? "빠른시일내" : "",
     });
     resetItems();
   };
@@ -222,6 +254,7 @@ const DocPage = () => {
         saving={saving}
         paymentMethods={ESTIMATE_PAYMENT_METHODS}
         user={user as any}
+        users={users}
         type={type as string}
         documents={transformedDocuments}
         handleDocumentNumberClick={openViewModal}

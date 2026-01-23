@@ -32,6 +32,7 @@ interface DocPageDocument {
   notes?: string | null;
   valid_until?: string | null;
   delivery_date?: string | null;
+  delivery_date_note?: string | null;
   total_amount?: number;
   delivery_term?: string | null;
   delivery_place?: string | null;
@@ -56,6 +57,7 @@ interface AddDocumentParams {
     notes: string;
     valid_until: string | null;
     delivery_date: string | null;
+    delivery_date_note: string | null;
     total_amount: number;
     delivery_term: string | null;
     delivery_place: string | null;
@@ -73,6 +75,7 @@ interface UpdateDocumentParams {
     notes: string;
     valid_until: string | null;
     delivery_date: string | null;
+    delivery_date_note: string | null;
     total_amount: number;
     delivery_term: string | null;
     delivery_place: string | null;
@@ -110,6 +113,7 @@ interface NewDocument {
   delivery_place: string;
   status: string;
   delivery_date: string;
+  delivery_date_note?: string;
 }
 
 interface UseDocPageHandlersProps {
@@ -204,6 +208,7 @@ export function useDocPageHandlers({
         date,
         valid_until,
         delivery_date,
+        delivery_date_note,
         delivery_place,
         delivery_term,
       } = newDocument;
@@ -220,7 +225,7 @@ export function useDocPageHandlers({
         setSnackbarMessage("견적 만료일을 입력해주세요.");
         return;
       }
-      if ((type === "order" || type === "requestQuote") && !delivery_date) {
+      if ((type === "order" || type === "estimate" || type === "requestQuote") && !delivery_date) {
         setSnackbarMessage("납품일을 입력해주세요.");
         return;
       }
@@ -256,9 +261,10 @@ export function useDocPageHandlers({
             // 분리된 필드들
             notes,
             valid_until: type === "estimate" ? valid_until : null,
-            delivery_date: type !== "estimate" ? delivery_date : null,
+            delivery_date: (type === "order" || type === "estimate") ? delivery_date : null,
+            delivery_date_note: (type === "order" || type === "estimate") ? (delivery_date_note === "__직접입력__" ? null : (delivery_date_note || null)) : null,
             total_amount: totalAmount,
-            delivery_term: type === "estimate" ? delivery_term : null,
+            delivery_term: null, // 더 이상 사용 안함
             delivery_place: type === "estimate" ? delivery_place : null,
           },
         });
@@ -307,6 +313,7 @@ export function useDocPageHandlers({
         date,
         valid_until,
         delivery_date,
+        delivery_date_note,
         delivery_place,
         delivery_term,
       } = newDocument;
@@ -323,7 +330,7 @@ export function useDocPageHandlers({
         setSnackbarMessage("견적 만료일을 입력해주세요.");
         return;
       }
-      if ((type === "order" || type === "requestQuote") && !delivery_date) {
+      if ((type === "order" || type === "estimate" || type === "requestQuote") && !delivery_date) {
         setSnackbarMessage("납품일을 입력해주세요.");
         return;
       }
@@ -356,9 +363,10 @@ export function useDocPageHandlers({
             // 분리된 필드들
             notes,
             valid_until: type === "estimate" ? valid_until : null,
-            delivery_date: type !== "estimate" ? delivery_date : null,
+            delivery_date: (type === "order" || type === "estimate") ? delivery_date : null,
+            delivery_date_note: (type === "order" || type === "estimate") ? (delivery_date_note === "__직접입력__" ? null : (delivery_date_note || null)) : null,
             total_amount: totalAmount,
-            delivery_term: type === "estimate" ? delivery_term : null,
+            delivery_term: null, // 더 이상 사용 안함
             delivery_place: type === "estimate" ? delivery_place : null,
           },
         });

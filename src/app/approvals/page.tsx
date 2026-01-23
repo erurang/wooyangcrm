@@ -10,7 +10,9 @@ import {
   XCircle,
   Send,
   Eye,
+  List,
 } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { useLoginUser } from "@/context/login";
 import {
   useApprovals,
@@ -237,19 +239,23 @@ export default function ApprovalsPage() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-500">표시:</span>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              className="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-            >
-              <option value="10">10개</option>
-              <option value="20">20개</option>
-              <option value="30">30개</option>
-              <option value="50">50개</option>
-            </select>
+            <div className="min-w-[80px]">
+              <HeadlessSelect
+                value={String(itemsPerPage)}
+                onChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setCurrentPage(1);
+                }}
+                options={[
+                  { value: "10", label: "10개" },
+                  { value: "20", label: "20개" },
+                  { value: "30", label: "30개" },
+                  { value: "50", label: "50개" },
+                ]}
+                placeholder="20개"
+                icon={<List className="h-4 w-4" />}
+              />
+            </div>
           </div>
         </div>
 

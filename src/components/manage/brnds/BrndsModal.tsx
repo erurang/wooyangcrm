@@ -3,6 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { CircularProgress } from "@mui/material";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
+import { Building } from "lucide-react";
 
 interface Brnds {
   id: string;
@@ -150,20 +152,18 @@ export default function BrndsModal({
             </div>
             <div className="mb-2">
               <label className="block mb-1">지원 기관</label>
-              <select
+              <HeadlessSelect
                 value={brndsData.support_org || ""}
-                onChange={(e) =>
-                  onBrndsDataChange({ support_org: e.target.value })
+                onChange={(value) =>
+                  onBrndsDataChange({ support_org: value })
                 }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              >
-                <option value="">선택하세요.</option>
-                {orgs?.map((org) => (
-                  <option key={org.id} value={org.name}>
-                    {org.name}
-                  </option>
-                ))}
-              </select>
+                options={orgs?.map((org) => ({
+                  value: org.name,
+                  label: org.name,
+                })) || []}
+                placeholder="선택하세요."
+                icon={<Building className="h-4 w-4" />}
+              />
             </div>
           </div>
 

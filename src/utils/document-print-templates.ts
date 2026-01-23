@@ -33,6 +33,7 @@ export interface PrintDocumentData {
   delivery_term?: string | null;
   delivery_place?: string | null;
   delivery_date?: string | null;
+  delivery_date_note?: string | null; // 납기일 표시용 비고 (빠른시일내 등)
 }
 
 interface PrintOptions {
@@ -188,7 +189,11 @@ export function generateEstimatePrintHTML(
 
   const companyName = doc.company_name || "";
   const validUntil = doc.valid_until || "";
-  const deliveryTerm = doc.delivery_term || "";
+  // 납기 표시: delivery_date_note가 있고 마커가 아니면 사용, 없으면 날짜 표시
+  const deliveryDateNote = doc.delivery_date_note && doc.delivery_date_note !== "__직접입력__"
+    ? doc.delivery_date_note
+    : null;
+  const deliveryTerm = deliveryDateNote || doc.delivery_date || "";
   const deliveryPlace = doc.delivery_place || "";
   const totalAmount = doc.total_amount ?? 0;
   const notes = doc.notes || "";
@@ -334,7 +339,11 @@ export function generateOrderPrintHTML(
   const { company_phone, company_fax, koreanAmount } = options;
 
   const companyName = doc.company_name || "";
-  const deliveryDate = doc.delivery_date || "";
+  // 납기 표시: delivery_date_note가 있고 마커가 아니면 사용, 없으면 날짜 표시
+  const deliveryDateNote = doc.delivery_date_note && doc.delivery_date_note !== "__직접입력__"
+    ? doc.delivery_date_note
+    : null;
+  const deliveryDate = deliveryDateNote || doc.delivery_date || "";
   const totalAmount = doc.total_amount ?? 0;
   const notes = doc.notes || "";
 

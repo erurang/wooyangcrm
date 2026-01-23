@@ -81,6 +81,7 @@ export async function GET(
       delivery_term: document.delivery_term || document.content?.delivery_term,
       delivery_place: document.delivery_place || document.content?.delivery_place,
       delivery_date: document.delivery_date || document.content?.delivery_date,
+      delivery_date_note: document.delivery_date_note,
       payment_method: document.payment_method || document.content?.payment_method,
     };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { Calendar, User, RotateCcw, Building2, MessageSquare, Clock } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 
 interface UserType {
   id: string;
@@ -96,23 +97,24 @@ export default function RecentSearchFilter({
           </div>
 
           {/* 상담자 */}
-          <div className="relative min-w-[120px]">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <select
-              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors appearance-none"
+          <div className="min-w-[140px]">
+            <HeadlessSelect
               value={selectedUser?.id || ""}
-              onChange={(e) => {
-                const user = users.find((u) => u.id === e.target.value) || null;
+              onChange={(val) => {
+                const user = users.find((u) => u.id === val) || null;
                 onUserChange(user);
               }}
-            >
-              <option value="">전체</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name} {user.level}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: "", label: "전체" },
+                ...users.map((user) => ({
+                  value: user.id,
+                  label: `${user.name} ${user.level}`,
+                })),
+              ]}
+              placeholder="전체"
+              icon={<User className="h-4 w-4" />}
+              focusClass="focus:ring-cyan-500"
+            />
           </div>
 
           {/* 필터 초기화 */}

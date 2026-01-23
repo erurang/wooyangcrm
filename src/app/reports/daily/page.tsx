@@ -24,6 +24,7 @@ import {
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import * as XLSX from "xlsx";
 
 type ViewMode = "daily" | "weekly" | "monthly";
@@ -131,10 +132,13 @@ function DailyReportContent() {
 
   // 로그인 사용자로 초기화 (URL에 userId가 없을 때만)
   useEffect(() => {
-    if (loginUser?.id && !selectedUserId && !initialUserId && !allUsers) {
-      setSelectedUserId(loginUser.id);
+    if (loginUser?.id) {
+      if (!selectedUserId && !initialUserId && !allUsers) {
+        setSelectedUserId(loginUser.id);
+      }
+      // loginUser 로드 후에만 initialized 설정
+      setIsInitialized(true);
     }
-    setIsInitialized(true);
   }, [loginUser?.id, selectedUserId, initialUserId, allUsers]);
 
   // URL 업데이트 (상태 변경 시)
@@ -361,144 +365,157 @@ function DailyReportContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50 px-2 md:px-4 py-4">
       {/* 헤더 */}
-      <div className="bg-white border-b px-6 py-4 print:hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-900">업무일지</h1>
-            <div className="flex gap-2">
-              <button
-                onClick={handleShareReport}
-                disabled={!reportData?.items.length}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <Share2 className="w-4 h-4" />
-                보고
-              </button>
-              <button
-                onClick={handleExcelDownload}
-                disabled={!reportData?.items.length}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <FileSpreadsheet className="w-4 h-4" />
-                Excel
-              </button>
-              <button
-                onClick={handlePrint}
-                disabled={!reportData?.items.length}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <Printer className="w-4 h-4" />
-                인쇄/PDF
-              </button>
+      <div className="max-w-7xl mx-auto space-y-4 print:hidden">
+        {/* 타이틀 + 액션 버튼 */}
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-indigo-100 rounded-xl">
+              <FileText className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-800">업무일지</h1>
+              <p className="text-sm text-slate-500">일일/주간/월간 업무 보고</p>
             </div>
           </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleShareReport}
+              disabled={!reportData?.items.length}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Share2 className="w-4 h-4" />
+              보고
+            </button>
+            <button
+              onClick={handleExcelDownload}
+              disabled={!reportData?.items.length}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              Excel
+            </button>
+            <button
+              onClick={handlePrint}
+              disabled={!reportData?.items.length}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Printer className="w-4 h-4" />
+              인쇄
+            </button>
+          </div>
+        </div>
+
+        {/* 필터 영역 */}
+        <div className="flex flex-wrap items-center gap-3 px-2 py-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+          {/* 날짜 선택 */}
+          <div className="flex items-center gap-1.5">
+            <Calendar className="w-4 h-4 text-slate-400" />
+            <button
+              onClick={goToPreviousDay}
+              className="p-1 rounded hover:bg-slate-100"
+            >
+              <ChevronLeft className="w-4 h-4 text-slate-600" />
+            </button>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="px-2 py-1 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              onClick={goToNextDay}
+              disabled={selectedDate >= today}
+              className="p-1 rounded hover:bg-slate-100 disabled:opacity-50"
+            >
+              <ChevronRight className="w-4 h-4 text-slate-600" />
+            </button>
+            {selectedDate !== today && (
+              <button
+                onClick={goToToday}
+                className="px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-50 rounded"
+              >
+                오늘
+              </button>
+            )}
+          </div>
+
+          <div className="w-px h-6 bg-slate-200" />
+
+          {/* 작성자 선택 */}
+          <div className="flex items-center gap-1.5 min-w-[160px]">
+            <HeadlessSelect
+              value={allUsers ? "" : selectedUserId}
+              onChange={(value) => {
+                if (value) {
+                  setAllUsers(false);
+                  setSelectedUserId(value);
+                }
+              }}
+              disabled={allUsers}
+              options={users?.map((user) => ({
+                value: user.id,
+                label: `${user.name} ${user.level}`,
+              })) || []}
+              placeholder="작성자 선택"
+              icon={<User className="h-4 w-4" />}
+            />
+          </div>
+
+          {isAdmin && (
+            <>
+              <div className="w-px h-6 bg-slate-200" />
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={allUsers}
+                  onChange={(e) => setAllUsers(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <Users className="w-4 h-4 text-slate-400" />
+                <span className="text-sm text-slate-600">전체 직원</span>
+              </label>
+            </>
+          )}
+
+          <div className="w-px h-6 bg-slate-200" />
 
           {/* 보기 모드 탭 */}
-          <div className="flex gap-1 mb-4 p-1 bg-gray-100 rounded-lg w-fit">
+          <div className="flex gap-1 p-0.5 bg-slate-100 rounded-lg">
             {(["daily", "weekly", "monthly"] as ViewMode[]).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
                   viewMode === mode
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-white text-indigo-600 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 {mode === "daily" ? "일간" : mode === "weekly" ? "주간" : "월간"}
               </button>
             ))}
           </div>
-
-          {/* 필터 영역 */}
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-gray-500" />
-              <button
-                onClick={goToPreviousDay}
-                className="p-1.5 rounded hover:bg-gray-100"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={goToNextDay}
-                disabled={selectedDate >= today}
-                className="p-1.5 rounded hover:bg-gray-100 disabled:opacity-50"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-              {selectedDate !== today && (
-                <button
-                  onClick={goToToday}
-                  className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded"
-                >
-                  오늘
-                </button>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-gray-500" />
-              <select
-                value={allUsers ? "" : selectedUserId}
-                onChange={(e) => {
-                  if (e.target.value) {
-                    setAllUsers(false);
-                    setSelectedUserId(e.target.value);
-                  }
-                }}
-                disabled={allUsers}
-                className="px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[140px] disabled:bg-gray-100"
-              >
-                <option value="">작성자 선택</option>
-                {users?.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name} {user.level}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {isAdmin && (
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={allUsers}
-                  onChange={(e) => setAllUsers(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <Users className="w-4 h-4 text-gray-500" />
-                <span className="text-sm text-gray-600">전체 직원 조회</span>
-              </label>
-            )}
-          </div>
         </div>
       </div>
 
       {/* 콘텐츠 영역 */}
-      <div className="max-w-7xl mx-auto p-6 print:p-0 print:max-w-none">
+      <div className="max-w-7xl mx-auto px-2 mt-4 print:p-0 print:max-w-none print:mt-0">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : error ? (
           <div className="text-center py-20 text-red-600">
             데이터를 불러오는 데 실패했습니다.
           </div>
         ) : (!selectedUserId && !allUsers) ? (
-          <div className="text-center py-20 text-gray-500">
+          <div className="text-center py-20 text-slate-500">
             작성자를 선택해주세요.
           </div>
         ) : reportData?.items.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
+          <div className="text-center py-20 text-slate-500">
             해당 기간에 작성된 상담 기록이 없습니다.
           </div>
         ) : reportData ? (

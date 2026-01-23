@@ -2,11 +2,12 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CircularProgress } from "@mui/material";
-import { X, AlertCircle, Paperclip, FileText, Upload } from "lucide-react";
+import { X, AlertCircle, Paperclip, FileText, Upload, Users, UserCheck } from "lucide-react";
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { ContactMethod } from "@/types/consultation";
 import { CONTACT_METHOD_LABELS } from "@/types/consultation";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 
 interface Contact {
   id: string;
@@ -310,23 +311,21 @@ export default function ConsultationFormModal({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     담당자 <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <HeadlessSelect
                     value={formData.contact_name}
-                    onChange={(e) => handleFieldChange("contact_name", e.target.value)}
-                    className={getInputClass(!!errors.contact_name)}
-                  >
-                    <option value="">담당자 선택</option>
-                    {contacts.map((contact) => {
-                      if (!contact.resign)
-                        return (
-                          <option key={contact.id} value={contact.contact_name}>
-                            {contact.contact_name}{" "}
-                            {contact.level && `(${contact.level})`}
-                          </option>
-                        );
-                      return null;
-                    })}
-                  </select>
+                    onChange={(val) => handleFieldChange("contact_name", val)}
+                    options={contacts
+                      .filter((contact) => !contact.resign)
+                      .map((contact) => ({
+                        value: contact.contact_name,
+                        label: contact.contact_name,
+                        sublabel: contact.level ? `(${contact.level})` : undefined,
+                      }))}
+                    placeholder="담당자 선택"
+                    icon={<Users className="h-4 w-4" />}
+                    className={errors.contact_name ? "border-red-500 focus:ring-red-500 bg-red-50" : ""}
+                    focusClass={errors.contact_name ? "focus:ring-red-500" : "focus:ring-blue-500"}
+                  />
                   {errors.contact_name && (
                     <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" />
@@ -338,17 +337,17 @@ export default function ConsultationFormModal({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     상담자
                   </label>
-                  <select
+                  <HeadlessSelect
                     value={formData.user_id}
+                    onChange={() => {}}
+                    options={users.map((user) => ({
+                      value: user.id,
+                      label: `${user.name} ${user.level}`,
+                    }))}
+                    placeholder="상담자"
+                    icon={<UserCheck className="h-4 w-4" />}
                     disabled
-                    className={getInputClass(false, true)}
-                  >
-                    {users.map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name} {user.level}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 

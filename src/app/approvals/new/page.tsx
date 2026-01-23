@@ -16,7 +16,9 @@ import {
   Link2,
   MessageSquare,
   ShoppingCart,
+  FileCheck,
 } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { useLoginUser } from "@/context/login";
 import { useApprovalCategories, useCreateApproval } from "@/hooks/approvals";
 import { supabase } from "@/lib/supabaseClient";
@@ -337,18 +339,17 @@ export default function NewApprovalPage() {
             <label className="block text-sm font-medium text-slate-700 mb-2">
               문서 분류 <span className="text-red-500">*</span>
             </label>
-            <select
+            <HeadlessSelect
               value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value="">선택하세요</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setCategoryId(value)}
+              options={categories.map((category) => ({
+                value: category.id,
+                label: category.name,
+              }))}
+              placeholder="선택하세요"
+              icon={<FileCheck className="h-4 w-4" />}
+              focusClass="focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
           {/* 제목 */}
@@ -585,17 +586,18 @@ export default function NewApprovalPage() {
                   <span className="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                     {line.line_order}
                   </span>
-                  <select
+                  <HeadlessSelect
                     value={line.line_type}
-                    onChange={(e) =>
-                      handleLineTypeChange(index, e.target.value as ApprovalLineType)
+                    onChange={(value) =>
+                      handleLineTypeChange(index, value as ApprovalLineType)
                     }
-                    className="px-2 py-1 border border-slate-200 rounded text-sm bg-white"
-                  >
-                    <option value="approval">결재</option>
-                    <option value="review">검토</option>
-                    <option value="reference">참조</option>
-                  </select>
+                    options={[
+                      { value: "approval", label: "결재" },
+                      { value: "review", label: "검토" },
+                      { value: "reference", label: "참조" },
+                    ]}
+                    placeholder="선택"
+                  />
                   <div className="flex-1">
                     <span className="font-medium text-slate-800">
                       {line.user?.name}

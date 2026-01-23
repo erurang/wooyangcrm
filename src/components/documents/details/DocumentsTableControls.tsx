@@ -1,6 +1,7 @@
 "use client";
 
 import { RotateCcw } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 
 interface DocumentsTableControlsProps {
   total: number;
@@ -30,16 +31,19 @@ export default function DocumentsTableControls({
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm text-slate-500">표시:</span>
-        <select
-          value={documentsPerPage}
-          onChange={(e) => onPerPageChange(Number(e.target.value))}
-          className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
-        >
-          <option value="10">10개</option>
-          <option value="20">20개</option>
-          <option value="30">30개</option>
-          <option value="50">50개</option>
-        </select>
+        <HeadlessSelect
+          value={String(documentsPerPage)}
+          onChange={(val) => onPerPageChange(Number(val))}
+          options={[
+            { value: "10", label: "10개" },
+            { value: "20", label: "20개" },
+            { value: "30", label: "30개" },
+            { value: "50", label: "50개" },
+          ]}
+          placeholder="20개"
+          className="min-w-[80px]"
+          focusClass="focus:ring-indigo-500"
+        />
 
         <button
           onClick={onResetFilters}

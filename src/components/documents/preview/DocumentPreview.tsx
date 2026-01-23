@@ -21,6 +21,7 @@ interface PreviewDocument {
   company_name?: string | null;
   total_amount?: number | null;
   delivery_date?: string | null;
+  delivery_date_note?: string | null; // 납기일 표시용 비고 (빠른시일내 등)
   valid_until?: string | null;
   delivery_place?: string | null;
   delivery_term?: string | null;
@@ -305,7 +306,7 @@ export default function DocumentPreview({
           <InfoField label="TEL" value={company_phone || ""} />
           <InfoField label="FAX" value={company_fax || ""} />
           <InfoField label="유효기간" value={document.valid_until || ""} />
-          <InfoField label="납품일" value={document.delivery_term || ""} />
+          <InfoField label="납품일" value={document.delivery_date_note || document.delivery_date || ""} />
           <InfoField label="결제방식" value={document.payment_method || ""} />
           <InfoField label="납품장소" value={document.delivery_place || ""} />
           <div className="mt-12 relative">
@@ -346,7 +347,7 @@ export default function DocumentPreview({
           <InfoField label="담당자명" value={contactDisplay} />
           <InfoField label="TEL" value={company_phone || ""} />
           <InfoField label="FAX" value={company_fax || ""} />
-          <InfoField label="납기일자" value={document.delivery_date || ""} />
+          <InfoField label="납기일자" value={document.delivery_date_note || document.delivery_date || ""} />
           <InfoField
             label="결제방식"
             value={document.payment_method || ""}

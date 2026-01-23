@@ -35,6 +35,7 @@ import { useLoginUser } from "@/context/login";
 import { useRouter } from "next/navigation";
 import { useGlobalToast } from "@/context/toast";
 import { supabase } from "@/lib/supabaseClient";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 
 interface Permission {
   id: string;
@@ -661,17 +662,17 @@ export default function AdminRolesPage() {
                             </td>
                             <td className="px-4 py-3">
                               {isEditing ? (
-                                <select
-                                  value={editedUser.role_id}
-                                  onChange={(e) => setEditedUser({ ...editedUser, role_id: Number(e.target.value) })}
-                                  className="px-2 py-1 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-violet-500"
-                                >
-                                  {roles.map((role) => (
-                                    <option key={role.id} value={role.id}>
-                                      {role.role_name}
-                                    </option>
-                                  ))}
-                                </select>
+                                <div className="min-w-[120px]">
+                                  <HeadlessSelect
+                                    value={String(editedUser.role_id)}
+                                    onChange={(val) => setEditedUser({ ...editedUser, role_id: Number(val) })}
+                                    options={roles.map((role) => ({
+                                      value: String(role.id),
+                                      label: role.role_name,
+                                    }))}
+                                    placeholder="역할 선택"
+                                  />
+                                </div>
                               ) : (
                                 <span className={`text-xs px-2 py-1 rounded-full ${getRoleColor(roleName)}`}>
                                   {roleName}
@@ -680,18 +681,17 @@ export default function AdminRolesPage() {
                             </td>
                             <td className="px-4 py-3">
                               {isEditing ? (
-                                <select
-                                  value={editedUser.team_id || ""}
-                                  onChange={(e) => setEditedUser({ ...editedUser, team_id: e.target.value || null })}
-                                  className="w-32 px-2 py-1 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-violet-500"
-                                >
-                                  <option value="">팀 없음</option>
-                                  {teams.map((team) => (
-                                    <option key={team.id} value={team.id}>
-                                      {team.department?.name ? `${team.department.name} / ` : ""}{team.name}
-                                    </option>
-                                  ))}
-                                </select>
+                                <div className="min-w-[150px]">
+                                  <HeadlessSelect
+                                    value={editedUser.team_id || ""}
+                                    onChange={(val) => setEditedUser({ ...editedUser, team_id: val || null })}
+                                    options={teams.map((team) => ({
+                                      value: team.id,
+                                      label: team.department?.name ? `${team.department.name} / ${team.name}` : team.name,
+                                    }))}
+                                    placeholder="팀 없음"
+                                  />
+                                </div>
                               ) : (
                                 <span className="text-slate-600">
                                   {user.team ? (

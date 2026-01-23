@@ -2,6 +2,8 @@
 export { default as FormField } from "./FormField";
 export { default as FormInput } from "./FormInput";
 export { default as FormSelect } from "./FormSelect";
+export { default as HeadlessSelect } from "./HeadlessSelect";
+export type { SelectOption } from "./HeadlessSelect";
 
 // 상태 표시 컴포넌트
 export { default as EmptyState } from "./EmptyState";

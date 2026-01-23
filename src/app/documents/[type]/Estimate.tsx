@@ -23,6 +23,12 @@ interface Items {
   amount: number;
 }
 
+interface UserItem {
+  id: string;
+  name: string;
+  level: string;
+}
+
 interface EsitmateProps {
   documents: Document[];
   handleDocumentNumberClick: (document: Document) => void;
@@ -45,6 +51,7 @@ interface EsitmateProps {
   handleEditDocument: () => Promise<void>;
   type: string;
   user: AppUser;
+  users?: UserItem[];
   setOpenEditModal: React.Dispatch<React.SetStateAction<boolean>>;
   paymentMethods: string[];
   saving: boolean;
@@ -83,6 +90,7 @@ export default function Estimate({
   handleEditDocument,
   type,
   user,
+  users = [],
   handleEditCloseModal,
   paymentMethods,
   saving,
@@ -160,6 +168,7 @@ export default function Estimate({
           mode="add"
           type={type}
           user={user}
+          users={users}
           newDocument={newDocument}
           setNewDocument={setNewDocument}
           koreanAmount={koreanAmount}
@@ -185,6 +194,7 @@ export default function Estimate({
           mode="edit"
           type={type}
           user={user}
+          users={users}
           newDocument={newDocument}
           setNewDocument={setNewDocument}
           koreanAmount={koreanAmount}

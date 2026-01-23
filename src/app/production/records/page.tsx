@@ -11,7 +11,10 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
+  Filter,
+  Package,
 } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { useLoginUser } from "@/context/login";
 import { useProductionRecords } from "@/hooks/production/useProductionRecords";
 import { useFinishedProducts, useRawMaterials, usePurchasedProducts } from "@/hooks/production/useProducts";
@@ -163,15 +166,18 @@ export default function ProductionRecordsPage() {
           </div>
 
           {/* Status Filter */}
-          <select
+          <HeadlessSelect
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
-          >
-            <option value="all">전체 상태</option>
-            <option value="completed">완료</option>
-            <option value="canceled">취소됨</option>
-          </select>
+            onChange={(val) => setStatusFilter(val as StatusFilter)}
+            options={[
+              { value: "all", label: "전체 상태" },
+              { value: "completed", label: "완료" },
+              { value: "canceled", label: "취소됨" },
+            ]}
+            placeholder="상태 선택"
+            icon={<Filter className="h-4 w-4" />}
+            focusClass="focus:ring-emerald-500"
+          />
 
           {/* Date Range */}
           <div className="flex items-center gap-2">
@@ -329,18 +335,18 @@ export default function ProductionRecordsPage() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   제품 <span className="text-red-500">*</span>
                 </label>
-                <select
+                <HeadlessSelect
                   value={selectedProductId}
-                  onChange={(e) => setSelectedProductId(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value="">제품 선택</option>
-                  {finishedProducts.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.internal_name} ({p.internal_code})
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setSelectedProductId(val)}
+                  options={finishedProducts.map((p) => ({
+                    value: p.id,
+                    label: p.internal_name,
+                    sublabel: p.internal_code,
+                  }))}
+                  placeholder="제품 선택"
+                  icon={<Package className="h-4 w-4" />}
+                  focusClass="focus:ring-emerald-500"
+                />
               </div>
 
               {/* Quantity & Date */}

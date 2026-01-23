@@ -1,6 +1,7 @@
 "use client";
 
 import { Building, FileText, Search, Clock, User, FileStack } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 
 interface UserType {
   id: string;
@@ -88,41 +89,45 @@ export default function DocumentSearchFilters({
           </div>
 
           {/* 상태 */}
-          <div className="relative sm:min-w-[150px]">
-            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <select
+          <div className="sm:min-w-[150px]">
+            <HeadlessSelect
               value={selectedStatus}
-              onChange={(e) => onStatusChange(e.target.value)}
-              className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors appearance-none"
-            >
-              <option value="all">전체</option>
-              <option value="pending">진행</option>
-              <option value="expiring_soon">만료임박</option>
-              <option value="completed">완료</option>
-              <option value="canceled">취소</option>
-              <option value="expired">만료</option>
-            </select>
+              onChange={(val) => onStatusChange(val)}
+              options={[
+                { value: "all", label: "전체" },
+                { value: "pending", label: "진행" },
+                { value: "expiring_soon", label: "만료임박" },
+                { value: "completed", label: "완료" },
+                { value: "canceled", label: "취소" },
+                { value: "expired", label: "만료" },
+              ]}
+              placeholder="전체"
+              icon={<Clock className="h-4 w-4" />}
+              className="bg-slate-50 hover:bg-white"
+              focusClass="focus:ring-indigo-500"
+            />
           </div>
 
           {/* 상담자 */}
-          <div className="relative sm:min-w-[120px]">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <select
+          <div className="sm:min-w-[120px]">
+            <HeadlessSelect
               value={selectedUser?.id || ""}
-              onChange={(e) => {
-                const user =
-                  users.find((u) => u.id === e.target.value) || null;
+              onChange={(val) => {
+                const user = users.find((u) => u.id === val) || null;
                 onUserChange(user);
               }}
-              className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors appearance-none"
-            >
-              <option value="">전체</option>
-              {users.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name} {u.level}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: "", label: "전체" },
+                ...users.map((u) => ({
+                  value: u.id,
+                  label: `${u.name} ${u.level}`,
+                })),
+              ]}
+              placeholder="전체"
+              icon={<User className="h-4 w-4" />}
+              className="bg-slate-50 hover:bg-white"
+              focusClass="focus:ring-indigo-500"
+            />
           </div>
         </div>
       </div>

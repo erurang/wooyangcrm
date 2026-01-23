@@ -56,6 +56,7 @@ export interface Document {
   notes: string | null;
   valid_until: string | null;
   delivery_date: string | null;
+  delivery_date_note?: string | null; // 납기일 외부 표시용 (빠른시일내 등)
   total_amount: number;
   delivery_term: string | null;
   delivery_place: string | null;
@@ -79,6 +80,7 @@ export interface NewDocument {
   delivery_place: string;
   status: string;
   delivery_date: string;
+  delivery_date_note: string; // 납기일 외부 표시용 (빠른시일내 등)
 }
 
 export interface Contact {

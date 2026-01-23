@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Users, ClipboardList, AlertCircle, User } from "lucide-react";
+import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { useUsersList } from "@/hooks/useUserList";
 import type { WorkOrder, WorkOrderCreateRequest } from "@/types/production";
 
@@ -220,17 +221,17 @@ export default function WorkOrderFormModal({
                 <User className="inline h-4 w-4 mr-1" />
                 지시자
               </label>
-              <select
+              <HeadlessSelect
                 value={selectedRequester}
-                onChange={(e) => setSelectedRequester(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
-              >
-                {users.map((user: { id: string; name: string }) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name} {user.id === requesterId ? "(나)" : ""}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setSelectedRequester(val)}
+                options={users.map((user: { id: string; name: string }) => ({
+                  value: user.id,
+                  label: `${user.name}${user.id === requesterId ? " (나)" : ""}`,
+                }))}
+                placeholder="지시자 선택"
+                icon={<User className="h-4 w-4" />}
+                focusClass="focus:ring-purple-500"
+              />
               <p className="mt-1 text-xs text-slate-400">
                 작업지시를 내리는 사람을 선택합니다. 기본값은 로그인한 사용자입니다.
               </p>

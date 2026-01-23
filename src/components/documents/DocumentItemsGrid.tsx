@@ -69,9 +69,11 @@ export default function DocumentItemsGrid({
         <div
           className={`hidden sm:grid ${colors.headerBg} px-4 py-3 border-b border-gray-200 grid-cols-12 gap-2 text-xs font-medium text-gray-700`}
         >
-          <div className="col-span-4">제품명</div>
-          <div className="col-span-2">규격</div>
-          <div className="col-span-1">수량</div>
+          <div className="col-span-5 grid grid-cols-2 gap-2">
+            <span>제품명</span>
+            <span>규격</span>
+          </div>
+          <div className="col-span-2">수량</div>
           <div className="col-span-2">단가</div>
           <div className="col-span-2">금액</div>
           <div className="col-span-1">관리</div>
@@ -108,36 +110,35 @@ export default function DocumentItemsGrid({
                     </button>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">제품명</label>
-                    <input
-                      type="text"
-                      placeholder="제품명"
-                      value={item.name}
-                      onChange={(e) =>
-                        setItems((prev: Items[]): Items[] =>
-                          prev.map((item, i) =>
-                            i === index ? { ...item, name: e.target.value } : item
+                    <label className="block text-xs text-gray-500 mb-1">제품명 / 규격</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        placeholder="제품명"
+                        value={item.name}
+                        onChange={(e) =>
+                          setItems((prev: Items[]): Items[] =>
+                            prev.map((item, i) =>
+                              i === index ? { ...item, name: e.target.value } : item
+                            )
                           )
-                        )
-                      }
-                      className={`w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 mb-1">규격</label>
-                    <input
-                      type="text"
-                      placeholder="규격"
-                      value={item.spec}
-                      onChange={(e) =>
-                        setItems((prev: Items[]): Items[] =>
-                          prev.map((item, i) =>
-                            i === index ? { ...item, spec: e.target.value } : item
+                        }
+                        className={`w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
+                      />
+                      <input
+                        type="text"
+                        placeholder="규격"
+                        value={item.spec}
+                        onChange={(e) =>
+                          setItems((prev: Items[]): Items[] =>
+                            prev.map((item, i) =>
+                              i === index ? { ...item, spec: e.target.value } : item
+                            )
                           )
-                        )
-                      }
-                      className={`w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
-                    />
+                        }
+                        className={`w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div>
@@ -175,7 +176,7 @@ export default function DocumentItemsGrid({
 
                 {/* 데스크탑: 테이블 레이아웃 */}
                 <div className="hidden sm:grid px-4 py-3 border-b last:border-b-0 border-gray-200 grid-cols-12 gap-2 items-center hover:bg-gray-50 transition-colors">
-                  <div className="col-span-4">
+                  <div className="col-span-5 grid grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="제품명"
@@ -189,8 +190,6 @@ export default function DocumentItemsGrid({
                       }
                       className={`w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
                     />
-                  </div>
-                  <div className="col-span-2">
                     <input
                       type="text"
                       placeholder="규격"
@@ -205,7 +204,7 @@ export default function DocumentItemsGrid({
                       className={`w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
                     />
                   </div>
-                  <div className="col-span-1">
+                  <div className="col-span-2">
                     <input
                       type="text"
                       placeholder="수량"

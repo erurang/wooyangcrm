@@ -6,7 +6,6 @@ import {
   DocumentFormHeader,
   BasicInfoSection,
   DocumentInfoSection,
-  AdditionalInfoSection,
   AmountInfoSection,
   NotesSection,
   DocumentFormFooter,
@@ -22,10 +21,17 @@ interface Items {
   amount: number;
 }
 
+interface UserItem {
+  id: string;
+  name: string;
+  level: string;
+}
+
 interface DocumentFormModalProps {
   mode: "add" | "edit";
   type: string;
   user: AppUser;
+  users?: UserItem[];
   newDocument: NewDocument;
   setNewDocument: (doc: NewDocument) => void;
   koreanAmount: string;
@@ -48,6 +54,7 @@ export default function DocumentFormModal({
   mode,
   type,
   user,
+  users = [],
   newDocument,
   setNewDocument,
   koreanAmount,
@@ -98,12 +105,12 @@ export default function DocumentFormModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 overflow-y-auto py-8"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 my-auto flex flex-col max-h-[calc(100vh-64px)]"
       >
         <DocumentFormHeader
           mode={mode}
@@ -121,28 +128,23 @@ export default function DocumentFormModal({
               contacts={contacts}
               iconColor={colorConfig.iconColor}
               focusClass={colorConfig.focus}
+              type={type}
+              mode={mode}
             />
 
             <DocumentInfoSection
               mode={mode}
               type={type}
               user={user}
+              users={users}
               newDocument={newDocument}
               setNewDocument={setNewDocument}
               paymentMethods={paymentMethods}
               iconColor={colorConfig.iconColor}
               focusClass={colorConfig.focus}
+              contacts={contacts}
+              companyAddress={companyAddress}
             />
-
-            {type === "estimate" && (
-              <AdditionalInfoSection
-                newDocument={newDocument}
-                setNewDocument={setNewDocument}
-                iconColor={colorConfig.iconColor}
-                focusClass={colorConfig.focus}
-                companyAddress={companyAddress}
-              />
-            )}
 
             <NotesSection
               notes={newDocument.notes}
