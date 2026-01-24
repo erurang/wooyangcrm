@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 
 import { useUsersList } from "@/hooks/useUserList";
 import { useLoginUser } from "@/context/login";
@@ -16,7 +17,7 @@ import {
   RecentTable,
   RecentDocumentModal,
 } from "@/components/consultations/recent";
-import { ConsultationPagination } from "@/components/consultations/search";
+import Pagination from "@/components/ui/Pagination";
 import FileAttachmentModal from "@/components/consultations/modals/FileAttachmentModal";
 import ErrorState from "@/components/ui/ErrorState";
 
@@ -302,31 +303,42 @@ export default function RecentConsultationsList() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
-      <RecentSearchFilter
-        searchTerm={searchTerm}
-        onSearchTermChange={(val) => {
-          setSearchTerm(val);
-          setCurrentPage(1);
-        }}
-        contentSearch={contentSearch}
-        onContentSearchChange={(val) => {
-          setContentSearch(val);
-          setCurrentPage(1);
-        }}
-        startDate={startDate}
-        onStartDateChange={setStartDate}
-        endDate={endDate}
-        onEndDateChange={setEndDate}
-        selectedUser={selectedUser}
-        onUserChange={(user) => {
-          setSelectedUser(user);
-          setCurrentPage(1);
-        }}
-        users={users}
-        onReset={resetFilters}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <RecentSearchFilter
+          searchTerm={searchTerm}
+          onSearchTermChange={(val) => {
+            setSearchTerm(val);
+            setCurrentPage(1);
+          }}
+          contentSearch={contentSearch}
+          onContentSearchChange={(val) => {
+            setContentSearch(val);
+            setCurrentPage(1);
+          }}
+          startDate={startDate}
+          onStartDateChange={setStartDate}
+          endDate={endDate}
+          onEndDateChange={setEndDate}
+          selectedUser={selectedUser}
+          onUserChange={(user) => {
+            setSelectedUser(user);
+            setCurrentPage(1);
+          }}
+          users={users}
+          onReset={resetFilters}
+        />
+      </motion.div>
 
-      <RecentTableControls
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <RecentTableControls
         isLoading={isConsultationsLoading}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -336,19 +348,28 @@ export default function RecentConsultationsList() {
           setCurrentPage(1);
         }}
       />
+      </motion.div>
 
-      <RecentTable
-        consultations={consultations}
-        isLoading={isConsultationsLoading}
-        onDocumentClick={handleDocumentClick}
-        onAttachmentClick={handleAttachmentClick}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.15 }}
+      >
+        <RecentTable
+          consultations={consultations}
+          isLoading={isConsultationsLoading}
+          onDocumentClick={handleDocumentClick}
+          onAttachmentClick={handleAttachmentClick}
+        />
+      </motion.div>
 
-      <ConsultationPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      <div className="flex justify-center py-4">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </div>
 
       <SnackbarComponent message={snackbarMessage} onClose={() => setSnackbarMessage("")} />
 

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { ChevronDown, ChevronUp, CreditCard, Wallet } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 // 비용 항목 타입
 export interface ExpenseItem {
@@ -68,7 +69,7 @@ export default function ExpenseContentDisplay({ content }: ExpenseContentDisplay
     return (
       <div
         className="prose prose-sm max-w-none text-slate-700"
-        dangerouslySetInnerHTML={{ __html: content }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
       />
     );
   }

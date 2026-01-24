@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 import { useDebounce } from "@/hooks/useDebounce";
+import { motion } from "framer-motion";
 
 type DocType = "all" | "quotation" | "order";
 type DocStatus = "all" | "pending" | "approved" | "completed" | "cancelled" | "expired";
@@ -179,12 +180,17 @@ export default function UserDocumentsPage() {
   return (
     <div className="text-sm text-[#37352F]">
       {/* 헤더 */}
-      <div className="mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-6"
+      >
         <h1 className="text-xl font-semibold">문서</h1>
         <p className="text-sm text-gray-500 mt-1">
           이 사용자가 생성한 견적서와 발주서입니다.
         </p>
-      </div>
+      </motion.div>
 
       {/* 검색 및 필터 */}
       <div className="flex flex-col gap-4 mb-6">
@@ -251,12 +257,17 @@ export default function UserDocumentsPage() {
         </div>
       ) : documents.length > 0 ? (
         <div className="space-y-2">
-          {documents.map((doc) => (
-            <Link
+          {documents.map((doc, index) => (
+            <motion.div
               key={doc.id}
-              href={`/documents/${doc.type}?docId=${doc.id}`}
-              className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
             >
+              <Link
+                href={`/documents/${doc.type}?docId=${doc.id}`}
+                className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all"
+              >
               <div className="flex items-center justify-between gap-4">
                 {/* 문서 정보 */}
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -306,6 +317,7 @@ export default function UserDocumentsPage() {
                 </div>
               </div>
             </Link>
+            </motion.div>
           ))}
         </div>
       ) : (

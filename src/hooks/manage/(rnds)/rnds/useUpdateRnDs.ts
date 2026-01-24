@@ -13,7 +13,7 @@ interface RnDsUpdateData {
 
 export function useUpdateRnDs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/manage/rnds/update`,
+    `/api/manage/rnds`,
     fetcher
   );
 

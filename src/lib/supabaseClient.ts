@@ -1,11 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: false,
-  },
-});
+/**
+ * @deprecated Use @/lib/supabase instead
+ *
+ * This file is kept for backwards compatibility.
+ * New code should import from @/lib/supabase:
+ *
+ * Browser: import { supabase } from "@/lib/supabase";
+ * Server: import { createSupabaseServer } from "@/lib/supabase";
+ */
+export { supabase } from "./supabase/browser";

@@ -29,12 +29,10 @@ export default function ChatInviteModal({
   const [isInviting, setIsInviting] = useState(false);
 
   // 사용자 목록 조회
-  const { data: usersData } = useSWR<{ users: User[] }>(
+  const { data: users = [] } = useSWR<User[]>(
     isOpen ? "/api/users" : null,
     fetcher
   );
-
-  const users = usersData?.users || [];
 
   // 검색 및 필터링 (자신과 기존 참여자 제외)
   const filteredUsers = useMemo(() => {

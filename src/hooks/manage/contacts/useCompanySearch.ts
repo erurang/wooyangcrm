@@ -9,7 +9,7 @@ const fetcher = async (url: string) => {
 export function useCompanySearch(searchTerm: string) {
   const { data, error } = useSWR(
     searchTerm
-      ? `/api/companies/search?name=${encodeURIComponent(searchTerm)}`
+      ? `/api/companies?mode=search&name=${encodeURIComponent(searchTerm)}`
       : null, // ✅ 검색어가 없을 때는 요청하지 않음
     fetcher
   );

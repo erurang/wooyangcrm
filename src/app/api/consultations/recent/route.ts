@@ -1,6 +1,40 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
+interface ConsultationRowCompany {
+  id: string;
+  name: string;
+  fax: string;
+  phone: string;
+}
+
+interface ConsultationRowUser {
+  id: string;
+  name: string;
+  level: string;
+}
+
+interface ConsultationRowContact {
+  contact_name: string;
+  level: string;
+  mobile: string;
+}
+
+interface ConsultationRow {
+  id: string;
+  date: string;
+  title: string;
+  content: string;
+  contact_method: string;
+  created_at: string;
+  companies: ConsultationRowCompany | ConsultationRowCompany[] | null;
+  users: ConsultationRowUser | ConsultationRowUser[] | null;
+  documents: unknown[];
+  contacts_consultations: Array<{
+    contacts: ConsultationRowContact | ConsultationRowContact[] | null;
+  }>;
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -95,13 +129,13 @@ export async function GET(request: Request) {
     }
 
     // 🔹 상담 데이터에 `contact_name`, `contact_level`, `file_count` 추가
-    const updatedConsultations = consultations?.map((consultation: any) => {
-      const firstContact =
-        consultation.contacts_consultations?.[0]?.contacts || {};
+    const updatedConsultations = consultations?.map((consultation: ConsultationRow) => {
+      const contactData = consultation.contacts_consultations?.[0]?.contacts;
+      const firstContact = Array.isArray(contactData) ? contactData[0] : contactData;
       return {
         ...consultation,
-        contact_name: firstContact.contact_name || "",
-        contact_level: firstContact.level || "",
+        contact_name: firstContact?.contact_name || "",
+        contact_level: firstContact?.level || "",
         file_count: fileCounts[consultation.id] || 0,
       };
     });

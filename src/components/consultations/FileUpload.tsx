@@ -10,14 +10,14 @@ interface ConsultationFile {
   id: string;
   file_name: string;
   file_url: string;
-  description?: string;
+  description?: string | null;
   user_id: string;
   created_at: string;
   user?: {
     id: string;
     name: string;
     level?: string;
-  };
+  } | null;
   signedUrl?: string;
   downloadCount?: number;
 }
@@ -36,6 +36,28 @@ interface FileUploadProps {
   consultationId: string;
   userId: string;
   onFileCountChange?: (count: number) => void;
+}
+
+interface UserInfo {
+  id: string;
+  name: string;
+  level?: string;
+}
+
+interface ConsultationFileRow {
+  id: string;
+  file_name: string;
+  file_url: string;
+  description: string | null;
+  user_id: string;
+  created_at: string;
+  users: UserInfo | UserInfo[] | null;
+}
+
+interface DownloadRecordRow {
+  id: string;
+  created_at: string;
+  users: UserInfo | UserInfo[] | null;
 }
 
 export default function FileUpload({
@@ -104,7 +126,8 @@ export default function FileUpload({
     }
 
     // 다운로드 수 조회
-    const fileIds = (data || []).map((f: any) => f.id);
+    const typedData = data as ConsultationFileRow[] | null;
+    const fileIds = (typedData || []).map((f) => f.id);
     const { data: downloadCounts } = await supabase
       .from("file_downloads")
       .select("file_id")
@@ -115,9 +138,16 @@ export default function FileUpload({
       countMap[d.file_id] = (countMap[d.file_id] || 0) + 1;
     });
 
+    // Helper to extract user from users field (handles array or single object)
+    const extractUser = (users: UserInfo | UserInfo[] | null): UserInfo | null => {
+      if (!users) return null;
+      if (Array.isArray(users)) return users[0] || null;
+      return users;
+    };
+
     // Signed URL 생성
-    const filesWithUrls = await Promise.all(
-      (data || []).map(async (file: any) => {
+    const filesWithUrls: ConsultationFile[] = await Promise.all(
+      (typedData || []).map(async (file) => {
         const filePath = file.file_url.startsWith("consultations/")
           ? file.file_url
           : `consultations/${file.file_url}`;
@@ -127,8 +157,13 @@ export default function FileUpload({
           .createSignedUrl(filePath, 60 * 60); // 1시간 유효
 
         return {
-          ...file,
-          user: file.users,
+          id: file.id,
+          file_name: file.file_name,
+          file_url: file.file_url,
+          description: file.description,
+          user_id: file.user_id,
+          created_at: file.created_at,
+          user: extractUser(file.users),
           signedUrl: signedUrlData?.signedUrl || "",
           downloadCount: countMap[file.id] || 0,
         };
@@ -165,12 +200,19 @@ export default function FileUpload({
       .limit(20);
 
     if (!error && data) {
+      const typedDownloads = data as DownloadRecordRow[];
+      // Helper to extract user from users field (handles array or single object)
+      const extractUser = (users: UserInfo | UserInfo[] | null): UserInfo | null => {
+        if (!users) return null;
+        if (Array.isArray(users)) return users[0] || null;
+        return users;
+      };
       setDownloadHistory((prev) => ({
         ...prev,
-        [fileId]: data.map((d: any) => ({
+        [fileId]: typedDownloads.map((d) => ({
           id: d.id,
           created_at: d.created_at,
-          user: d.users,
+          user: extractUser(d.users) as DownloadRecord["user"],
         })),
       }));
     }

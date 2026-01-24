@@ -49,7 +49,7 @@ export default function ReplyForm({ onSubmit, onCancel, isLoading = false, place
   const formRef = useRef<HTMLFormElement>(null);
 
   // 사용자 목록 가져오기
-  const { data: users = [] } = useSWR<User[]>("/api/users/list", fetcher, {
+  const { data: users = [] } = useSWR<User[]>("/api/users", fetcher, {
     revalidateOnFocus: false,
   });
 

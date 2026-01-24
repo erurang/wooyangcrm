@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo, Suspense } from "react";
+import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLoginUser } from "@/context/login";
 import { useUsersList } from "@/hooks/useUserList";
@@ -568,7 +569,12 @@ function DailyReportContent() {
               <div className="border-b p-3">
                 <div className="grid grid-cols-2 gap-4">
                   {/* 매출 (견적서) */}
-                  <div className="space-y-1">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="space-y-1"
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       <TrendingUp className="w-4 h-4 text-blue-600" />
                       <span className="text-sm font-medium text-gray-700">매출 (견적)</span>
@@ -589,9 +595,14 @@ function DailyReportContent() {
                         )}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                   {/* 매입 (발주서) */}
-                  <div className="space-y-1">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-1"
+                  >
                     <div className="flex items-center gap-2 mb-2">
                       <TrendingDown className="w-4 h-4 text-orange-600" />
                       <span className="text-sm font-medium text-gray-700">매입 (발주)</span>
@@ -612,7 +623,7 @@ function DailyReportContent() {
                         )}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
             )}
@@ -624,7 +635,7 @@ function DailyReportContent() {
                   <tr className="bg-gray-50 border-b">
                     <th className="px-3 py-3 text-center font-medium w-12 border-r">No.</th>
                     <th className="px-3 py-3 text-center font-medium w-28 border-r">업체명</th>
-                    <th className="px-3 py-3 text-left font-medium border-r">내용</th>
+                    <th className="px-3 py-3 text-left font-medium border-r w-[45%]">내용</th>
                     <th className="px-3 py-3 text-center font-medium w-32">비고</th>
                   </tr>
                 </thead>
@@ -695,14 +706,14 @@ function DailyReportContent() {
                                   </div>
 
                                   {doc.items.length > 0 && (
-                                    <table className="w-full text-xs">
+                                    <table className="w-full text-xs table-fixed">
                                       <thead>
                                         <tr className="bg-white/50">
-                                          <th className="border border-gray-300 px-2 py-1 text-left">품목</th>
-                                          <th className="border border-gray-300 px-2 py-1 text-left w-20">규격</th>
-                                          <th className="border border-gray-300 px-2 py-1 text-right w-14">수량</th>
-                                          <th className="border border-gray-300 px-2 py-1 text-right w-20">단가</th>
-                                          <th className="border border-gray-300 px-2 py-1 text-right w-20">금액</th>
+                                          <th className="border border-gray-300 px-2 py-1 text-left w-[35%]">품목</th>
+                                          <th className="border border-gray-300 px-2 py-1 text-left w-[20%]">규격</th>
+                                          <th className="border border-gray-300 px-2 py-1 text-right w-[10%]">수량</th>
+                                          <th className="border border-gray-300 px-2 py-1 text-right w-[15%]">단가</th>
+                                          <th className="border border-gray-300 px-2 py-1 text-right w-[20%]">금액</th>
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -815,8 +826,8 @@ function DailyReportContent() {
             table-layout: fixed !important;
           }
 
-          #print-area .main-content-table th,
-          #print-area .main-content-table td {
+          #print-area .main-content-table > thead > tr > th,
+          #print-area .main-content-table > tbody > tr > td {
             border: 1px solid #d1d5db !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -825,27 +836,39 @@ function DailyReportContent() {
             padding: 4px 6px !important;
           }
 
-          /* 메인 테이블 컬럼 너비 조정 */
-          #print-area .main-content-table th:nth-child(1),
-          #print-area .main-content-table td:nth-child(1) {
+          /* 메인 테이블 컬럼 너비 조정 (직접 자식만) */
+          #print-area .main-content-table > thead > tr > th:nth-child(1),
+          #print-area .main-content-table > tbody > tr > td:nth-child(1) {
             width: 6% !important;
           }
-          #print-area .main-content-table th:nth-child(2),
-          #print-area .main-content-table td:nth-child(2) {
+          #print-area .main-content-table > thead > tr > th:nth-child(2),
+          #print-area .main-content-table > tbody > tr > td:nth-child(2) {
             width: 14% !important;
           }
-          #print-area .main-content-table th:nth-child(3),
-          #print-area .main-content-table td:nth-child(3) {
-            width: 60% !important;
+          #print-area .main-content-table > thead > tr > th:nth-child(3),
+          #print-area .main-content-table > tbody > tr > td:nth-child(3) {
+            width: 55% !important;
           }
-          #print-area .main-content-table th:nth-child(4),
-          #print-area .main-content-table td:nth-child(4) {
-            width: 20% !important;
+          #print-area .main-content-table > thead > tr > th:nth-child(4),
+          #print-area .main-content-table > tbody > tr > td:nth-child(4) {
+            width: 25% !important;
           }
 
           /* 행 분리 방지 */
-          #print-area .main-content-table tr {
+          #print-area .main-content-table > tbody > tr {
             page-break-inside: avoid !important;
+          }
+
+          /* 문서 품목 테이블 스타일 */
+          #print-area .table-fixed {
+            table-layout: fixed !important;
+            width: 100% !important;
+          }
+          #print-area .table-fixed th,
+          #print-area .table-fixed td {
+            border: 1px solid #d1d5db !important;
+            padding: 2px 4px !important;
+            font-size: 9px !important;
           }
 
           /* 문서 상세 카드 크기 조정 */
@@ -897,7 +920,7 @@ function DailyReportContent() {
           }
 
           @page {
-            size: A4 landscape;
+            size: A4 portrait;
             margin: 8mm;
           }
         }

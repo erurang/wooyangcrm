@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
@@ -16,9 +17,9 @@ import {
   BrndsSearchFilter,
   BrndsTable,
   BrndsModal,
-  BrndsDeleteModal,
-  BrndsPagination,
 } from "@/components/manage/brnds";
+import Pagination from "@/components/ui/Pagination";
+import DeleteConfirmModal from "@/components/ui/DeleteConfirmModal";
 
 interface Brnds {
   id: string;
@@ -211,7 +212,12 @@ export default function Page() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      <BrndsSearchFilter
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <BrndsSearchFilter
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
         onReset={handleFilterReset}
@@ -263,20 +269,23 @@ export default function Page() {
         formatNumber={formatNumber}
       />
 
-      <BrndsDeleteModal
-        isOpen={isDeleteModalOpen}
-        brnds={brndsToDelete}
-        deleteReason={deleteReason}
-        onReasonChange={setDeleteReason}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen && !!brndsToDelete}
+        onClose={cancelDelete}
         onConfirm={confirmDelete}
-        onCancel={cancelDelete}
+        itemName={brndsToDelete?.name}
+        itemType="비R&D"
+        requireReason
+        reason={deleteReason}
+        onReasonChange={setDeleteReason}
       />
 
-      <BrndsPagination
+      <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
+      </motion.div>
 
       <SnackbarComponent
         onClose={() => setSnackbarMessage("")}

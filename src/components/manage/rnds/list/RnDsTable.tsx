@@ -12,7 +12,7 @@ interface RnDs {
   total_cost: string;
   notes: string;
   support_org: string;
-  rnd_orgs: {
+  rnd_orgs?: {
     name: string;
   };
 }

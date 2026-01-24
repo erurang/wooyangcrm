@@ -1,6 +1,6 @@
 "use client";
 
-import { useEscapeKey } from "@/hooks/useEscapeKey";
+import FormModal from "@/components/ui/FormModal";
 
 interface RnDNotesModalProps {
   isOpen: boolean;
@@ -17,35 +17,19 @@ export default function RnDNotesModal({
   notes,
   onNotesChange,
 }: RnDNotesModalProps) {
-  // ESC 키로 모달 닫기
-  useEscapeKey(isOpen, onClose);
-
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
-      <div className="bg-white p-6 rounded-md w-1/3">
-        <h2 className="text-xl font-bold mb-4">비고 추가/수정</h2>
-        <textarea
-          className="w-full min-h-80 p-2 border border-gray-300 rounded-md"
-          value={notes}
-          onChange={(e) => onNotesChange(e.target.value)}
-        />
-        <div className="flex justify-end mt-4">
-          <button
-            className="px-4 py-2 bg-gray-500 text-white rounded-md mr-2"
-            onClick={onClose}
-          >
-            취소
-          </button>
-          <button
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-            onClick={onSave}
-          >
-            저장
-          </button>
-        </div>
-      </div>
-    </div>
+    <FormModal
+      isOpen={isOpen}
+      onClose={onClose}
+      onSave={onSave}
+      title="비고 추가/수정"
+      size="sm"
+    >
+      <textarea
+        className="w-full min-h-80 p-2 border border-gray-300 rounded-md"
+        value={notes}
+        onChange={(e) => onNotesChange(e.target.value)}
+      />
+    </FormModal>
   );
 }

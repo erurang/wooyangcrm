@@ -143,3 +143,35 @@ export function getErrorType(error: Error | null): ErrorType {
 
   return "default";
 }
+
+/**
+ * 인라인 에러 메시지 (카드/섹션 내부에서 사용)
+ */
+export function InlineError({
+  message,
+  onRetry,
+  isRetrying = false,
+  className = "",
+}: {
+  message: string;
+  onRetry?: () => void;
+  isRetrying?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm ${className}`}>
+      <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+      <span className="text-red-700 flex-1">{message}</span>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          disabled={isRetrying}
+          className="flex items-center gap-1 px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className={`w-3 h-3 ${isRetrying ? "animate-spin" : ""}`} />
+          재시도
+        </button>
+      )}
+    </div>
+  );
+}

@@ -11,7 +11,7 @@ interface User {
 
 export function useUsersList() {
   const { data, error, isValidating, mutate } = useSWR<User[]>(
-    "/api/users/list",
+    "/api/users",
     (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
     {
       revalidateOnFocus: false,

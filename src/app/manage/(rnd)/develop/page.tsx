@@ -16,9 +16,9 @@ import {
   DevelopSearchFilter,
   DevelopTable,
   DevelopModal,
-  DevelopDeleteModal,
-  DevelopPagination,
 } from "@/components/manage/develop";
+import Pagination from "@/components/ui/Pagination";
+import DeleteConfirmModal from "@/components/ui/DeleteConfirmModal";
 
 interface Develop {
   id: string;
@@ -30,7 +30,7 @@ interface Develop {
   total_cost: string;
   notes: string;
   support_org: string;
-  rnd_orgs: {
+  rnd_orgs?: {
     name: string;
   };
 }
@@ -249,7 +249,7 @@ export default function Page() {
       </div>
 
       <DevelopTable
-        develops={develops || []}
+        develops={(develops as unknown as Develop[]) || []}
         onRowClick={(id) => router.push(`/manage/rnds/${id}`)}
         onEdit={openEditModal}
         onDelete={handleDelete}
@@ -262,22 +262,24 @@ export default function Page() {
         onClose={closeModal}
         onSave={handleSave}
         isSaving={saving}
-        developData={currentDevelop}
+        developData={currentDevelop as unknown as Develop}
         onDevelopDataChange={(data) => setCurrentDevelop({ ...currentDevelop, ...data })}
         orgs={orgs || []}
         formatNumber={formatNumber}
       />
 
-      <DevelopDeleteModal
-        isOpen={isDeleteModalOpen}
-        develop={developToDelete}
-        deleteReason={deleteReason}
-        onReasonChange={setDeleteReason}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen && !!developToDelete}
+        onClose={cancelDelete}
         onConfirm={confirmDelete}
-        onCancel={cancelDelete}
+        itemName={developToDelete?.name}
+        itemType="R&D"
+        requireReason
+        reason={deleteReason}
+        onReasonChange={setDeleteReason}
       />
 
-      <DevelopPagination
+      <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}

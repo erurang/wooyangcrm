@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { MessageSquare, Paperclip, FileText, TrendingUp, BarChart3 } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "@/components/Snackbar";
@@ -352,17 +353,28 @@ export default function ConsultationPage() {
       />
 
       <div className="p-4">
-        <CompanyInfoCard
-          companyDetail={companyDetail}
-          contacts={contacts}
-          isLoading={isCompanyDetailLoading}
-          onEditNotes={() => setOpenEditNotesModal(true)}
-          onEditContacts={() => setOpenEditContactsModal(true)}
-          onEditCompany={() => setOpenEditCompanyModal(true)}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <CompanyInfoCard
+            companyDetail={companyDetail}
+            contacts={contacts}
+            isLoading={isCompanyDetailLoading}
+            onEditNotes={() => setOpenEditNotesModal(true)}
+            onEditContacts={() => setOpenEditContactsModal(true)}
+            onEditCompany={() => setOpenEditCompanyModal(true)}
+          />
+        </motion.div>
 
         {/* 탭 네비게이션 */}
-        <div className="mb-4 bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="mb-4 bg-white rounded-xl border border-slate-200 overflow-hidden"
+        >
           <nav className="flex">
             <button
               onClick={() => setActiveTab("consultations")}
@@ -420,11 +432,16 @@ export default function ConsultationPage() {
               통계
             </button>
           </nav>
-        </div>
+        </motion.div>
 
         {/* 탭 콘텐츠 */}
         {activeTab === "consultations" && (
-          <ConsultationTable
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.15 }}
+          >
+            <ConsultationTable
             consultations={processedConsultations || []}
             users={users}
             companyId={companyDetail?.id || ""}
@@ -439,22 +456,47 @@ export default function ConsultationPage() {
             onDeleteConsultation={openDeleteWithConsultation}
             onPageChange={handlePageChange}
           />
+          </motion.div>
         )}
 
         {activeTab === "files" && companyDetail?.id && (
-          <CompanyFilesTab companyId={companyDetail.id} />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.15 }}
+          >
+            <CompanyFilesTab companyId={companyDetail.id} />
+          </motion.div>
         )}
 
         {activeTab === "posts" && companyDetail?.id && (
-          <CompanyPostsTab companyId={companyDetail.id} />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.15 }}
+          >
+            <CompanyPostsTab companyId={companyDetail.id} />
+          </motion.div>
         )}
 
         {activeTab === "price" && companyDetail?.id && (
-          <CompanyPriceTab companyId={companyDetail.id} />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.15 }}
+          >
+            <CompanyPriceTab companyId={companyDetail.id} />
+          </motion.div>
         )}
 
         {activeTab === "stats" && companyDetail?.id && (
-          <CompanyStatsTab companyId={companyDetail.id} />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.15 }}
+          >
+            <CompanyStatsTab companyId={companyDetail.id} />
+          </motion.div>
         )}
       </div>
 

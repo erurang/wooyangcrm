@@ -17,8 +17,9 @@ export function useDeleteOverseasOrder() {
       });
 
       return response;
-    } catch (err: any) {
-      setError(err.message || "Failed to delete order");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to delete order";
+      setError(message);
       throw err;
     } finally {
       setIsLoading(false);

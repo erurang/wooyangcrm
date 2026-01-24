@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
 import { createSupabaseServer } from "@/utils/supabase/server";
+import { startUserSession, logUserActivity } from "@/lib/apiLogger";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -19,6 +20,9 @@ export async function GET(request: Request) {
       } = await supabase.auth.getUser();
 
       if (!userError && user) {
+        const ipAddress = request.headers.get("x-forwarded-for") || "unknown";
+        const userAgent = request.headers.get("user-agent") || "unknown";
+
         // ✅ 로그인 기록을 Supabase에 저장
         await supabase
           .from("login_logs")
@@ -26,11 +30,28 @@ export async function GET(request: Request) {
             {
               email: user.email,
               login_time: new Date().toISOString(),
-              ip_address: request.headers.get("x-forwarded-for") || "unknown",
-              user_agent: request.headers.get("user-agent"),
+              ip_address: ipAddress,
+              user_agent: userAgent,
             },
           ])
           .eq("email", user.email);
+
+        // ✅ 사용자 세션 시작
+        await startUserSession({
+          userId: user.id,
+          ipAddress,
+          userAgent,
+        });
+
+        // ✅ 사용자 활동 로그 기록
+        await logUserActivity({
+          userId: user.id,
+          action: "로그인",
+          actionType: "auth",
+          details: { email: user.email },
+          ipAddress,
+          userAgent,
+        });
       }
 
       const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer

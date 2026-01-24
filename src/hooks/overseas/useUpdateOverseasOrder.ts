@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { fetcher } from "@/lib/fetcher";
+import { OverseasOrderFormData } from "@/types/overseas";
 
 export function useUpdateOverseasOrder() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateOrder = async (orderId: string, orderData: Record<string, any>) => {
+  const updateOrder = async (orderId: string, orderData: Partial<OverseasOrderFormData>) => {
     setIsLoading(true);
     setError(null);
 
@@ -18,8 +19,9 @@ export function useUpdateOverseasOrder() {
       });
 
       return response;
-    } catch (err: any) {
-      setError(err.message || "Failed to update order");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to update order";
+      setError(message);
       throw err;
     } finally {
       setIsLoading(false);

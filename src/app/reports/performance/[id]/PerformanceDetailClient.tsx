@@ -188,14 +188,14 @@ export default function PerformanceDetailClient() {
     { name: "매입", data: filteredStats.map((s) => s.purchases) },
   ];
 
-  // 전년 대비 차트
+  // 전년 대비 차트 (매출 + 매입)
   const comparisonOptions: ApexCharts.ApexOptions = {
     chart: {
       type: "line",
       toolbar: { show: false },
       fontFamily: "inherit",
     },
-    colors: ["#3b82f6", "#94a3b8"],
+    colors: ["#3b82f6", "#10b981", "#93c5fd", "#6ee7b7"], // 올해 매출(파랑), 올해 매입(초록), 전년 매출(연파랑), 전년 매입(연초록)
     xaxis: {
       categories: filteredStats.map((s) => `${s.month}월`),
     },
@@ -210,7 +210,7 @@ export default function PerformanceDetailClient() {
       },
     },
     dataLabels: { enabled: false },
-    stroke: { curve: "smooth", width: 3, dashArray: [0, 5] },
+    stroke: { curve: "smooth", width: 3, dashArray: [0, 0, 5, 5] }, // 올해 실선, 전년 점선
     legend: { position: "top", horizontalAlign: "right" },
     tooltip: {
       y: { formatter: (value: number) => `${value.toLocaleString()}원` },
@@ -220,7 +220,9 @@ export default function PerformanceDetailClient() {
 
   const comparisonSeries = [
     { name: `${selectedYear}년 매출`, data: filteredStats.map((s) => s.sales) },
+    { name: `${selectedYear}년 매입`, data: filteredStats.map((s) => s.purchases) },
     { name: `${selectedYear - 1}년 매출`, data: filteredPrevStats.map((s) => s.sales) },
+    { name: `${selectedYear - 1}년 매입`, data: filteredPrevStats.map((s) => s.purchases) },
   ];
 
   const isLoading = isUserLoading || isStatsLoading;
@@ -527,7 +529,7 @@ export default function PerformanceDetailClient() {
 
               {/* 전년 대비 */}
               <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
-                <h3 className="text-sm font-semibold text-slate-800 mb-4">전년 대비 매출</h3>
+                <h3 className="text-sm font-semibold text-slate-800 mb-4">전년 대비 매출/매입</h3>
                 <div className="h-72">
                   <Chart
                     options={comparisonOptions}

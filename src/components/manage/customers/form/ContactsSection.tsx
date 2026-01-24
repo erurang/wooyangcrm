@@ -16,7 +16,7 @@ interface ContactsSectionProps {
   contacts: Contact[];
   mode: "add" | "edit";
   onAddContact: () => void;
-  onContactChange: (index: number, field: keyof Contact, value: any) => void;
+  onContactChange: (index: number, field: keyof Contact, value: string | boolean) => void;
   onRemoveContact: (index: number) => void;
 }
 

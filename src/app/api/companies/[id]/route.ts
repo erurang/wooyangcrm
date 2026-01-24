@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { logCompanyOperation, logUserActivity } from "@/lib/apiLogger";
 
 export async function GET(
   req: NextRequest,
@@ -49,13 +50,100 @@ export async function PATCH(
   );
 }
 
-export async function DELETE(
+/**
+ * PUT /api/companies/[id]
+ * 거래처 정보 전체 수정 (로깅 포함)
+ */
+export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
 
   try {
+    const body = await req.json();
+    const {
+      name,
+      address,
+      phone,
+      fax,
+      email,
+      notes,
+      business_number,
+      parcel,
+      user_id,
+    } = body;
+
+    // 기존 데이터 조회 (로깅용)
+    const { data: oldCompany } = await supabase
+      .from("companies")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    const { data: updatedCompany, error: companyError } = await supabase
+      .from("companies")
+      .update({
+        name,
+        address,
+        phone,
+        fax,
+        email,
+        notes,
+        business_number,
+        parcel,
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (companyError) throw companyError;
+
+    // 감사 로그 및 활동 로그 기록
+    if (user_id) {
+      await logCompanyOperation(
+        "UPDATE",
+        id,
+        oldCompany as Record<string, unknown>,
+        updatedCompany as Record<string, unknown>,
+        user_id
+      );
+
+      await logUserActivity({
+        userId: user_id,
+        action: "거래처 수정",
+        actionType: "crud",
+        targetType: "company",
+        targetId: id,
+        targetName: name,
+      });
+    }
+
+    return NextResponse.json({
+      company: { ...updatedCompany },
+    });
+  } catch (error) {
+    console.error("Error updating company:", error);
+    return NextResponse.json({ error: "거래처 수정 실패" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get("userId");
+
+  try {
+    // 삭제 전 기존 데이터 조회 (로깅용)
+    const { data: oldData } = await supabase
+      .from("companies")
+      .select("*")
+      .eq("id", id)
+      .single();
+
     // 1. 해당 회사의 상담 ID 목록 조회
     const { data: consultations } = await supabase
       .from("consultations")
@@ -150,6 +238,19 @@ export async function DELETE(
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // 감사 로그 기록
+    if (userId && oldData) {
+      await logCompanyOperation("DELETE", id, oldData, null, userId);
+      await logUserActivity({
+        userId,
+        action: "거래처 삭제",
+        actionType: "crud",
+        targetType: "company",
+        targetId: id,
+        targetName: oldData.name || id,
+      });
     }
 
     return NextResponse.json(

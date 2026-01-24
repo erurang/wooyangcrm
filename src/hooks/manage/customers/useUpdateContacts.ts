@@ -15,11 +15,11 @@ interface ContactUpdate {
 
 export function useUpdateContacts() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/contacts/update`,
+    `/api/contacts`,
     fetcher
   );
 
-  const { mutate } = useSWR(`/api/contacts/list`);
+  const { mutate } = useSWR(`/api/contacts`);
 
   const updateContacts = async (contact: ContactUpdate[], companyId: string) => {
     try {

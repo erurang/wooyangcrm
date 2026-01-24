@@ -16,11 +16,11 @@ interface CompanyData {
 
 export function useAddCompany() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/companies/add`,
+    `/api/companies`,
     fetcher
   );
 
-  const { mutate } = useSWR(`/api/companies/list`); // 🔹 SWR의 mutate 가져오기
+  const { mutate } = useSWR(`/api/companies`); // 🔹 SWR의 mutate 가져오기
 
   const addCompany = async (companyData: CompanyData) => {
     try {
@@ -30,12 +30,13 @@ export function useAddCompany() {
         body: companyData,
       });
 
-      if (!response?.company) {
+      const result = response as { company?: { id: string } } | null;
+      if (!result?.company) {
         throw new Error("거래처 추가 실패");
       }
       await mutate();
 
-      return response.company;
+      return result.company;
     } catch (error) {
       console.error("Error adding company:", error);
       throw error;

@@ -31,9 +31,9 @@ interface Document {
   id: string;
   document_number: string;
   content: {
-    items?: any[];
+    items?: unknown[];
   };
-  company_name: string;
+  company_name?: string | null;
 }
 
 interface DocumentStatusChangeModalProps {

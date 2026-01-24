@@ -282,11 +282,10 @@ export default function OverseasCompanyPage() {
   const handleSaveNotes = useCallback(async () => {
     setSavingNotes(true);
     try {
-      await fetcher(`/api/companies/update`, {
+      await fetcher(`/api/companies/${companyId}`, {
         arg: {
           method: "PATCH",
           body: {
-            id: companyId,
             notes: editingNotes,
           },
         },
@@ -338,7 +337,7 @@ export default function OverseasCompanyPage() {
         company_id: companyId,
       }));
 
-      await fetcher(`/api/contacts/update`, {
+      await fetcher(`/api/contacts`, {
         arg: {
           method: "PUT",
           body: {

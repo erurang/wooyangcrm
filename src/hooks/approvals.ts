@@ -1,4 +1,5 @@
 import useSWR from "swr";
+import useSWRMutation from "swr/mutation";
 import { useState } from "react";
 import type {
   ApprovalRequestWithRelations,
@@ -10,6 +11,12 @@ import type {
   ApprovalFilters,
   ApprovalListTab,
 } from "@/types/approval";
+import type { FormSchema } from "@/components/approvals/DynamicApprovalForm";
+
+// 확장된 카테고리 타입 (form_schema 포함)
+export interface ApprovalCategoryWithSchema extends ApprovalCategory {
+  form_schema?: FormSchema;
+}
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -107,6 +114,59 @@ export function useApprovalSummary(userId: string | null) {
 
   return {
     summary: data,
+    isLoading: !data && !error,
+    error,
+    mutate,
+  };
+}
+
+/**
+ * 결재 통계 정보 조회 훅
+ */
+export interface ApprovalStatistics {
+  monthly: Array<{
+    month: string;
+    approved: number;
+    rejected: number;
+    pending: number;
+  }>;
+  categories: Array<{
+    category_id: string;
+    category_name: string;
+    count: number;
+    approved: number;
+    rejected: number;
+    pending: number;
+  }>;
+  processing_time: {
+    avg_hours: number;
+    min_hours: number;
+    max_hours: number;
+    total_completed: number;
+  };
+  summary: {
+    total: number;
+    approved: number;
+    rejected: number;
+    pending: number;
+    draft: number;
+    approval_rate: number;
+  };
+}
+
+export function useApprovalStatistics(userId?: string | null, scope: "all" | "my" = "all") {
+  const params = new URLSearchParams();
+  params.set("scope", scope);
+  if (userId) params.set("user_id", userId);
+
+  const { data, error, mutate } = useSWR<ApprovalStatistics>(
+    `/api/approvals/statistics?${params.toString()}`,
+    fetcher,
+    { refreshInterval: 60000 } // 1분마다 자동 갱신
+  );
+
+  return {
+    statistics: data,
     isLoading: !data && !error,
     error,
     mutate,
@@ -314,5 +374,98 @@ export function useApprovalAction() {
     withdraw,
     isLoading,
     error,
+  };
+}
+
+// ====================================
+// 자동 결재선 관련 훅
+// ====================================
+
+export interface ResolvedApprovalLine {
+  approver_id: string;
+  approver_name: string;
+  approver_position: string;
+  approver_team?: string;
+  line_type: "approval" | "review" | "reference";
+  line_order: number;
+  is_required: boolean;
+}
+
+interface RequesterInfo {
+  id: string;
+  name: string;
+  position: string;
+  team?: string;
+  department?: string;
+}
+
+interface ResolveApprovalLinesResponse {
+  lines: ResolvedApprovalLine[];
+  requester: RequesterInfo;
+}
+
+interface ResolveApprovalLinesRequest {
+  category_id: string;
+  requester_id: string;
+}
+
+async function resolveApprovalLinesFetcher(
+  url: string,
+  { arg }: { arg: ResolveApprovalLinesRequest }
+) {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(arg),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "결재선 결정 실패");
+  }
+
+  return response.json() as Promise<ResolveApprovalLinesResponse>;
+}
+
+/**
+ * 자동 결재선 결정 훅
+ *
+ * 사용 예시:
+ * const { resolveLines, isLoading, error } = useResolveApprovalLines();
+ *
+ * // 카테고리 선택 시 호출
+ * const result = await resolveLines({
+ *   category_id: selectedCategoryId,
+ *   requester_id: currentUserId,
+ * });
+ */
+export function useResolveApprovalLines() {
+  const { trigger, isMutating, error, data } = useSWRMutation(
+    "/api/approvals/resolve-lines",
+    resolveApprovalLinesFetcher
+  );
+
+  return {
+    resolveLines: trigger,
+    isLoading: isMutating,
+    error: error?.message,
+    data,
+  };
+}
+
+/**
+ * 결재 카테고리 목록 조회 훅 (form_schema 포함)
+ */
+export function useApprovalCategoriesWithSchema() {
+  const { data, error, mutate } = useSWR<ApprovalCategoryWithSchema[]>(
+    "/api/approvals/categories",
+    fetcher
+  );
+
+  return {
+    categories: data || [],
+    isLoading: !data && !error,
+    error,
+    mutate,
   };
 }

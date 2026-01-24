@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { logConsultationOperation, logUserActivity } from "@/lib/apiLogger";
 
 // PATCH 요청: 상담 내용 업데이트
 export async function PATCH(
@@ -30,8 +31,17 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get("userId");
 
   try {
+    // 삭제 전 기존 데이터 조회 (로깅용)
+    const { data: oldData } = await supabase
+      .from("consultations")
+      .select("*")
+      .eq("id", id)
+      .single();
+
     // 1. 상담 관련 파일 삭제
     await supabase
       .from("consultation_files")
@@ -73,6 +83,19 @@ export async function DELETE(
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // 감사 로그 기록
+    if (userId && oldData) {
+      await logConsultationOperation("DELETE", id, oldData, null, userId);
+      await logUserActivity({
+        userId,
+        action: "상담 삭제",
+        actionType: "crud",
+        targetType: "consultation",
+        targetId: id,
+        targetName: oldData.title || oldData.content?.substring(0, 50) || id,
+      });
     }
 
     return NextResponse.json(

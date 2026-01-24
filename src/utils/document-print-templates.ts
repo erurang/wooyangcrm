@@ -9,7 +9,7 @@ export interface PrintDocumentData {
   user_level: string;
   payment_method?: string;
   content: {
-    company_name?: string;
+    company_name?: string | null;
     items: Array<{
       name: string;
       spec: string;
@@ -18,15 +18,16 @@ export interface PrintDocumentData {
       amount?: number;
     }>;
     // 폴백용 (레거시)
-    notes?: string;
-    total_amount?: number;
-    valid_until?: string;
-    delivery_term?: string;
-    delivery_place?: string;
-    delivery_date?: string;
+    notes?: string | null;
+    total_amount?: number | null;
+    valid_until?: string | null;
+    delivery_term?: string | null;
+    delivery_place?: string | null;
+    delivery_date?: string | null;
+    payment_method?: string | null;
   };
   // 분리된 컬럼들
-  company_name?: string;
+  company_name?: string | null;
   notes?: string | null;
   total_amount?: number;
   valid_until?: string | null;

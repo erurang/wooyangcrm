@@ -2,6 +2,7 @@
 
 import Estimate from "./Estimate";
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { useParams, useSearchParams } from "next/navigation";
 import { useLoginUser } from "@/context/login";
 import DocumentModal from "@/components/documents/preview/DocumentModal";
@@ -30,9 +31,9 @@ const ESTIMATE_PAYMENT_METHODS = [
 ];
 
 const getInitialDocument = (id: string, type?: string) => {
-  // 발주서일 때 기본 납기표시를 "빠른시일내"로, 납기일을 +7일로 설정
-  const isOrder = type === "order";
-  const deliveryDate = isOrder
+  // 발주서/견적서일 때 기본 납기표시를 "빠른시일내"로, 납기일을 +7일로 설정
+  const isOrderOrEstimate = type === "order" || type === "estimate";
+  const deliveryDate = isOrderOrEstimate
     ? new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split("T")[0]
     : new Date().toISOString().split("T")[0];
 
@@ -53,7 +54,7 @@ const getInitialDocument = (id: string, type?: string) => {
     delivery_place: "",
     status: "",
     delivery_date: deliveryDate,
-    delivery_date_note: (isOrder || type === "estimate") ? "빠른시일내" : "",
+    delivery_date_note: isOrderOrEstimate ? "빠른시일내" : "",
   };
 };
 
@@ -66,7 +67,7 @@ const DocPage = () => {
   const highlightId = searchParams.get("highlight");
 
   // 문서 상태
-  const [newDocument, setNewDocument] = useState(getInitialDocument(id));
+  const [newDocument, setNewDocument] = useState(getInitialDocument(id, type as string));
 
   // 상태 변경 관련
   const [statusChangeDoc, setStatusChangeDoc] = useState<Document | null>(null);
@@ -170,8 +171,8 @@ const DocPage = () => {
       setNewDocument((prev) => ({
         ...prev,
         company_name: company.name,
-        phone: company.phone,
-        fax: company.fax,
+        phone: company.phone || "",
+        fax: company.fax || "",
         delivery_place: "귀사도",
       }));
     }
@@ -248,7 +249,12 @@ const DocPage = () => {
   };
 
   return (
-    <div className="text-sm">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="text-sm"
+    >
       <Estimate
         contacts={contacts as Contact[]}
         saving={saving}
@@ -312,7 +318,7 @@ const DocPage = () => {
         message={snackbarMessage}
         onClose={() => setSnackbarMessage("")}
       />
-    </div>
+    </motion.div>
   );
 };
 

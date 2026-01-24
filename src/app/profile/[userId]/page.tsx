@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { motion } from "framer-motion";
 
 interface RecentPost {
   id: string;
@@ -78,15 +79,20 @@ export default function UserActivityPage() {
   return (
     <div className="space-y-6">
       {/* 최근 상담 */}
-      <ActivitySection
-        title="최근 상담"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <ActivitySection
+          title="최근 상담"
         icon={<MessageSquare className="w-5 h-5 text-green-500" />}
         viewAllHref={`${basePath}/consultations`}
         isLoading={recentActivitiesIsLoading}
       >
-        {recentActivities?.recent_consultations?.length > 0 ? (
+        {(recentActivities?.recent_consultations?.length ?? 0) > 0 ? (
           <ul className="divide-y divide-gray-100">
-            {recentActivities.recent_consultations
+            {recentActivities!.recent_consultations
               .slice(0, 5)
               .map((item: { id: string; company_name: string; company_id: string; content: string; created_at: string }, idx: number) => (
                 <li key={item.id || idx} className="py-3">
@@ -115,17 +121,23 @@ export default function UserActivityPage() {
           <EmptyMessage>최근 상담 기록이 없습니다.</EmptyMessage>
         )}
       </ActivitySection>
+      </motion.div>
 
       {/* 최근 문서 */}
-      <ActivitySection
-        title="최근 문서"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <ActivitySection
+          title="최근 문서"
         icon={<FileCheck className="w-5 h-5 text-purple-500" />}
         viewAllHref={`${basePath}/documents`}
         isLoading={recentActivitiesIsLoading}
       >
-        {recentActivities?.recent_documents?.length > 0 ? (
+        {(recentActivities?.recent_documents?.length ?? 0) > 0 ? (
           <ul className="divide-y divide-gray-100">
-            {recentActivities.recent_documents
+            {recentActivities!.recent_documents
               .slice(0, 5)
               .map((item: { company_name: string; created_at: string }, idx: number) => (
                 <li
@@ -146,10 +158,16 @@ export default function UserActivityPage() {
           <EmptyMessage>최근 문서 기록이 없습니다.</EmptyMessage>
         )}
       </ActivitySection>
+      </motion.div>
 
       {/* 최근 게시글 */}
-      <ActivitySection
-        title="최근 게시글"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <ActivitySection
+          title="최근 게시글"
         icon={<FileText className="w-5 h-5 text-blue-500" />}
         viewAllHref={`${basePath}/posts`}
         isLoading={postsLoading}
@@ -184,6 +202,7 @@ export default function UserActivityPage() {
           <EmptyMessage>작성한 게시글이 없습니다.</EmptyMessage>
         )}
       </ActivitySection>
+      </motion.div>
     </div>
   );
 }

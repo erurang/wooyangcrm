@@ -19,7 +19,6 @@ export async function GET(request: Request) {
       .select(`
         *,
         product:products(id, internal_code, internal_name, type),
-        creator:users!production_records_created_by_fkey(id, name),
         consumptions:production_consumptions(
           id,
           material_id,
@@ -190,7 +189,6 @@ export async function POST(request: Request) {
       .select(`
         *,
         product:products(id, internal_code, internal_name, type),
-        creator:users!production_records_created_by_fkey(id, name),
         consumptions:production_consumptions(
           id,
           material_id,

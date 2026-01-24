@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 // import dynamic from "next/dynamic";
 // import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 // import { createSupabaseClient } from "@/utils/supabase/client";
@@ -53,7 +54,12 @@ export default function TodosCalendarPage() {
   //   }));
 
   return (
-    <div className="p-4">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1 }}
+      className="p-4"
+    >
       {/* <h1 className="text-xl font-bold mb-4">할 일 + Toast UI Calendar (v2)</h1>
 
       <TuiCalendar
@@ -64,6 +70,6 @@ export default function TodosCalendarPage() {
         useCreationPopup={true} // 일정 생성 팝업
         useDetailPopup={true} // 일정 상세 팝업
       /> */}
-    </div>
+    </motion.div>
   );
 }

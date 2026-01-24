@@ -23,6 +23,7 @@ interface TrendComparisonChartProps {
   valueFormatter?: (value: number) => string;
   height?: number;
   showGrowth?: boolean;
+  color?: string; // 기본 색상 (올해 데이터용, 전년은 회색 계열)
 }
 
 /**
@@ -39,6 +40,15 @@ interface TrendComparisonChartProps {
  *   showGrowth={true}
  * />
  */
+// 색상에서 연한 버전 생성 (전년도 데이터용)
+const colorPairs: Record<string, string> = {
+  "#4f46e5": "#a5b4fc", // indigo
+  "#3b82f6": "#93c5fd", // blue
+  "#10b981": "#6ee7b7", // emerald/green
+  "#ef4444": "#fca5a5", // red
+  "#f59e0b": "#fcd34d", // amber
+};
+
 export default function TrendComparisonChart({
   title,
   currentYearData,
@@ -49,8 +59,12 @@ export default function TrendComparisonChart({
   valueFormatter = (v) => v.toLocaleString(),
   height = 350,
   showGrowth = false,
+  color = "#4f46e5", // 기본 indigo
 }: TrendComparisonChartProps) {
   const [chartType, setChartType] = useState<"area" | "bar">("area");
+
+  // 전년도용 연한 색상 결정
+  const lightColor = colorPairs[color] || "#94a3b8";
 
   // 성장률 계산
   const growthRates = currentYearData.map((curr, idx) => {
@@ -105,7 +119,7 @@ export default function TrendComparisonChart({
         formatter: valueFormatter,
       },
     },
-    colors: ["#4f46e5", "#94a3b8"],
+    colors: [color, lightColor],
     legend: {
       position: "top",
       horizontalAlign: "right",

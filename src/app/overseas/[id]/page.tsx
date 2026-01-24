@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { supabase } from "@/lib/supabaseClient";
 import OverseasCompanyPage from "./OverseasCompanyPage";
+import OverseasDetailSkeleton from "@/components/skeleton/OverseasDetailSkeleton";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default function OverseasCompanyDetailPageWrapper() {
   return (
-    <Suspense fallback={<div>로딩 중...</div>}>
+    <Suspense fallback={<OverseasDetailSkeleton />}>
       <OverseasCompanyPage />
     </Suspense>
   );

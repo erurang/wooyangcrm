@@ -11,12 +11,13 @@ import { usePosts, useCategories, useAddPost, useUpdatePost, useDeletePost } fro
 import { uploadPostFile } from "@/lib/postFiles";
 import { useDebounce } from "@/hooks/useDebounce";
 import PostList from "@/components/board/PostList";
-import PostPagination from "@/components/board/PostPagination";
+import Pagination from "@/components/ui/Pagination";
 import PostFormModal from "@/components/board/modals/PostFormModal";
 import DeletePostModal from "@/components/board/modals/DeletePostModal";
 import type { PostWithAuthor, CreatePostData, UpdatePostData, CreateUserTagData } from "@/types/post";
 import { highlightMentions } from "@/components/board/comments/CommentForm";
 import { supabase } from "@/lib/supabaseClient";
+import { motion } from "framer-motion";
 
 // 탭 타입
 type TabType = "my" | "tagged" | "mentioned";
@@ -369,7 +370,12 @@ export default function MyPostsPage() {
   return (
     <div className="text-sm">
       {/* 헤더 */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-slate-800">내 게시글</h1>
@@ -477,7 +483,7 @@ export default function MyPostsPage() {
             </select>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* 내 글 탭 */}
       {activeTab === "my" && (
@@ -522,12 +528,17 @@ export default function MyPostsPage() {
             </div>
           ) : taggedPosts.length > 0 ? (
             <div className="space-y-3">
-              {taggedPosts.map((post) => (
-                <Link
+              {taggedPosts.map((post, index) => (
+                <motion.div
                   key={post.id}
-                  href={`/board/${post.id}`}
-                  className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + index * 0.05 }}
                 >
+                  <Link
+                    href={`/board/${post.id}`}
+                    className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all"
+                  >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1.5">
@@ -564,6 +575,7 @@ export default function MyPostsPage() {
                     </div>
                   </div>
                 </Link>
+                </motion.div>
               ))}
             </div>
           ) : (
@@ -589,12 +601,17 @@ export default function MyPostsPage() {
             </div>
           ) : mentionedComments.length > 0 ? (
             <div className="space-y-3">
-              {mentionedComments.map((comment) => (
-                <Link
+              {mentionedComments.map((comment, index) => (
+                <motion.div
                   key={comment.id}
-                  href={`/board/${comment.post_id}?commentId=${comment.id}`}
-                  className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + index * 0.05 }}
                 >
+                  <Link
+                    href={`/board/${comment.post_id}?commentId=${comment.id}`}
+                    className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all"
+                  >
                   <div className="flex items-start gap-3">
                     <MessageSquare className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
@@ -618,6 +635,7 @@ export default function MyPostsPage() {
                     </div>
                   </div>
                 </Link>
+                </motion.div>
               ))}
             </div>
           ) : (
@@ -633,11 +651,13 @@ export default function MyPostsPage() {
 
       {/* 페이지네이션 */}
       {!currentLoading && currentTotalPages > 1 && (
-        <PostPagination
-          currentPage={currentPage}
-          totalPages={currentTotalPages}
-          onPageChange={handlePageChange}
-        />
+        <div className="flex justify-center mt-4">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={currentTotalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
       )}
 
       {/* 글쓰기/수정 모달 */}

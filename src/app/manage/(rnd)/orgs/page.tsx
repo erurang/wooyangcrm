@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "@/components/Snackbar";
@@ -15,9 +16,9 @@ import {
   OrgsSearchFilter,
   OrgsTable,
   OrgsModal,
-  OrgsDeleteModal,
-  OrgsPagination,
 } from "@/components/manage/orgs";
+import Pagination from "@/components/ui/Pagination";
+import DeleteConfirmModal from "@/components/ui/DeleteConfirmModal";
 
 interface Contact {
   id?: string;
@@ -36,7 +37,7 @@ interface RnDsOrgs {
   phone: string;
   fax: string;
   email: string;
-  rnds_contacts: Contact[];
+  rnds_contacts?: Contact[];
 }
 
 const INITIAL_ORG_STATE: RnDsOrgs = {
@@ -153,7 +154,7 @@ export default function Page() {
       return;
     }
 
-    if (currentRndsOrgs.rnds_contacts.length === 0) {
+    if ((currentRndsOrgs.rnds_contacts ?? []).length === 0) {
       setSnackbarMessage("담당자를 최소 1명 입력해주세요.");
       return;
     }
@@ -163,7 +164,7 @@ export default function Page() {
     try {
       if (modalMode === "add") {
         const orgData = await addOrgs(currentRndsOrgs);
-        await addContacts(currentRndsOrgs.rnds_contacts, orgData.id);
+        await addContacts(currentRndsOrgs.rnds_contacts ?? [], orgData.id);
         setSnackbarMessage("지원기관 추가 완료");
       } else {
         await updateOrgs({
@@ -236,7 +237,7 @@ export default function Page() {
       ...prev,
       rnds_contacts: [
         { name: "", phone: "", department: "", level: "", email: "" },
-        ...prev.rnds_contacts,
+        ...(prev.rnds_contacts ?? []),
       ],
     }));
   };
@@ -247,7 +248,7 @@ export default function Page() {
     value: string
   ) => {
     setCurrentRndsOrgs((prev) => {
-      const updatedContacts = [...prev.rnds_contacts];
+      const updatedContacts = [...(prev.rnds_contacts ?? [])];
       updatedContacts[index] = { ...updatedContacts[index], [field]: value };
       return { ...prev, rnds_contacts: updatedContacts };
     });
@@ -255,7 +256,7 @@ export default function Page() {
 
   const removeContact = (index: number) => {
     setCurrentRndsOrgs((prev) => {
-      const updatedContacts = [...prev.rnds_contacts];
+      const updatedContacts = [...(prev.rnds_contacts ?? [])];
       updatedContacts.splice(index, 1);
       return { ...prev, rnds_contacts: updatedContacts };
     });
@@ -263,8 +264,13 @@ export default function Page() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      {/* Search Filter */}
-      <OrgsSearchFilter
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        {/* Search Filter */}
+        <OrgsSearchFilter
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
         onReset={handleResetFilter}
@@ -301,7 +307,7 @@ export default function Page() {
       </div>
 
       {/* Table */}
-      <OrgsTable orgs={orgs || []} onEdit={handleEdit} onDelete={handleDelete} />
+      <OrgsTable orgs={(orgs as unknown as RnDsOrgs[]) || []} onEdit={handleEdit} onDelete={handleDelete} />
 
       {/* Modal */}
       <OrgsModal
@@ -310,7 +316,7 @@ export default function Page() {
         onClose={closeModal}
         onSave={handleSave}
         isSaving={saving}
-        orgData={currentRndsOrgs}
+        orgData={currentRndsOrgs as unknown as RnDsOrgs}
         onOrgDataChange={handleOrgDataChange}
         onAddContact={addContact}
         onContactChange={handleContactChange}
@@ -318,21 +324,24 @@ export default function Page() {
       />
 
       {/* Delete Modal */}
-      <OrgsDeleteModal
-        isOpen={isDeleteModalOpen}
-        org={rndsToDelete}
-        deleteReason={deleteReason}
-        onReasonChange={setDeleteReason}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen && !!rndsToDelete}
+        onClose={cancelDelete}
         onConfirm={confirmDelete}
-        onCancel={cancelDelete}
+        itemName={rndsToDelete?.name}
+        itemType="지원기관"
+        requireReason
+        reason={deleteReason}
+        onReasonChange={setDeleteReason}
       />
 
       {/* Pagination */}
-      <OrgsPagination
+      <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
+      </motion.div>
 
       {/* Snackbar */}
       <SnackbarComponent

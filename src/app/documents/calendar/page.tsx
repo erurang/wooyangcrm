@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
@@ -315,7 +316,12 @@ export default function DocumentCalendarPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white border-b border-slate-200 sticky top-0 z-10"
+      >
         <div className="px-4 py-3">
           {/* Stats */}
           <div className="grid grid-cols-7 gap-3 mb-4">
@@ -497,12 +503,17 @@ export default function DocumentCalendarPage() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Content */}
       <div className="p-4">
         {/* Legend */}
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-3 mb-4">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="bg-white rounded-lg border border-slate-200 shadow-sm p-3 mb-4"
+        >
           <div className="flex items-center gap-6 flex-wrap">
             <span className="text-xs font-medium text-slate-600">색상 안내:</span>
             <div className="flex items-center gap-4 flex-wrap">
@@ -535,7 +546,7 @@ export default function DocumentCalendarPage() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="flex gap-4">
           {/* Calendar */}
@@ -669,7 +680,7 @@ export default function DocumentCalendarPage() {
                   </div>
                 ) : (
                   <div className="divide-y divide-slate-100">
-                    {selectedDateEvents.map((doc) => {
+                    {selectedDateEvents.map((doc, index) => {
                       const expired = isDocumentExpired(doc);
                       const isDocToday = isDocumentToday(doc);
                       const completed = isDocumentCompleted(doc);
@@ -693,8 +704,11 @@ export default function DocumentCalendarPage() {
                       const daysRemaining = getDaysRemaining(targetDate);
 
                       return (
-                        <button
+                        <motion.button
                           key={doc.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
                           onClick={() => handleDocumentClick(doc)}
                           className={`w-full p-3 text-left hover:bg-slate-50 transition-colors ${
                             completed ? "bg-emerald-50/50" : expired ? "bg-red-50/50" : isDocToday ? "bg-blue-50/50" : ""
@@ -799,7 +813,7 @@ export default function DocumentCalendarPage() {
                             </div>
                             <ExternalLink className="w-4 h-4 text-slate-300 flex-shrink-0 mt-0.5" />
                           </div>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>

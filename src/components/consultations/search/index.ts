@@ -1,1 +1,1 @@
-export { default as ConsultationPagination } from "./ConsultationPagination";
+// ConsultationPagination was removed - use @/components/ui/Pagination instead

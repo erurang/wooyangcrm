@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 import { useUsersList } from "@/hooks/useUserList";
 import SnackbarComponent from "@/components/Snackbar";
@@ -11,7 +12,7 @@ import { useFollowUpList } from "@/hooks/consultations/follow/useFollowUpList";
 
 import { FollowSearchFilter, FollowTable } from "@/components/consultations/follow";
 import { RecentTableControls, RecentDocumentModal } from "@/components/consultations/recent";
-import { ConsultationPagination } from "@/components/consultations/search";
+import Pagination from "@/components/ui/Pagination";
 import ErrorState from "@/components/ui/ErrorState";
 
 interface Document {
@@ -233,26 +234,37 @@ export default function FollowUpConsultations() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
-      <FollowSearchFilter
-        searchTerm={searchTerm}
-        onSearchTermChange={(val) => {
-          setSearchTerm(val);
-          setCurrentPage(1);
-        }}
-        startDate={startDate}
-        onStartDateChange={setStartDate}
-        endDate={endDate}
-        onEndDateChange={setEndDate}
-        selectedUser={selectedUser}
-        onUserChange={(user) => {
-          setSelectedUser(user);
-          setCurrentPage(1);
-        }}
-        users={users}
-        onReset={resetFilters}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <FollowSearchFilter
+          searchTerm={searchTerm}
+          onSearchTermChange={(val) => {
+            setSearchTerm(val);
+            setCurrentPage(1);
+          }}
+          startDate={startDate}
+          onStartDateChange={setStartDate}
+          endDate={endDate}
+          onEndDateChange={setEndDate}
+          selectedUser={selectedUser}
+          onUserChange={(user) => {
+            setSelectedUser(user);
+            setCurrentPage(1);
+          }}
+          users={users}
+          onReset={resetFilters}
+        />
+      </motion.div>
 
-      <RecentTableControls
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <RecentTableControls
         isLoading={isConsultationsLoading}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -262,18 +274,27 @@ export default function FollowUpConsultations() {
           setCurrentPage(1);
         }}
       />
+      </motion.div>
 
-      <FollowTable
-        consultations={consultations}
-        isLoading={isConsultationsLoading}
-        onDocumentClick={handleDocumentClick}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.15 }}
+      >
+        <FollowTable
+          consultations={consultations}
+          isLoading={isConsultationsLoading}
+          onDocumentClick={handleDocumentClick}
+        />
+      </motion.div>
 
-      <ConsultationPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      <div className="flex justify-center py-4">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </div>
 
       <RecentDocumentModal
         isOpen={openModal}

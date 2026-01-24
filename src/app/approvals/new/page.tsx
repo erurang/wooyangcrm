@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Save,
@@ -20,10 +21,17 @@ import {
 } from "lucide-react";
 import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { useLoginUser } from "@/context/login";
-import { useApprovalCategories, useCreateApproval } from "@/hooks/approvals";
+import {
+  useApprovalCategories,
+  useCreateApproval,
+  useResolveApprovalLines,
+  type ResolvedApprovalLine,
+} from "@/hooks/approvals";
 import { supabase } from "@/lib/supabaseClient";
 import type { ApprovalLineFormData, ApprovalLineType } from "@/types/approval";
 import { APPROVAL_LINE_TYPE_LABELS } from "@/types/approval";
+import { uploadApprovalFile } from "@/lib/approvalFiles";
+import DynamicApprovalForm, { type FormSchema } from "@/components/approvals/DynamicApprovalForm";
 
 interface User {
   id: string;
@@ -53,6 +61,12 @@ export default function NewApprovalPage() {
   const user = useLoginUser();
   const { categories, isLoading: categoriesLoading } = useApprovalCategories();
   const { createApproval, isLoading, error } = useCreateApproval();
+  const { resolveLines, isLoading: isResolvingLines } = useResolveApprovalLines();
+
+  // 동적 폼 상태
+  const [formSchema, setFormSchema] = useState<FormSchema | null>(null);
+  const [formValues, setFormValues] = useState<Record<string, unknown>>({});
+  const [isAutoLineLoaded, setIsAutoLineLoaded] = useState(false);
 
   // 폼 상태
   const [categoryId, setCategoryId] = useState("");
@@ -80,6 +94,60 @@ export default function NewApprovalPage() {
     consultations: RelatedConsultation[];
   }>({ documents: [], consultations: [] });
   const [isRelatedSearching, setIsRelatedSearching] = useState(false);
+
+  // 카테고리 변경 시 동적 폼 스키마 및 자동 결재선 로드
+  useEffect(() => {
+    if (categoryId && user?.id) {
+      const loadCategoryData = async () => {
+        try {
+          // 카테고리의 form_schema 가져오기
+          const { data: categoryData } = await supabase
+            .from("approval_categories")
+            .select("form_schema")
+            .eq("id", categoryId)
+            .single();
+
+          if (categoryData?.form_schema && Object.keys(categoryData.form_schema).length > 0) {
+            setFormSchema(categoryData.form_schema as FormSchema);
+            setFormValues({});
+          } else {
+            setFormSchema(null);
+          }
+
+          // 자동 결재선 결정
+          const result = await resolveLines({
+            category_id: categoryId,
+            requester_id: user.id,
+          });
+
+          if (result?.lines && result.lines.length > 0) {
+            // 자동으로 결정된 결재선을 폼에 설정
+            const autoLines = result.lines.map((line: ResolvedApprovalLine) => ({
+              approver_id: line.approver_id,
+              line_type: line.line_type,
+              line_order: line.line_order,
+              is_required: line.is_required,
+              user: {
+                id: line.approver_id,
+                name: line.approver_name,
+                position: line.approver_position,
+                team: line.approver_team ? { name: line.approver_team } : undefined,
+              },
+            }));
+            setLines(autoLines);
+            setIsAutoLineLoaded(true);
+          }
+        } catch (err) {
+          console.error("카테고리 데이터 로드 오류:", err);
+        }
+      };
+      loadCategoryData();
+    } else {
+      setFormSchema(null);
+      setFormValues({});
+      setIsAutoLineLoaded(false);
+    }
+  }, [categoryId, user?.id, resolveLines]);
 
   // 사용자 검색
   useEffect(() => {
@@ -217,10 +285,15 @@ export default function NewApprovalPage() {
       is_required: line.is_required,
     }));
 
+    // 동적 폼 사용 시 formValues를 JSON으로 저장
+    const finalContent = formSchema
+      ? JSON.stringify({ formSchema, formValues })
+      : content;
+
     const result = await createApproval({
       category_id: categoryId,
       title,
-      content,
+      content: finalContent,
       lines: formattedLines,
       share_scope: shareScope,
       share_users: shareUsers.map((u) => u.id),
@@ -233,6 +306,13 @@ export default function NewApprovalPage() {
     });
 
     if (result) {
+      // 파일 업로드 처리
+      if (files.length > 0) {
+        const uploadPromises = files.map((file) =>
+          uploadApprovalFile(file, result.id, user.id)
+        );
+        await Promise.all(uploadPromises);
+      }
       router.push("/approvals");
     }
   };
@@ -264,12 +344,15 @@ export default function NewApprovalPage() {
       is_required: line.is_required,
     }));
 
-    // TODO: 파일 업로드 처리
+    // 동적 폼 사용 시 formValues를 JSON으로 저장
+    const finalContent = formSchema
+      ? JSON.stringify({ formSchema, formValues })
+      : content;
 
     const result = await createApproval({
       category_id: categoryId,
       title,
-      content,
+      content: finalContent,
       lines: formattedLines,
       share_scope: shareScope,
       share_users: shareUsers.map((u) => u.id),
@@ -282,14 +365,26 @@ export default function NewApprovalPage() {
     });
 
     if (result) {
+      // 파일 업로드 처리
+      if (files.length > 0) {
+        const uploadPromises = files.map((file) =>
+          uploadApprovalFile(file, result.id, user.id)
+        );
+        await Promise.all(uploadPromises);
+      }
       router.push(`/approvals/${result.id}`);
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* 헤더 */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        {/* 헤더 */}
+        <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -371,13 +466,21 @@ export default function NewApprovalPage() {
             <label className="block text-sm font-medium text-slate-700 mb-2">
               기안 내용
             </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="기안 내용을 입력하세요"
-              rows={8}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
+            {formSchema ? (
+              <DynamicApprovalForm
+                schema={formSchema}
+                values={formValues}
+                onChange={setFormValues}
+              />
+            ) : (
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="기안 내용을 입력하세요"
+                rows={8}
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              />
+            )}
           </div>
         </div>
 
@@ -572,7 +675,20 @@ export default function NewApprovalPage() {
 
         {/* 결재선 */}
         <div className="bg-white rounded-xl shadow-sm p-4 lg:p-6 mb-4">
-          <h2 className="font-bold text-slate-800 mb-4">결재선 설정</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-bold text-slate-800">결재선 설정</h2>
+            {isResolvingLines && (
+              <div className="flex items-center gap-2 text-sm text-blue-600">
+                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                자동 결재선 설정 중...
+              </div>
+            )}
+            {isAutoLineLoaded && !isResolvingLines && lines.length > 0 && (
+              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                자동 설정됨
+              </span>
+            )}
+          </div>
 
           {/* 결재선 목록 */}
           {lines.length > 0 && (
@@ -854,6 +970,7 @@ export default function NewApprovalPage() {
           )}
         </div>
       </div>
+      </motion.div>
     </div>
   );
 }

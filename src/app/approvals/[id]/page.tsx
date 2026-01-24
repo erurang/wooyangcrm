@@ -2,6 +2,7 @@
 
 import { useState, use } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   FileText,
@@ -27,6 +28,8 @@ import {
 } from "@/types/approval";
 import ApprovalActionModal from "@/components/approvals/ApprovalActionModal";
 import ExpenseContentDisplay from "@/components/approvals/ExpenseContentDisplay";
+import ApprovalDetailSkeleton from "@/components/skeleton/ApprovalDetailSkeleton";
+import ApprovalLineTimeline, { ApprovalProgress } from "@/components/approvals/ApprovalLineTimeline";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -69,21 +72,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
   }>({ type: null });
 
   if (isLoading) {
-    return (
-      <div className="space-y-3 sm:space-y-4">
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-16 animate-pulse">
-          <div className="h-full bg-slate-100 rounded"></div>
-        </div>
-        <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
-          <div className="flex-1 bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-64 animate-pulse">
-            <div className="h-full bg-slate-100 rounded"></div>
-          </div>
-          <div className="lg:w-[320px] bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-64 animate-pulse">
-            <div className="h-full bg-slate-100 rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <ApprovalDetailSkeleton />;
   }
 
   if (!approval) {
@@ -148,8 +137,14 @@ export default function ApprovalDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* 헤더 카드 */}
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="space-y-3 sm:space-y-4"
+      >
+        {/* 헤더 카드 */}
+        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -181,13 +176,20 @@ export default function ApprovalDetailPage({ params }: PageProps) {
       <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
         {/* 메인 콘텐츠 */}
         <div className="flex-1 space-y-3 sm:space-y-4">
-          {/* 결재선 요약 */}
+          {/* 결재선 시각화 */}
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
             <button
               onClick={() => setShowApprovalSummary(!showApprovalSummary)}
               className="w-full px-4 py-2.5 flex items-center justify-between border-b border-slate-100"
             >
-              <span className="text-sm font-medium text-slate-800">결재선 요약</span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-slate-800">결재선</span>
+                {approval.lines && approval.lines.length > 0 && (
+                  <div className="w-32">
+                    <ApprovalProgress lines={approval.lines} />
+                  </div>
+                )}
+              </div>
               {showApprovalSummary ? (
                 <ChevronUp className="w-4 h-4 text-slate-400" />
               ) : (
@@ -197,10 +199,20 @@ export default function ApprovalDetailPage({ params }: PageProps) {
 
             {showApprovalSummary && (
               <div className="p-4">
-                <ApprovalLinesSummary
+                {/* 타임라인 시각화 */}
+                <ApprovalLineTimeline
                   lines={approval.lines || []}
                   currentLineOrder={approval.current_line_order}
+                  variant="horizontal"
                 />
+
+                {/* 테이블 형태 요약 (기존) */}
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <ApprovalLinesSummary
+                    lines={approval.lines || []}
+                    currentLineOrder={approval.current_line_order}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -485,6 +497,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+      </motion.div>
 
       {/* 액션 모달 */}
       <ApprovalActionModal

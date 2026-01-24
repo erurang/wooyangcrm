@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import {
   FileText,
@@ -259,7 +260,12 @@ const ReportsPage = () => {
 
         {/* 통계 카드 */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 pt-6 border-t border-slate-100">
-          <div className={`rounded-xl p-4 ${isEstimate ? "bg-blue-50 border border-blue-100" : "bg-purple-50 border border-purple-100"}`}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className={`rounded-xl p-4 ${isEstimate ? "bg-blue-50 border border-blue-100" : "bg-purple-50 border border-purple-100"}`}
+          >
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className={`w-4 h-4 ${isEstimate ? "text-blue-600" : "text-purple-600"}`} />
               <span className={`text-xs font-medium ${isEstimate ? "text-blue-700" : "text-purple-700"}`}>
@@ -270,9 +276,14 @@ const ReportsPage = () => {
               {(stats.total / 10000).toLocaleString()}
               <span className="text-xs font-normal ml-1">만원</span>
             </p>
-          </div>
+          </motion.div>
 
-          <div className="bg-slate-50 border border-slate-100 rounded-xl p-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-slate-50 border border-slate-100 rounded-xl p-4"
+          >
             <div className="flex items-center gap-2 mb-2">
               <FileText className="w-4 h-4 text-slate-600" />
               <span className="text-xs font-medium text-slate-700">총 건수</span>
@@ -281,9 +292,14 @@ const ReportsPage = () => {
               {stats.count}
               <span className="text-xs font-normal ml-1">건</span>
             </p>
-          </div>
+          </motion.div>
 
-          <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-emerald-50 border border-emerald-100 rounded-xl p-4"
+          >
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-medium text-emerald-700">완료</span>
             </div>
@@ -291,9 +307,14 @@ const ReportsPage = () => {
               {stats.completed}
               <span className="text-xs font-normal ml-1">건</span>
             </p>
-          </div>
+          </motion.div>
 
-          <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-amber-50 border border-amber-100 rounded-xl p-4"
+          >
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-medium text-amber-700">대기</span>
             </div>
@@ -301,9 +322,14 @@ const ReportsPage = () => {
               {stats.pending}
               <span className="text-xs font-normal ml-1">건</span>
             </p>
-          </div>
+          </motion.div>
 
-          <div className="bg-red-50 border border-red-100 rounded-xl p-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-red-50 border border-red-100 rounded-xl p-4"
+          >
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-medium text-red-700">취소</span>
             </div>
@@ -311,7 +337,7 @@ const ReportsPage = () => {
               {stats.canceled}
               <span className="text-xs font-normal ml-1">건</span>
             </p>
-          </div>
+          </motion.div>
         </div>
 
         {/* 검색 및 필터 */}

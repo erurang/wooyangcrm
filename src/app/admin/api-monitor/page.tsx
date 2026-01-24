@@ -57,6 +57,25 @@ interface EndpointStats {
   status: "healthy" | "degraded" | "down";
 }
 
+// 컴포넌트 외부에 정의하여 useCallback 내에서 사용 가능하도록 함
+const formatRelativeTime = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+
+  if (diffSec < 60) return "방금 전";
+  if (diffMin < 60) return `${diffMin}분 전`;
+  if (diffHour < 24) return `${diffHour}시간 전`;
+
+  return date.toLocaleDateString("ko-KR", {
+    month: "short",
+    day: "numeric",
+  });
+};
+
 export default function ApiMonitorPage() {
   const loginUser = useLoginUser();
   const router = useRouter();
@@ -110,16 +129,24 @@ export default function ApiMonitorPage() {
 
       setStats(data);
 
-      // 엔드포인트별 통계 생성
+      // API에서 제공하는 실제 엔드포인트별 통계 사용
       const epStats: EndpointStats[] = (data.topEndpoints || []).map(
-        (ep: { endpoint: string; count: number }, idx: number) => ({
+        (ep: {
+          endpoint: string;
+          count: number;
+          method: string;
+          avgResponseTime: number;
+          successRate: number;
+          lastCalled: string;
+          status: "healthy" | "degraded" | "down";
+        }) => ({
           endpoint: ep.endpoint,
-          method: "GET", // 기본값
+          method: ep.method,
           totalCalls: ep.count,
-          avgResponseTime: Math.round(data.today.avgResponseTime * (0.8 + Math.random() * 0.4)),
-          successRate: idx === 0 ? 99.8 : 95 + Math.random() * 4.9,
-          lastCalled: "방금 전",
-          status: ep.count > 100 ? "healthy" : ep.count > 10 ? "degraded" : "down",
+          avgResponseTime: ep.avgResponseTime,
+          successRate: ep.successRate,
+          lastCalled: formatRelativeTime(ep.lastCalled),
+          status: ep.status,
         })
       );
       setEndpointStats(epStats);
@@ -387,6 +414,9 @@ export default function ApiMonitorPage() {
                       엔드포인트
                     </th>
                     <th className="text-left px-4 py-3 text-sm font-medium text-slate-600">
+                      메서드
+                    </th>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-slate-600">
                       호출 수
                     </th>
                     <th className="text-left px-4 py-3 text-sm font-medium text-slate-600">
@@ -394,6 +424,9 @@ export default function ApiMonitorPage() {
                     </th>
                     <th className="text-left px-4 py-3 text-sm font-medium text-slate-600">
                       성공률
+                    </th>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-slate-600">
+                      마지막 호출
                     </th>
                   </tr>
                 </thead>
@@ -406,6 +439,15 @@ export default function ApiMonitorPage() {
                       <td className="px-4 py-3">
                         <span className="font-mono text-sm text-slate-700">
                           {endpoint.endpoint}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded font-mono ${getMethodColor(
+                            endpoint.method
+                          )}`}
+                        >
+                          {endpoint.method}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-700">
@@ -432,6 +474,9 @@ export default function ApiMonitorPage() {
                         >
                           {endpoint.successRate.toFixed(1)}%
                         </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-slate-500">
+                        {endpoint.lastCalled}
                       </td>
                     </tr>
                   ))}

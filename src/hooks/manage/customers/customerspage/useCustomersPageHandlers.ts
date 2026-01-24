@@ -30,10 +30,10 @@ interface Company {
 interface UseCustomersPageHandlersProps {
   userId: string;
   addCompany: (company: Company) => Promise<{ id: string }>;
-  addContacts: (contacts: Contact[], companyId: string) => Promise<void>;
-  updateCompany: (company: Company) => Promise<void>;
-  updateContacts: (contacts: Contact[], companyId: string) => Promise<void>;
-  refreshCompanies: (key?: unknown, opts?: { revalidate: boolean }) => Promise<void>;
+  addContacts: (contacts: Contact[], companyId: string) => Promise<unknown>;
+  updateCompany: (company: Company) => Promise<unknown>;
+  updateContacts: (contacts: Contact[], companyId: string) => Promise<unknown>;
+  refreshCompanies: () => Promise<unknown>;
 }
 
 export function useCustomersPageHandlers({
@@ -90,7 +90,7 @@ export function useCustomersPageHandlers({
       await updateCompany(company);
       await updateContacts(company.contact, company.id);
       setSnackbarMessage("거래처 수정 완료");
-      await refreshCompanies(undefined, { revalidate: true });
+      await refreshCompanies();
       onSuccess();
     } catch (error) {
       console.error("Error updating company:", error);

@@ -6,6 +6,7 @@ import { Menu, User, ZoomIn, ZoomOut } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import TokenInfo from "@/components/TokenInfo";
+import { useExchangeRates } from "@/hooks/useExchangeRate";
 
 interface TopBarProps {
   sidebarExpanded: boolean;
@@ -18,6 +19,7 @@ const DEFAULT_ZOOM = 0.8;
 export default function TopBar({ sidebarExpanded, onMobileMenuOpen }: TopBarProps) {
   const user = useLoginUser();
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
+  const { rates, isLoading: ratesLoading } = useExchangeRates();
 
   // localStorage에서 zoom 값 불러오기
   useEffect(() => {
@@ -100,6 +102,48 @@ export default function TopBar({ sidebarExpanded, onMobileMenuOpen }: TopBarProp
           >
             <ZoomIn className="w-3.5 h-3.5 text-gray-600" />
           </button>
+        </div>
+
+        {/* Exchange Rate Display */}
+        <div className="hidden md:flex items-center gap-2 px-2.5 py-1 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-gray-100">
+          {rates && rates.length > 0 ? (
+            <>
+              {rates.find(r => r.currency === "USD") && (
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">USD</span>
+                  <span className="text-xs font-medium text-gray-700">
+                    ₩{rates.find(r => r.currency === "USD")?.rate.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {rates.find(r => r.currency === "EUR") && (
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] font-semibold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">EUR</span>
+                  <span className="text-xs font-medium text-gray-700">
+                    ₩{rates.find(r => r.currency === "EUR")?.rate.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {rates.find(r => r.currency === "CNY") && (
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">CNY</span>
+                  <span className="text-xs font-medium text-gray-700">
+                    ₩{rates.find(r => r.currency === "CNY")?.rate.toLocaleString()}
+                  </span>
+                </div>
+              )}
+              {/* 기준일 표시 */}
+              {rates[0]?.baseDate && (
+                <span className="text-[10px] text-gray-400 ml-1">
+                  ({new Date(rates[0].baseDate).getMonth() + 1}/{new Date(rates[0].baseDate).getDate()} 기준)
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="text-xs text-gray-400">
+              {ratesLoading ? "환율 로딩..." : "환율 정보 없음"}
+            </span>
+          )}
         </div>
 
         <NotificationBell userId={user?.id} />

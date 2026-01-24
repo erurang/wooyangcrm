@@ -14,6 +14,71 @@ interface ApiLogData {
   errorMessage?: string;
 }
 
+// =============================================
+// 테이블별 CRUD 로깅 (logs 테이블 - 감사 로그)
+// =============================================
+
+type OperationType = "INSERT" | "UPDATE" | "DELETE";
+
+/**
+ * 범용 CRUD 작업 로깅 (logs 테이블에 기록)
+ * 감사 로그용 - 데이터 변경 이력 추적
+ */
+export async function logCrudOperation(
+  tableName: string,
+  operation: OperationType,
+  recordId: string,
+  oldData: Record<string, unknown> | null,
+  newData: Record<string, unknown> | null,
+  changedBy: string
+): Promise<void> {
+  try {
+    await supabase.from("logs").insert({
+      table_name: tableName,
+      operation,
+      record_id: recordId,
+      old_data: oldData,
+      new_data: newData,
+      changed_by: changedBy,
+    });
+  } catch (error) {
+    console.error(`Failed to log ${tableName} operation:`, error);
+  }
+}
+
+// 테이블별 편의 함수
+export const logConsultationOperation = (
+  operation: OperationType,
+  recordId: string,
+  oldData: Record<string, unknown> | null,
+  newData: Record<string, unknown> | null,
+  changedBy: string
+) => logCrudOperation("consultations", operation, recordId, oldData, newData, changedBy);
+
+export const logCompanyOperation = (
+  operation: OperationType,
+  recordId: string,
+  oldData: Record<string, unknown> | null,
+  newData: Record<string, unknown> | null,
+  changedBy: string
+) => logCrudOperation("companies", operation, recordId, oldData, newData, changedBy);
+
+export const logDocumentOperation = (
+  operation: OperationType,
+  recordId: string,
+  oldData: Record<string, unknown> | null,
+  newData: Record<string, unknown> | null,
+  changedBy: string
+) => logCrudOperation("documents", operation, recordId, oldData, newData, changedBy);
+
+export const logContactOperation = (
+  operation: OperationType,
+  recordId: string,
+  oldData: Record<string, unknown> | null,
+  newData: Record<string, unknown> | null,
+  changedBy: string
+) => logCrudOperation("contacts", operation, recordId, oldData, newData, changedBy);
+
 /**
  * API 호출을 로깅합니다
  */

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
   Users,
@@ -163,7 +164,7 @@ export default function UsersListPage() {
         </div>
       ) : filteredUsers.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredUsers.map((user) => {
+          {filteredUsers.map((user, index) => {
             const rawUserSales = salesSummary?.[user.id];
             const userSales = {
               estimates: {
@@ -197,8 +198,11 @@ export default function UsersListPage() {
             };
 
             return (
-              <div
+              <motion.div
                 key={user.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
                 onClick={() => router.push(`/reports/performance/${user.id}`)}
                 className="bg-white border border-slate-200 rounded-xl p-5 cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all group"
               >
@@ -272,7 +276,7 @@ export default function UsersListPage() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

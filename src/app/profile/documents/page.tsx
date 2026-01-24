@@ -19,6 +19,7 @@ import { useLoginUser } from "@/context/login";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 import { useDebounce } from "@/hooks/useDebounce";
+import { motion } from "framer-motion";
 
 type DocType = "all" | "quotation" | "order";
 type DocStatus = "all" | "pending" | "approved" | "completed" | "cancelled" | "expired";
@@ -196,7 +197,12 @@ export default function MyDocumentsPage() {
   return (
     <div className="text-sm">
       {/* 헤더 */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-slate-800">내 문서</h1>
@@ -259,7 +265,7 @@ export default function MyDocumentsPage() {
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* 문서 목록 */}
       {isLoading ? (
@@ -271,17 +277,22 @@ export default function MyDocumentsPage() {
         </div>
       ) : documents.length > 0 ? (
         <div className="space-y-3">
-          {documents.map((doc) => {
+          {documents.map((doc, index) => {
             const isHighlighted = highlightId === doc.id;
             return (
-            <Link
+            <motion.div
               key={doc.id}
-              ref={isHighlighted ? highlightRef : null}
-              href={doc.consultation_id && doc.company_id ? `/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}` : "#"}
-              className={`block bg-white border rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all ${
-                isHighlighted ? "bg-purple-50 border-purple-300 ring-2 ring-purple-200" : "border-slate-200"
-              }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
             >
+              <Link
+                ref={isHighlighted ? highlightRef : null}
+                href={doc.consultation_id && doc.company_id ? `/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}` : "#"}
+                className={`block bg-white border rounded-xl p-4 hover:border-purple-300 hover:shadow-md transition-all ${
+                  isHighlighted ? "bg-purple-50 border-purple-300 ring-2 ring-purple-200" : "border-slate-200"
+                }`}
+              >
               <div className="flex items-center justify-between gap-4">
                 {/* 문서 정보 */}
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -331,6 +342,7 @@ export default function MyDocumentsPage() {
                 </div>
               </div>
             </Link>
+            </motion.div>
             );
           })}
         </div>

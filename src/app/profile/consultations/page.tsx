@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import { useLoginUser } from "@/context/login";
 import { useConsultationsList } from "@/hooks/consultations/recent/useConsultationsList";
 import { useDebounce } from "@/hooks/useDebounce";
+import { motion } from "framer-motion";
 
 export default function MyConsultationsPage() {
   const router = useRouter();
@@ -133,7 +134,12 @@ export default function MyConsultationsPage() {
   return (
     <div className="text-sm">
       {/* 헤더 */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-slate-800">내 상담</h1>
@@ -178,7 +184,7 @@ export default function MyConsultationsPage() {
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* 상담 목록 */}
       {isLoading ? (
@@ -190,7 +196,7 @@ export default function MyConsultationsPage() {
         </div>
       ) : consultations.length > 0 ? (
         <div className="space-y-3">
-          {consultations.map((consultation: any) => {
+          {consultations.map((consultation: any, index: number) => {
             const companyId = consultation.companies?.id || consultation.company_id;
             const consultationUrl = companyId
               ? `/consultations/${companyId}?highlight=${consultation.id}`
@@ -198,14 +204,19 @@ export default function MyConsultationsPage() {
             const isHighlighted = highlightId === consultation.id;
 
             return (
-              <Link
+              <motion.div
                 key={consultation.id}
-                ref={isHighlighted ? highlightRef : null}
-                href={consultationUrl}
-                className={`block bg-white border rounded-xl p-4 hover:border-emerald-300 hover:shadow-md transition-all ${
-                  isHighlighted ? "bg-emerald-50 border-emerald-300 ring-2 ring-emerald-200" : "border-slate-200"
-                }`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + index * 0.05 }}
               >
+                <Link
+                  ref={isHighlighted ? highlightRef : null}
+                  href={consultationUrl}
+                  className={`block bg-white border rounded-xl p-4 hover:border-emerald-300 hover:shadow-md transition-all ${
+                    isHighlighted ? "bg-emerald-50 border-emerald-300 ring-2 ring-emerald-200" : "border-slate-200"
+                  }`}
+                >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     {/* 회사/담당자 정보 */}
@@ -246,6 +257,7 @@ export default function MyConsultationsPage() {
                   </div>
                 </div>
               </Link>
+              </motion.div>
             );
           })}
         </div>

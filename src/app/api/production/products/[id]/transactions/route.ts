@@ -17,10 +17,7 @@ export async function GET(
 
     const { data, error, count } = await supabase
       .from("product_transactions")
-      .select(`
-        *,
-        creator:users!product_transactions_created_by_fkey(id, name)
-      `, { count: "exact" })
+      .select("*", { count: "exact" })
       .eq("product_id", id)
       .order("created_at", { ascending: false })
       .range(from, to);

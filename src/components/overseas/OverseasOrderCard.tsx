@@ -21,6 +21,7 @@ interface OverseasOrderCardProps {
   users: User[];
   onEdit: (order: OverseasOrder) => void;
   onDelete: (order: OverseasOrder) => void;
+  showCompanyName?: boolean;
 }
 
 export default function OverseasOrderCard({
@@ -28,6 +29,7 @@ export default function OverseasOrderCard({
   users,
   onEdit,
   onDelete,
+  showCompanyName = false,
 }: OverseasOrderCardProps) {
   const [fileModalOpen, setFileModalOpen] = useState(false);
   const [fileCount, setFileCount] = useState(0);
@@ -141,6 +143,11 @@ export default function OverseasOrderCard({
             {/* 헤더: Invoice + 버튼 */}
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="min-w-0">
+                {showCompanyName && order.company_name && (
+                  <div className="text-[11px] text-slate-500 mb-0.5">
+                    {order.company_name}
+                  </div>
+                )}
                 <h3 className="font-semibold text-[15px] text-teal-600 truncate">
                   {order.invoice_no}
                 </h3>

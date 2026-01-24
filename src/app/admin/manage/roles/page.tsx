@@ -429,17 +429,20 @@ export default function AdminRolesPage() {
     }));
 
     try {
-      for (const perm of SIDEBAR_MENU_PERMISSIONS) {
-        await fetch("/api/admin/permissions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            roleId: selectedRole.id,
+      // 배치 API로 한 번에 업데이트 (N+1 문제 해결)
+      const response = await fetch("/api/admin/permissions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roleId: selectedRole.id,
+          updates: SIDEBAR_MENU_PERMISSIONS.map(perm => ({
             permissionKey: perm.id,
             isEnabled: enabled,
-          }),
-        });
-      }
+          })),
+        }),
+      });
+
+      if (!response.ok) throw new Error("배치 업데이트 실패");
 
       toast.success(`사이드바 권한이 ${enabled ? "모두 활성화" : "모두 비활성화"} 되었습니다.`);
     } catch (error) {
@@ -466,17 +469,20 @@ export default function AdminRolesPage() {
     }));
 
     try {
-      for (const perm of group.permissions) {
-        await fetch("/api/admin/permissions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            roleId: selectedRole.id,
+      // 배치 API로 한 번에 업데이트 (N+1 문제 해결)
+      const response = await fetch("/api/admin/permissions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roleId: selectedRole.id,
+          updates: group.permissions.map(perm => ({
             permissionKey: perm.id,
             isEnabled: enabled,
-          }),
-        });
-      }
+          })),
+        }),
+      });
+
+      if (!response.ok) throw new Error("배치 업데이트 실패");
 
       toast.success(`${group.name} 권한이 ${enabled ? "모두 활성화" : "모두 비활성화"} 되었습니다.`);
     } catch (error) {

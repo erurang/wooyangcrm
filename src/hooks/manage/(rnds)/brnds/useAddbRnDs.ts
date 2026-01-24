@@ -13,11 +13,11 @@ interface BRnDsData {
 
 export function useAddbRnDs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/manage/brnds/add`,
+    `/api/manage/brnds`,
     fetcher
   );
 
-  const { mutate } = useSWR(`/api/manage/brnds/list`); // 🔹 SWR의 mutate 가져오기
+  const { mutate } = useSWR(`/api/manage/brnds`); // 🔹 SWR의 mutate 가져오기
 
   const addbRnds = async (rndsData: BRnDsData) => {
     try {
@@ -26,12 +26,13 @@ export function useAddbRnDs() {
         body: rndsData,
       });
 
-      if (!response?.company) {
+      const result = response as { company?: unknown } | null;
+      if (!result?.company) {
         throw new Error("brnds 추가 실패");
       }
       await mutate();
 
-      return response.company;
+      return result.company;
     } catch (error) {
       console.error("Error adding brnds:", error);
       throw error;

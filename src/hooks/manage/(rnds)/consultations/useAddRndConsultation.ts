@@ -3,7 +3,7 @@ import useSWRMutation from "swr/mutation";
 
 export function useAddRndConsultation() {
   const { trigger, isMutating, error } = useSWRMutation(
-    "/api/manage/consultations/add",
+    "/api/manage/consultations",
     fetcher
   );
 

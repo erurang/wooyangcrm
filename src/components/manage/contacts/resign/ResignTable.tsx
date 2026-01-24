@@ -12,10 +12,10 @@ interface Contact {
   level: string;
   email: string;
   company_id: string;
-  companies: {
+  companies?: {
     name: string;
   };
-  note: string;
+  note?: string;
 }
 
 interface ResignTableProps {

@@ -2,25 +2,11 @@
 
 import { Building, Phone, Printer, User, Calendar } from "lucide-react";
 import HeadlessSelect from "@/components/ui/HeadlessSelect";
-
-interface Contact {
-  resign: boolean | null;
-  id: string;
-  contact_name: string;
-  level: string;
-}
-
-interface NewDocument {
-  company_name: string;
-  phone: string;
-  fax: string;
-  contact: string;
-  date: string;
-}
+import type { NewDocument, Contact } from "@/types/document";
 
 interface BasicInfoSectionProps {
   newDocument: NewDocument;
-  setNewDocument: (doc: any) => void;
+  setNewDocument: (doc: NewDocument) => void;
   contacts: Contact[];
   iconColor: string;
   focusClass: string;
@@ -45,19 +31,19 @@ export default function BasicInfoSection({
   const renderFourthField = () => {
     if (isEstimate) {
       return (
-        <div className="col-span-2 sm:col-span-1">
+        <div className="col-span-2 sm:col-span-1 min-w-0">
           <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
             견적일
           </label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <div className="relative overflow-hidden rounded-lg">
+            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
             <input
               type="date"
               value={newDocument.date}
               onChange={(e) =>
                 setNewDocument({ ...newDocument, date: e.target.value })
               }
-              className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+              className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
             />
           </div>
         </div>
@@ -143,12 +129,12 @@ export default function BasicInfoSection({
               />
             </div>
           </div>
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
               발주일
             </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <div className="relative overflow-hidden rounded-lg">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
               <input
                 type="date"
                 value={newDocument.date}
@@ -156,7 +142,7 @@ export default function BasicInfoSection({
                   setNewDocument({ ...newDocument, date: e.target.value })
                 }
                 disabled={isAddMode}
-                className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${isAddMode ? "bg-gray-100" : ""} ${focusClass} focus:border-transparent`}
+                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${isAddMode ? "bg-gray-100" : ""} ${focusClass} focus:border-transparent`}
               />
             </div>
           </div>

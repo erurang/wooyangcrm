@@ -5,6 +5,7 @@ import { X, History, User, ChevronRight, FileText } from "lucide-react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import dayjs from "dayjs";
 import type { PostVersion } from "@/types/post";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 interface VersionHistoryModalProps {
   isOpen: boolean;
@@ -168,7 +169,7 @@ export default function VersionHistoryModal({
                   </h4>
                   <div
                     className="prose prose-sm max-w-none text-gray-700 bg-gray-50 rounded-md p-4"
-                    dangerouslySetInnerHTML={{ __html: selectedVersion.content }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedVersion.content) }}
                   />
                 </div>
               </div>

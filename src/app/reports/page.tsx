@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
   BarChart3,
   Building2,
@@ -158,47 +159,54 @@ export default function ReportsPage() {
 
       {/* 탭 컨텐츠 */}
       <div className="p-4">
-        {activeTab === "statistics" && (
-          <StatisticsTab
-            year={selectedYear}
-            dateFilter={dateFilter}
-            quarter={selectedQuarter}
-            month={selectedMonth}
-            monthlyStats={monthlyStats}
-            previousYearStats={previousYearStats}
-            isLoading={isLoading}
-          />
-        )}
-        {activeTab === "companies" && (
-          <CompaniesTab
-            year={selectedYear}
-            dateFilter={dateFilter}
-            quarter={selectedQuarter}
-            month={selectedMonth}
-          />
-        )}
-        {activeTab === "employees" && (
-          <EmployeesTab
-            year={selectedYear}
-            dateFilter={dateFilter}
-            quarter={selectedQuarter}
-            month={selectedMonth}
-          />
-        )}
-        {activeTab === "production" && (
-          <ProductionPerformanceTab
-            year={selectedYear}
-            dateFilter={dateFilter}
-            quarter={selectedQuarter}
-            month={selectedMonth}
-          />
-        )}
-        {activeTab === "daily" && (
-          <DailyReportsTab
-            year={selectedYear}
-            month={selectedMonth}
-          />
-        )}
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {activeTab === "statistics" && (
+            <StatisticsTab
+              year={selectedYear}
+              dateFilter={dateFilter}
+              quarter={selectedQuarter}
+              month={selectedMonth}
+              monthlyStats={monthlyStats}
+              previousYearStats={previousYearStats}
+              isLoading={isLoading}
+            />
+          )}
+          {activeTab === "companies" && (
+            <CompaniesTab
+              year={selectedYear}
+              dateFilter={dateFilter}
+              quarter={selectedQuarter}
+              month={selectedMonth}
+            />
+          )}
+          {activeTab === "employees" && (
+            <EmployeesTab
+              year={selectedYear}
+              dateFilter={dateFilter}
+              quarter={selectedQuarter}
+              month={selectedMonth}
+            />
+          )}
+          {activeTab === "production" && (
+            <ProductionPerformanceTab
+              year={selectedYear}
+              dateFilter={dateFilter}
+              quarter={selectedQuarter}
+              month={selectedMonth}
+            />
+          )}
+          {activeTab === "daily" && (
+            <DailyReportsTab
+              year={selectedYear}
+              month={selectedMonth}
+            />
+          )}
+        </motion.div>
       </div>
     </div>
   );

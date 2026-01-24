@@ -238,7 +238,7 @@ export default function ConsultationFormModal({
 
   // 입력 필드 스타일 - 모바일에서 더 큰 터치 영역
   const getInputClass = (hasError: boolean, isDisabled = false) => {
-    const base = "w-full px-3 py-2.5 sm:py-2 border rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors";
+    const base = "w-full max-w-full px-3 py-2.5 sm:py-2 border rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors box-border";
     if (isDisabled) return `${base} bg-gray-100 border-gray-300`;
     if (hasError) return `${base} border-red-500 focus:ring-red-500 bg-red-50`;
     return `${base} border-gray-300 focus:ring-blue-500`;
@@ -276,27 +276,31 @@ export default function ConsultationFormModal({
             <div className="flex-1 overflow-y-auto overscroll-contain">
               <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div>
+                <div className="min-w-0">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     상담일
                   </label>
-                  <input
-                    type="date"
-                    value={formData.date}
-                    readOnly
-                    className={getInputClass(false, true)}
-                  />
+                  <div className="overflow-hidden rounded-lg">
+                    <input
+                      type="date"
+                      value={formData.date}
+                      readOnly
+                      className={getInputClass(false, true)}
+                    />
+                  </div>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     후속 날짜
                   </label>
-                  <input
-                    type="date"
-                    value={formData.follow_up_date || ""}
-                    onChange={(e) => handleFieldChange("follow_up_date", e.target.value)}
-                    className={getInputClass(!!errors.follow_up_date)}
-                  />
+                  <div className="overflow-hidden rounded-lg">
+                    <input
+                      type="date"
+                      value={formData.follow_up_date || ""}
+                      onChange={(e) => handleFieldChange("follow_up_date", e.target.value)}
+                      className={getInputClass(!!errors.follow_up_date)}
+                    />
+                  </div>
                   {errors.follow_up_date && (
                     <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" />

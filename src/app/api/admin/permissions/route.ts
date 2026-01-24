@@ -138,6 +138,45 @@ export async function PUT(request: NextRequest) {
   }
 }
 
+// 권한 배치 업데이트 (부분 업데이트) - N+1 문제 해결
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { roleId, updates } = body;
+
+    if (!roleId || !updates || !Array.isArray(updates)) {
+      return NextResponse.json(
+        { error: "roleId와 updates 배열이 필요합니다" },
+        { status: 400 }
+      );
+    }
+
+    // 배치 upsert
+    const permissionRecords = updates.map((update: { permissionKey: string; isEnabled: boolean }) => ({
+      role_id: roleId,
+      permission_key: update.permissionKey,
+      permission_name: getPermissionName(update.permissionKey),
+      category: getPermissionCategory(update.permissionKey),
+      is_enabled: update.isEnabled,
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { error } = await supabase
+      .from("role_permissions")
+      .upsert(permissionRecords, { onConflict: "role_id,permission_key" });
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, count: updates.length });
+  } catch (error) {
+    console.error("권한 배치 업데이트 오류:", error);
+    return NextResponse.json(
+      { error: "권한을 배치 업데이트할 수 없습니다" },
+      { status: 500 }
+    );
+  }
+}
+
 // 권한 키에서 이름 추출
 function getPermissionName(key: string): string {
   const names: Record<string, string> = {

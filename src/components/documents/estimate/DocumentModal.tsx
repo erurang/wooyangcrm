@@ -54,7 +54,6 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   // ESC 키로 모달 닫기
   useEscapeKey(true, onClose);
 
-  console.log("document", document);
   const [year, month, day] = document?.date.split("-").map(Number);
 
   const formatContentWithLineBreaks = (content: string) => {
@@ -326,9 +325,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               .join("")}
         
               ${
-                document.content.items?.length < 12
+                (document.content.items?.length || 0) < 12
                   ? Array.from(
-                      { length: 4 - document.content.items.length },
+                      { length: 4 - (document.content.items?.length || 0) },
                       (_, i) => `
                       <tr style="background-color: white;">
                       <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; solid black;">&nbsp;</td>
@@ -636,9 +635,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               .join("")}
         
               ${
-                document.content.items?.length < 12
+                (document.content.items?.length || 0) < 12
                   ? Array.from(
-                      { length: 4 - document.content.items.length },
+                      { length: 4 - (document.content.items?.length || 0) },
                       (_, i) => `
                       <tr style="background-color: white;">
                       <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; solid black;">&nbsp;</td>
@@ -930,9 +929,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
               .join("")}
         
               ${
-                document.content.items?.length < 12
+                (document.content.items?.length || 0) < 12
                   ? Array.from(
-                      { length: 4 - document.content.items.length },
+                      { length: 4 - (document.content.items?.length || 0) },
                       (_, i) => `
                       <tr style="background-color: white;">
                       <td style="padding: 5px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; solid black;">&nbsp;</td>
@@ -1173,7 +1172,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
                   <tr className="text-left border-black border-2">
                     <th className="px-4 py-2 border-black border-r-[1px] text-center">
                       합계(VAT별도) : 金
-                      {koreanAmount(document.content?.total_amount)}원整 (₩
+                      {koreanAmount(document.content?.total_amount || 0)}원整 (₩
                       {document.total_amount.toLocaleString()})
                     </th>
                   </tr>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { motion } from "framer-motion";
 import { useLoginUser } from "@/context/login";
 import { useRouter } from "next/navigation";
 
@@ -93,8 +94,14 @@ export default function DocumentsDashboard() {
         <>
           {/* 상태 요약을 3개 컬럼으로 나눠서 표시 */}
           <div className="mb-4 grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 pt-4">
-            {documentSummary.map((doc) => (
-              <div key={doc.type} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+            {documentSummary.map((doc, index) => (
+              <motion.div
+                key={doc.type}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                className="bg-white p-4 rounded-xl shadow-sm border border-slate-200"
+              >
                 <h2 className="font-semibold mb-3 text-slate-800">
                   {tabs.find((t) => t.type === doc.type)?.name} 상태 요약
                 </h2>
@@ -134,13 +141,18 @@ export default function DocumentsDashboard() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
           {/* 문서 유형별 진행 중 문서 테이블 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 px-4 pb-4">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.35 }}
+              className="bg-white rounded-xl shadow-sm border border-slate-200 p-5"
+            >
               <h2 className="font-semibold text-slate-800 mb-4">문서 진행 현황</h2>
               {tabs.map((tab) => {
                 const documents = filterDocumentsByType(tab.type).filter(
@@ -191,9 +203,14 @@ export default function DocumentsDashboard() {
                   </div>
                 );
               })}
-            </div>
+            </motion.div>
             {/* 차트 */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+              className="bg-white rounded-xl shadow-sm border border-slate-200 p-5"
+            >
               <h2 className="font-semibold text-slate-800 mb-4">문서 상태별 개수</h2>
               <ReactApexChart
                 options={{
@@ -242,7 +259,7 @@ export default function DocumentsDashboard() {
                 ]}
                 type="bar"
               />
-            </div>
+            </motion.div>
           </div>
         </>
       )}

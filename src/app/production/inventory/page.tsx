@@ -19,6 +19,7 @@ import { useProduct } from "@/hooks/production/useProduct";
 import { useDebounce } from "@/hooks/useDebounce";
 import ProductFormModal from "@/components/production/products/ProductFormModal";
 import StockAdjustmentModal from "@/components/production/products/StockAdjustmentModal";
+import AutoOrderSuggestions from "@/components/inventory/AutoOrderSuggestions";
 import type { Product, ProductCreateRequest } from "@/types/production";
 
 type ViewMode = "raw_material" | "purchased";
@@ -175,6 +176,11 @@ export default function InventoryPage() {
             저재고만
           </button>
         </div>
+      </div>
+
+      {/* 발주 권장 패널 */}
+      <div className="px-4 pt-4">
+        <AutoOrderSuggestions compact />
       </div>
 
       {/* Content */}

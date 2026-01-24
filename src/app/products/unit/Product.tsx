@@ -13,9 +13,9 @@ import {
   ProductSearchFilter,
   ProductTable,
   ProductGroupedTable,
-  ProductPagination,
   ProductDocumentModal,
 } from "@/components/products/unit";
+import Pagination from "@/components/ui/Pagination";
 
 interface User {
   id: string;
@@ -370,11 +370,13 @@ export default function ProductPage() {
           />
 
           {!isLoading && sortedProducts.length > 0 && (
-            <ProductPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
+            <div className="flex justify-center mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
           )}
         </>
       )}
@@ -390,11 +392,13 @@ export default function ProductPage() {
           />
 
           {!isGroupedLoading && groupedProducts.length > 0 && (
-            <ProductPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
+            <div className="flex justify-center mt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
           )}
         </>
       )}

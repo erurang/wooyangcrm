@@ -72,6 +72,119 @@ export async function GET(request: Request) {
   }
 }
 
+// PUT: 해외 거래처 수정
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, name, address, email, website, notes, contacts } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "거래처 ID가 필요합니다." },
+        { status: 400 }
+      );
+    }
+
+    // 거래처 정보 수정
+    const { data: updatedCompany, error: companyError } = await supabase
+      .from("companies")
+      .update({
+        name: name?.trim(),
+        address,
+        email,
+        website,
+        notes,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("is_overseas", true)
+      .select()
+      .single();
+
+    if (companyError || !updatedCompany) {
+      throw new Error("거래처 수정 실패");
+    }
+
+    // 담당자 업데이트 (기존 담당자 삭제 후 새로 추가)
+    if (contacts !== undefined) {
+      // 기존 담당자 삭제
+      await supabase
+        .from("contacts")
+        .delete()
+        .eq("company_id", id);
+
+      // 새 담당자 추가
+      if (contacts && contacts.length > 0) {
+        const contactsToAdd = contacts.map((c: any, index: number) => ({
+          company_id: id,
+          contact_name: c.name,
+          email: c.email || null,
+          mobile: c.mobile || null,
+          department: c.department || null,
+          level: c.position || null,
+          sort_order: index,
+        }));
+
+        const { error: contactsError } = await supabase
+          .from("contacts")
+          .insert(contactsToAdd);
+
+        if (contactsError) {
+          console.error("Error updating contacts:", contactsError);
+        }
+      }
+    }
+
+    return NextResponse.json({ company: updatedCompany });
+  } catch (error) {
+    console.error("Error updating overseas company:", error);
+    return NextResponse.json(
+      { error: "Failed to update overseas company" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE: 해외 거래처 삭제
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "거래처 ID가 필요합니다." },
+        { status: 400 }
+      );
+    }
+
+    // 관련 담당자 삭제
+    await supabase
+      .from("contacts")
+      .delete()
+      .eq("company_id", id);
+
+    // 거래처 삭제 (soft delete)
+    const { error: deleteError } = await supabase
+      .from("companies")
+      .update({ is_deleted: true, deleted_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("is_overseas", true);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting overseas company:", error);
+    return NextResponse.json(
+      { error: "Failed to delete overseas company" },
+      { status: 500 }
+    );
+  }
+}
+
 // POST: 해외 거래처 추가
 export async function POST(request: Request) {
   try {

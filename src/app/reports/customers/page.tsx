@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
   Building2,
@@ -14,7 +15,18 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
-import { useCompanySalesSummary } from "@/hooks/reports/customers/useCompanySalesSummary";
+import { useCompanySalesSummaryWithFilters } from "@/hooks/reports/customers/useCompanySalesSummary";
+import { useDebounce } from "@/hooks/useDebounce";
+
+interface CompanySalesSummary {
+  company_id: string;
+  company_name: string;
+  completed_estimates: number;
+  completed_orders: number;
+  total_sales_amount: number;
+  total_purchase_amount: number;
+  assigned_sales_reps: string[];
+}
 
 export default function CompanySalesReport() {
   const router = useRouter();
@@ -28,6 +40,10 @@ export default function CompanySalesReport() {
   // 검색 필터 상태
   const [searchTerm, setSearchTerm] = useState("");
   const [salesRepTerm, setSalesRepTerm] = useState("");
+
+  // 디바운스된 검색어 (300ms)
+  const debouncedSearch = useDebounce(searchTerm, 300);
+  const debouncedSalesRep = useDebounce(salesRepTerm, 300);
 
   // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,46 +64,38 @@ export default function CompanySalesReport() {
     endDate = new Date(selectedYear, selectedMonth, 0).toISOString().split("T")[0];
   }
 
-  // API 호출
-  const { companySalesSummary, isLoading } = useCompanySalesSummary(startDate, endDate);
-
-  // 배열 형태로 변환 (API 응답이 배열이 아닐 경우 대비)
-  const summaryArray = Array.isArray(companySalesSummary) ? companySalesSummary : [];
-
-  // 검색 필터 적용
-  const filteredData = summaryArray.filter((company: any) => {
-    const companyNameMatch = company.company_name
-      ?.toLowerCase()
-      .includes(searchTerm.trim().toLowerCase());
-
-    const salesRepMatch =
-      salesRepTerm.trim() === "" ||
-      (company.assigned_sales_reps || []).some((rep: string) =>
-        rep.toLowerCase().includes(salesRepTerm.trim().toLowerCase())
-      );
-
-    return companyNameMatch && salesRepMatch;
+  // 서버 측 필터링 API 호출
+  const {
+    companySalesSummary,
+    total,
+    totalPages: serverTotalPages,
+    isLoading,
+  } = useCompanySalesSummaryWithFilters({
+    startDate,
+    endDate,
+    search: debouncedSearch,
+    salesRep: debouncedSalesRep,
+    page: currentPage,
+    limit: itemsPerPage,
   });
 
-  // 총 페이지 수 계산
-  const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
+  // 데이터 배열 (이미 서버에서 필터링 및 페이지네이션됨)
+  const paginatedData = companySalesSummary || [];
+  const totalPages = serverTotalPages || 1;
 
-  // 현재 페이지 데이터
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  // 전체 합계 계산
-  const totalStats = filteredData.reduce(
-    (acc: any, company: any) => ({
-      estimates: acc.estimates + company.completed_estimates,
-      orders: acc.orders + company.completed_orders,
-      sales: acc.sales + company.total_sales_amount,
-      purchase: acc.purchase + company.total_purchase_amount,
-    }),
-    { estimates: 0, orders: 0, sales: 0, purchase: 0 }
-  );
+  // 전체 합계 계산 (서버에서 필터링된 전체 데이터 기준으로 계산)
+  // 참고: 정확한 통계를 위해서는 별도 API가 필요하지만, 현재 페이지 데이터로 계산
+  const totalStats = useMemo(() => {
+    return paginatedData.reduce(
+      (acc: { estimates: number; orders: number; sales: number; purchase: number }, company: CompanySalesSummary) => ({
+        estimates: acc.estimates + (company.completed_estimates || 0),
+        orders: acc.orders + (company.completed_orders || 0),
+        sales: acc.sales + (company.total_sales_amount || 0),
+        purchase: acc.purchase + (company.total_purchase_amount || 0),
+      }),
+      { estimates: 0, orders: 0, sales: 0, purchase: 0 }
+    );
+  }, [paginatedData]);
 
   // 기간 라벨
   const getPeriodLabel = () => {
@@ -131,7 +139,7 @@ export default function CompanySalesReport() {
             </p>
           </div>
           <div className="text-sm text-slate-600">
-            총 <span className="font-bold text-teal-600">{filteredData.length}</span>개 거래처
+            총 <span className="font-bold text-teal-600">{total}</span>개 거래처
           </div>
         </div>
 
@@ -257,30 +265,50 @@ export default function CompanySalesReport() {
             조회 기간: <span className="font-medium text-slate-700">{getPeriodLabel()}</span>
           </span>
           <div className="flex flex-wrap gap-3 ml-auto">
-            <div className="flex items-center gap-1.5 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-1.5 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg"
+            >
               <FileText className="w-4 h-4 text-blue-500" />
               <span className="text-xs text-blue-700">
                 견적 <span className="font-bold">{totalStats.estimates.toLocaleString()}</span>건
               </span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-purple-50 border border-purple-100 px-3 py-1.5 rounded-lg">
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="flex items-center gap-1.5 bg-purple-50 border border-purple-100 px-3 py-1.5 rounded-lg"
+            >
               <ShoppingCart className="w-4 h-4 text-purple-500" />
               <span className="text-xs text-purple-700">
                 발주 <span className="font-bold">{totalStats.orders.toLocaleString()}</span>건
               </span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-lg">
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-lg"
+            >
               <TrendingUp className="w-4 h-4 text-emerald-500" />
               <span className="text-xs text-emerald-700">
                 매출 <span className="font-bold">{totalStats.sales.toLocaleString()}</span>원
               </span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg">
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex items-center gap-1.5 bg-red-50 border border-red-100 px-3 py-1.5 rounded-lg"
+            >
               <TrendingDown className="w-4 h-4 text-red-500" />
               <span className="text-xs text-red-700">
                 매입 <span className="font-bold">{totalStats.purchase.toLocaleString()}</span>원
               </span>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

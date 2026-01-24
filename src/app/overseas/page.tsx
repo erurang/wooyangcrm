@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { Plus, Search, Globe, X } from "lucide-react";
 
 import SnackbarComponent from "@/components/Snackbar";
@@ -9,7 +10,8 @@ import {
   OverseasCompanyTable,
   OverseasCompanyFormModal,
 } from "@/components/overseas";
-import { useOverseasCompanies, useAddOverseasCompany } from "@/hooks/overseas";
+import { useOverseasCompanies, useAddOverseasCompany, useUpdateOverseasCompany, useDeleteOverseasCompany } from "@/hooks/overseas";
+import { AlertTriangle } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { OverseasCompany, OverseasContact } from "@/types/overseas";
 
@@ -54,8 +56,11 @@ export default function OverseasCompaniesPage() {
   // 모달 상태
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentCompany, setCurrentCompany] = useState<OverseasCompanyFormData>(emptyCompany);
+  const [companyToDelete, setCompanyToDelete] = useState<OverseasCompany | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   // Debounced search
@@ -68,6 +73,8 @@ export default function OverseasCompaniesPage() {
     name: debouncedSearchTerm,
   });
   const { addCompany } = useAddOverseasCompany();
+  const { updateCompany } = useUpdateOverseasCompany();
+  const { deleteCompany } = useDeleteOverseasCompany();
 
   // URL 업데이트
   useEffect(() => {
@@ -103,9 +110,18 @@ export default function OverseasCompaniesPage() {
 
   // 거래처 수정
   const handleEditCompany = async () => {
+    if (!currentCompany.id) return;
     setSaving(true);
     try {
-      // TODO: 수정 API 호출
+      await updateCompany({
+        id: currentCompany.id,
+        name: currentCompany.name,
+        address: currentCompany.address,
+        email: currentCompany.email,
+        website: currentCompany.website,
+        notes: currentCompany.notes,
+        contacts: currentCompany.contacts,
+      });
       setSnackbarMessage("해외 거래처가 수정되었습니다.");
       setIsEditModalOpen(false);
       setCurrentCompany(emptyCompany);
@@ -137,14 +153,40 @@ export default function OverseasCompaniesPage() {
   };
 
   const handleDelete = (company: OverseasCompany) => {
-    // TODO: 삭제 모달 구현
-    console.log("Delete:", company);
+    setCompanyToDelete(company);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!companyToDelete) return;
+    setDeleting(true);
+    try {
+      await deleteCompany(companyToDelete.id);
+      setSnackbarMessage("해외 거래처가 삭제되었습니다.");
+      setIsDeleteModalOpen(false);
+      setCompanyToDelete(null);
+      mutate();
+    } catch (error) {
+      setSnackbarMessage("거래처 삭제에 실패했습니다.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setCompanyToDelete(null);
   };
 
   return (
     <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
-      {/* 검색 필터 */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        {/* 검색 필터 */}
+        <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="px-4 py-3">
           {/* 타이틀 */}
           <div className="flex items-center justify-between mb-4">
@@ -212,6 +254,7 @@ export default function OverseasCompaniesPage() {
         onAdd={openAddModal}
         hasSearchQuery={!!searchTerm}
       />
+      </motion.div>
 
       {/* 추가 모달 */}
       <OverseasCompanyFormModal
@@ -234,6 +277,57 @@ export default function OverseasCompaniesPage() {
         onSubmit={handleEditCompany}
         saving={saving}
       />
+
+      {/* 삭제 확인 모달 */}
+      {isDeleteModalOpen && companyToDelete && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden"
+          >
+            <div className="p-5 border-b flex items-center gap-3">
+              <div className="p-2 bg-red-100 rounded-full">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">거래처 삭제</h3>
+            </div>
+
+            <div className="p-5">
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold text-gray-900">&quot;{companyToDelete.name}&quot;</span> 거래처를 삭제하시겠습니까?
+              </p>
+              <p className="mt-2 text-sm text-gray-500">
+                삭제된 거래처는 복구할 수 없습니다.
+              </p>
+            </div>
+
+            <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                disabled={deleting}
+              >
+                취소
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2"></div>
+                    삭제 중...
+                  </>
+                ) : (
+                  "삭제"
+                )}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* 스낵바 */}
       <SnackbarComponent

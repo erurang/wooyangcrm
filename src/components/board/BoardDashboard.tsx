@@ -100,7 +100,7 @@ export default function BoardDashboard({ onNewPost }: BoardDashboardProps) {
                     <Plus className="w-4 h-4" />
                   </button>
                   <Link
-                    href={`/board?category=${encodeURIComponent(category.name)}`}
+                    href={`/board/category/${encodeURIComponent(category.name)}`}
                     className="p-1 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
                     title="더보기"
                   >

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { useLoginUser } from "@/context/login";
 import SnackbarComponent from "@/components/Snackbar";
@@ -14,10 +15,10 @@ import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
 import {
   ContactsSearchFilters,
   ContactsTable,
-  ContactsPagination,
   ContactModal,
   ContactDeleteModal,
 } from "@/components/manage/contacts/list";
+import Pagination from "@/components/ui/Pagination";
 
 interface Contact {
   id: string;
@@ -27,10 +28,10 @@ interface Contact {
   level: string;
   email: string;
   company_id: string;
-  companies: {
+  companies?: {
     name: string;
   };
-  note: string;
+  note?: string;
 }
 
 const getInitialContactData = () => ({
@@ -128,7 +129,7 @@ export default function ContactsPage() {
       level: contact.level,
       email: contact.email,
       mobile: contact.mobile,
-      notes: contact.note,
+      notes: contact.note ?? "",
       companyName: contact.companies?.name || "",
     });
     setModalMode("edit");
@@ -275,8 +276,13 @@ export default function ContactsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Search Filters */}
-      <ContactsSearchFilters
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        {/* Search Filters */}
+        <ContactsSearchFilters
         companyName={companyName}
         contactName={contactName}
         email={email}
@@ -292,7 +298,7 @@ export default function ContactsPage() {
 
       {/* Contacts Table */}
       <ContactsTable
-        contacts={contacts}
+        contacts={contacts as unknown as Contact[]}
         isLoading={isContactsLoading}
         onEdit={handleEditContact}
         onDelete={handleDeleteContact}
@@ -306,11 +312,14 @@ export default function ContactsPage() {
       />
 
       {/* Pagination */}
-      <ContactsPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      <div className="flex justify-center mt-4">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+      </motion.div>
 
       {/* Contact Modal (Add/Edit) */}
       <ContactModal

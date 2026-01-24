@@ -31,12 +31,10 @@ export default function NewChatModal({
   const [isCreating, setIsCreating] = useState(false);
 
   // 사용자 목록 조회
-  const { data: usersData } = useSWR<{ users: User[] }>(
+  const { data: users = [] } = useSWR<User[]>(
     isOpen ? "/api/users" : null,
     fetcher
   );
-
-  const users = usersData?.users || [];
 
   // 검색 필터링 (자신 제외)
   const filteredUsers = useMemo(() => {

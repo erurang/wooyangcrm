@@ -14,6 +14,7 @@ import {
 import dayjs from "dayjs";
 import { useConsultationsList } from "@/hooks/consultations/recent/useConsultationsList";
 import { useDebounce } from "@/hooks/useDebounce";
+import { motion } from "framer-motion";
 
 export default function UserConsultationsPage() {
   const params = useParams();
@@ -117,12 +118,17 @@ export default function UserConsultationsPage() {
   return (
     <div className="text-sm text-[#37352F]">
       {/* 헤더 */}
-      <div className="mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-6"
+      >
         <h1 className="text-xl font-semibold">상담 기록</h1>
         <p className="text-sm text-gray-500 mt-1">
           이 사용자가 등록한 상담 기록입니다.
         </p>
-      </div>
+      </motion.div>
 
       {/* 검색 및 필터 */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -171,18 +177,23 @@ export default function UserConsultationsPage() {
         </div>
       ) : consultations.length > 0 ? (
         <div className="space-y-2">
-          {consultations.map((consultation: any) => {
+          {consultations.map((consultation: any, index: number) => {
             const companyId = consultation.companies?.id || consultation.company_id;
             const consultationUrl = companyId
               ? `/consultations/${companyId}?highlight=${consultation.id}`
               : "#";
 
             return (
-              <Link
+              <motion.div
                 key={consultation.id}
-                href={consultationUrl}
-                className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + index * 0.05 }}
               >
+                <Link
+                  href={consultationUrl}
+                  className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all"
+                >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     {/* 회사/담당자 정보 */}
@@ -223,6 +234,7 @@ export default function UserConsultationsPage() {
                   </div>
                 </div>
               </Link>
+              </motion.div>
             );
           })}
         </div>

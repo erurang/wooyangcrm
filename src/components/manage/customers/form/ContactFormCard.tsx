@@ -16,7 +16,7 @@ interface ContactFormCardProps {
   contact: Contact;
   index: number;
   mode: "add" | "edit";
-  onChange: (field: keyof Contact, value: any) => void;
+  onChange: (field: keyof Contact, value: string | boolean) => void;
   onRemove: () => void;
 }
 

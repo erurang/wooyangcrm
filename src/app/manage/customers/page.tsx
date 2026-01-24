@@ -3,6 +3,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 
 import SnackbarComponent from "@/components/Snackbar";
 import ErrorState from "@/components/ui/ErrorState";
@@ -157,27 +158,32 @@ export default function CompanySearchPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <SearchFilters
-        searchTerm={searchTerm}
-        addressTerm={addressTerm}
-        contactTerm={contactTerm}
-        total={total}
-        onSearchChange={(value) => {
-          setSearchTerm(value);
-          setCurrentPage(1);
-        }}
-        onAddressChange={(value) => {
-          setAddressTerm(value);
-          setCurrentPage(1);
-        }}
-        onContactChange={(value) => {
-          setContactTerm(value);
-          setCurrentPage(1);
-        }}
-        onResetFilters={resetFilters}
-        onAddCompany={openAddModal}
-        onKeyPress={handleKeyPress}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <SearchFilters
+          searchTerm={searchTerm}
+          addressTerm={addressTerm}
+          contactTerm={contactTerm}
+          total={total}
+          onSearchChange={(value) => {
+            setSearchTerm(value);
+            setCurrentPage(1);
+          }}
+          onAddressChange={(value) => {
+            setAddressTerm(value);
+            setCurrentPage(1);
+          }}
+          onContactChange={(value) => {
+            setContactTerm(value);
+            setCurrentPage(1);
+          }}
+          onResetFilters={resetFilters}
+          onAddCompany={openAddModal}
+          onKeyPress={handleKeyPress}
+        />
 
       <CompaniesTable
         companies={companies || []}
@@ -193,6 +199,7 @@ export default function CompanySearchPage() {
         onAdd={openAddModal}
         hasSearchQuery={!!(searchTerm || addressTerm || contactTerm)}
       />
+      </motion.div>
 
       <CompanyFormModal
         mode="edit"

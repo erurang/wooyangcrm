@@ -57,6 +57,14 @@ import {
   Gauge,
   Factory,
   FileSignature,
+  FolderKanban,
+  Wallet,
+  Award,
+  FileStack,
+  Milestone,
+  UsersRound,
+  Landmark,
+  BookOpen,
 } from "lucide-react";
 
 export interface SidebarSubItem {
@@ -108,8 +116,10 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     icon: Globe,
     subItems: [
       { id: "overseas-customers", title: "거래처 검색", path: "/overseas" },
+      { id: "overseas-orders", title: "발주 관리", path: "/overseas/orders" },
       { id: "overseas-consultations", title: "상담내역 조회", path: "/overseas/consultations" },
       { id: "customs-costs", title: "통관비용", path: "/overseas/customs-costs" },
+      { id: "shipping", title: "배송 현황", path: "/shipping" },
     ],
   },
   {
@@ -153,6 +163,7 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
       { id: "calendar", title: "캘린더", path: "/inventory/calendar" },
       { id: "inbound", title: "입고", path: "/inventory/inbound" },
       { id: "outbound", title: "출고", path: "/inventory/outbound" },
+      { id: "suggestions", title: "발주 권장", path: "/inventory/suggestions" },
     ],
   },
   {
@@ -185,18 +196,20 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
   },
 ];
 
-// Research role menu
+// Research role menu - 국가과제 R&D 관리
 export const RESEARCH_SIDEBAR_ITEM: SidebarMenuItem = {
   id: "research",
-  title: "연구실",
-  icon: Beaker,
+  title: "국가과제 R&D",
+  icon: FlaskConical,
   roles: ["research", "admin"],
   subItems: [
-    { id: "orgs", title: "지원기관 검색", path: "/manage/orgs" },
-    { id: "rnds", title: "R&D 검색", path: "/manage/rnds" },
-    { id: "brnds", title: "비 R&D 검색", path: "/manage/brnds" },
-    { id: "develop", title: "개발건 검색", path: "/manage/develop" },
-    { id: "develop_contacts", title: "담당자 검색", path: "/manage/develop_contacts" },
+    { id: "rnd-dashboard", title: "과제 현황", path: "/manage/rnds/dashboard" },
+    { id: "rnds", title: "과제 관리", path: "/manage/rnds" },
+    { id: "orgs", title: "지원기관 관리", path: "/manage/orgs" },
+    { id: "rnd-budgets", title: "예산 현황", path: "/manage/rnds/budgets" },
+    { id: "rnd-outcomes", title: "성과물 관리", path: "/manage/rnds/outcomes" },
+    { id: "rnd-reports", title: "보고서 일정", path: "/manage/rnds/reports" },
+    { id: "rnd-researchers", title: "연구인력 현황", path: "/manage/rnds/researchers" },
   ],
 };
 
@@ -235,6 +248,7 @@ export const ADMIN_SYSTEM_SIDEBAR_ITEM: SidebarMenuItem = {
   subItems: [
     { id: "notifications", title: "알림 트리거", path: "/admin/notifications" },
     { id: "api-monitor", title: "API 모니터링", path: "/admin/api-monitor" },
+    { id: "approval-rules", title: "결재 자동화 규칙", path: "/admin/approvals/rules" },
   ],
 };
 
@@ -370,8 +384,16 @@ export const MENU_ICONS: Record<string, LucideIcon> = {
   board: Newspaper,
   approvals: FileSignature,
   messenger: MessageCircle,
-  research: Beaker,
+  research: FlaskConical,
   management: ChartBar,
   admin: Settings,
   favorites: Star,
+  // R&D 서브메뉴 아이콘
+  "rnd-dashboard": FolderKanban,
+  rnds: BookOpen,
+  orgs: Landmark,
+  "rnd-budgets": Wallet,
+  "rnd-outcomes": Award,
+  "rnd-reports": FileStack,
+  "rnd-researchers": UsersRound,
 };

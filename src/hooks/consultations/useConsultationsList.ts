@@ -1,5 +1,12 @@
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
+import type { BaseConsultation } from "@/types/consultation";
+
+interface ConsultationsListResponse {
+  consultations: BaseConsultation[];
+  totalPages: number;
+  currentPage: number;
+}
 
 export function useConsultationsList(
   companyId: string | undefined,
@@ -16,8 +23,8 @@ export function useConsultationsList(
     params.set("highlightId", highlightId);
   }
 
-  const { data, error, mutate, isLoading, isValidating } = useSWR(
-    companyId ? `/api/consultations/list?${params.toString()}` : null,
+  const { data, error, mutate, isLoading, isValidating } = useSWR<ConsultationsListResponse>(
+    companyId ? `/api/consultations?${params.toString()}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {
       revalidateOnFocus: false,

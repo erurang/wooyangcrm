@@ -1,6 +1,8 @@
 // Overseas Companies
 export { useOverseasCompanies } from "./useOverseasCompanies";
 export { useAddOverseasCompany } from "./useAddOverseasCompany";
+export { useUpdateOverseasCompany } from "./useUpdateOverseasCompany";
+export { useDeleteOverseasCompany } from "./useDeleteOverseasCompany";
 
 // Customs Costs
 export { useCustomsCosts } from "./useCustomsCosts";

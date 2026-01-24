@@ -29,6 +29,7 @@ import {
   XCircle,
   Search,
 } from "lucide-react";
+import Pagination from "@/components/ui/Pagination";
 import dayjs from "dayjs";
 import { useInventoryTasks, useInventoryStats } from "@/hooks/inventory/useInventoryTasks";
 import { useUpdateInventoryTask } from "@/hooks/inventory/useUpdateInventoryTask";
@@ -852,29 +853,15 @@ export default function InboundPage() {
 
       {/* 페이지네이션 정보 */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mb-4 text-sm text-slate-600">
-          <span>
+        <div className="flex flex-col items-center gap-2 mb-4">
+          <div className="text-sm text-slate-600">
             전체 {total}건 중 {(page - 1) * 10 + 1}-{Math.min(page * 10, total)}건
-          </span>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setPage(Math.max(1, page - 1))}
-              disabled={page === 1}
-              className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span className="px-3 py-1.5 text-sm">
-              {page} / {totalPages}
-            </span>
-            <button
-              onClick={() => setPage(Math.min(totalPages, page + 1))}
-              disabled={page === totalPages}
-              className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
           </div>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       )}
 

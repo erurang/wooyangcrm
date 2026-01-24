@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { CircularProgress } from "@mui/material";
-import { X, AlertCircle, Plus, Trash2, Paperclip, Upload, FileText, Download, Users, UserCheck } from "lucide-react";
+import { X, AlertCircle, Plus, Trash2, Paperclip, Upload, FileText, Download, Users, UserCheck, RefreshCw } from "lucide-react";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useUsersList } from "@/hooks/useUserList";
@@ -117,7 +117,10 @@ export default function OverseasOrderFormModal({
   const isAddMode = mode === "add";
   const modalTitle = isAddMode ? "발주 추가" : "발주 수정";
   const [errors, setErrors] = useState<FormErrors>({});
-  const { error: showError } = useGlobalToast();
+  const { error: showError, success: showSuccess } = useGlobalToast();
+
+  // 환율 자동 조회 상태
+  const [fetchingExchangeRate, setFetchingExchangeRate] = useState(false);
 
   // 로그인 사용자
   const loginUser = useLoginUser();
@@ -301,6 +304,35 @@ export default function OverseasOrderFormModal({
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+  };
+
+  // 환율 자동 조회
+  const handleFetchExchangeRate = async () => {
+    const currency = formData.currency;
+    if (!currency || currency === "GBP" || currency === "JPY") {
+      showError("USD, EUR, CNY만 자동 조회가 가능합니다.");
+      return;
+    }
+
+    setFetchingExchangeRate(true);
+    try {
+      const response = await fetch(`/api/exchange-rate?currency=${currency}`);
+      const data = await response.json();
+
+      if (data.error) {
+        showError(data.error);
+        return;
+      }
+
+      if (data.rate) {
+        handleFieldChange("exchange_rate", data.rate);
+        showSuccess(`${currency} 환율이 적용되었습니다: ₩${data.rate.toLocaleString()}`);
+      }
+    } catch (error) {
+      showError("환율 조회에 실패했습니다.");
+    } finally {
+      setFetchingExchangeRate(false);
+    }
   };
 
   // 드래그 & 드롭
@@ -894,21 +926,33 @@ export default function OverseasOrderFormModal({
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     환율 (₩)
                   </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.exchange_rate}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        "exchange_rate",
-                        e.target.value === ""
-                          ? ""
-                          : Number(e.target.value) || 0
-                      )
-                    }
-                    className={getInputClass(false)}
-                  />
+                  <div className="flex gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.exchange_rate}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          "exchange_rate",
+                          e.target.value === ""
+                            ? ""
+                            : Number(e.target.value) || 0
+                        )
+                      }
+                      className={`${getInputClass(false)} flex-1`}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleFetchExchangeRate}
+                      disabled={fetchingExchangeRate}
+                      className="px-2 py-1.5 text-xs bg-teal-50 text-teal-600 border border-teal-200 rounded-md hover:bg-teal-100 disabled:opacity-50 flex items-center gap-1 whitespace-nowrap"
+                      title="오늘 환율 자동 조회"
+                    >
+                      <RefreshCw size={12} className={fetchingExchangeRate ? "animate-spin" : ""} />
+                      조회
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

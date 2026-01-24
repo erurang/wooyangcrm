@@ -56,6 +56,7 @@ export const BASE_MENU_SECTIONS: NavMenuSection[] = [
     title: "해외거래처 관리",
     items: [
       { id: "overseas-customers", title: "거래처 검색", path: "/overseas" },
+      { id: "overseas-orders", title: "발주 관리", path: "/overseas/orders" },
       { id: "overseas-consultations", title: "상담내역 조회", path: "/overseas/consultations" },
       { id: "customs-costs", title: "통관비용", path: "/overseas/customs-costs" },
     ],
@@ -67,6 +68,7 @@ export const BASE_MENU_SECTIONS: NavMenuSection[] = [
       { id: "estimate", title: "견적서 관리", path: "/documents/review?type=estimate" },
       { id: "order", title: "발주서 관리", path: "/documents/review?type=order" },
       { id: "requestQuote", title: "의뢰서 관리", path: "/documents/review?type=requestQuote" },
+      { id: "costs", title: "비용 대시보드", path: "/documents/costs" },
     ],
   },
   {

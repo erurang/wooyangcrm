@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { Search, X, Globe, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { useOverseasConsultations, useOverseasCompanies } from "@/hooks/overseas";
@@ -93,8 +94,13 @@ export default function OverseasConsultationsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
-      {/* 헤더 */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        {/* 헤더 */}
+        <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="px-4 py-3">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-teal-50 rounded-lg">
@@ -314,6 +320,7 @@ export default function OverseasConsultationsPage() {
           </nav>
         </div>
       )}
+      </motion.div>
     </div>
   );
 }

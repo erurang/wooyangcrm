@@ -31,6 +31,11 @@ interface CompanyWithContacts extends CompanyBase {
   contact: ContactBase[];
 }
 
+interface CompaniesListResponse {
+  companies: CompanyBase[];
+  total: number;
+}
+
 export function useCompaniesList(
   page: number,
   limit: number,
@@ -42,10 +47,9 @@ export function useCompaniesList(
     ? `&companyIds=${contactCompanyIds.join(",")}`
     : "";
 
-  const { data, error, isLoading, mutate } = useSWR(
-    `/api/companies/list?page=${page}&limit=${limit}&name=${searchTerm}&address=${addressTerm}${companyIdString}`,
-    (url) => fetcher(url, { arg: { method: "GET" } }), // 🔹 GET 요청 명시
-
+  const { data, error, isLoading, mutate } = useSWR<CompaniesListResponse>(
+    `/api/companies?page=${page}&limit=${limit}&name=${searchTerm}&address=${addressTerm}${companyIdString}`,
+    (url) => fetcher(url, { arg: { method: "GET" } }),
     {
       revalidateOnFocus: false,
     }

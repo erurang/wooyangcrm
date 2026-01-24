@@ -118,23 +118,78 @@ export async function POST(request: NextRequest) {
             )
           : 0;
 
-      // 엔드포인트별 통계 (상위 10개)
+      // 엔드포인트별 상세 통계 (상위 10개)
       const { data: endpointStats, error: endpointError } = await supabase
         .from("api_logs")
-        .select("endpoint")
+        .select("endpoint, method, status_code, response_time_ms, created_at")
         .gte("created_at", `${today}T00:00:00`);
 
       if (endpointError) throw endpointError;
 
-      const endpointCounts: Record<string, number> = {};
+      // 엔드포인트별 상세 통계 계산
+      const endpointDetails: Record<string, {
+        count: number;
+        methods: Record<string, number>;
+        totalResponseTime: number;
+        successCount: number;
+        lastCalled: string;
+      }> = {};
+
       endpointStats?.forEach((log) => {
-        endpointCounts[log.endpoint] = (endpointCounts[log.endpoint] || 0) + 1;
+        if (!endpointDetails[log.endpoint]) {
+          endpointDetails[log.endpoint] = {
+            count: 0,
+            methods: {},
+            totalResponseTime: 0,
+            successCount: 0,
+            lastCalled: log.created_at,
+          };
+        }
+        const ep = endpointDetails[log.endpoint];
+        ep.count++;
+        ep.methods[log.method] = (ep.methods[log.method] || 0) + 1;
+        ep.totalResponseTime += log.response_time_ms || 0;
+        if (log.status_code >= 200 && log.status_code < 300) {
+          ep.successCount++;
+        }
+        if (new Date(log.created_at) > new Date(ep.lastCalled)) {
+          ep.lastCalled = log.created_at;
+        }
       });
 
-      const topEndpoints = Object.entries(endpointCounts)
-        .sort((a, b) => b[1] - a[1])
+      const topEndpoints = Object.entries(endpointDetails)
+        .sort((a, b) => b[1].count - a[1].count)
         .slice(0, 10)
-        .map(([endpoint, count]) => ({ endpoint, count }));
+        .map(([endpoint, stats]) => {
+          // 가장 많이 사용된 메서드 찾기
+          const primaryMethod = Object.entries(stats.methods)
+            .sort((a, b) => b[1] - a[1])[0]?.[0] || "GET";
+
+          const avgResponseTime = stats.count > 0
+            ? Math.round(stats.totalResponseTime / stats.count)
+            : 0;
+          const successRate = stats.count > 0
+            ? Math.round((stats.successCount / stats.count) * 1000) / 10
+            : 0;
+
+          // 상태 결정: 성공률 98% 이상 = healthy, 90% 이상 = degraded, 그 외 = down
+          let status: "healthy" | "degraded" | "down" = "healthy";
+          if (successRate < 90) {
+            status = "down";
+          } else if (successRate < 98) {
+            status = "degraded";
+          }
+
+          return {
+            endpoint,
+            count: stats.count,
+            method: primaryMethod,
+            avgResponseTime,
+            successRate,
+            lastCalled: stats.lastCalled,
+            status,
+          };
+        });
 
       return NextResponse.json({
         today: {

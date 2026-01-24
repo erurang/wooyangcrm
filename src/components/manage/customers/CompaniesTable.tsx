@@ -1,10 +1,11 @@
 "use client";
 
-import { Edit, Trash2, ChevronLeft, ChevronRight, Phone, Building2, List } from "lucide-react";
+import { Edit, Trash2, Phone, Building2, List } from "lucide-react";
 import { useRouter } from "next/navigation";
 import EmptyState from "@/components/ui/EmptyState";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import HeadlessSelect from "@/components/ui/HeadlessSelect";
+import Pagination from "@/components/ui/Pagination";
 
 interface Contact {
   contact_name: string;
@@ -60,22 +61,6 @@ export default function CompaniesTable({
 }: CompaniesTableProps) {
   const router = useRouter();
   const isDesktop = useIsDesktop();
-
-  const paginationNumbers = () => {
-    const pageNumbers: (number | string)[] = [];
-    for (let i = 1; i <= totalPages; i++) {
-      if (
-        i === 1 ||
-        i === totalPages ||
-        (i >= currentPage - 2 && i <= currentPage + 2)
-      ) {
-        pageNumbers.push(i);
-      } else if (i === currentPage - 3 || i === currentPage + 3) {
-        pageNumbers.push("...");
-      }
-    }
-    return pageNumbers;
-  };
 
   return (
     <div className="p-3 sm:p-4">
@@ -292,53 +277,13 @@ export default function CompaniesTable({
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-4 px-2 sm:px-0">
-          <nav className="flex items-center gap-0.5 sm:gap-1 bg-white rounded-lg border border-slate-200 p-1 shadow-sm overflow-x-auto max-w-full">
-            <button
-              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
-              disabled={currentPage === 1}
-              className={`p-2.5 sm:p-2 rounded-lg transition-colors shrink-0 active:scale-95 ${
-                currentPage === 1
-                  ? "text-slate-300 cursor-not-allowed"
-                  : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
-              }`}
-            >
-              <ChevronLeft className="h-5 w-5 sm:h-4 sm:w-4" />
-            </button>
-
-            {paginationNumbers().map((page, index) => (
-              <button
-                key={index}
-                onClick={() => typeof page === "number" && onPageChange(page)}
-                className={`min-w-[36px] sm:min-w-[32px] h-9 sm:h-8 rounded-lg text-sm font-medium transition-colors shrink-0 active:scale-95 ${
-                  currentPage === page
-                    ? "bg-blue-600 text-white"
-                    : page === "..."
-                    ? "text-slate-400 cursor-default"
-                    : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() =>
-                onPageChange(Math.min(currentPage + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className={`p-2.5 sm:p-2 rounded-lg transition-colors shrink-0 active:scale-95 ${
-                currentPage === totalPages
-                  ? "text-slate-300 cursor-not-allowed"
-                  : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
-              }`}
-            >
-              <ChevronRight className="h-5 w-5 sm:h-4 sm:w-4" />
-            </button>
-          </nav>
-        </div>
-      )}
+      <div className="flex justify-center mt-4 px-2 sm:px-0">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
+      </div>
     </div>
   );
 }

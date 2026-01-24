@@ -36,7 +36,7 @@ const getKSTDate = (daysToAdd: number = 0): string => {
 
 interface AdditionalInfoSectionProps {
   newDocument: NewDocument;
-  setNewDocument: (doc: any) => void;
+  setNewDocument: (doc: NewDocument) => void;
   iconColor: string;
   focusClass: string;
   companyAddress?: string;

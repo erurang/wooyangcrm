@@ -23,7 +23,7 @@ interface OrgsUpdateData {
 
 export function useUpdateOrgs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/manage/orgs/update`,
+    `/api/manage/orgs`,
     fetcher
   );
 

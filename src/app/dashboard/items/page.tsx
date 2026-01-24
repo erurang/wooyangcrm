@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { useDashboard } from "@/context/dashboard";
 import ItemsTab from "@/components/dashboard/tabs/ItemsTab";
 
@@ -45,17 +46,23 @@ export default function DashboardItemsPage() {
   }, [searchTerm, selectedItemCategory, aggregatedData]);
 
   return (
-    <ItemsTab
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      selectedItemCategory={selectedItemCategory}
-      setSelectedItemCategory={setSelectedItemCategory}
-      filteredItems={filteredItems}
-      itemsChartData={chartData.itemsChartData}
-      dateFilter={dateFilter}
-      selectedYear={selectedYear}
-      selectedQuarter={selectedQuarter}
-      selectedMonth={selectedMonth}
-    />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <ItemsTab
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        selectedItemCategory={selectedItemCategory}
+        setSelectedItemCategory={setSelectedItemCategory}
+        filteredItems={filteredItems}
+        itemsChartData={chartData.itemsChartData}
+        dateFilter={dateFilter}
+        selectedYear={selectedYear}
+        selectedQuarter={selectedQuarter}
+        selectedMonth={selectedMonth}
+      />
+    </motion.div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
@@ -16,9 +17,9 @@ import {
   RnDsSearchFilter,
   RnDsTable,
   RnDsModal,
-  RnDsDeleteModal,
-  RnDsPagination,
 } from "@/components/manage/rnds/list";
+import Pagination from "@/components/ui/Pagination";
+import DeleteConfirmModal from "@/components/ui/DeleteConfirmModal";
 import { formatNumber, parseFormattedNumber } from "@/lib/formatNumber";
 
 interface RnDs {
@@ -31,7 +32,7 @@ interface RnDs {
   total_cost: string;
   notes: string;
   support_org: string;
-  rnd_orgs: {
+  rnd_orgs?: {
     name: string;
   };
 }
@@ -221,8 +222,13 @@ export default function Page() {
 
   return (
     <div className="text-sm text-[#37352F]">
-      {/* Search Filter */}
-      <RnDsSearchFilter
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        {/* Search Filter */}
+        <RnDsSearchFilter
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
         onReset={handleResetFilter}
@@ -260,7 +266,7 @@ export default function Page() {
 
       {/* Table */}
       <RnDsTable
-        rnds={rnds || []}
+        rnds={(rnds as unknown as RnDs[]) || []}
         onRowClick={(id) => router.push(`/manage/rnds/${id}`)}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -274,28 +280,31 @@ export default function Page() {
         onClose={closeModal}
         onSave={handleSave}
         isSaving={saving}
-        rndData={currentRnds}
+        rndData={currentRnds as unknown as RnDs}
         onRndDataChange={handleRndDataChange}
         orgs={orgs || []}
         formatNumber={formatNumber}
       />
 
       {/* Delete Modal */}
-      <RnDsDeleteModal
-        isOpen={isDeleteModalOpen}
-        rnd={rndsToDelete}
-        deleteReason={deleteReason}
-        onReasonChange={setDeleteReason}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen && !!rndsToDelete}
+        onClose={cancelDelete}
         onConfirm={confirmDelete}
-        onCancel={cancelDelete}
+        itemName={rndsToDelete?.name}
+        itemType="R&D"
+        requireReason
+        reason={deleteReason}
+        onReasonChange={setDeleteReason}
       />
 
       {/* Pagination */}
-      <RnDsPagination
+      <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
+      </motion.div>
 
       {/* Snackbar */}
       <SnackbarComponent

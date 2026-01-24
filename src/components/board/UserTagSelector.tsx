@@ -31,7 +31,7 @@ export default function UserTagSelector({
   const [tagType, setTagType] = useState<"reference" | "coauthor">("reference");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { data: users = [] } = useSWR<User[]>("/api/users/list", fetcher, {
+  const { data: users = [] } = useSWR<User[]>("/api/users", fetcher, {
     revalidateOnFocus: false,
   });
 

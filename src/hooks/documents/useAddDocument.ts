@@ -3,11 +3,11 @@ import useSWRMutation from "swr/mutation";
 
 export function useAddDocument() {
   const { trigger, isMutating } = useSWRMutation(
-    "/api/documents/type/add",
+    "/api/documents/type",
     fetcher
   );
   return {
-    addDocument: trigger,
+    addDocument: trigger as (arg: unknown) => Promise<{ document: { id: string } }>,
     isAdding: isMutating,
   };
 }

@@ -14,8 +14,6 @@ export async function GET(
       .select(`
         *,
         product:products(id, internal_code, internal_name, type, unit),
-        creator:users!production_records_created_by_fkey(id, name),
-        canceler:users!production_records_canceled_by_fkey(id, name),
         consumptions:production_consumptions(
           id,
           material_id,

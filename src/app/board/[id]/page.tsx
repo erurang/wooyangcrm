@@ -21,6 +21,7 @@ import UserTagsDisplay from "@/components/board/UserTagsDisplay";
 import { uploadPostFile } from "@/lib/postFiles";
 import { uploadCommentFile } from "@/lib/commentFiles";
 import type { UpdatePostData, PostReference, CreateReferenceData, PostUserTag, CreateUserTagData } from "@/types/post";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -468,7 +469,7 @@ export default function PostDetailPage() {
         <div className="p-6">
           <div
             className="prose prose-sm max-w-none"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
           />
         </div>
 

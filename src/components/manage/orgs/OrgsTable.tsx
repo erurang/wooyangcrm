@@ -10,7 +10,7 @@ interface RnDsOrgs {
   phone: string;
   fax: string;
   email: string;
-  rnds_contacts: any[];
+  rnds_contacts?: any[];
 }
 
 interface OrgsTableProps {

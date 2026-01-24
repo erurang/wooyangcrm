@@ -19,8 +19,9 @@ export function useAddOverseasOrder() {
       });
 
       return response;
-    } catch (err: any) {
-      setError(err.message || "Failed to add order");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to add order";
+      setError(message);
       throw err;
     } finally {
       setIsLoading(false);

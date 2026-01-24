@@ -73,7 +73,7 @@ export default function NotificationTriggersPage() {
   useEffect(() => {
     const loadUsers = async () => {
       try {
-        const res = await fetch("/api/users/list");
+        const res = await fetch("/api/users");
         if (res.ok) {
           const data = await res.json();
           setUsers(data);

@@ -2,8 +2,25 @@
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 
+interface CompanyInfo {
+  id: string;
+  name: string;
+  phone?: string;
+  fax?: string;
+  address?: string;
+  business_number?: string;
+  email?: string;
+  notes?: string;
+  parcel?: string;
+  industry?: string[];
+}
+
+interface CompanyInfoResponse {
+  company: CompanyInfo | null;
+}
+
 export function useCompanyInfo(companyId: string | undefined) {
-  const { data, error, isLoading, mutate } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR<CompanyInfoResponse>(
     companyId ? `/api/companies/${companyId}` : null,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     {

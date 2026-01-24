@@ -16,6 +16,7 @@ import {
 import { PushNotificationSettings, NotificationPreferences } from "@/components/notifications";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { motion } from "framer-motion";
 
 interface RecentPost {
   id: string;
@@ -75,16 +76,21 @@ export default function MyActivityPage() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* 최근 상담 */}
-      <ActivitySection
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <ActivitySection
         title="최근 상담"
         icon={<MessageSquare className="w-5 h-5 text-emerald-500" />}
         viewAllHref="/profile/consultations"
         isLoading={recentActivitiesIsLoading}
         accentColor="emerald"
       >
-        {recentActivities?.recent_consultations?.length > 0 ? (
+        {(recentActivities?.recent_consultations?.length ?? 0) > 0 ? (
           <ul className="divide-y divide-slate-100">
-            {recentActivities.recent_consultations
+            {recentActivities!.recent_consultations
               .slice(0, 5)
               .map((item: { id: string; company_name: string; company_id: string; content: string; created_at: string }, idx: number) => (
                 <li key={item.id || idx} className="py-3">
@@ -113,18 +119,24 @@ export default function MyActivityPage() {
           <EmptyMessage>최근 상담 기록이 없습니다.</EmptyMessage>
         )}
       </ActivitySection>
+      </motion.div>
 
       {/* 최근 문서 */}
-      <ActivitySection
-        title="최근 문서"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <ActivitySection
+          title="최근 문서"
         icon={<FileCheck className="w-5 h-5 text-purple-500" />}
         viewAllHref="/profile/documents"
         isLoading={recentActivitiesIsLoading}
         accentColor="purple"
       >
-        {recentActivities?.recent_documents?.length > 0 ? (
+        {(recentActivities?.recent_documents?.length ?? 0) > 0 ? (
           <ul className="divide-y divide-slate-100">
-            {recentActivities.recent_documents
+            {recentActivities!.recent_documents
               .slice(0, 5)
               .map((item: { company_name: string; created_at: string }, idx: number) => (
                 <li
@@ -146,10 +158,16 @@ export default function MyActivityPage() {
           <EmptyMessage>최근 문서 기록이 없습니다.</EmptyMessage>
         )}
       </ActivitySection>
+      </motion.div>
 
       {/* 최근 게시글 */}
-      <ActivitySection
-        title="최근 게시글"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <ActivitySection
+          title="최근 게시글"
         icon={<FileText className="w-5 h-5 text-blue-500" />}
         viewAllHref="/profile/posts"
         isLoading={postsLoading}
@@ -185,12 +203,25 @@ export default function MyActivityPage() {
           <EmptyMessage>작성한 게시글이 없습니다.</EmptyMessage>
         )}
       </ActivitySection>
+      </motion.div>
 
       {/* 푸시 알림 설정 */}
-      <PushNotificationSettings userId={user?.id} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <PushNotificationSettings userId={user?.id} />
+      </motion.div>
 
       {/* 알림 유형 설정 */}
-      <NotificationPreferences userId={user?.id} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <NotificationPreferences userId={user?.id} />
+      </motion.div>
     </div>
   );
 }

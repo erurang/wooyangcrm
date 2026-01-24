@@ -12,6 +12,8 @@ interface CompanyDetail {
   notes?: string;
   business_number?: string;
   industry?: string[];
+  is_overseas?: boolean;
+  website?: string;
 }
 
 export function useCompanyDetails(companyId: string | undefined) {

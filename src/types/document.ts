@@ -50,9 +50,9 @@ export interface Document {
   company_id: string;
   user_id: string;
   // 분리된 컬럼들
-  company_name?: string;
-  company_phone?: string;
-  company_fax?: string;
+  company_name?: string | null;
+  company_phone?: string | null;
+  company_fax?: string | null;
   notes: string | null;
   valid_until: string | null;
   delivery_date: string | null;

@@ -11,14 +11,14 @@ interface RnDDetail {
   pri_contribution: string;
   start_date: string;
   end_date: string;
-  rnd_orgs: {
+  rnd_orgs?: {
     id: string;
     name: string;
   };
 }
 
 interface RnDInfoCardProps {
-  rndsDetail: RnDDetail;
+  rndsDetail: RnDDetail | null;
   isLoading: boolean;
 }
 
@@ -48,19 +48,19 @@ export default function RnDInfoCard({ rndsDetail, isLoading }: RnDInfoCardProps)
           <li className="flex items-center">
             <span className="font-medium w-20">총 사업비</span>
             <span className="flex-1 truncate">
-              {formatNumber(rndsDetail?.total_cost)}
+              {formatNumber(rndsDetail?.total_cost || "")}
             </span>
           </li>
           <li className="flex items-center">
             <span className="font-medium w-20">정부 출연금</span>
             <span className="flex-1">
-              {formatNumber(rndsDetail?.gov_contribution)}
+              {formatNumber(rndsDetail?.gov_contribution || "")}
             </span>
           </li>
           <li className="flex items-center">
             <span className="font-medium w-20">민간 부담금</span>
             <span className="flex-1">
-              {formatNumber(rndsDetail?.pri_contribution)}
+              {formatNumber(rndsDetail?.pri_contribution || "")}
             </span>
           </li>
           <li className="flex items-center">

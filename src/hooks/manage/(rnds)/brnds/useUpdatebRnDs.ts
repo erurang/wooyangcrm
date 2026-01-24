@@ -13,7 +13,7 @@ interface BRnDsUpdateData {
 
 export function useUpdatebRnDs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/manage/brnds/update`,
+    `/api/manage/brnds`,
     fetcher
   );
 

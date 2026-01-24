@@ -9,8 +9,9 @@ import useSWR from "swr";
 import { useLoginUser } from "@/context/login";
 import { usePosts } from "@/hooks/posts";
 import PostList from "@/components/board/PostList";
-import PostPagination from "@/components/board/PostPagination";
+import Pagination from "@/components/ui/Pagination";
 import type { PostWithAuthor } from "@/types/post";
+import { motion } from "framer-motion";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -80,7 +81,12 @@ export default function UserPostsPage() {
   return (
     <div className="text-sm text-[#37352F]">
       {/* 탭 */}
-      <div className="flex border-b border-gray-200 mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex border-b border-gray-200 mb-6"
+      >
         <button
           onClick={() => setActiveTab("posts")}
           className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
@@ -103,7 +109,7 @@ export default function UserPostsPage() {
           <MessageSquare className="w-4 h-4" />
           댓글 ({stats?.comments_count || 0})
         </button>
-      </div>
+      </motion.div>
 
       {/* 게시글 탭 */}
       {activeTab === "posts" && (
@@ -121,11 +127,13 @@ export default function UserPostsPage() {
                 onPostClick={handlePostClick}
               />
               {postsTotalPages > 1 && (
-                <PostPagination
-                  currentPage={postsPage}
-                  totalPages={postsTotalPages}
-                  onPageChange={setPostsPage}
-                />
+                <div className="flex justify-center mt-4">
+                  <Pagination
+                    currentPage={postsPage}
+                    totalPages={postsTotalPages}
+                    onPageChange={setPostsPage}
+                  />
+                </div>
               )}
             </>
           ) : (
@@ -147,9 +155,12 @@ export default function UserPostsPage() {
           ) : comments.length > 0 ? (
             <>
               <div className="space-y-3">
-                {comments.map((comment) => (
-                  <div
+                {comments.map((comment, index) => (
+                  <motion.div
                     key={comment.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 + index * 0.05 }}
                     className="bg-white rounded-lg border border-gray-200 p-4"
                   >
                     {/* 게시글 링크 */}
@@ -173,15 +184,17 @@ export default function UserPostsPage() {
                         <span className="ml-2">(수정됨)</span>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
               {commentsTotalPages > 1 && (
-                <PostPagination
-                  currentPage={commentsPage}
-                  totalPages={commentsTotalPages}
-                  onPageChange={setCommentsPage}
-                />
+                <div className="flex justify-center mt-4">
+                  <Pagination
+                    currentPage={commentsPage}
+                    totalPages={commentsTotalPages}
+                    onPageChange={setCommentsPage}
+                  />
+                </div>
               )}
             </>
           ) : (

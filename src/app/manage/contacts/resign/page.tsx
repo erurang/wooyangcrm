@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 
 import SnackbarComponent from "@/components/Snackbar";
@@ -14,8 +15,8 @@ import {
   ResignTable,
   ResignStatusModal,
   ResignDeleteModal,
-  ResignPagination,
 } from "@/components/manage/contacts/resign";
+import Pagination from "@/components/ui/Pagination";
 
 interface Contact {
   id: string;
@@ -25,10 +26,10 @@ interface Contact {
   level: string;
   email: string;
   company_id: string;
-  companies: {
+  companies?: {
     name: string;
   };
-  note: string;
+  note?: string;
 }
 
 export default function ContactsResignPage() {
@@ -182,7 +183,12 @@ export default function ContactsResignPage() {
 
   return (
     <div className="text-sm text-gray-800">
-      <ResignSearchFilter
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <ResignSearchFilter
         companyName={companyName}
         contactName={contactName}
         email={email}
@@ -232,18 +238,21 @@ export default function ContactsResignPage() {
       </div>
 
       <ResignTable
-        contacts={contacts || []}
+        contacts={(contacts as unknown as Contact[]) || []}
         isLoading={isContactsLoading}
         onChangeStatus={handleChangeResignStatus}
         onDelete={handleDeleteContact}
         hasSearchQuery={!!(companyName || contactName || email || mobile)}
       />
 
-      <ResignPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      <div className="flex justify-center mt-4">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+      </motion.div>
 
       <ResignStatusModal
         isOpen={isStatusModalOpen}

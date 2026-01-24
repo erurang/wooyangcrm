@@ -1,6 +1,26 @@
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 
+interface Contact {
+  id: string;
+  company_id: string;
+  contact_name: string;
+  mobile: string;
+  department: string;
+  level: string;
+  email: string;
+  resign: boolean;
+  note?: string;
+  companies?: {
+    name: string;
+  };
+}
+
+interface ContactsListResponse {
+  contacts: Contact[];
+  total: number;
+}
+
 export function useContactsList(
   page: number,
   limit: number,
@@ -10,7 +30,7 @@ export function useContactsList(
   companyName: string,
   resign: string
 ) {
-  const { data, error, isLoading, mutate } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR<ContactsListResponse>(
     `/api/manage/contacts?page=${page}&limit=${limit}&contact=${contactName}&email=${email}&mobile=${mobile}&company=${companyName}&resign=${resign}`,
     (url) => fetcher(url, { arg: { method: "GET" } }),
     { revalidateOnFocus: false }

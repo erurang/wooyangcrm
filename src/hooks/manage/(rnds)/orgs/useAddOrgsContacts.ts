@@ -12,7 +12,7 @@ interface OrgContact {
 
 export function useAddOrgsContacts() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/manage/orgs/contacts/add`,
+    `/api/manage/orgs/contacts`,
     fetcher
   );
 
@@ -23,7 +23,8 @@ export function useAddOrgsContacts() {
         body: { contacts, orgId },
       });
 
-      return response.contacts;
+      const result = response as { contacts?: unknown } | null;
+      return result?.contacts;
     } catch (error) {
       console.error("Error adding orgs contacts:", error);
       throw error;

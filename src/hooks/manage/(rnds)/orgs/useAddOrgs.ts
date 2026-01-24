@@ -13,11 +13,11 @@ interface OrgsData {
 
 export function useAddOrgs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/manage/orgs/add`,
+    `/api/manage/orgs`,
     fetcher
   );
 
-  const { mutate } = useSWR(`/api/manage/orgs/list/page`); // 🔹 SWR의 mutate 가져오기
+  const { mutate } = useSWR(`/api/manage/orgs`); // 🔹 SWR의 mutate 가져오기
 
   const addOrgs = async (orgsData: OrgsData) => {
     try {
@@ -26,12 +26,13 @@ export function useAddOrgs() {
         body: orgsData,
       });
 
-      if (!response?.orgs) {
+      const result = response as { orgs?: { id: string; name: string } } | null;
+      if (!result?.orgs) {
         throw new Error("orgs 추가 실패");
       }
       await mutate();
 
-      return response.orgs;
+      return result.orgs;
     } catch (error) {
       console.error("Error adding orgs:", error);
       throw error;

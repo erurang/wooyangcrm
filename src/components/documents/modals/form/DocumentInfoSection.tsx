@@ -2,34 +2,12 @@
 
 import { FileText, Calendar, Clock, User, CreditCard, MessageSquare, MapPin } from "lucide-react";
 import HeadlessSelect from "@/components/ui/HeadlessSelect";
-
-interface AppUser {
-  id: string;
-  name: string;
-}
+import type { NewDocument, AppUser, Contact } from "@/types/document";
 
 interface UserItem {
   id: string;
   name: string;
   level: string;
-}
-
-interface Contact {
-  resign: boolean | null;
-  id: string;
-  contact_name: string;
-  level: string;
-}
-
-interface NewDocument {
-  date: string;
-  created_at: string;
-  valid_until: string;
-  delivery_date: string;
-  delivery_date_note?: string;
-  payment_method: string;
-  contact: string;
-  delivery_place?: string;
 }
 
 // 납기 비고 프리셋 옵션 (기본값: 빠른시일내)
@@ -66,7 +44,7 @@ interface DocumentInfoSectionProps {
   user: AppUser;
   users?: UserItem[];
   newDocument: NewDocument;
-  setNewDocument: (doc: any) => void;
+  setNewDocument: (doc: NewDocument) => void;
   paymentMethods: string[];
   iconColor: string;
   focusClass: string;
@@ -236,19 +214,19 @@ export default function DocumentInfoSection({
         {/* 2행: 납기일 | 납기표시 | 직접입력(조건부) */}
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
           {/* 납기일 */}
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
               납기일 <span className="text-gray-400 text-xs">(내부)</span> <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <div className="relative overflow-hidden rounded-lg">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
               <input
                 type="date"
                 value={newDocument.delivery_date}
                 onChange={(e) =>
                   setNewDocument({ ...newDocument, delivery_date: e.target.value })
                 }
-                className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
               />
             </div>
           </div>
@@ -387,19 +365,19 @@ export default function DocumentInfoSection({
         {/* 2행: 견적유효기간(1칸) | 납품장소(2칸) */}
         <div className="mt-4 grid grid-cols-3 gap-3 sm:gap-5">
           {/* 견적유효기간 - 1칸 */}
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
               견적유효기간 <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <div className="relative overflow-hidden rounded-lg">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
               <input
                 type="date"
                 value={newDocument.valid_until}
                 onChange={(e) =>
                   setNewDocument({ ...newDocument, valid_until: e.target.value })
                 }
-                className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
               />
             </div>
           </div>
@@ -437,19 +415,19 @@ export default function DocumentInfoSection({
         {/* 3행: 납품일(내부) | 납기표시(문서) | 직접입력(조건부) */}
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
           {/* 납품일 (내부) */}
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
               납품일 <span className="text-gray-400 text-xs">(내부)</span> <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <div className="relative overflow-hidden rounded-lg">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
               <input
                 type="date"
                 value={newDocument.delivery_date}
                 onChange={(e) =>
                   setNewDocument({ ...newDocument, delivery_date: e.target.value })
                 }
-                className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
               />
             </div>
           </div>
@@ -528,35 +506,35 @@ export default function DocumentInfoSection({
         )}
 
         {/* 의뢰일 */}
-        <div>
+        <div className="min-w-0">
           <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
             의뢰일
           </label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <div className="relative overflow-hidden rounded-lg">
+            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
             <input
               type="date"
               disabled
               value={isAddMode ? newDocument.date : newDocument.created_at}
-              className="w-full pl-10 pr-3 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
+              className="w-full max-w-full pl-10 pr-3 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm box-border"
             />
           </div>
         </div>
 
         {/* 희망견적일 */}
-        <div>
+        <div className="min-w-0">
           <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
             희망견적일 <span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <div className="relative overflow-hidden rounded-lg">
+            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
             <input
               type="date"
               value={newDocument.delivery_date}
               onChange={(e) =>
                 setNewDocument({ ...newDocument, delivery_date: e.target.value })
               }
-              className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+              className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
             />
           </div>
         </div>

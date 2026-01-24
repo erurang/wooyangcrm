@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
+interface RecentConsultationCompany {
+  id: string;
+  name: string;
+}
+
+interface RecentConsultationRow {
+  id: string;
+  content: string;
+  date: string;
+  created_at: string;
+  companies: RecentConsultationCompany | RecentConsultationCompany[] | null;
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -40,14 +53,17 @@ export async function GET(request: Request) {
       );
     }
 
-    const formattedConsultations = (recentConsultations || []).map((rc: any) => ({
-      id: rc.id,
-      created_at: rc.created_at,
-      date: rc.date,
-      content: rc.content,
-      company_id: rc.companies?.id,
-      company_name: rc.companies?.name,
-    }));
+    const formattedConsultations = (recentConsultations || []).map((rc: RecentConsultationRow) => {
+      const company = Array.isArray(rc.companies) ? rc.companies[0] : rc.companies;
+      return {
+        id: rc.id,
+        created_at: rc.created_at,
+        date: rc.date,
+        content: rc.content,
+        company_id: company?.id,
+        company_name: company?.name,
+      };
+    });
 
     /** 📌 2️⃣ 최근 문서를 진행한 고객 리스트 가져오기 */
     const { data: recentDocuments, error: documentsError } = await supabase

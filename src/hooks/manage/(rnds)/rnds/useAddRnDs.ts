@@ -13,11 +13,11 @@ interface RnDsData {
 
 export function useAddRnDs() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/manage/rnds/add`,
+    `/api/manage/rnds`,
     fetcher
   );
 
-  const { mutate } = useSWR(`/api/manage/rnds/list`); // 🔹 SWR의 mutate 가져오기
+  const { mutate } = useSWR(`/api/manage/rnds`); // 🔹 SWR의 mutate 가져오기
 
   const addRnds = async (rndsData: RnDsData) => {
     try {
@@ -26,12 +26,13 @@ export function useAddRnDs() {
         body: rndsData,
       });
 
-      if (!response?.rnds) {
+      const result = response as { rnds?: unknown } | null;
+      if (!result?.rnds) {
         throw new Error("rnds 추가 실패");
       }
       await mutate();
 
-      return response.rnds;
+      return result.rnds;
     } catch (error) {
       console.error("Error adding rnds:", error);
       throw error;

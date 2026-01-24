@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   FileText,
   Plus,
@@ -22,6 +23,7 @@ import {
 import ApprovalList from "@/components/approvals/ApprovalList";
 import ApprovalFilters from "@/components/approvals/ApprovalFilters";
 import ApprovalFormModal from "@/components/approvals/ApprovalFormModal";
+import ApprovalStatistics from "@/components/approvals/ApprovalStatistics";
 import type { ApprovalListTab, ApprovalFilters as FilterType } from "@/types/approval";
 
 const TABS: { id: ApprovalListTab; label: string; icon: React.ReactNode }[] = [
@@ -146,8 +148,13 @@ export default function ApprovalsPage() {
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* 요약 카드 */}
-      {summary && (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        {/* 요약 카드 */}
+        {summary && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <SummaryCard
             icon={<Clock className="w-5 h-5 text-amber-600" />}
@@ -181,6 +188,9 @@ export default function ApprovalsPage() {
           />
         </div>
       )}
+
+      {/* 결재 통계 */}
+      <ApprovalStatistics userId={user?.id} compact />
 
       {/* 필터 및 탭 */}
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
@@ -314,6 +324,7 @@ export default function ApprovalsPage() {
           </div>
         )}
       </div>
+      </motion.div>
 
       {/* 새 결재 모달 */}
       <ApprovalFormModal

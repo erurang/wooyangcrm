@@ -14,7 +14,7 @@ interface NewContact {
 
 export function useAddContacts() {
   const { trigger, isMutating, error } = useSWRMutation(
-    `/api/contacts/add`,
+    `/api/contacts`,
     fetcher
   );
 
@@ -25,11 +25,12 @@ export function useAddContacts() {
         body: { contacts, companyId },
       });
 
-      if (!response?.contacts) {
+      const result = response as { contacts?: unknown[] } | null;
+      if (!result?.contacts) {
         throw new Error("담당자 추가 실패");
       }
 
-      return response.contacts;
+      return result.contacts;
     } catch (error) {
       console.error("Error adding contacts:", error);
       throw error;

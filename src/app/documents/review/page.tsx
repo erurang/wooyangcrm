@@ -12,13 +12,12 @@ import {
   User,
   Building,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   Filter,
   RefreshCw,
   BarChart3,
   TrendingDown,
 } from "lucide-react";
+import Pagination from "@/components/ui/Pagination";
 import HeadlessSelect from "@/components/ui/HeadlessSelect";
 import { useLoginUser } from "@/context/login";
 import { useDocumentsReview } from "@/hooks/documents/useDocumentsReview";
@@ -130,7 +129,7 @@ export default function DocumentsReviewPage() {
   useEffect(() => {
     if (highlightId && !highlightFetched) {
       setHighlightFetched(true);
-      fetch(`/api/documents/status/list?documentId=${highlightId}`)
+      fetch(`/api/documents/status?documentId=${highlightId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.documents && data.documents.length > 0) {
@@ -621,7 +620,7 @@ export default function DocumentsReviewPage() {
                         <button
                           onClick={() => goToCompany(doc.company_id)}
                           className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline truncate max-w-[100px] block"
-                          title={doc.company_name}
+                          title={doc.company_name || undefined}
                         >
                           {doc.company_name}
                         </button>
@@ -643,7 +642,7 @@ export default function DocumentsReviewPage() {
                         </div>
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap">
-                        {getStatusBadge(doc.status, doc.review_reason)}
+                        {getStatusBadge(doc.status, doc.review_reason || "")}
                       </td>
                       <td className="px-3 py-2">
                         <div className="text-xs text-slate-500 max-w-[120px] truncate" title={doc.review_reason || doc.status_reason?.canceled?.reason || doc.status_reason?.completed?.reason}>
@@ -684,27 +683,15 @@ export default function DocumentsReviewPage() {
           )}
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-3 py-2 border-t border-slate-200 bg-slate-50">
+            <div className="flex flex-col items-center gap-2 px-3 py-3 border-t border-slate-200 bg-slate-50">
               <div className="text-xs text-slate-500">
                 {(currentPage - 1) * 30 + 1}-{Math.min(currentPage * 30, total)} / {total}
               </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="p-1.5 rounded border border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-xs text-slate-600 px-2">{currentPage} / {totalPages}</span>
-                <button
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  className="p-1.5 rounded border border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           )}
         </motion.div>
@@ -717,13 +704,13 @@ export default function DocumentsReviewPage() {
             ...selectedDocument,
             content: {
               items: selectedDocument.content?.items || [],
-              company_name: selectedDocument.company_name,
-              notes: selectedDocument.notes,
+              company_name: selectedDocument.company_name ?? undefined,
+              notes: selectedDocument.notes ?? undefined,
               total_amount: selectedDocument.total_amount,
-              valid_until: selectedDocument.valid_until,
-              delivery_term: selectedDocument.delivery_term,
-              delivery_place: selectedDocument.delivery_place,
-              delivery_date: selectedDocument.delivery_date,
+              valid_until: selectedDocument.valid_until ?? undefined,
+              delivery_term: selectedDocument.delivery_term ?? undefined,
+              delivery_place: selectedDocument.delivery_place ?? undefined,
+              delivery_date: selectedDocument.delivery_date ?? undefined,
               payment_method: selectedDocument.payment_method,
             },
           }}

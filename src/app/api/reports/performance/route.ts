@@ -4,6 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 type DocumentType = "estimate" | "order";
 type DocumentStatus = "pending" | "completed" | "canceled";
 
+interface DocumentContentItem {
+  name?: string;
+  amount?: number | string;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const userId = searchParams.get("userId") || "";
@@ -91,7 +96,7 @@ export async function GET(req: NextRequest) {
 
       // 제품 데이터 처리
       if (doc.content.items && Array.isArray(doc.content.items)) {
-        doc.content.items.forEach((item: any) => {
+        doc.content.items.forEach((item: DocumentContentItem) => {
           const productName = item.name || "Unknown";
           const productAmount =
             typeof item.amount === "number"

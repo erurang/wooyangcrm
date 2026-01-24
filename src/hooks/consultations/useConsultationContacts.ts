@@ -1,8 +1,12 @@
 import { fetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 
+interface ConsultationContactsResponse {
+  contactsConsultations: unknown[];
+}
+
 export function useConsultationContacts(consultationIds: string[]) {
-  const { data, error, mutate } = useSWR(
+  const { data, error, mutate } = useSWR<ConsultationContactsResponse>(
     consultationIds.length
       ? `/api/consultations/contacts?consultationIds=${consultationIds}`
       : null,

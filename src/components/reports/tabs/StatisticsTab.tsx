@@ -398,7 +398,7 @@ export default function StatisticsTab({
           </div>
         </div>
 
-        {/* 전년 대비 (새 컴포넌트) */}
+        {/* 전년 대비 매출 비교 */}
         <TrendComparisonChart
           title={`${year}년 vs ${year - 1}년 매출 비교`}
           currentYearData={filteredStats.map((s) => s.sales)}
@@ -414,6 +414,26 @@ export default function StatisticsTab({
               : v.toLocaleString()
           }
           showGrowth={true}
+          color="#3b82f6"
+        />
+
+        {/* 전년 대비 매입 비교 */}
+        <TrendComparisonChart
+          title={`${year}년 vs ${year - 1}년 매입 비교`}
+          currentYearData={filteredStats.map((s) => s.purchases)}
+          previousYearData={filteredPrevStats.map((s) => s.purchases)}
+          categories={filteredStats.map((s) => `${s.month}월`)}
+          currentYearLabel={`${year}년`}
+          previousYearLabel={`${year - 1}년`}
+          valueFormatter={(v) =>
+            v >= 100000000
+              ? `${(v / 100000000).toFixed(1)}억`
+              : v >= 10000
+              ? `${(v / 10000).toFixed(0)}만`
+              : v.toLocaleString()
+          }
+          showGrowth={true}
+          color="#10b981"
         />
       </div>
 

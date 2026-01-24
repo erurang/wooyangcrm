@@ -18,6 +18,7 @@ import { useLoginUser } from "@/context/login";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 import { useDebounce } from "@/hooks/useDebounce";
+import { motion } from "framer-motion";
 
 type SourceType = "all" | "consultation" | "post" | "comment";
 
@@ -210,7 +211,12 @@ export default function MyFilesPage() {
   return (
     <div className="text-sm">
       {/* 헤더 */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-slate-800">내 파일</h1>
@@ -257,7 +263,7 @@ export default function MyFilesPage() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* 파일 목록 */}
       {isLoading ? (
@@ -269,11 +275,14 @@ export default function MyFilesPage() {
         </div>
       ) : files.length > 0 ? (
         <div className="space-y-3">
-          {files.map((file) => {
+          {files.map((file, index) => {
             const isHighlighted = highlightId === file.id;
             return (
-            <div
+            <motion.div
               key={`${file.source_type}-${file.id}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
               ref={isHighlighted ? highlightRef : null}
               className={`bg-white border rounded-xl p-4 hover:border-amber-300 hover:shadow-md transition-all ${
                 isHighlighted ? "bg-amber-50 border-amber-300 ring-2 ring-amber-200" : "border-slate-200"
@@ -334,7 +343,7 @@ export default function MyFilesPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
             );
           })}
         </div>

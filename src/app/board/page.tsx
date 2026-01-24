@@ -9,7 +9,7 @@ import { uploadPostFile } from "@/lib/postFiles";
 import { useDebounce } from "@/hooks/useDebounce";
 import PostList from "@/components/board/PostList";
 import PostSearchFilter from "@/components/board/PostSearchFilter";
-import PostPagination from "@/components/board/PostPagination";
+import Pagination from "@/components/ui/Pagination";
 import PostFormModal from "@/components/board/modals/PostFormModal";
 import DeletePostModal from "@/components/board/modals/DeletePostModal";
 import BoardDashboard from "@/components/board/BoardDashboard";
@@ -349,11 +349,13 @@ export default function BoardPage() {
 
           {/* 페이지네이션 */}
           {!isLoading && posts.length > 0 && (
-            <PostPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
+            <div className="flex justify-center px-4 pb-4">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
           )}
         </>
       )}

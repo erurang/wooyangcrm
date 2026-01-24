@@ -18,6 +18,12 @@ import {
   type SubMenuItem,
 } from "@/constants/navigation";
 
+interface Favorite {
+  id: string;
+  name: string;
+  item_id: string;
+}
+
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
@@ -44,7 +50,7 @@ export default function Header() {
   // Add favorites section if available
   let favoritesSection = null;
   if (!isLoading && !isError) {
-    const favItems: SubMenuItem[] = (favorites || []).map((fav: any) => ({
+    const favItems: SubMenuItem[] = (favorites || []).map((fav: Favorite) => ({
       id: `fav-${fav.id}`,
       title: fav.name,
       path: `/consultations/${fav.item_id}`,
