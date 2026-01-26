@@ -67,7 +67,9 @@ export async function fetchExchangeRatesFromKoreaExim(
   }
 
   const searchDate = formatDateForApi(date || new Date());
-  const url = `https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=${apiKey}&searchdate=${searchDate}&data=AP01`;
+  // API 키에 특수문자가 있을 수 있으므로 URL 인코딩
+  const encodedApiKey = encodeURIComponent(apiKey);
+  const url = `https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=${encodedApiKey}&searchdate=${searchDate}&data=AP01`;
 
   console.log("Fetching exchange rate for date:", searchDate);
 
