@@ -108,6 +108,7 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
       { id: "consultation-calendar", title: "상담 캘린더", path: "/consultations/calendar" },
       { id: "recent", title: "상담내역 조회", path: "/consultations/recent" },
       { id: "follow", title: "후속상담 검색", path: "/consultations/follow" },
+      { id: "domestic-shipping", title: "배송현황", path: "/shipping/domestic" },
     ],
   },
   {
@@ -119,7 +120,7 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
       { id: "overseas-orders", title: "발주 관리", path: "/overseas/orders" },
       { id: "overseas-consultations", title: "상담내역 조회", path: "/overseas/consultations" },
       { id: "customs-costs", title: "통관비용", path: "/overseas/customs-costs" },
-      { id: "shipping", title: "배송 현황", path: "/shipping" },
+      { id: "shipping", title: "FedEx 배송현황", path: "/shipping" },
     ],
   },
   {

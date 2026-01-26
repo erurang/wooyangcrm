@@ -43,7 +43,7 @@ import {
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import type { CarrierType, ShippingTrackingFormData } from "@/types/shipping";
 
-type TabType = "fedex" | "sne" | "domestic";
+type TabType = "fedex";
 
 // 타임라인 이벤트 타입
 interface TimelineEvent {
@@ -239,20 +239,6 @@ export default function ShippingPage() {
       count: fedexTrackings.length,
       color: "purple",
     },
-    {
-      id: "sne" as TabType,
-      label: "SNE",
-      icon: Ship,
-      count: 0,
-      color: "blue",
-    },
-    {
-      id: "domestic" as TabType,
-      label: "국내배송",
-      icon: Truck,
-      count: 0,
-      color: "green",
-    },
   ];
 
   return (
@@ -264,9 +250,9 @@ export default function ShippingPage() {
             <Package className="w-5 h-5 text-indigo-600" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">배송 현황</h1>
+            <h1 className="text-xl font-bold text-gray-900">FedEx 배송현황</h1>
             <p className="text-sm text-gray-500">
-              FedEx / SNE / 국내배송 통합 관리
+              FedEx 국제배송 추적 관리
             </p>
           </div>
         </div>
@@ -586,28 +572,6 @@ export default function ShippingPage() {
         </>
       )}
 
-      {/* SNE 탭 콘텐츠 */}
-      {activeTab === "sne" && (
-        <div className="text-center py-12 bg-gray-50 rounded-xl">
-          <Ship className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 mb-2">SNE 배송 추적 준비 중</p>
-          <p className="text-sm text-gray-400">
-            SNE API 연동 후 이용 가능합니다.
-          </p>
-        </div>
-      )}
-
-      {/* 국내배송 탭 콘텐츠 */}
-      {activeTab === "domestic" && (
-        <div className="text-center py-12 bg-gray-50 rounded-xl">
-          <Truck className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 mb-2">국내 배송 추적 준비 중</p>
-          <p className="text-sm text-gray-400">
-            스마트택배 API 연동 후 이용 가능합니다.
-          </p>
-        </div>
-      )}
-
       {/* 송장 등록 모달 */}
       {showAddModal && (
         <AddTrackingModal
@@ -634,9 +598,6 @@ function AddTrackingModal({
   onSuccess: () => void;
 }) {
   const [trackingNumber, setTrackingNumber] = useState("");
-  const [memo, setMemo] = useState("");
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -657,9 +618,6 @@ function AddTrackingModal({
     const data: ShippingTrackingFormData = {
       carrier: carrier as CarrierType,
       tracking_number: trackingNumber.trim(),
-      memo: memo.trim() || undefined,
-      origin: origin.trim() || undefined,
-      destination: destination.trim() || undefined,
     };
 
     const result = await addShippingTracking(data);
@@ -673,19 +631,12 @@ function AddTrackingModal({
     setIsSubmitting(false);
   };
 
-  const carrierLabels: Record<string, string> = {
-    fedex: "FedEx",
-    sne: "SNE",
-    logen: "로젠택배",
-    kyungdong: "경동택배",
-  };
-
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold text-gray-900">
-            {carrierLabels[carrier]} 송장 등록
+            FedEx 송장 등록
           </h2>
           <button
             onClick={onClose}
@@ -712,49 +663,12 @@ function AddTrackingModal({
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
               placeholder="예: 888143594286"
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono"
               autoFocus
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                출발지
-              </label>
-              <input
-                type="text"
-                value={origin}
-                onChange={(e) => setOrigin(e.target.value)}
-                placeholder="예: Seoul, KR"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                도착지
-              </label>
-              <input
-                type="text"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                placeholder="예: Los Angeles, US"
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              메모
-            </label>
-            <input
-              type="text"
-              value={memo}
-              onChange={(e) => setMemo(e.target.value)}
-              placeholder="예: ABC사 샘플 발송"
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
+            <p className="mt-1 text-xs text-gray-500">
+              FedEx 송장번호를 입력하세요
+            </p>
           </div>
 
           <div className="flex gap-2 pt-2">
@@ -1098,8 +1012,8 @@ function TrackingDetailModal({
                         <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-indigo-500 rounded-full"></div>
 
                         <div className="space-y-4">
-                          {detail.timeline.map((event, idx) => {
-                            const isLatest = idx === 0;
+                          {[...detail.timeline].reverse().map((event, idx, arr) => {
+                            const isLatest = idx === arr.length - 1;
                             const isDelivered = event.description?.toLowerCase().includes("deliver") ||
                                                event.description?.includes("배송완료") ||
                                                event.description?.includes("배달완료");
@@ -1522,10 +1436,10 @@ function TrackingDetailDropdown({
         <div className="max-h-64 overflow-y-auto">
           {detail.timeline && detail.timeline.length > 0 ? (
             <div className="relative pl-4">
-              <div className="absolute left-[7px] top-1 bottom-1 w-0.5 bg-indigo-400 rounded-full" />
+              <div className="absolute left-[23px] top-1 bottom-1 w-0.5 bg-indigo-400 rounded-full" />
               <div className="space-y-3">
-                {detail.timeline.map((event, idx) => {
-                  const isLatest = idx === 0;
+                {[...detail.timeline].reverse().map((event, idx, arr) => {
+                  const isLatest = idx === arr.length - 1;
                   return (
                     <div key={idx} className="flex gap-3 relative">
                       <div

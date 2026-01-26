@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   try {
     const body: ShippingTrackingFormData = await req.json();
 
-    const { carrier, tracking_number, order_id, order_type, origin, destination, memo } = body;
+    const { carrier, carrier_code, tracking_number, order_id, order_type, origin, destination, memo } = body;
 
     if (!carrier || !tracking_number) {
       return NextResponse.json(
@@ -87,6 +87,7 @@ export async function POST(req: NextRequest) {
 
     const newTracking = {
       carrier,
+      carrier_code: carrier_code || null,
       tracking_number,
       order_id: order_id || null,
       order_type: order_type || null,

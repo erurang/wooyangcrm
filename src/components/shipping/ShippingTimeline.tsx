@@ -40,9 +40,9 @@ export default function ShippingTimeline({
     );
   }
 
-  // 역순 정렬 (최신이 위로)
+  // 시간순 정렬 (과거 → 최신)
   const sortedTimeline = [...timeline].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
   return (
@@ -61,10 +61,10 @@ export default function ShippingTimeline({
       {/* 타임라인 */}
       <div className="relative pl-6">
         {/* 세로 선 */}
-        <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-gray-200" />
+        <div className="absolute left-[17px] top-2 bottom-2 w-0.5 bg-gray-200" />
 
-        {sortedTimeline.map((event, index) => {
-          const isFirst = index === 0;
+        {sortedTimeline.map((event, index, arr) => {
+          const isLatest = index === arr.length - 1;
           const isDelivered = event.status === "delivered";
           const Icon = statusIcons[event.status] || MapPin;
 
@@ -79,7 +79,7 @@ export default function ShippingTimeline({
               {/* 아이콘 */}
               <div
                 className={`absolute -left-4 w-5 h-5 rounded-full flex items-center justify-center ${
-                  isFirst
+                  isLatest
                     ? isDelivered
                       ? "bg-green-500 text-white"
                       : "bg-blue-500 text-white"
@@ -91,7 +91,7 @@ export default function ShippingTimeline({
 
               {/* 내용 */}
               <div
-                className={`ml-4 ${isFirst ? "font-medium" : "text-gray-600"}`}
+                className={`ml-4 ${isLatest ? "font-medium" : "text-gray-600"}`}
               >
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-gray-400">
@@ -104,7 +104,7 @@ export default function ShippingTimeline({
                     </span>
                   )}
                 </div>
-                <p className={`mt-0.5 ${isFirst ? "text-gray-900" : "text-gray-700"}`}>
+                <p className={`mt-0.5 ${isLatest ? "text-gray-900" : "text-gray-700"}`}>
                   {event.description}
                 </p>
               </div>

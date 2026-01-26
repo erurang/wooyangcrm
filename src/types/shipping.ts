@@ -1,13 +1,32 @@
 // 배송 추적 타입
 
 // 택배사 타입
-export type CarrierType = "fedex" | "sne" | "logen" | "kyungdong";
+export type CarrierType = "fedex" | "sne" | "domestic" | "logen" | "kyungdong";
 
 export const CARRIER_LABELS: Record<CarrierType, string> = {
   fedex: "FedEx",
   sne: "SNE",
+  domestic: "국내택배",
   logen: "로젠택배",
   kyungdong: "경동택배",
+};
+
+// 국내 택배사 코드 (스마트택배 API 기준)
+export type DomesticCarrierCode =
+  | "04"  // CJ대한통운
+  | "06"  // 로젠택배
+  | "05"  // 한진택배
+  | "08"  // 롯데택배
+  | "01"  // 우체국택배
+  | "23"; // 경동택배
+
+export const DOMESTIC_CARRIER_LABELS: Record<DomesticCarrierCode, string> = {
+  "04": "CJ대한통운",
+  "06": "로젠택배",
+  "05": "한진택배",
+  "08": "롯데택배",
+  "01": "우체국택배",
+  "23": "경동택배",
 };
 
 // 배송 상태
@@ -36,6 +55,7 @@ export interface ShippingTracking {
   order_id?: string; // overseas_orders 연결 (선택)
   order_type?: "overseas_order" | "outbound"; // 연결된 주문 타입
   carrier: CarrierType;
+  carrier_code?: DomesticCarrierCode; // 국내택배 상세 코드
   tracking_number: string;
   origin?: string; // 출발지
   destination?: string; // 도착지
@@ -51,6 +71,7 @@ export interface ShippingTracking {
 // 배송 추적 폼 데이터
 export interface ShippingTrackingFormData {
   carrier: CarrierType;
+  carrier_code?: DomesticCarrierCode; // 국내택배 상세 코드
   tracking_number: string;
   order_id?: string;
   order_type?: "overseas_order" | "outbound";
