@@ -184,7 +184,9 @@ export function generateEstimatePrintHTML(
   doc: PrintDocumentData,
   options: PrintOptions
 ): string {
-  const dateStr = doc.date || new Date().toISOString().split("T")[0];
+  // ISO timestamp 형식 처리: "2026-01-27T00:00:00.000Z" -> "2026-01-27"
+  const rawDate = doc.date || new Date().toISOString();
+  const dateStr = rawDate.split("T")[0];
   const [year, month, day] = dateStr.split("-").map(Number);
   const { company_phone, company_fax, koreanAmount } = options;
 
@@ -335,7 +337,9 @@ export function generateOrderPrintHTML(
   doc: PrintDocumentData,
   options: PrintOptions
 ): string {
-  const dateStr = doc.date || new Date().toISOString().split("T")[0];
+  // ISO timestamp 형식 처리: "2026-01-27T00:00:00.000Z" -> "2026-01-27"
+  const rawDate = doc.date || new Date().toISOString();
+  const dateStr = rawDate.split("T")[0];
   const [year, month, day] = dateStr.split("-").map(Number);
   const { company_phone, company_fax, koreanAmount } = options;
 
@@ -480,7 +484,9 @@ export function generateRequestQuotePrintHTML(
   doc: PrintDocumentData,
   options: PrintOptions
 ): string {
-  const dateStr = doc.date || new Date().toISOString().split("T")[0];
+  // ISO timestamp 형식 처리: "2026-01-27T00:00:00.000Z" -> "2026-01-27"
+  const rawDate = doc.date || new Date().toISOString();
+  const dateStr = rawDate.split("T")[0];
   const [year, month, day] = dateStr.split("-").map(Number);
   const { company_phone, company_fax } = options;
 

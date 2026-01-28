@@ -54,7 +54,55 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   // ESC 키로 모달 닫기
   useEscapeKey(true, onClose);
 
-  const [year, month, day] = document?.date.split("-").map(Number);
+  // 날짜 파싱 (NaN 방지) - 안전한 숫자 변환
+  const safeParseInt = (value: string | undefined): number => {
+    if (!value) return NaN;
+    // 숫자만 추출 (앞의 숫자들만)
+    const match = value.trim().match(/^(\d+)/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+    return NaN;
+  };
+
+  const parseDate = (dateInput: string | undefined | null): { year: number; month: number; day: number } => {
+    const now = new Date();
+    const fallback = { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
+
+    if (!dateInput || typeof dateInput !== 'string') {
+      return fallback;
+    }
+
+    // 공백 제거 및 정리
+    const cleanDate = dateInput.trim();
+
+    // YYYY-MM-DD 형식 시도
+    const parts = cleanDate.split("-");
+    if (parts.length >= 3) {
+      const y = safeParseInt(parts[0]);
+      const m = safeParseInt(parts[1]);
+      const d = safeParseInt(parts[2]);
+
+      // 모든 값이 유효한 숫자인지 확인
+      if (!isNaN(y) && !isNaN(m) && !isNaN(d) && y > 0 && m > 0 && m <= 12 && d > 0 && d <= 31) {
+        return { year: y, month: m, day: d };
+      }
+    }
+
+    // Date 객체로 파싱 시도
+    const dateObj = new Date(cleanDate);
+    if (!isNaN(dateObj.getTime())) {
+      return {
+        year: dateObj.getFullYear(),
+        month: dateObj.getMonth() + 1,
+        day: dateObj.getDate()
+      };
+    }
+
+    return fallback;
+  };
+
+  const { year, month, day } = parseDate(document?.date);
 
   const formatContentWithLineBreaks = (content: string) => {
     return content.split("\n").map((line, index) => (
