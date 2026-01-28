@@ -2,6 +2,66 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 import { logDocumentOperation, logUserActivity } from "@/lib/apiLogger";
 
+interface DocumentItem {
+  product_id?: string;
+  unit_price?: number;
+  original_unit_price?: number;
+  name?: string;
+  spec?: string;
+}
+
+/**
+ * 단가 변경 시 이력 기록 및 별칭 업데이트
+ */
+async function trackPriceChanges(
+  items: DocumentItem[],
+  companyId: string,
+  documentId: string,
+  documentType: string,
+  documentDate: string
+) {
+  const priceType = documentType === "order" || documentType === "requestQuote" ? "purchase" : "sales";
+
+  for (const item of items) {
+    // product_id가 있고, 단가가 변경된 경우에만 처리
+    if (
+      item.product_id &&
+      item.original_unit_price !== undefined &&
+      item.unit_price !== undefined &&
+      item.unit_price !== item.original_unit_price
+    ) {
+      try {
+        // 1. 단가 이력 기록
+        await supabase.from("product_price_history").insert({
+          product_id: item.product_id,
+          company_id: companyId,
+          price_type: priceType,
+          unit_price: item.unit_price,
+          previous_price: item.original_unit_price,
+          spec: item.spec || null,
+          document_id: documentId,
+          effective_date: documentDate || new Date().toISOString().split("T")[0],
+        });
+
+        // 2. 별칭 단가 업데이트 (해당 회사+제품+타입의 별칭)
+        await supabase
+          .from("company_product_aliases")
+          .update({ external_unit_price: item.unit_price })
+          .eq("product_id", item.product_id)
+          .eq("company_id", companyId)
+          .eq("alias_type", priceType);
+
+        console.log(
+          `[PriceTrack] ${item.name}: ${item.original_unit_price} → ${item.unit_price}`
+        );
+      } catch (error) {
+        console.error("[PriceTrack] Error:", error);
+        // 단가 추적 실패해도 문서 저장은 계속 진행
+      }
+    }
+  }
+}
+
 /**
  * GET /api/documents/type
  * 문서 타입별 목록 조회
@@ -127,6 +187,17 @@ export async function POST(req: NextRequest) {
 
     const document_id = data.id;
 
+    // 단가 변동 추적 (자동 학습)
+    if (contentData.items && contentData.items.length > 0) {
+      await trackPriceChanges(
+        contentData.items,
+        company_id,
+        document_id,
+        type,
+        date || new Date().toISOString().split("T")[0]
+      );
+    }
+
     if (contact_id) {
       await supabase.from("contacts_documents").insert({
         document_id,
@@ -215,6 +286,17 @@ export async function PATCH(req: NextRequest) {
       .single();
 
     if (error) throw error;
+
+    // 단가 변동 추적 (자동 학습)
+    if (contentData.items && contentData.items.length > 0 && oldDocument?.company_id) {
+      await trackPriceChanges(
+        contentData.items,
+        oldDocument.company_id,
+        document_id,
+        oldDocument.type,
+        date || oldDocument.date || new Date().toISOString().split("T")[0]
+      );
+    }
 
     if (contact_id) {
       await supabase

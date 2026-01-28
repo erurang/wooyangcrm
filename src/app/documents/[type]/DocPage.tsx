@@ -292,6 +292,7 @@ const DocPage = () => {
         setStatusReason={setStatusReason}
         highlightId={highlightId}
         companyAddress={company?.address || ""}
+        companyId={companyId}
       />
 
       <DocDeleteModal

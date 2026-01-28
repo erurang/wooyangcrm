@@ -1,7 +1,8 @@
 "use client";
 
 import type React from "react";
-import { Plus, RotateCcw, Building2, MapPin, User, Search } from "lucide-react";
+import { Plus, RotateCcw, Building2, MapPin, User, Search, FlaskConical } from "lucide-react";
+import Link from "next/link";
 
 interface SearchFiltersProps {
   searchTerm: string;
@@ -96,6 +97,16 @@ export default function SearchFilters({
               className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
             />
           </div>
+
+          {/* 실험실 바로가기 버튼 */}
+          <Link
+            href="/consultations/1ef367e7-2807-491a-8852-183b392fa3e7"
+            className="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800 rounded-lg transition-colors shadow-sm"
+          >
+            <FlaskConical className="h-4 w-4" />
+            <span className="hidden sm:inline">실험실</span>
+            <span className="sm:hidden">Lab</span>
+          </Link>
 
           {/* 필터 초기화 */}
           {hasFilters && (

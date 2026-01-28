@@ -124,6 +124,8 @@ export interface Product {
   aliases?: CompanyProductAlias[];
 }
 
+export type AliasType = "purchase" | "sales";
+
 export interface CompanyProductAlias {
   id: string;
   company_id: string;
@@ -132,11 +134,15 @@ export interface CompanyProductAlias {
     name: string;
   };
   product_id: string;
+  alias_type: AliasType;
   external_code: string | null;
-  external_name: string | null;
+  external_name: string;
   external_spec: string | null;
+  external_unit: string | null;
   external_unit_price: number | null;
-  notes: string | null;
+  is_default: boolean;
+  use_count: number;
+  last_used_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -303,15 +309,69 @@ export interface ProductionRecordFilters {
   search?: string;
 }
 
+// 단가 이력 타입
+export type PriceType = "purchase" | "sales";
+
+export interface ProductPriceHistory {
+  id: string;
+  product_id: string;
+  product?: {
+    id: string;
+    internal_name: string;
+    internal_code: string;
+  };
+  company_id: string | null;
+  company?: {
+    id: string;
+    name: string;
+  };
+  alias_id: string | null;
+  price_type: PriceType;
+  unit_price: number;
+  previous_price: number | null;
+  price_change: number | null;
+  price_change_percent: number | null;
+  spec: string | null;
+  document_id: string | null;
+  document_type: string | null;
+  effective_date: string;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface ProductPriceHistoryStats {
+  count: number;
+  minPrice: number;
+  maxPrice: number;
+  avgPrice: number;
+  latestPrice: number;
+  previousPrice: number;
+  priceChange: number;
+  priceChangePercent: number;
+}
+
 // 회사별 제품 별칭 생성 요청
 export interface CompanyProductAliasCreateRequest {
   company_id: string;
   product_id: string;
+  alias_type: AliasType;
   external_code?: string;
-  external_name?: string;
+  external_name: string;
   external_spec?: string;
+  external_unit?: string;
   external_unit_price?: number;
-  notes?: string;
+}
+
+// document_items 생성 요청
+export interface DocumentItemCreateRequest {
+  product_id?: string;
+  name: string;
+  spec?: string;
+  quantity: string;
+  unit?: string;
+  unit_price: number;
+  amount: number;
 }
 
 // 타입 별칭 (호환성)

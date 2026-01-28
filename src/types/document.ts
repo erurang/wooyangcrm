@@ -15,6 +15,32 @@ export interface DocumentItem {
   unit?: string;
 }
 
+// DB 테이블 기반 DocumentItem (document_items 테이블)
+export interface DocumentItemDB {
+  id: string;
+  document_id: string;
+  product_id: string | null;
+  item_number: number;
+  name: string;
+  spec: string | null;
+  internal_name: string | null;
+  internal_spec: string | null;
+  quantity: string;
+  unit: string | null;
+  unit_price: number;
+  amount: number;
+  created_at: string;
+  updated_at: string;
+  // 조인된 데이터
+  product?: {
+    id: string;
+    internal_code: string;
+    internal_name: string;
+    spec: string | null;
+    current_stock: number;
+  };
+}
+
 // content는 items만 포함 (나머지 필드는 별도 컬럼으로 분리됨)
 // 레거시 호환성을 위해 선택적 필드 포함
 export interface DocumentContent {

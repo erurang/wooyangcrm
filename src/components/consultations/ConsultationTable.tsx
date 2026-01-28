@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Edit, Trash2, FileText, ChevronLeft, ChevronRight, Paperclip } from "lucide-react";
+import { Edit, Trash2, FileText, ChevronLeft, ChevronRight, Paperclip, FlaskConical } from "lucide-react";
 import type { ProcessedConsultation } from "@/types/consultation";
 import { CONTACT_METHOD_LABELS, type ContactMethod } from "@/types/consultation";
 import EmptyState from "@/components/ui/EmptyState";
@@ -513,6 +513,34 @@ export default function ConsultationTable({
                             </span>
                           )}
                         </button>
+
+                        {/* 재고연동 문서 테스트 - 특정 회사에서만 표시 */}
+                        {companyId === "1ef367e7-2807-491a-8852-183b392fa3e7" && (
+                          <>
+                            <button
+                              className="flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 active:bg-blue-200 transition-colors active:scale-95"
+                              onClick={() => window.open(
+                                `/documents/test?consultId=${consultation.id}&compId=${companyId}&type=estimate`,
+                                "_blank",
+                                "width=1200,height=800,top=100,left=100"
+                              )}
+                            >
+                              <FlaskConical size={14} />
+                              재고연동 견적
+                            </button>
+                            <button
+                              className="flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 active:bg-indigo-200 transition-colors active:scale-95"
+                              onClick={() => window.open(
+                                `/documents/test?consultId=${consultation.id}&compId=${companyId}&type=order`,
+                                "_blank",
+                                "width=1200,height=800,top=100,left=100"
+                              )}
+                            >
+                              <FlaskConical size={14} />
+                              재고연동 발주
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

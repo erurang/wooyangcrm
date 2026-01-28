@@ -66,6 +66,7 @@ interface EsitmateProps {
   setStatusReason: React.Dispatch<React.SetStateAction<StatusReason>>;
   highlightId?: string | null;
   companyAddress?: string;
+  companyId?: string;
 }
 
 export default function Estimate({
@@ -104,6 +105,7 @@ export default function Estimate({
   setStatusReason,
   highlightId,
   companyAddress,
+  companyId,
 }: EsitmateProps) {
   const getDocumentTypeText = () => {
     switch (type) {
@@ -185,6 +187,7 @@ export default function Estimate({
           saving={saving}
           contacts={contacts}
           companyAddress={companyAddress}
+          companyId={companyId}
         />
       )}
 
@@ -211,6 +214,7 @@ export default function Estimate({
           saving={saving}
           contacts={contacts}
           companyAddress={companyAddress}
+          companyId={companyId}
         />
       )}
 

@@ -46,6 +46,9 @@ interface CompaniesTableProps {
   hasSearchQuery?: boolean;
 }
 
+// 실험실 거래처 ID (테이블에서 숨김)
+const LAB_COMPANY_ID = "1ef367e7-2807-491a-8852-183b392fa3e7";
+
 export default function CompaniesTable({
   companies,
   isLoading,
@@ -61,6 +64,9 @@ export default function CompaniesTable({
 }: CompaniesTableProps) {
   const router = useRouter();
   const isDesktop = useIsDesktop();
+
+  // 실험실 거래처 제외
+  const filteredCompanies = companies.filter(c => c.id !== LAB_COMPANY_ID);
 
   return (
     <div className="p-3 sm:p-4">
@@ -98,12 +104,12 @@ export default function CompaniesTable({
             <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mb-3"></div>
             <span className="text-sm text-slate-500">불러오는 중...</span>
           </div>
-        ) : companies && companies.length > 0 ? (
+        ) : filteredCompanies && filteredCompanies.length > 0 ? (
           <>
             {/* 모바일: 카드 레이아웃 - JS 기반 조건부 렌더링 */}
             {!isDesktop && (
             <div className="divide-y divide-slate-100">
-              {companies.map((company: Company) => (
+              {filteredCompanies.map((company: Company) => (
                 <div
                   key={company.id}
                   className="p-3 active:bg-slate-50"
@@ -192,7 +198,7 @@ export default function CompaniesTable({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {companies.map((company: Company) => (
+                  {filteredCompanies.map((company: Company) => (
                     <tr
                       key={company.id}
                       className="hover:bg-slate-50 transition-colors cursor-pointer"
