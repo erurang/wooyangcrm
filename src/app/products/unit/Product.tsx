@@ -29,8 +29,8 @@ export default function ProductPage() {
   const user = useLoginUser();
   const type = searchParams.get("type") as "estimate" | "order";
 
-  // 뷰 모드 상태 (list: 목록, grouped: 그룹핑) - 기본값: 그룹핑
-  const [viewMode, setViewMode] = useState<"list" | "grouped">("grouped");
+  // 뷰 모드 상태 (list: 목록, grouped: 그룹핑) - 기본값: 목록
+  const [viewMode, setViewMode] = useState<"list" | "grouped">("list");
 
   // 검색 필터 상태
   const [searchCompany, setSearchCompany] = useState("");

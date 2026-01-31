@@ -1,9 +1,25 @@
 "use client";
 
 import { X, FileText, Building2, Calendar, Package } from "lucide-react";
-import type { InventoryTaskWithDetails, InventoryItem } from "@/types/inventory";
+import type { InventoryTaskWithDetails, InventoryItem, DocumentItemDB } from "@/types/inventory";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import dayjs from "dayjs";
+
+// 품목 데이터 가져오기 헬퍼 (document_items 테이블 우선, 없으면 content.items 폴백)
+function getTaskItems(task: InventoryTaskWithDetails): InventoryItem[] {
+  // 신규: document_items 테이블에서 조인된 데이터
+  if (task.document?.items && task.document.items.length > 0) {
+    return task.document.items.map((item: DocumentItemDB) => ({
+      name: item.name,
+      spec: item.spec || undefined,
+      quantity: item.quantity,
+      unit: item.unit || undefined,
+      number: item.item_number,
+    }));
+  }
+  // 레거시: content.items JSONB
+  return (task.document?.content?.items || []) as InventoryItem[];
+}
 
 interface DocumentDetailModalProps {
   task: InventoryTaskWithDetails | null;
@@ -21,7 +37,7 @@ export default function DocumentDetailModal({
 
   if (!isOpen || !task) return null;
 
-  const items = (task.document?.content?.items || []) as InventoryItem[];
+  const items = getTaskItems(task);
   const isInbound = task.task_type === "inbound";
 
   return (

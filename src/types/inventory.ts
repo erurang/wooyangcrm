@@ -2,6 +2,7 @@
 
 export type InventoryTaskType = "inbound" | "outbound";
 export type InventoryTaskStatus = "pending" | "assigned" | "completed" | "canceled";
+export type InventoryTaskSource = "document" | "overseas"; // 문서 기반 vs 해외 상담 기반
 
 // 재고 작업 (입고/출고)
 export interface InventoryTask {
@@ -24,8 +25,25 @@ export interface InventoryTask {
   updated_at: string;
 }
 
+// document_items 테이블에서 가져온 품목 (DB 기반)
+export interface DocumentItemDB {
+  id: string;
+  item_number: number;
+  name: string;
+  spec: string | null;
+  quantity: string;
+  unit: string | null;
+  unit_price: number;
+  amount: number;
+  product_id: string | null;
+}
+
 // 작업 + 관계 데이터
 export interface InventoryTaskWithDetails extends InventoryTask {
+  // 데이터 출처 구분 (document: 기존 문서 기반, overseas: 해외 상담 기반)
+  source?: InventoryTaskSource;
+  // 해외 상담 ID (overseas 타입인 경우)
+  consultation_id?: string;
   document?: {
     id: string;
     document_number: string;
@@ -34,11 +52,35 @@ export interface InventoryTaskWithDetails extends InventoryTask {
     content: {
       items: InventoryItem[];
     };
+    // document_items 테이블에서 조인된 품목 (신규)
+    items?: DocumentItemDB[];
     delivery_date: string | null;
     valid_until: string | null;
     total_amount: number;
   };
+  // 해외 상담 정보 (overseas 타입인 경우)
+  consultation?: {
+    id: string;
+    date: string;
+    content: string;
+    order_type: "import" | "export";
+    trade_status: string;
+    order_date: string | null;
+    expected_completion_date: string | null;
+    pickup_date: string | null;
+    arrival_date: string | null;
+    oc_number: string | null;
+    overseas_company?: {
+      id: string;
+      name: string;
+    };
+  };
   company?: {
+    id: string;
+    name: string;
+  };
+  // 해외 거래처 정보 (overseas 타입인 경우)
+  overseas_company?: {
     id: string;
     name: string;
   };

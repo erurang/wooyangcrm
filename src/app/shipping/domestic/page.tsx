@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import {
   Package,
   RefreshCw,
@@ -15,6 +15,7 @@ import {
   Clock,
   ChevronRight,
   Info,
+  Calendar,
 } from "lucide-react";
 import {
   useShippingTrackings,
@@ -77,23 +78,57 @@ interface DomesticTrackingResult {
   error?: string;
 }
 
+// 날짜 유틸리티 함수
+function getDateString(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
+function getDefaultDateRange() {
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - 1); // 1달 전
+  return {
+    startDate: getDateString(startDate),
+    endDate: getDateString(endDate),
+  };
+}
+
 export default function DomesticShippingPage() {
+  const defaultRange = useMemo(() => getDefaultDateRange(), []);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedTracking, setSelectedTracking] = useState<string | null>(null);
   const [trackingResults, setTrackingResults] = useState<Record<string, DomesticTrackingResult>>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // DB에서 등록된 국내택배 송장번호 목록 조회
+  // 날짜 필터 상태 (기본: 최근 1달)
+  const [startDate, setStartDate] = useState(defaultRange.startDate);
+  const [endDate, setEndDate] = useState(defaultRange.endDate);
+
+  // DB에서 등록된 국내택배 송장번호 목록 조회 (날짜 필터 적용)
   const {
     trackings,
     isLoading: trackingsLoading,
     mutate: refreshTrackings,
-  } = useShippingTrackings("domestic");
+  } = useShippingTrackings({
+    carrier: "domestic",
+    startDate,
+    endDate,
+  });
 
-  // 배송 상태 조회
+  // 배송 상태 조회 (캐시된 결과가 있으면 API 호출 안함)
   const fetchTrackingStatus = useCallback(async (tracking: ShippingTracking) => {
     try {
+      // 이미 배송완료된 건이고 캐시가 있으면 캐시 사용
+      if (tracking.is_completed && tracking.cached_result) {
+        const cachedResult = tracking.cached_result as DomesticTrackingResult;
+        setTrackingResults((prev) => ({
+          ...prev,
+          [tracking.tracking_number]: cachedResult,
+        }));
+        return cachedResult;
+      }
+
       const carrierCode = tracking.carrier_code || "04"; // CJ대한통운
       const response = await fetch(
         `/api/domestic/track/${tracking.tracking_number}?carrier=${carrierCode}`
@@ -215,8 +250,54 @@ export default function DomesticShippingPage() {
         </div>
       </div>
 
-      {/* 검색 */}
-      <div className="mb-6">
+      {/* 검색 및 필터 */}
+      <div className="mb-6 space-y-3">
+        {/* 날짜 필터 */}
+        <div className="flex flex-wrap items-center gap-3 p-3 bg-white rounded-lg border">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Calendar className="w-4 h-4" />
+            <span>기간</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+            <span className="text-gray-400">~</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            onClick={() => {
+              const range = getDefaultDateRange();
+              setStartDate(range.startDate);
+              setEndDate(range.endDate);
+            }}
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            최근 1달
+          </button>
+          <button
+            onClick={() => {
+              const endDate = new Date();
+              const startDate = new Date();
+              startDate.setMonth(startDate.getMonth() - 3);
+              setStartDate(getDateString(startDate));
+              setEndDate(getDateString(endDate));
+            }}
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            최근 3달
+          </button>
+        </div>
+
+        {/* 검색 */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input

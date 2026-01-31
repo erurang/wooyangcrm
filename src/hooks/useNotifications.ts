@@ -55,22 +55,29 @@ export interface Notification {
 
 interface NotificationsResponse {
   notifications: Notification[];
+  total: number;
+  page: number;
+  totalPages: number;
+  hasMore: boolean;
 }
 
-const fetcher = async (url: string): Promise<Notification[]> => {
+interface UseNotificationsOptions {
+  limit?: number;
+}
+
+const fetcher = async (url: string): Promise<NotificationsResponse> => {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error("알림 조회 실패");
   }
-  const data: NotificationsResponse = await response.json();
-  return data.notifications;
+  return response.json();
 };
 
-export function useNotifications(userId: string | undefined) {
-  console.log("useNotifications called with userId:", userId);
+export function useNotifications(userId: string | undefined, options: UseNotificationsOptions = {}) {
+  const { limit = 10 } = options;
 
-  const { data, error, isLoading, mutate } = useSWR<Notification[]>(
-    userId ? `/api/notifications?userId=${userId}` : null,
+  const { data, error, isLoading, mutate } = useSWR<NotificationsResponse>(
+    userId ? `/api/notifications?userId=${userId}&limit=${limit}` : null,
     fetcher,
     {
       refreshInterval: 30000, // 30초마다 자동 새로고침
@@ -79,9 +86,9 @@ export function useNotifications(userId: string | undefined) {
     }
   );
 
-  console.log("useNotifications data:", { data, error, isLoading });
-
-  const unreadCount = data?.filter((n) => !n.read).length || 0;
+  const unreadCount = data?.notifications?.filter((n) => !n.read).length || 0;
+  const hasMore = data?.hasMore || false;
+  const total = data?.total || 0;
 
   const markAsRead = async (notificationId: number) => {
     try {
@@ -124,8 +131,10 @@ export function useNotifications(userId: string | undefined) {
   };
 
   return {
-    notifications: data || [],
+    notifications: data?.notifications || [],
     unreadCount,
+    total,
+    hasMore,
     isLoading,
     isError: !!error,
     markAsRead,

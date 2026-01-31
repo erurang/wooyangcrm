@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Plus, Search, Globe, X } from "lucide-react";
+import { Plus, Search, Globe, X, Kanban } from "lucide-react";
+import Link from "next/link";
 
 import SnackbarComponent from "@/components/Snackbar";
 import {
@@ -199,13 +200,22 @@ export default function OverseasCompaniesPage() {
                 <p className="text-xs text-slate-500">해외 거래처를 관리합니다</p>
               </div>
             </div>
-            <button
-              onClick={openAddModal}
-              className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-            >
-              <Plus size={16} />
-              거래처 추가
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/overseas/status"
+                className="flex items-center gap-2 px-4 py-2 text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+              >
+                <Kanban size={16} />
+                거래 현황
+              </Link>
+              <button
+                onClick={openAddModal}
+                className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                <Plus size={16} />
+                거래처 추가
+              </button>
+            </div>
           </div>
 
           {/* 검색 필터 */}

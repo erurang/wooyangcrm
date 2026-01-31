@@ -22,10 +22,18 @@ export async function DELETE(request: Request) {
       .eq("id", documentId)
       .single();
 
+    // 관련 테이블 먼저 삭제 (FK 제약 때문)
     await supabase
       .from("contacts_documents")
       .delete()
       .eq("document_id", documentId);
+
+    // document_items 삭제 (v2 문서용)
+    await supabase
+      .from("document_items")
+      .delete()
+      .eq("document_id", documentId);
+
     const { error } = await supabase
       .from("documents")
       .delete()

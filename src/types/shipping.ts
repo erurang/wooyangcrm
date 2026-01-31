@@ -54,6 +54,8 @@ export interface ShippingTracking {
   id: string;
   order_id?: string; // overseas_orders 연결 (선택)
   order_type?: "overseas_order" | "outbound"; // 연결된 주문 타입
+  company_id?: string; // 연결된 거래처 ID
+  company?: { id: string; name: string }; // 거래처 정보 (조인)
   carrier: CarrierType;
   carrier_code?: DomesticCarrierCode; // 국내택배 상세 코드
   tracking_number: string;
@@ -66,6 +68,10 @@ export interface ShippingTracking {
   created_by?: string; // 등록자 ID
   created_at: string;
   updated_at?: string;
+  // 캐싱 관련 (배송완료 건)
+  cached_result?: Record<string, unknown>; // 배송완료 시 조회 결과 캐시
+  is_completed?: boolean; // 배송완료 여부
+  completed_at?: string; // 배송완료 시각
 }
 
 // 배송 추적 폼 데이터
@@ -75,6 +81,7 @@ export interface ShippingTrackingFormData {
   tracking_number: string;
   order_id?: string;
   order_type?: "overseas_order" | "outbound";
+  company_id?: string; // 연결할 거래처 ID
   origin?: string;
   destination?: string;
   memo?: string;

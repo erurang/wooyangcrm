@@ -12,3 +12,7 @@ export { default as CustomsCostTable } from "./customs/CustomsCostTable";
 export { default as CustomsCostFormModal } from "./customs/CustomsCostFormModal";
 export { default as CustomsCostStats } from "./customs/CustomsCostStats";
 export { default as CustomsCostFilters } from "./customs/CustomsCostFilters";
+
+// Split Shipment Components
+export { default as SplitShipmentSection } from "./SplitShipmentSection";
+export { default as CreateSplitShipmentModal } from "./CreateSplitShipmentModal";

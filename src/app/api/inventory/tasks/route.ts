@@ -5,7 +5,63 @@ import type {
   InventoryTaskWithDetails,
 } from "@/types/inventory";
 
-// GET: 재고 작업 목록 조회
+// 해외 상담을 inventory task 형태로 변환
+function transformOverseasConsultation(
+  consultation: any,
+  taskType: "inbound" | "outbound"
+): InventoryTaskWithDetails {
+  // 수입: 입고예정일, 수출: 출고예정일 사용
+  const expectedDate =
+    taskType === "inbound"
+      ? consultation.arrival_date
+      : consultation.pickup_date;
+
+  // 상태 결정: arrived면 completed, 그 외는 pending
+  let status: "pending" | "completed" = "pending";
+  if (taskType === "inbound" && consultation.trade_status === "arrived") {
+    status = "completed";
+  } else if (taskType === "outbound" && consultation.trade_status === "shipped") {
+    status = "completed";
+  }
+
+  return {
+    id: `overseas-${consultation.id}`,
+    document_id: "", // 해외 상담은 document_id 없음
+    document_number: consultation.oc_number || `OC-${consultation.id.slice(0, 8).toUpperCase()}`,
+    document_type: taskType === "inbound" ? "order" : "estimate",
+    task_type: taskType,
+    company_id: consultation.overseas_company_id || "",
+    expected_date: expectedDate,
+    status,
+    assigned_to: null,
+    assigned_by: null,
+    assigned_at: null,
+    completed_by: null,
+    completed_at: status === "completed" ? consultation.updated_at : null,
+    notes: null,
+    created_at: consultation.created_at,
+    updated_at: consultation.updated_at,
+    // 추가 필드
+    source: "overseas",
+    consultation_id: consultation.id,
+    consultation: {
+      id: consultation.id,
+      date: consultation.date,
+      content: consultation.content,
+      order_type: consultation.order_type,
+      trade_status: consultation.trade_status,
+      order_date: consultation.order_date,
+      expected_completion_date: consultation.expected_completion_date,
+      pickup_date: consultation.pickup_date,
+      arrival_date: consultation.arrival_date,
+      oc_number: consultation.oc_number,
+      overseas_company: consultation.overseas_company,
+    },
+    overseas_company: consultation.overseas_company,
+  };
+}
+
+// GET: 재고 작업 목록 조회 (문서 기반 + 해외 상담 기반)
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -19,14 +75,20 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const overdue = searchParams.get("overdue") === "true";
+    // 해외 상담 포함 여부 (기본: true)
+    const includeOverseas = searchParams.get("include_overseas") !== "false";
 
+    // 1. 기존 문서 기반 재고 작업 조회
     let query = supabase
       .from("inventory_tasks")
       .select(
         `
         *,
         document:documents!inventory_tasks_document_id_fkey (
-          id, document_number, type, date, content, delivery_date, valid_until, total_amount
+          id, document_number, type, date, content, delivery_date, valid_until, total_amount,
+          items:document_items (
+            id, item_number, name, spec, quantity, unit, unit_price, amount, product_id
+          )
         ),
         company:companies!inventory_tasks_company_id_fkey (
           id, name
@@ -89,22 +151,125 @@ export async function GET(request: Request) {
       );
     }
 
-    // 페이지네이션
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
-    query = query.range(from, to);
+    const { data: documentTasks, error: docError, count: docCount } = await query;
 
-    const { data, error, count } = await query;
-
-    if (error) {
-      throw new Error(`재고 작업 조회 실패: ${error.message}`);
+    if (docError) {
+      throw new Error(`재고 작업 조회 실패: ${docError.message}`);
     }
 
-    const totalPages = Math.ceil((count || 0) / limit);
+    // source 필드 추가
+    const documentTasksWithSource = (documentTasks || []).map((task) => ({
+      ...task,
+      source: "document" as const,
+    }));
+
+    // 2. 해외 상담 기반 작업 조회 (task_type이 지정되고 includeOverseas가 true인 경우)
+    let overseasTasks: InventoryTaskWithDetails[] = [];
+    let overseasCount = 0;
+
+    if (includeOverseas && task_type && !assigned_to) {
+      // 해외 상담 조회 조건
+      // inbound: order_type="import" AND trade_status IN ("in_transit") - 운송중 상태
+      // outbound: order_type="export" AND expected_completion_date IS NOT NULL AND trade_status NOT IN ("shipped", "in_transit", "arrived")
+
+      let overseasQuery = supabase
+        .from("consultations")
+        .select(
+          `
+          id, date, content, created_at, updated_at,
+          order_type, trade_status, order_date, expected_completion_date,
+          pickup_date, arrival_date, oc_number, overseas_company_id,
+          overseas_company:overseas_companies!consultations_overseas_company_id_fkey (
+            id, name
+          )
+        `,
+          { count: "exact" }
+        );
+
+      if (task_type === "inbound") {
+        // 수입: 운송중 상태인 것들
+        overseasQuery = overseasQuery
+          .eq("order_type", "import")
+          .in("trade_status", ["in_transit"]);
+      } else {
+        // 수출: 생산완료예정일이 있고 아직 출고 안 된 것들
+        overseasQuery = overseasQuery
+          .eq("order_type", "export")
+          .not("expected_completion_date", "is", null)
+          .not("trade_status", "in", "(shipped,in_transit,arrived)");
+      }
+
+      // 날짜 필터
+      if (date_from) {
+        if (task_type === "inbound") {
+          overseasQuery = overseasQuery.gte("arrival_date", date_from);
+        } else {
+          overseasQuery = overseasQuery.gte("expected_completion_date", date_from);
+        }
+      }
+
+      if (date_to) {
+        if (task_type === "inbound") {
+          overseasQuery = overseasQuery.lte("arrival_date", date_to);
+        } else {
+          overseasQuery = overseasQuery.lte("expected_completion_date", date_to);
+        }
+      }
+
+      // 검색
+      if (search) {
+        overseasQuery = overseasQuery.or(
+          `oc_number.ilike.%${search}%,content.ilike.%${search}%`
+        );
+      }
+
+      // 상태 필터
+      if (status === "completed") {
+        if (task_type === "inbound") {
+          overseasQuery = overseasQuery.eq("trade_status", "arrived");
+        } else {
+          overseasQuery = overseasQuery.eq("trade_status", "shipped");
+        }
+      } else if (status === "pending") {
+        // 완료되지 않은 것만
+        if (task_type === "inbound") {
+          overseasQuery = overseasQuery.neq("trade_status", "arrived");
+        } else {
+          overseasQuery = overseasQuery.neq("trade_status", "shipped");
+        }
+      }
+
+      overseasQuery = overseasQuery.order("created_at", { ascending: false });
+
+      const { data: overseasData, error: overseasError, count: overseasCountResult } = await overseasQuery;
+
+      if (!overseasError && overseasData) {
+        overseasTasks = overseasData.map((c) =>
+          transformOverseasConsultation(c, task_type)
+        );
+        overseasCount = overseasCountResult || 0;
+      }
+    }
+
+    // 3. 병합 및 정렬
+    const allTasks = [...documentTasksWithSource, ...overseasTasks];
+
+    // expected_date 기준으로 내림차순 정렬
+    allTasks.sort((a, b) => {
+      const dateA = a.expected_date || a.created_at;
+      const dateB = b.expected_date || b.created_at;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
+
+    // 페이지네이션 (클라이언트 사이드)
+    const totalCount = (docCount || 0) + overseasCount;
+    const from = (page - 1) * limit;
+    const paginatedTasks = allTasks.slice(from, from + limit);
+    const totalPages = Math.ceil(totalCount / limit);
 
     return NextResponse.json({
-      tasks: data || [],
-      total: count || 0,
+      tasks: paginatedTasks,
+      total: totalCount,
       page,
       totalPages,
     });

@@ -41,8 +41,42 @@ import type {
   SpecSheetField,
   SpecSheetPage,
   InventoryItem,
+  DocumentItemDB,
 } from "@/types/inventory";
 import { isOverdue } from "@/types/inventory";
+
+// 품목 데이터 가져오기 헬퍼 (document_items 테이블 우선, 없으면 content.items 폴백)
+function getTaskItems(task: InventoryTaskWithDetails): InventoryItem[] {
+  // 해외 상담 기반 작업인 경우 (품목 없음, 상담 내용 사용)
+  if (task.source === "overseas") {
+    return [];
+  }
+  // 신규: document_items 테이블에서 조인된 데이터
+  if (task.document?.items && task.document.items.length > 0) {
+    return task.document.items.map((item: DocumentItemDB) => ({
+      name: item.name,
+      spec: item.spec || undefined,
+      quantity: item.quantity,
+      unit: item.unit || undefined,
+      number: item.item_number,
+    }));
+  }
+  // 레거시: content.items JSONB
+  return (task.document?.content?.items || []) as InventoryItem[];
+}
+
+// 해외 상담 작업인지 확인
+function isOverseasTask(task: InventoryTaskWithDetails): boolean {
+  return task.source === "overseas";
+}
+
+// 거래처 이름 가져오기 (해외/국내 구분)
+function getCompanyName(task: InventoryTaskWithDetails): string {
+  if (task.source === "overseas") {
+    return task.overseas_company?.name || task.consultation?.overseas_company?.name || "해외 거래처";
+  }
+  return task.company?.name || "거래처";
+}
 import { AlertTriangle } from "lucide-react";
 import { CircularProgress } from "@mui/material";
 import DocumentDetailModal from "@/components/inventory/DocumentDetailModal";
@@ -52,7 +86,19 @@ import ErrorState from "@/components/ui/ErrorState";
 const getDefaultFields = (
   task: InventoryTaskWithDetails
 ): SpecSheetField[] => {
-  const items = (task.document?.content?.items || []) as InventoryItem[];
+  // 해외 상담 기반 작업
+  if (isOverseasTask(task)) {
+    return [
+      { id: "1", label: "발송업체", value: getCompanyName(task) },
+      { id: "2", label: "O/C No.", value: task.consultation?.oc_number || task.document_number || "" },
+      { id: "3", label: "품명", value: task.consultation?.content?.slice(0, 100) || "" },
+      { id: "4", label: "입고일자", value: task.expected_date || "" },
+      { id: "5", label: "박스 No.", value: "" },
+    ];
+  }
+
+  // 문서 기반 작업
+  const items = getTaskItems(task);
   const productNames = items.map((p) => p.name).join(", ");
   const specs = items.map((p) => p.spec || "-").join(", ");
   const quantities = items.map((p) => `${p.quantity}${p.unit || "개"}`).join(", ");
@@ -123,7 +169,7 @@ export default function InboundPage() {
   const tasks = searchQuery
     ? rawTasks.filter(t => {
         const query = searchQuery.toLowerCase();
-        const items = (t.document?.content?.items || []) as InventoryItem[];
+        const items = getTaskItems(t);
         const productNames = items.map(p => p.name?.toLowerCase() || "").join(" ");
         return (
           t.company?.name?.toLowerCase().includes(query) ||
@@ -209,7 +255,9 @@ export default function InboundPage() {
 
   const handleConfirm = async (taskId: string) => {
     if (!loginUser) return;
-    const result = await completeTask(taskId, loginUser.id);
+    // 해외 상담 작업인 경우 task_type 전달
+    const isOverseas = taskId.startsWith("overseas-");
+    const result = await completeTask(taskId, loginUser.id, isOverseas ? "inbound" : undefined);
     if (result.success) {
       handleRefresh();
     }
@@ -361,7 +409,7 @@ export default function InboundPage() {
       id: Date.now().toString(),
       itemId: task.id,
       documentNumber: task.document_number,
-      companyName: task.company?.name || "",
+      companyName: getCompanyName(task),
       fields: getDefaultFields(task),
     };
     setSpecSheetPages([specPage]);
@@ -379,7 +427,7 @@ export default function InboundPage() {
         id: Date.now().toString() + task.id,
         itemId: task.id,
         documentNumber: task.document_number,
-        companyName: task.company?.name || "",
+        companyName: getCompanyName(task),
         fields: getDefaultFields(task),
       }));
 
@@ -881,7 +929,7 @@ export default function InboundPage() {
       {/* 모바일: 카드 레이아웃 */}
       <div className="md:hidden space-y-4">
         {tasks.map((task) => {
-          const items = (task.document?.content?.items || []) as InventoryItem[];
+          const items = getTaskItems(task);
           const isHighlighted = highlightedTaskId === task.id;
           const isTaskOverdue = isOverdue(task);
           return (
@@ -945,7 +993,12 @@ export default function InboundPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
                     <Building2 className="h-4 w-4 text-gray-400" />
-                    {task.company?.name}
+                    {getCompanyName(task)}
+                    {isOverseasTask(task) && (
+                      <span className="ml-1 text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">
+                        해외
+                      </span>
+                    )}
                   </div>
                   <button
                     onClick={() =>
@@ -961,30 +1014,43 @@ export default function InboundPage() {
                   </button>
                 </div>
 
-                {/* 물품 목록 */}
+                {/* 물품 목록 또는 상담 내용 */}
                 <div className="bg-gray-50 rounded-md p-3">
-                  <div className="text-xs text-gray-500 mb-2">물품</div>
-                  <div className="space-y-1">
-                    {items.map((product, idx) => (
-                      <div
-                        key={idx}
-                        className="text-sm flex items-center justify-between"
-                      >
-                        <span>
-                          <span className="font-medium text-gray-900">
-                            {product.name}
-                          </span>
-                          <span className="text-gray-500 ml-1">
-                            {product.spec}
-                          </span>
-                        </span>
-                        <span className="text-emerald-600 font-medium">
-                          {product.quantity}
-                          {product.unit || "개"}
-                        </span>
+                  {isOverseasTask(task) ? (
+                    /* 해외 상담: 상담 내용 표시 */
+                    <>
+                      <div className="text-xs text-gray-500 mb-2">상담 내용</div>
+                      <div className="text-sm text-gray-700 line-clamp-3">
+                        {task.consultation?.content || "-"}
                       </div>
-                    ))}
-                  </div>
+                    </>
+                  ) : (
+                    /* 문서 기반: 물품 목록 */
+                    <>
+                      <div className="text-xs text-gray-500 mb-2">물품</div>
+                      <div className="space-y-1">
+                        {items.map((product, idx) => (
+                          <div
+                            key={idx}
+                            className="text-sm flex items-center justify-between"
+                          >
+                            <span>
+                              <span className="font-medium text-gray-900">
+                                {product.name}
+                              </span>
+                              <span className="text-gray-500 ml-1">
+                                {product.spec}
+                              </span>
+                            </span>
+                            <span className="text-emerald-600 font-medium">
+                              {product.quantity}
+                              {product.unit || "개"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* 담당자 정보 */}
@@ -1081,8 +1147,7 @@ export default function InboundPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {tasks.map((task) => {
-                  const items = (task.document?.content?.items ||
-                    []) as InventoryItem[];
+                  const items = getTaskItems(task);
                   const isHighlighted = highlightedTaskId === task.id;
                   const isTaskOverdue = isOverdue(task);
                   return (
@@ -1129,31 +1194,44 @@ export default function InboundPage() {
                       <td className="px-4 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-1 text-sm text-gray-900">
                           <Building2 className="h-4 w-4 text-gray-400" />
-                          {task.company?.name}
+                          {getCompanyName(task)}
+                          {isOverseasTask(task) && (
+                            <span className="ml-1 text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">
+                              해외
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="space-y-1">
-                          {items.slice(0, 3).map((product, idx) => (
-                            <div key={idx} className="text-sm">
-                              <span className="font-medium text-gray-900">
-                                {product.name}
-                              </span>
-                              <span className="text-gray-500 ml-2">
-                                {product.spec}
-                              </span>
-                              <span className="text-emerald-600 ml-2 font-medium">
-                                {product.quantity}
-                                {product.unit || "개"}
-                              </span>
-                            </div>
-                          ))}
-                          {items.length > 3 && (
-                            <div className="text-xs text-gray-400">
-                              외 {items.length - 3}건
-                            </div>
-                          )}
-                        </div>
+                        {isOverseasTask(task) ? (
+                          /* 해외 상담: 상담 내용 표시 */
+                          <div className="text-sm text-gray-700 line-clamp-2">
+                            {task.consultation?.content || "-"}
+                          </div>
+                        ) : (
+                          /* 문서 기반: 물품 목록 */
+                          <div className="space-y-1">
+                            {items.slice(0, 3).map((product, idx) => (
+                              <div key={idx} className="text-sm">
+                                <span className="font-medium text-gray-900">
+                                  {product.name}
+                                </span>
+                                <span className="text-gray-500 ml-2">
+                                  {product.spec}
+                                </span>
+                                <span className="text-emerald-600 ml-2 font-medium">
+                                  {product.quantity}
+                                  {product.unit || "개"}
+                                </span>
+                              </div>
+                            ))}
+                            {items.length > 3 && (
+                              <div className="text-xs text-gray-400">
+                                외 {items.length - 3}건
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <button

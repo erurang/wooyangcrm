@@ -85,7 +85,10 @@ export async function GET(
         `
         *,
         document:documents!inventory_tasks_document_id_fkey (
-          id, document_number, type, date, content, delivery_date, valid_until, total_amount, user_id
+          id, document_number, type, date, content, delivery_date, valid_until, total_amount, user_id,
+          items:document_items (
+            id, item_number, name, spec, quantity, unit, unit_price, amount, product_id
+          )
         ),
         company:companies!inventory_tasks_company_id_fkey (
           id, name
@@ -141,6 +144,103 @@ async function getCompanyName(companyId: string): Promise<string> {
   return data?.name || "거래처";
 }
 
+// 해외 상담 작업 업데이트 헬퍼
+async function updateOverseasConsultation(
+  consultationId: string,
+  taskType: "inbound" | "outbound",
+  body: {
+    expected_date?: string | null;
+    status?: string;
+    user_id?: string;
+  }
+) {
+  const { expected_date, status, user_id } = body;
+
+  // 기존 상담 조회
+  const { data: consultation, error: fetchError } = await supabase
+    .from("consultations")
+    .select(`
+      *,
+      overseas_company:overseas_companies!consultations_overseas_company_id_fkey(id, name)
+    `)
+    .eq("id", consultationId)
+    .single();
+
+  if (fetchError || !consultation) {
+    return { error: "해외 상담을 찾을 수 없습니다", status: 404 };
+  }
+
+  const updateData: Record<string, unknown> = {};
+
+  // 예정일 변경
+  if (expected_date !== undefined) {
+    if (taskType === "inbound") {
+      // 수입: 입고예정일 = arrival_date
+      updateData.arrival_date = expected_date;
+    } else {
+      // 수출: 출고예정일 = pickup_date
+      updateData.pickup_date = expected_date;
+    }
+  }
+
+  // 상태 변경 (완료 처리)
+  if (status === "completed") {
+    const today = new Date().toISOString().split("T")[0];
+    if (taskType === "inbound") {
+      // 수입 입고확인 → trade_status를 "arrived"로
+      updateData.trade_status = "arrived";
+      if (!consultation.arrival_date) {
+        updateData.arrival_date = today;
+      }
+    } else {
+      // 수출 출고확인 → trade_status를 "shipped"로
+      updateData.trade_status = "shipped";
+      if (!consultation.pickup_date) {
+        updateData.pickup_date = today;
+      }
+    }
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    return {
+      success: true,
+      message: "변경 사항이 없습니다",
+      consultation,
+    };
+  }
+
+  // 업데이트
+  const { data, error } = await supabase
+    .from("consultations")
+    .update(updateData)
+    .eq("id", consultationId)
+    .select(`
+      *,
+      overseas_company:overseas_companies!consultations_overseas_company_id_fkey(id, name)
+    `)
+    .single();
+
+  if (error) {
+    return { error: `해외 상담 수정 실패: ${error.message}`, status: 500 };
+  }
+
+  // 로그 기록
+  await supabase.from("logs").insert({
+    table_name: "consultations",
+    operation: "UPDATE",
+    record_id: consultationId,
+    old_data: { trade_status: consultation.trade_status, arrival_date: consultation.arrival_date, pickup_date: consultation.pickup_date },
+    new_data: updateData,
+    changed_by: user_id || null,
+  });
+
+  return {
+    success: true,
+    message: "해외 상담이 수정되었습니다",
+    consultation: data,
+  };
+}
+
 // PATCH: 재고 작업 수정 (예정일, 메모, 상태 등)
 export async function PATCH(
   request: Request,
@@ -151,6 +251,31 @@ export async function PATCH(
     const body = await request.json();
     const { expected_date, notes, status, assigned_to, user_id, cancel_reason } = body;
 
+    // 해외 상담 작업인지 확인 (ID가 "overseas-"로 시작)
+    if (id.startsWith("overseas-")) {
+      const consultationId = id.replace("overseas-", "");
+      // task_type은 body에서 받거나, 기본값 사용
+      const taskType = body.task_type || "inbound";
+      const result = await updateOverseasConsultation(consultationId, taskType, body);
+
+      if (result.error) {
+        return NextResponse.json({ error: result.error }, { status: result.status || 500 });
+      }
+
+      // 성공 응답 (기존 형식과 호환)
+      return NextResponse.json({
+        message: result.message,
+        task: {
+          id,
+          source: "overseas",
+          consultation_id: consultationId,
+          status: status === "completed" ? "completed" : "pending",
+          consultation: result.consultation,
+        },
+      });
+    }
+
+    // 기존 문서 기반 재고 작업 처리
     // 기존 데이터 조회
     const { data: oldData, error: fetchError } = await supabase
       .from("inventory_tasks")
@@ -214,7 +339,10 @@ export async function PATCH(
         `
         *,
         document:documents!inventory_tasks_document_id_fkey (
-          id, document_number, type, date, content, delivery_date, valid_until, total_amount
+          id, document_number, type, date, content, delivery_date, valid_until, total_amount,
+          items:document_items (
+            id, item_number, name, spec, quantity, unit, unit_price, amount, product_id
+          )
         ),
         company:companies!inventory_tasks_company_id_fkey (
           id, name

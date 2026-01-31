@@ -10,15 +10,66 @@ export async function PATCH(
   const { id } = await params; // URL 파라미터에서 상담 ID 추출
   const body = await req.json(); // 요청에서 수정할 데이터 추출
 
+  console.log("[PATCH consultation] id:", id);
+  console.log("[PATCH consultation] body:", JSON.stringify(body, null, 2));
+
+  // contact_id는 별도 테이블에서 처리, user_id는 FK 제약조건용으로 추출
+  const { contact_id, user_id, ...consultationData } = body;
+
+  // user_id는 consultationData에도 포함시켜야 함
+  if (user_id) {
+    consultationData.user_id = user_id;
+  }
+
+  console.log("[PATCH consultation] contact_id:", contact_id, "type:", typeof contact_id);
+  console.log("[PATCH consultation] user_id:", user_id);
+
   // 상담 데이터를 업데이트
   const { data, error } = await supabase
     .from("consultations")
-    .update(body) // body의 데이터를 업데이트
+    .update(consultationData) // contact_id 제외한 데이터를 업데이트
     .eq("id", id); // 특정 ID의 데이터만 업데이트
 
   if (error) {
     // 에러 발생 시 에러 메시지 반환
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // contact_id가 있으면 contacts_consultations 테이블 업데이트
+  if (contact_id !== undefined) {
+    console.log("[PATCH consultation] Processing contact_id:", contact_id);
+
+    // 기존 연결 삭제
+    const { error: deleteError, count: deleteCount } = await supabase
+      .from("contacts_consultations")
+      .delete()
+      .eq("consultation_id", id);
+
+    console.log("[PATCH consultation] Delete result - count:", deleteCount, "error:", deleteError?.message);
+
+    // 새로운 연결 추가 (contact_id가 유효한 경우만)
+    if (contact_id && typeof contact_id === 'string' && contact_id.trim() !== "") {
+      console.log("[PATCH consultation] Inserting new contact link:", { consultation_id: id, contact_id, user_id });
+
+      const { data: insertData, error: insertError } = await supabase
+        .from("contacts_consultations")
+        .insert([{
+          consultation_id: id,
+          contact_id,
+          user_id: user_id || null, // user_id를 명시적으로 전달 (FK 제약조건)
+        }])
+        .select();
+
+      console.log("[PATCH consultation] Insert result - data:", insertData, "error:", insertError?.message);
+
+      if (insertError) {
+        console.error("담당자 연결 추가 실패:", insertError.message);
+      }
+    } else {
+      console.log("[PATCH consultation] Skipping insert - contact_id is empty/null:", contact_id);
+    }
+  } else {
+    console.log("[PATCH consultation] contact_id is undefined, skipping contact processing");
   }
 
   // 성공적으로 업데이트된 데이터 반환

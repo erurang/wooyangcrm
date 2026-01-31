@@ -8,6 +8,8 @@ import {
   CustomsCostFormData,
   ShippingMethodType,
   SHIPPING_METHOD_LABELS,
+  OverseasConsultation,
+  ShippingCarrier,
 } from "@/types/overseas";
 import { useOverseasCompanies } from "@/hooks/overseas";
 
@@ -44,8 +46,78 @@ export default function CustomsCostFormModal({
   const title = mode === "add" ? "통관비용 추가" : "통관비용 수정";
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { companies } = useOverseasCompanies({ limit: 100 });
+  const [consultations, setConsultations] = useState<OverseasConsultation[]>([]);
+  const [loadingConsultations, setLoadingConsultations] = useState(false);
+  const [shippingCarriers, setShippingCarriers] = useState<ShippingCarrier[]>([]);
 
   useEscapeKey(isOpen, onClose);
+
+  // 운송업체 목록 로드
+  useEffect(() => {
+    if (isOpen) {
+      fetch("/api/shipping-carriers")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.carriers) {
+            setShippingCarriers(data.carriers);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [isOpen]);
+
+  // 거래처 선택 시 해당 거래처의 상담 목록 조회
+  useEffect(() => {
+    const fetchConsultations = async () => {
+      if (!formData.company_id) {
+        setConsultations([]);
+        return;
+      }
+
+      setLoadingConsultations(true);
+      try {
+        const res = await fetch(
+          `/api/overseas/consultations?company_id=${formData.company_id}&limit=100`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          // oc_number가 있는 상담만 필터링
+          const filtered = (data.consultations || []).filter(
+            (c: OverseasConsultation) => c.oc_number
+          );
+          setConsultations(filtered);
+        }
+      } catch (error) {
+        console.error("상담 목록 조회 실패:", error);
+      } finally {
+        setLoadingConsultations(false);
+      }
+    };
+
+    fetchConsultations();
+  }, [formData.company_id]);
+
+  // 상담 선택 시 필드 자동 채우기
+  const handleConsultationSelect = useCallback(
+    (consultationId: string) => {
+      const selected = consultations.find((c) => c.id === consultationId);
+      if (selected) {
+        setFormData({
+          ...formData,
+          consultation_id: consultationId,
+          invoice_no: selected.oc_number || formData.invoice_no,
+          shipping_method: selected.shipping_method || formData.shipping_method,
+          shipping_carrier_id: selected.shipping_carrier_id || formData.shipping_carrier_id,
+        });
+      } else {
+        setFormData({
+          ...formData,
+          consultation_id: consultationId,
+        });
+      }
+    },
+    [consultations, formData, setFormData]
+  );
 
   // 소계 및 합계 자동 계산
   useEffect(() => {
@@ -143,7 +215,11 @@ export default function CustomsCostFormModal({
                       <select
                         value={formData.company_id}
                         onChange={(e) =>
-                          setFormData({ ...formData, company_id: e.target.value })
+                          setFormData({
+                            ...formData,
+                            company_id: e.target.value,
+                            consultation_id: "", // 거래처 변경 시 상담 선택 초기화
+                          })
                         }
                         className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                           errors.company_id ? "border-red-500" : "border-gray-300"
@@ -162,6 +238,42 @@ export default function CustomsCostFormModal({
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
+                        해외 상담 연결
+                      </label>
+                      <select
+                        value={formData.consultation_id}
+                        onChange={(e) => handleConsultationSelect(e.target.value)}
+                        disabled={!formData.company_id || loadingConsultations}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      >
+                        <option value="">
+                          {loadingConsultations
+                            ? "로딩 중..."
+                            : !formData.company_id
+                            ? "거래처를 먼저 선택하세요"
+                            : consultations.length === 0
+                            ? "연결할 상담 없음"
+                            : "상담 선택 (O/C No.)"}
+                        </option>
+                        {consultations.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.oc_number}
+                            {c.product_name ? ` - ${c.product_name}` : ""}
+                            {c.order_date ? ` (${c.order_date})` : ""}
+                          </option>
+                        ))}
+                      </select>
+                      {formData.consultation_id && (
+                        <p className="text-xs text-green-600 mt-1">
+                          상담 연결됨 - Invoice No.와 운송방법이 자동 입력됩니다.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         통관일 <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -177,6 +289,27 @@ export default function CustomsCostFormModal({
                       {errors.clearance_date && (
                         <p className="text-red-500 text-xs mt-1">{errors.clearance_date}</p>
                       )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        운송방법
+                      </label>
+                      <select
+                        value={formData.shipping_method}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            shipping_method: e.target.value as ShippingMethodType,
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {Object.entries(SHIPPING_METHOD_LABELS).map(([value, label]) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
@@ -197,21 +330,19 @@ export default function CustomsCostFormModal({
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        운송방법
+                        운송업체
                       </label>
                       <select
-                        value={formData.shipping_method}
+                        value={formData.shipping_carrier_id}
                         onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            shipping_method: e.target.value as ShippingMethodType,
-                          })
+                          setFormData({ ...formData, shipping_carrier_id: e.target.value })
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        {Object.entries(SHIPPING_METHOD_LABELS).map(([value, label]) => (
-                          <option key={value} value={value}>
-                            {label}
+                        <option value="">선택</option>
+                        {shippingCarriers.map((carrier) => (
+                          <option key={carrier.id} value={carrier.id}>
+                            {carrier.name}
                           </option>
                         ))}
                       </select>
@@ -319,37 +450,21 @@ export default function CustomsCostFormModal({
                     </div>
                   </div>
 
-                  {/* 포워더/관세사 및 비고 */}
+                  {/* 비고 */}
                   <div className="border-t pt-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          포워딩업체/관세사
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.forwarder}
-                          onChange={(e) =>
-                            setFormData({ ...formData, forwarder: e.target.value })
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="포워딩업체 또는 관세사명"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          비고
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.notes}
-                          onChange={(e) =>
-                            setFormData({ ...formData, notes: e.target.value })
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="비고"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        비고
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.notes}
+                        onChange={(e) =>
+                          setFormData({ ...formData, notes: e.target.value })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="비고"
+                      />
                     </div>
                   </div>
                 </div>

@@ -11,6 +11,7 @@ export async function PATCH(
     const body = await request.json();
     const {
       company_id,
+      consultation_id,
       clearance_date,
       invoice_no,
       air_freight,
@@ -21,7 +22,7 @@ export async function PATCH(
       express_freight,
       vat,
       shipping_method,
-      forwarder,
+      shipping_carrier_id,
       notes,
     } = body;
 
@@ -41,6 +42,7 @@ export async function PATCH(
       .from("customs_costs")
       .update({
         company_id,
+        consultation_id: consultation_id || null,
         clearance_date,
         invoice_no,
         air_freight: Number(air_freight || 0),
@@ -53,7 +55,7 @@ export async function PATCH(
         vat: Number(vat || 0),
         total,
         shipping_method,
-        forwarder,
+        shipping_carrier_id: shipping_carrier_id || null,
         notes,
         updated_at: new Date().toISOString(),
       })

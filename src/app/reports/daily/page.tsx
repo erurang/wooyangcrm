@@ -52,6 +52,7 @@ interface DailyReportItem {
   no: number;
   companyName: string;
   companyId: string;
+  title: string;
   content: string;
   consultationId: string;
   consultationDate: string;
@@ -268,7 +269,8 @@ function DailyReportContent() {
     wsData.push(["", "No.", allUsers ? "업체명 (작성자)" : "업체명", "내용", "", "", "", "", "비고"]);
 
     reportData.items.forEach((item) => {
-      let contentWithDocs = item.content;
+      // 제목이 있으면 내용 앞에 추가
+      let contentWithDocs = item.title ? `[${item.title}]\n${item.content}` : item.content;
 
       if (item.documents.length > 0) {
         item.documents.forEach((doc) => {
@@ -663,6 +665,12 @@ function DailyReportContent() {
                         {viewMode !== "daily" && item.consultationDate && (
                           <div className="mb-2 text-xs text-gray-500 font-medium">
                             {item.consultationDate}
+                          </div>
+                        )}
+                        {/* 상담 제목 */}
+                        {item.title && (
+                          <div className="mb-1.5 font-semibold text-slate-800">
+                            {item.title}
                           </div>
                         )}
                         <div

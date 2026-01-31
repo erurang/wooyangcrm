@@ -3,37 +3,31 @@
 import { useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  Search,
   Plus,
   ChevronRight,
   Globe,
-  Package,
   Paperclip,
+  MessageCircle,
+  Table2,
 } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
 import { fetcher } from "@/lib/fetcher";
 import { useLoginUser } from "@/context/login";
 
-import {
-  useOverseasOrders,
-  useAddOverseasOrder,
-  useUpdateOverseasOrder,
-  useDeleteOverseasOrder,
-} from "@/hooks/overseas";
 import SnackbarComponent from "@/components/Snackbar";
 import OverseasCompanyInfoCard from "@/components/overseas/OverseasCompanyInfoCard";
-import OverseasOrderFormModal from "@/components/overseas/OverseasOrderFormModal";
-import OverseasOrderCard from "@/components/overseas/OverseasOrderCard";
 import NotesEditModal from "@/components/consultations/modals/NotesEditModal";
 import ContactsEditModal from "@/components/consultations/modals/ContactsEditModal";
 import { useUsersList } from "@/hooks/useUserList";
 import {
   OverseasContact,
-  OverseasOrder,
-  OverseasOrderFormData,
-  OrderType,
+  OverseasConsultation,
+  OverseasConsultationFormData,
 } from "@/types/overseas";
+import OverseasConsultationModal from "@/components/overseas/OverseasConsultationModal";
+import OverseasConsultationTable from "@/components/overseas/OverseasConsultationTable";
+import OverseasConsultationSpreadsheet from "@/components/overseas/OverseasConsultationSpreadsheet";
 
 // ContactsEditModal에서 사용하는 Contact 인터페이스
 interface Contact {
@@ -60,58 +54,82 @@ interface OverseasCompanyDetail {
   created_at: string;
 }
 
-type TabType = "orders" | "files";
+type TabType = "consultations" | "spreadsheet" | "files";
 
-// 초기 폼 데이터 생성
-function getInitialOrderFormData(
+// 상담 폼 초기값
+function getInitialConsultationFormData(
   companyId: string,
-  orderType: OrderType,
   userId: string = ""
-): OverseasOrderFormData {
+): OverseasConsultationFormData {
+  const today = new Date().toISOString().split("T")[0];
   return {
     company_id: companyId,
-    order_type: orderType,
-    invoice_no: "",
-    order_date: new Date().toISOString().split("T")[0],
-    shipment_date: "",
-    arrival_date: "",
-    currency: "USD",
-    items: [{ name: "", spec: "", quantity: "", unit_price: 0, amount: 0 }],
-    remittance_amount: "",
-    remittance_date: "",
-    exchange_rate: "",
-    shipping_method: "",
-    forwarder: "",
-    hs_code: "",
-    tariff_rate: "",
-    contact_name: "",
+    order_type: "", // 기본값 선택없음
+    date: today,
+    title: "",
+    content: "",
+    contact_id: "",
     user_id: userId,
-    notes: "",
+    // 거래 정보 필드
+    order_date: today, // 발주일 기본값 = 오늘
+    expected_completion_date: "",
+    pickup_date: "",
+    arrival_date: "",
+    oc_number: "",
+    product_name: "",
+    specification: "",
+    quantity: "",
+    total_remittance: "",
+    currency: "",
+    remittance_date: "",
+    shipping_method: "",
+    shipping_carrier_id: "",
+    incoterms: "",
+    trade_status: "",
+    packaging_width: "",
+    packaging_height: "",
+    packaging_depth: "",
+    packaging_type: "",
+    packaging_weight: "",
+    remarks: "",
   };
 }
 
-// OverseasOrder를 FormData로 변환
-function orderToFormData(order: OverseasOrder): OverseasOrderFormData {
+// OverseasConsultation을 FormData로 변환
+function consultationToFormData(
+  consultation: OverseasConsultation
+): OverseasConsultationFormData {
   return {
-    id: order.id,
-    company_id: order.company_id,
-    order_type: order.order_type,
-    invoice_no: order.invoice_no,
-    order_date: order.order_date,
-    shipment_date: order.shipment_date || "",
-    arrival_date: order.arrival_date || "",
-    currency: order.currency,
-    items: order.items || [],
-    remittance_amount: order.remittance_amount ?? "",
-    remittance_date: order.remittance_date || "",
-    exchange_rate: order.exchange_rate ?? "",
-    shipping_method: order.shipping_method || "",
-    forwarder: order.forwarder || "",
-    hs_code: order.hs_code || "",
-    tariff_rate: order.tariff_rate ?? "",
-    contact_name: order.contact_name || "",
-    user_id: order.user_id || "",
-    notes: order.notes || "",
+    id: consultation.id,
+    company_id: consultation.company_id,
+    order_type: consultation.order_type || "",
+    date: consultation.date,
+    title: consultation.title || "",
+    content: consultation.content,
+    contact_id: consultation.contact_id || "",
+    user_id: consultation.user_id || "",
+    // 거래 정보 필드
+    order_date: consultation.order_date || "",
+    expected_completion_date: consultation.expected_completion_date || "",
+    pickup_date: consultation.pickup_date || "",
+    arrival_date: consultation.arrival_date || "",
+    oc_number: consultation.oc_number || "",
+    product_name: consultation.product_name || "",
+    specification: consultation.specification || "",
+    quantity: consultation.quantity || "",
+    total_remittance: consultation.total_remittance ?? "",
+    currency: consultation.currency || "",
+    remittance_date: consultation.remittance_date || "",
+    shipping_method: consultation.shipping_method || "",
+    shipping_carrier_id: consultation.shipping_carrier_id || "",
+    incoterms: consultation.incoterms || "",
+    trade_status: consultation.trade_status || "",
+    packaging_width: consultation.packaging_width ?? "",
+    packaging_height: consultation.packaging_height ?? "",
+    packaging_depth: consultation.packaging_depth ?? "",
+    packaging_type: consultation.packaging_type || "",
+    packaging_weight: consultation.packaging_weight ?? "",
+    remarks: consultation.remarks || "",
   };
 }
 
@@ -123,29 +141,10 @@ export default function OverseasCompanyPage() {
     typeof params.id === "string" ? params.id : params.id?.[0] ?? "";
 
   // 탭 상태
-  const [activeTab, setActiveTab] = useState<TabType>("orders");
-
-  // 수입/수출 필터
-  const [orderType, setOrderType] = useState<OrderType>("import");
-
-  // 검색
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<TabType>("consultations");
 
   // 스낵바
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  // 발주 모달
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const [orderModalMode, setOrderModalMode] = useState<"add" | "edit">("add");
-  const [orderFormData, setOrderFormData] = useState<OverseasOrderFormData>(
-    getInitialOrderFormData(companyId, orderType)
-  );
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-
-  // 발주 추가/수정/삭제 hooks
-  const { addOrder, isLoading: addingOrder } = useAddOverseasOrder();
-  const { updateOrder, isLoading: updatingOrder } = useUpdateOverseasOrder();
-  const { deleteOrder, isLoading: deletingOrder } = useDeleteOverseasOrder();
 
   // 비고 수정 모달
   const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
@@ -169,107 +168,187 @@ export default function OverseasCompanyPage() {
     { revalidateOnFocus: false }
   );
 
-  // 발주 내역 조회
-  const {
-    orders,
-    total,
-    isLoading: ordersLoading,
-    mutate: refreshOrders,
-  } = useOverseasOrders({
-    companyId,
-    orderType,
-    invoiceNo: searchTerm,
-    limit: 50,
-  });
-
   // 사용자 목록 조회
   const { users } = useUsersList();
+
+  // 상담 목록 조회
+  const {
+    data: consultationsData,
+    isLoading: consultationsLoading,
+    mutate: refreshConsultations,
+  } = useSWR<{ consultations: OverseasConsultation[]; total: number }>(
+    companyId ? `/api/overseas/consultations?company_id=${companyId}&limit=50` : null,
+    (url) => fetcher(url, { arg: { method: "GET" } }),
+    { revalidateOnFocus: false }
+  );
+  const consultations = consultationsData?.consultations || [];
+
+  // 상담 모달
+  const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
+  const [consultationModalMode, setConsultationModalMode] = useState<"add" | "edit">("add");
+  const [consultationFormData, setConsultationFormData] = useState<OverseasConsultationFormData>(
+    getInitialConsultationFormData(companyId)
+  );
+  const [selectedConsultationId, setSelectedConsultationId] = useState<string | null>(null);
+  const [savingConsultation, setSavingConsultation] = useState(false);
+  const [deletingConsultation, setDeletingConsultation] = useState(false);
 
   const company = companyData;
   const contacts = company?.contacts || [];
 
-  // 발주 추가 모달 열기
-  const handleOpenAddOrderModal = useCallback(() => {
-    setOrderModalMode("add");
-    setSelectedOrderId(null);
-    setOrderFormData(getInitialOrderFormData(companyId, orderType, loginUser?.id));
-    setIsOrderModalOpen(true);
-  }, [companyId, orderType, loginUser?.id]);
+  // 상담 추가 모달 열기
+  const handleOpenAddConsultationModal = useCallback(() => {
+    setConsultationModalMode("add");
+    setSelectedConsultationId(null);
+    setConsultationFormData(getInitialConsultationFormData(companyId, loginUser?.id));
+    setIsConsultationModalOpen(true);
+  }, [companyId, loginUser?.id]);
 
-  // 발주 수정 모달 열기 (테이블 행 클릭 시)
-  const handleOpenEditOrderModal = useCallback((order: OverseasOrder) => {
-    setOrderModalMode("edit");
-    setSelectedOrderId(order.id);
-    setOrderFormData(orderToFormData(order));
-    setIsOrderModalOpen(true);
+  // 상담 수정 모달 열기
+  const handleOpenEditConsultationModal = useCallback((consultation: OverseasConsultation) => {
+    console.log("[OverseasCompanyPage] Opening edit modal for consultation:", consultation);
+    console.log("[OverseasCompanyPage] consultation.contact_id:", consultation.contact_id);
+    const formData = consultationToFormData(consultation);
+    console.log("[OverseasCompanyPage] Converted formData:", formData);
+
+    setConsultationModalMode("edit");
+    setSelectedConsultationId(consultation.id);
+    setConsultationFormData(formData);
+    setIsConsultationModalOpen(true);
   }, []);
 
-  // 발주 모달 닫기
-  const handleCloseOrderModal = useCallback(() => {
-    setIsOrderModalOpen(false);
-    setSelectedOrderId(null);
+  // 상담 모달 닫기
+  const handleCloseConsultationModal = useCallback(() => {
+    setIsConsultationModalOpen(false);
+    setSelectedConsultationId(null);
   }, []);
 
-  // 발주 저장 (추가/수정)
-  const handleSaveOrder = useCallback(async () => {
+  // 상담 저장 (추가/수정) - 반환값으로 consultationId 전달
+  const handleSaveConsultation = useCallback(async (): Promise<string | null> => {
+    setSavingConsultation(true);
     try {
-      if (orderModalMode === "add") {
-        await addOrder(orderFormData);
-        setSnackbarMessage("발주가 추가되었습니다.");
+      // 거래 정보 필드 공통
+      const tradeFields = {
+        order_date: consultationFormData.order_date || null,
+        expected_completion_date: consultationFormData.expected_completion_date || null,
+        pickup_date: consultationFormData.pickup_date || null,
+        arrival_date: consultationFormData.arrival_date || null,
+        oc_number: consultationFormData.oc_number || null,
+        product_name: consultationFormData.product_name || null,
+        specification: consultationFormData.specification || null,
+        quantity: consultationFormData.quantity || null,
+        total_remittance: consultationFormData.total_remittance || null,
+        currency: consultationFormData.currency || null,
+        remittance_date: consultationFormData.remittance_date || null,
+        shipping_method: consultationFormData.shipping_method || null,
+        shipping_carrier_id: consultationFormData.shipping_carrier_id || null,
+        trade_status: consultationFormData.trade_status || null,
+        packaging_width: consultationFormData.packaging_width || null,
+        packaging_height: consultationFormData.packaging_height || null,
+        packaging_depth: consultationFormData.packaging_depth || null,
+        packaging_type: consultationFormData.packaging_type || null,
+        packaging_weight: consultationFormData.packaging_weight || null,
+        remarks: consultationFormData.remarks || null,
+      };
+
+      if (consultationModalMode === "add") {
+        // 새 상담 등록
+        const response = await fetcher("/api/overseas/consultations", {
+          arg: {
+            method: "POST",
+            body: {
+              company_id: consultationFormData.company_id,
+              user_id: consultationFormData.user_id,
+              order_type: consultationFormData.order_type || null,
+              date: consultationFormData.date,
+              title: consultationFormData.title || null,
+              content: consultationFormData.content,
+              contact_id: consultationFormData.contact_id || null,
+              ...tradeFields,
+            },
+          },
+        }) as { consultation?: { id: string } };
+        setSnackbarMessage("상담이 등록되었습니다.");
+        refreshConsultations();
+        return response.consultation?.id || null;
       } else {
-        if (!selectedOrderId) return;
-        await updateOrder(selectedOrderId, orderFormData);
-        setSnackbarMessage("발주가 수정되었습니다.");
+        // 상담 수정
+        if (!selectedConsultationId) return null;
+
+        const patchBody = {
+          order_type: consultationFormData.order_type || null,
+          date: consultationFormData.date,
+          title: consultationFormData.title || null,
+          content: consultationFormData.content,
+          user_id: consultationFormData.user_id,
+          contact_id: consultationFormData.contact_id || null,
+          ...tradeFields,
+        };
+
+        await fetcher(`/api/consultations/${selectedConsultationId}`, {
+          arg: {
+            method: "PATCH",
+            body: patchBody,
+          },
+        });
+        setSnackbarMessage("상담이 수정되었습니다.");
+        refreshConsultations();
+        return selectedConsultationId;
       }
-      setIsOrderModalOpen(false);
-      setSelectedOrderId(null);
-      refreshOrders();
     } catch (error) {
       setSnackbarMessage(
-        orderModalMode === "add"
-          ? "발주 추가에 실패했습니다."
-          : "발주 수정에 실패했습니다."
+        consultationModalMode === "add"
+          ? "상담 등록에 실패했습니다."
+          : "상담 수정에 실패했습니다."
       );
+      return null;
+    } finally {
+      setSavingConsultation(false);
     }
   }, [
-    orderModalMode,
-    addOrder,
-    updateOrder,
-    orderFormData,
-    selectedOrderId,
-    refreshOrders,
+    consultationModalMode,
+    consultationFormData,
+    selectedConsultationId,
+    refreshConsultations,
   ]);
 
-  // 발주 삭제 (모달에서)
-  const handleDeleteOrder = useCallback(async () => {
-    if (!selectedOrderId) return;
-    if (!confirm("정말 삭제하시겠습니까?")) return;
+  // 상담 삭제
+  const handleDeleteConsultation = useCallback(async () => {
+    if (!selectedConsultationId) return;
+    if (!confirm("상담을 삭제하시겠습니까?")) return;
 
+    setDeletingConsultation(true);
     try {
-      await deleteOrder(selectedOrderId);
-      setSnackbarMessage("발주가 삭제되었습니다.");
-      setIsOrderModalOpen(false);
-      setSelectedOrderId(null);
-      refreshOrders();
+      await fetcher(`/api/consultations/${selectedConsultationId}`, {
+        arg: { method: "DELETE" },
+      });
+      setSnackbarMessage("상담이 삭제되었습니다.");
+      setIsConsultationModalOpen(false);
+      setSelectedConsultationId(null);
+      refreshConsultations();
     } catch (error) {
-      setSnackbarMessage("발주 삭제에 실패했습니다.");
+      setSnackbarMessage("상담 삭제에 실패했습니다.");
+    } finally {
+      setDeletingConsultation(false);
     }
-  }, [deleteOrder, selectedOrderId, refreshOrders]);
+  }, [selectedConsultationId, refreshConsultations]);
 
-  // 발주 삭제 (카드에서 직접)
-  const handleDeleteOrderFromCard = useCallback(
-    async (order: OverseasOrder) => {
-      if (!confirm("정말 삭제하시겠습니까?")) return;
+  // 상담 삭제 (카드에서 직접)
+  const handleDeleteConsultationFromCard = useCallback(
+    async (consultation: OverseasConsultation) => {
+      if (!confirm("상담을 삭제하시겠습니까?")) return;
 
       try {
-        await deleteOrder(order.id);
-        setSnackbarMessage("발주가 삭제되었습니다.");
-        refreshOrders();
+        await fetcher(`/api/consultations/${consultation.id}`, {
+          arg: { method: "DELETE" },
+        });
+        setSnackbarMessage("상담이 삭제되었습니다.");
+        refreshConsultations();
       } catch (error) {
-        setSnackbarMessage("발주 삭제에 실패했습니다.");
+        setSnackbarMessage("상담 삭제에 실패했습니다.");
       }
     },
-    [deleteOrder, refreshOrders]
+    [refreshConsultations]
   );
 
   // 비고 수정 모달 열기
@@ -402,28 +481,17 @@ export default function OverseasCompanyPage() {
               </div>
             </div>
 
-            {/* 우측: 검색 + 발주 추가 */}
+            {/* 우측: 추가 버튼 */}
             <div className="flex items-center gap-2 shrink-0">
-              <div className="relative">
-                <Search
-                  size={15}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  type="text"
-                  placeholder="Invoice No. 검색"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-48 py-1.5 pl-8 pr-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-slate-50 hover:bg-white focus:bg-white transition-colors"
-                />
-              </div>
-              <button
-                onClick={handleOpenAddOrderModal}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors"
-              >
-                <Plus size={16} />
-                <span className="hidden sm:inline">발주 추가</span>
-              </button>
+              {(activeTab === "consultations" || activeTab === "spreadsheet") && (
+                <button
+                  onClick={handleOpenAddConsultationModal}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition-colors"
+                >
+                  <Plus size={16} />
+                  <span className="hidden sm:inline">상담 등록</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -446,15 +514,31 @@ export default function OverseasCompanyPage() {
         <div className="mb-4 border-b border-slate-200">
           <nav className="flex space-x-1">
             <button
-              onClick={() => setActiveTab("orders")}
+              onClick={() => setActiveTab("consultations")}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === "orders"
+                activeTab === "consultations"
                   ? "border-teal-600 text-teal-600"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
               }`}
             >
-              <Package size={16} />
-              발주
+              <MessageCircle size={16} />
+              상담
+              {consultations.length > 0 && (
+                <span className="px-1.5 py-0.5 text-xs bg-slate-100 text-slate-600 rounded-full">
+                  {consultations.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab("spreadsheet")}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "spreadsheet"
+                  ? "border-teal-600 text-teal-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              }`}
+            >
+              <Table2 size={16} />
+              리스트
             </button>
             <button
               onClick={() => setActiveTab("files")}
@@ -471,69 +555,29 @@ export default function OverseasCompanyPage() {
         </div>
 
         {/* 탭 콘텐츠 */}
-        {activeTab === "orders" && (
-          <>
-            {/* 수입/수출 필터 */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
-                <button
-                  onClick={() => setOrderType("import")}
-                  className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
-                    orderType === "import"
-                      ? "bg-white text-teal-600 shadow-sm font-medium"
-                      : "text-slate-600 hover:text-slate-800"
-                  }`}
-                >
-                  수입 발주
-                </button>
-                <button
-                  onClick={() => setOrderType("export")}
-                  className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
-                    orderType === "export"
-                      ? "bg-white text-teal-600 shadow-sm font-medium"
-                      : "text-slate-600 hover:text-slate-800"
-                  }`}
-                >
-                  수출
-                </button>
-              </div>
-              <span className="text-sm text-slate-500">총 <span className="font-semibold text-teal-600">{total}</span>건</span>
-            </div>
+        {activeTab === "spreadsheet" && (
+          <OverseasConsultationSpreadsheet
+            consultations={consultations}
+            users={users || []}
+            loginUserId={loginUser?.id || ""}
+            isLoading={consultationsLoading}
+            onEditConsultation={handleOpenEditConsultationModal}
+            onDeleteConsultation={handleDeleteConsultationFromCard}
+            onAddConsultation={handleOpenAddConsultationModal}
+          />
+        )}
 
-            {/* 발주 카드 목록 */}
-            {ordersLoading ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mb-3" />
-                <p className="text-sm text-slate-500">발주 내역을 불러오는 중...</p>
-              </div>
-            ) : orders && orders.length > 0 ? (
-              <div className="space-y-4">
-                {orders.map((order: OverseasOrder) => (
-                  <OverseasOrderCard
-                    key={order.id}
-                    order={order}
-                    users={users || []}
-                    onEdit={handleOpenEditOrderModal}
-                    onDelete={handleDeleteOrderFromCard}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white border border-slate-200 rounded-xl py-12 text-center">
-                <Package size={40} className="mx-auto text-slate-300 mb-3" />
-                <p className="text-slate-500">
-                  {orderType === "import" ? "수입" : "수출"} 발주 내역이
-                  없습니다.
-                </p>
-                <button
-                  onClick={handleOpenAddOrderModal}
-                  className="mt-4 text-teal-600 hover:text-teal-700 text-sm"
-                >
-                  첫 발주 추가하기
-                </button>
-              </div>
-            )}
-          </>
+        {/* 상담 탭 */}
+        {activeTab === "consultations" && (
+          <OverseasConsultationTable
+            consultations={consultations}
+            users={users || []}
+            loginUserId={loginUser?.id || ""}
+            isLoading={consultationsLoading}
+            onEditConsultation={handleOpenEditConsultationModal}
+            onDeleteConsultation={handleDeleteConsultationFromCard}
+            onAddConsultation={handleOpenAddConsultationModal}
+          />
         )}
 
         {activeTab === "files" && (
@@ -547,22 +591,6 @@ export default function OverseasCompanyPage() {
       <SnackbarComponent
         message={snackbarMessage}
         onClose={() => setSnackbarMessage("")}
-      />
-
-      {/* 발주 추가/수정 모달 */}
-      <OverseasOrderFormModal
-        mode={orderModalMode}
-        isOpen={isOrderModalOpen}
-        onClose={handleCloseOrderModal}
-        formData={orderFormData}
-        setFormData={setOrderFormData}
-        onSubmit={handleSaveOrder}
-        onDelete={orderModalMode === "edit" ? handleDeleteOrder : undefined}
-        saving={addingOrder || updatingOrder}
-        deleting={deletingOrder}
-        contacts={contacts}
-        orderId={selectedOrderId || undefined}
-        invoiceNo={orderFormData.invoice_no}
       />
 
       {/* 비고 수정 모달 */}
@@ -584,6 +612,29 @@ export default function OverseasCompanyPage() {
         originalContacts={originalContacts}
         onSave={handleSaveContacts}
         saving={savingContacts}
+      />
+
+      {/* 상담 등록/수정 모달 */}
+      {(() => {
+        console.log("[OverseasCompanyPage] Rendering modal with contacts:", contacts);
+        console.log("[OverseasCompanyPage] Contacts count:", contacts.length);
+        console.log("[OverseasCompanyPage] Current formData:", consultationFormData);
+        return null;
+      })()}
+      <OverseasConsultationModal
+        mode={consultationModalMode}
+        isOpen={isConsultationModalOpen}
+        onClose={handleCloseConsultationModal}
+        formData={consultationFormData}
+        setFormData={setConsultationFormData}
+        onSubmit={handleSaveConsultation}
+        onDelete={consultationModalMode === "edit" ? handleDeleteConsultation : undefined}
+        onComplete={refreshConsultations}
+        saving={savingConsultation}
+        deleting={deletingConsultation}
+        contacts={contacts}
+        users={users || []}
+        consultationId={selectedConsultationId || undefined}
       />
     </div>
   );

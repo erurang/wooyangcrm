@@ -107,6 +107,9 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const page = parseInt(searchParams.get("page") || "1");
+    const countOnly = searchParams.get("count_only") === "true";
 
     if (!userId) {
       return NextResponse.json(
@@ -115,18 +118,49 @@ export async function GET(request: Request) {
       );
     }
 
+    // 전체 개수만 필요한 경우 (헤더 배지용)
+    if (countOnly) {
+      const { count, error } = await supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("read", false);
+
+      if (error) {
+        throw new Error(`알림 개수 조회 실패: ${error.message}`);
+      }
+
+      return NextResponse.json({ unreadCount: count || 0 });
+    }
+
+    // 페이지네이션 계산
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    // 전체 개수 조회
+    const { count: totalCount } = await supabase
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId);
+
     const { data, error } = await supabase
       .from("notifications")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(50);
+      .range(from, to);
 
     if (error) {
       throw new Error(`알림 조회 실패: ${error.message}`);
     }
 
-    return NextResponse.json({ notifications: data || [] });
+    return NextResponse.json({
+      notifications: data || [],
+      total: totalCount || 0,
+      page,
+      totalPages: Math.ceil((totalCount || 0) / limit),
+      hasMore: to < (totalCount || 0) - 1,
+    });
   } catch (error) {
     console.error("알림 조회 에러:", error);
     return NextResponse.json(

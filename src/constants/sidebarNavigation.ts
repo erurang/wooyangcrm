@@ -29,6 +29,7 @@ import {
   UsersRound,
   Landmark,
   BookOpen,
+  Calculator,
 } from "lucide-react";
 
 export interface SidebarSubItem {
@@ -81,9 +82,9 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     icon: Globe,
     subItems: [
       { id: "overseas-customers", title: "거래처 검색", path: "/overseas" },
-      { id: "overseas-orders", title: "발주 관리", path: "/overseas/orders" },
-      { id: "overseas-consultations", title: "상담내역 조회", path: "/overseas/consultations" },
+      { id: "overseas-status", title: "거래 현황", path: "/overseas/status" },
       { id: "customs-costs", title: "통관비용", path: "/overseas/customs-costs" },
+      { id: "settlements", title: "입고정산", path: "/overseas/settlements" },
       { id: "shipping", title: "FedEx 배송현황", path: "/shipping" },
     ],
   },
@@ -125,10 +126,12 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
     title: "재고",
     icon: Package,
     subItems: [
+      { id: "stocks", title: "재고 현황", path: "/products/stocks" },
       { id: "calendar", title: "캘린더", path: "/inventory/calendar" },
       { id: "inbound", title: "입고", path: "/inventory/inbound" },
       { id: "outbound", title: "출고", path: "/inventory/outbound" },
       { id: "suggestions", title: "발주 권장", path: "/inventory/suggestions" },
+      { id: "mapping", title: "품목 매핑", path: "/products/mapping" },
     ],
   },
   {
@@ -353,6 +356,7 @@ export const MENU_ICONS: Record<string, LucideIcon> = {
   management: ChartBar,
   admin: Settings,
   favorites: Star,
+  settlements: Calculator,
   // R&D 서브메뉴 아이콘
   "rnd-dashboard": FolderKanban,
   rnds: BookOpen,

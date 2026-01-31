@@ -27,6 +27,7 @@ import {
 
 const emptyFormData: CustomsCostFormData = {
   company_id: "",
+  consultation_id: "",
   clearance_date: new Date().toISOString().split("T")[0],
   invoice_no: "",
   air_freight: "",
@@ -37,7 +38,7 @@ const emptyFormData: CustomsCostFormData = {
   express_freight: "",
   vat: "",
   shipping_method: "sea",
-  forwarder: "",
+  shipping_carrier_id: "",
   notes: "",
 };
 
@@ -169,6 +170,7 @@ export default function CustomsCostsPage() {
   const openEditModal = (cost: CustomsCost) => {
     setFormData({
       company_id: cost.company_id,
+      consultation_id: cost.consultation_id || "",
       clearance_date: cost.clearance_date,
       invoice_no: cost.invoice_no,
       air_freight: cost.air_freight || "",
@@ -179,7 +181,7 @@ export default function CustomsCostsPage() {
       express_freight: cost.express_freight || "",
       vat: cost.vat || "",
       shipping_method: cost.shipping_method,
-      forwarder: cost.forwarder,
+      shipping_carrier_id: cost.shipping_carrier_id || "",
       notes: cost.notes || "",
     });
     setEditingId(cost.id);

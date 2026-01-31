@@ -126,6 +126,7 @@ export default function ShippingPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedTracking, setSelectedTracking] = useState<string | null>(null);
+  const [editingMemo, setEditingMemo] = useState<{ id: string; memo: string; companyId: string; companyName: string } | null>(null);
 
   // DB에서 등록된 송장번호 목록 조회
   const {
@@ -404,6 +405,9 @@ export default function ShippingPage() {
                         예상 도착
                       </th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                        거래처
+                      </th>
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
                         메모
                       </th>
                       <th className="text-center py-3 px-4 text-xs font-semibold text-gray-600">
@@ -415,7 +419,7 @@ export default function ShippingPage() {
                     {filteredShipments.length === 0 ? (
                       <tr>
                         <td
-                          colSpan={9}
+                          colSpan={10}
                           className="py-12 text-center text-gray-500"
                         >
                           <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -525,8 +529,35 @@ export default function ShippingPage() {
                                   "-"
                                 )}
                               </td>
-                              <td className="py-3 px-4 text-sm text-gray-500 max-w-[150px] truncate">
-                                {shipment.memo || "-"}
+                              <td
+                                className="py-3 px-4 text-sm text-gray-700 max-w-[120px] truncate cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingMemo({
+                                    id: shipment.id,
+                                    memo: shipment.memo || "",
+                                    companyId: shipment.company_id || "",
+                                    companyName: shipment.company?.name || "",
+                                  });
+                                }}
+                                title="클릭하여 메모/거래처 수정"
+                              >
+                                {shipment.company?.name || <span className="text-gray-300">거래처 선택</span>}
+                              </td>
+                              <td
+                                className="py-3 px-4 text-sm text-gray-500 max-w-[150px] truncate cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingMemo({
+                                    id: shipment.id,
+                                    memo: shipment.memo || "",
+                                    companyId: shipment.company_id || "",
+                                    companyName: shipment.company?.name || "",
+                                  });
+                                }}
+                                title="클릭하여 메모/거래처 수정"
+                              >
+                                {shipment.memo || <span className="text-gray-300">메모 추가</span>}
                               </td>
                               <td className="py-3 px-4">
                                 <div className="flex items-center justify-center gap-1">
@@ -553,7 +584,7 @@ export default function ShippingPage() {
                             {/* 확장된 상세 정보 영역 */}
                             {isExpanded && (
                               <tr>
-                                <td colSpan={9} className="p-0 bg-gray-50 border-b">
+                                <td colSpan={10} className="p-0 bg-gray-50 border-b">
                                   <TrackingDetailDropdown
                                     trackingNumber={shipment.tracking_number}
                                   />
@@ -583,8 +614,29 @@ export default function ShippingPage() {
           }}
         />
       )}
+
+      {/* 메모/거래처 수정 모달 */}
+      {editingMemo && (
+        <EditMemoModal
+          id={editingMemo.id}
+          initialMemo={editingMemo.memo}
+          initialCompanyId={editingMemo.companyId}
+          initialCompanyName={editingMemo.companyName}
+          onClose={() => setEditingMemo(null)}
+          onSuccess={() => {
+            setEditingMemo(null);
+            refreshTrackings();
+          }}
+        />
+      )}
     </div>
   );
+}
+
+// 해외거래처 타입
+interface OverseasCompany {
+  id: string;
+  name: string;
 }
 
 // 송장 등록 모달
@@ -598,8 +650,29 @@ function AddTrackingModal({
   onSuccess: () => void;
 }) {
   const [trackingNumber, setTrackingNumber] = useState("");
+  const [memo, setMemo] = useState("");
+  const [companyId, setCompanyId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 해외거래처 목록 조회
+  const [companies, setCompanies] = useState<OverseasCompany[]>([]);
+  const [companiesLoading, setCompaniesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const res = await fetch("/api/companies/overseas?limit=100");
+        const data = await res.json();
+        setCompanies(data.companies || []);
+      } catch (err) {
+        console.error("Error fetching companies:", err);
+      } finally {
+        setCompaniesLoading(false);
+      }
+    };
+    fetchCompanies();
+  }, []);
 
   // ESC 키로 모달 닫기
   useEscapeKey(true, onClose);
@@ -618,6 +691,8 @@ function AddTrackingModal({
     const data: ShippingTrackingFormData = {
       carrier: carrier as CarrierType,
       tracking_number: trackingNumber.trim(),
+      memo: memo.trim() || undefined,
+      company_id: companyId || undefined,
     };
 
     const result = await addShippingTracking(data);
@@ -633,7 +708,7 @@ function AddTrackingModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold text-gray-900">
             FedEx 송장 등록
@@ -666,9 +741,41 @@ function AddTrackingModal({
               className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono"
               autoFocus
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              해외거래처
+            </label>
+            <select
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              disabled={companiesLoading}
+            >
+              <option value="">선택 안함</option>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
             <p className="mt-1 text-xs text-gray-500">
-              FedEx 송장번호를 입력하세요
+              연결할 해외거래처를 선택하세요 (선택사항)
             </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              메모
+            </label>
+            <textarea
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              placeholder="품명, 거래 내용 등 메모"
+              rows={2}
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+            />
           </div>
 
           <div className="flex gap-2 pt-2">
@@ -685,6 +792,161 @@ function AddTrackingModal({
               className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50"
             >
               {isSubmitting ? "등록 중..." : "등록"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// 메모/거래처 수정 모달
+function EditMemoModal({
+  id,
+  initialMemo,
+  initialCompanyId,
+  initialCompanyName,
+  onClose,
+  onSuccess,
+}: {
+  id: string;
+  initialMemo: string;
+  initialCompanyId: string;
+  initialCompanyName: string;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [memo, setMemo] = useState(initialMemo);
+  const [companyId, setCompanyId] = useState(initialCompanyId);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // 해외거래처 목록 조회
+  const [companies, setCompanies] = useState<OverseasCompany[]>([]);
+  const [companiesLoading, setCompaniesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const res = await fetch("/api/companies/overseas?limit=100");
+        const data = await res.json();
+        setCompanies(data.companies || []);
+      } catch (err) {
+        console.error("Error fetching companies:", err);
+      } finally {
+        setCompaniesLoading(false);
+      }
+    };
+    fetchCompanies();
+  }, []);
+
+  // ESC 키로 모달 닫기
+  useEscapeKey(true, onClose);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/shipping/tracking/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          memo: memo.trim() || null,
+          company_id: companyId || null,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || "수정 실패");
+        return;
+      }
+
+      onSuccess();
+    } catch (err) {
+      console.error("Error updating memo:", err);
+      setError("수정 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold text-gray-900">메모/거래처 수정</h2>
+          <button
+            onClick={onClose}
+            className="p-1 text-gray-400 hover:text-gray-600 rounded"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              해외거래처
+            </label>
+            <select
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              disabled={companiesLoading}
+            >
+              <option value="">선택 안함</option>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
+            {initialCompanyName && !companyId && (
+              <p className="mt-1 text-xs text-orange-600">
+                기존: {initialCompanyName} (변경 시 선택)
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              메모
+            </label>
+            <textarea
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              placeholder="품명, 거래 내용 등 메모"
+              rows={9}
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
+              autoFocus
+            />
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+            >
+              {isSubmitting ? "저장 중..." : "저장"}
             </button>
           </div>
         </form>

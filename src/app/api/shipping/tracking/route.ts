@@ -4,7 +4,7 @@ import type { ShippingTracking, ShippingTrackingFormData } from "@/types/shippin
 
 /**
  * 배송 추적 목록 조회
- * GET /api/shipping/tracking?carrier=fedex&status=in_transit
+ * GET /api/shipping/tracking?carrier=fedex&status=in_transit&start_date=2025-01-01&end_date=2025-01-31
  */
 export async function GET(req: NextRequest) {
   try {
@@ -12,10 +12,15 @@ export async function GET(req: NextRequest) {
     const carrier = searchParams.get("carrier");
     const status = searchParams.get("status");
     const orderType = searchParams.get("order_type");
+    const startDate = searchParams.get("start_date");
+    const endDate = searchParams.get("end_date");
 
     let query = supabase
       .from("shipping_tracking")
-      .select("*")
+      .select(`
+        *,
+        company:companies(id, name)
+      `)
       .order("created_at", { ascending: false });
 
     if (carrier) {
@@ -28,6 +33,14 @@ export async function GET(req: NextRequest) {
 
     if (orderType) {
       query = query.eq("order_type", orderType);
+    }
+
+    // 날짜 필터 (start_date, end_date)
+    if (startDate) {
+      query = query.gte("created_at", `${startDate}T00:00:00`);
+    }
+    if (endDate) {
+      query = query.lte("created_at", `${endDate}T23:59:59`);
     }
 
     const { data, error } = await query;
@@ -61,7 +74,7 @@ export async function POST(req: NextRequest) {
   try {
     const body: ShippingTrackingFormData = await req.json();
 
-    const { carrier, carrier_code, tracking_number, order_id, order_type, origin, destination, memo } = body;
+    const { carrier, carrier_code, tracking_number, order_id, order_type, company_id, origin, destination, memo } = body;
 
     if (!carrier || !tracking_number) {
       return NextResponse.json(
@@ -91,6 +104,7 @@ export async function POST(req: NextRequest) {
       tracking_number,
       order_id: order_id || null,
       order_type: order_type || null,
+      company_id: company_id || null,
       origin: origin || null,
       destination: destination || null,
       memo: memo || null,

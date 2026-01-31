@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, Package, Save, Building, Loader2, CheckCircle, AlertCircle, FileText, Clock, Eye, Printer, X, Link2 } from "lucide-react";
+import { ArrowLeft, Package, Save, Building, Loader2, CheckCircle, AlertCircle, FileText, Clock, Eye, Printer, X, Link2, XCircle } from "lucide-react";
 import Link from "next/link";
 import DocumentItemsGrid from "@/components/documents/DocumentItemsGrid";
 import { useLoginUser } from "@/context/login";
+import DocumentStatusChangeModal from "@/components/documents/details/DocumentStatusChangeModal";
+import { useUpdateDocumentStatus } from "@/hooks/documents/details/useUpdateDocumentStatus";
 
 interface Items {
   name: string;
@@ -85,6 +87,17 @@ export default function DocumentTestPage() {
   const [documentDetail, setDocumentDetail] = useState<DocumentDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
+  // 상태 변경 모달 상태
+  const [statusChangeDoc, setStatusChangeDoc] = useState<LinkedDocument | null>(null);
+  const [changedStatus, setChangedStatus] = useState("");
+  const [statusReason, setStatusReason] = useState({
+    canceled: { reason: "", amount: 0 },
+    completed: { reason: "", amount: 0 },
+  });
+
+  // 상태 업데이트 hook
+  const { trigger: updateStatus, isMutating } = useUpdateDocumentStatus();
+
   // type이 URL 파라미터로 지정된 경우 고정 모드
   const isTypeFixed = !!typeParam;
 
@@ -154,6 +167,81 @@ export default function DocumentTestPage() {
   const closeDetailModal = () => {
     setSelectedDocId(null);
     setDocumentDetail(null);
+  };
+
+  // 상태 변경 모달 열기
+  const openStatusChangeModal = (doc: LinkedDocument, status: string) => {
+    setChangedStatus(status);
+    setStatusChangeDoc(doc);
+  };
+
+  // 상태 변경 처리
+  const handleStatusChange = async () => {
+    if (!statusChangeDoc || !changedStatus) return;
+    if (isMutating) return;
+
+    const reason = statusReason[changedStatus as "canceled" | "completed"]?.reason;
+    if (!reason?.trim()) return;
+
+    const confirmChange = window.confirm("상태 변경은 되돌릴 수 없습니다. 변경할까요?");
+    if (!confirmChange) return;
+
+    try {
+      await updateStatus({
+        id: statusChangeDoc.id,
+        status: changedStatus,
+        status_reason: { [changedStatus]: { reason } },
+        updated_by: user?.id,
+      });
+
+      setStatusChangeDoc(null);
+      setStatusReason({
+        canceled: { reason: "", amount: 0 },
+        completed: { reason: "", amount: 0 },
+      });
+
+      // 문서 목록 새로고침을 위해 saveResult 트리거
+      setSaveResult({ success: true, message: "상태가 변경되었습니다." });
+      setTimeout(() => setSaveResult(null), 2000);
+    } catch (error) {
+      console.error("문서 상태 업데이트 실패:", error);
+      setSaveResult({ success: false, message: "상태 변경 중 오류가 발생했습니다." });
+    }
+  };
+
+  // 상태 사유 변경
+  const handleStatusReasonChange = (status: "canceled" | "completed", reason: string) => {
+    setStatusReason((prev) => ({
+      ...prev,
+      [status]: { ...prev[status], reason },
+    }));
+  };
+
+  // 상태 배지 컴포넌트
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+            <CheckCircle className="w-3 h-3" />
+            완료
+          </span>
+        );
+      case "canceled":
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+            <XCircle className="w-3 h-3" />
+            취소
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+            <Clock className="w-3 h-3" />
+            진행중
+          </span>
+        );
+    }
   };
 
   // 프린트 기능
@@ -491,55 +579,86 @@ export default function DocumentTestPage() {
                 .map((doc) => (
                   <div
                     key={doc.id}
-                    onClick={() => loadDocumentDetail(doc.id)}
-                    className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
+                    className={`p-3 rounded-lg border transition-all hover:shadow-md ${
                       doc.type === "order"
                         ? "bg-indigo-50/50 border-indigo-100 hover:bg-indigo-50"
                         : "bg-blue-50/50 border-blue-100 hover:bg-blue-50"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${
-                        doc.type === "order" ? "bg-indigo-100" : "bg-blue-100"
-                      }`}>
-                        <Package className={`h-4 w-4 ${
-                          doc.type === "order" ? "text-indigo-600" : "text-blue-600"
-                        }`} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-slate-800 text-sm">
-                            {doc.document_number}
-                          </span>
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            doc.type === "order"
-                              ? "bg-indigo-100 text-indigo-700"
-                              : "bg-blue-100 text-blue-700"
-                          }`}>
-                            {doc.type === "estimate" ? "견적서" : "발주서"}
-                          </span>
+                    <div className="flex items-center justify-between">
+                      <div
+                        className="flex items-center gap-3 flex-1 cursor-pointer"
+                        onClick={() => loadDocumentDetail(doc.id)}
+                      >
+                        <div className={`p-2 rounded-lg ${
+                          doc.type === "order" ? "bg-indigo-100" : "bg-blue-100"
+                        }`}>
+                          <Package className={`h-4 w-4 ${
+                            doc.type === "order" ? "text-indigo-600" : "text-blue-600"
+                          }`} />
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
-                          <span>{doc.date}</span>
-                          {doc.items_count !== undefined && (
-                            <span>• {doc.items_count}개 품목</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <div className="font-medium text-slate-800">
-                          {doc.total_amount?.toLocaleString()}원
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-slate-400">
-                          <Clock className="h-3 w-3" />
-                          {new Date(doc.created_at).toLocaleDateString("ko-KR")}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-slate-800 text-sm">
+                              {doc.document_number}
+                            </span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded ${
+                              doc.type === "order"
+                                ? "bg-indigo-100 text-indigo-700"
+                                : "bg-blue-100 text-blue-700"
+                            }`}>
+                              {doc.type === "estimate" ? "견적서" : "발주서"}
+                            </span>
+                            {getStatusBadge(doc.status)}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                            <span>{doc.date}</span>
+                            {doc.items_count !== undefined && (
+                              <span>• {doc.items_count}개 품목</span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <Eye className={`h-4 w-4 ${
-                        doc.type === "order" ? "text-indigo-400" : "text-blue-400"
-                      }`} />
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="font-medium text-slate-800">
+                            {doc.total_amount?.toLocaleString()}원
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-slate-400">
+                            <Clock className="h-3 w-3" />
+                            {new Date(doc.created_at).toLocaleDateString("ko-KR")}
+                          </div>
+                        </div>
+                        {/* 상태 변경 버튼 - pending 상태일 때만 */}
+                        {doc.status === "pending" && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openStatusChangeModal(doc, "completed");
+                              }}
+                              className="px-2 py-1 text-xs font-medium text-emerald-600 bg-emerald-50 rounded hover:bg-emerald-100 transition-colors"
+                            >
+                              완료
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openStatusChangeModal(doc, "canceled");
+                              }}
+                              className="px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                            >
+                              취소
+                            </button>
+                          </div>
+                        )}
+                        <Eye
+                          className={`h-4 w-4 cursor-pointer ${
+                            doc.type === "order" ? "text-indigo-400" : "text-blue-400"
+                          }`}
+                          onClick={() => loadDocumentDetail(doc.id)}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -768,6 +887,23 @@ export default function DocumentTestPage() {
           </div>
         </div>
       )}
+
+      {/* 상태 변경 모달 */}
+      <DocumentStatusChangeModal
+        isOpen={!!statusChangeDoc}
+        document={statusChangeDoc ? {
+          id: statusChangeDoc.id,
+          document_number: statusChangeDoc.document_number,
+          content: { items: [] },
+          company_name: companyInfo?.name || null,
+        } : null}
+        changedStatus={changedStatus}
+        statusReason={statusReason}
+        isMutating={isMutating}
+        onStatusReasonChange={handleStatusReasonChange}
+        onConfirm={handleStatusChange}
+        onClose={() => setStatusChangeDoc(null)}
+      />
     </div>
   );
 }

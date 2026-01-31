@@ -12,12 +12,34 @@ interface ShippingTrackingResponse {
   error?: string;
 }
 
+interface ShippingTrackingsOptions {
+  carrier?: CarrierType;
+  startDate?: string;
+  endDate?: string;
+}
+
 /**
  * 배송 추적 목록 조회 Hook
  */
-export function useShippingTrackings(carrier?: CarrierType) {
-  const url = carrier
-    ? `/api/shipping/tracking?carrier=${carrier}`
+export function useShippingTrackings(
+  carrierOrOptions?: CarrierType | ShippingTrackingsOptions
+) {
+  // 기존 호환성 유지: carrier 문자열 또는 옵션 객체 지원
+  const options: ShippingTrackingsOptions =
+    typeof carrierOrOptions === "string"
+      ? { carrier: carrierOrOptions }
+      : carrierOrOptions || {};
+
+  const { carrier, startDate, endDate } = options;
+
+  const params = new URLSearchParams();
+  if (carrier) params.append("carrier", carrier);
+  if (startDate) params.append("start_date", startDate);
+  if (endDate) params.append("end_date", endDate);
+
+  const queryString = params.toString();
+  const url = queryString
+    ? `/api/shipping/tracking?${queryString}`
     : `/api/shipping/tracking`;
 
   const { data, error, isLoading, mutate } = useSWR<ShippingTrackingResponse>(

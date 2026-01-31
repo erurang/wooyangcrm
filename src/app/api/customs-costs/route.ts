@@ -80,6 +80,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {
       company_id,
+      consultation_id,
       clearance_date,
       invoice_no,
       air_freight,
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
       express_freight,
       vat,
       shipping_method,
-      forwarder,
+      shipping_carrier_id,
       notes,
     } = body;
 
@@ -111,6 +112,7 @@ export async function POST(request: Request) {
       .insert([
         {
           company_id,
+          consultation_id: consultation_id || null,
           clearance_date,
           invoice_no,
           air_freight: Number(air_freight || 0),
@@ -123,7 +125,7 @@ export async function POST(request: Request) {
           vat: Number(vat || 0),
           total,
           shipping_method,
-          forwarder,
+          shipping_carrier_id: shipping_carrier_id || null,
           notes,
         },
       ])

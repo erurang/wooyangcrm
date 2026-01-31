@@ -23,6 +23,7 @@ interface DailyReportItem {
   no: number;
   companyName: string;
   companyId: string;
+  title: string;
   content: string;
   consultationId: string;
   consultationDate: string;
@@ -230,6 +231,7 @@ export async function GET(req: NextRequest) {
         no: index + 1,
         companyName: company?.name || "알 수 없음",
         companyId: consultation.company_id,
+        title: consultation.title || "",
         content: consultation.content || "",
         consultationId: consultation.id,
         consultationDate: consultation.date || "",

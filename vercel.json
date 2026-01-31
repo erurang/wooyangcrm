@@ -3,6 +3,10 @@
     {
       "path": "/api/admin/trigger-notifications",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/update-trade-status",
+      "schedule": "0 1 * * *"
     }
   ]
 }

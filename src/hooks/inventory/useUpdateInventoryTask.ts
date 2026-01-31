@@ -58,12 +58,14 @@ export function useUpdateInventoryTask() {
 
   const completeTask = async (
     taskId: string,
-    completed_by: string
+    completed_by: string,
+    taskType?: "inbound" | "outbound" // 해외 상담 작업용 task_type
   ): Promise<UpdateResult> => {
     return updateTask(taskId, {
       status: "completed",
       user_id: completed_by,
-    });
+      task_type: taskType, // 해외 상담 작업 시 필요
+    } as UpdateInventoryTaskRequest & { user_id: string; task_type?: string });
   };
 
   const updateExpectedDate = async (

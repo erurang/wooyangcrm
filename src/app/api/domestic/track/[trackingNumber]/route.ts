@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabaseClient";
 
 // 스마트택배 API 택배사 코드
 // https://tracking.sweettracker.co.kr/
@@ -65,6 +66,8 @@ interface SweetTrackerResponse {
 /**
  * GET /api/domestic/track/[trackingNumber]?carrier=04
  * 국내 택배 배송 조회 (스마트택배 API)
+ * - 배송완료된 건은 DB 캐시에서 반환
+ * - 미완료 건만 API 호출
  */
 export async function GET(
   req: NextRequest,
@@ -88,6 +91,19 @@ export async function GET(
       );
     }
 
+    // 1. 먼저 DB에서 캐시된 결과 확인 (배송완료된 건)
+    const { data: existingTracking } = await supabase
+      .from("shipping_tracking")
+      .select("id, is_completed, cached_result")
+      .eq("tracking_number", trackingNumber)
+      .eq("carrier", "domestic")
+      .single();
+
+    // 배송완료된 건이고 캐시가 있으면 캐시 반환
+    if (existingTracking?.is_completed && existingTracking?.cached_result) {
+      return NextResponse.json(existingTracking.cached_result);
+    }
+
     const apiKey = process.env.SWEETTRACKER_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -96,7 +112,7 @@ export async function GET(
       );
     }
 
-    // 스마트택배 API 호출
+    // 2. 스마트택배 API 호출
     const apiUrl = `http://info.sweettracker.co.kr/api/v1/trackingInfo?t_key=${apiKey}&t_code=${carrierCode}&t_invoice=${trackingNumber}`;
 
     const response = await fetch(apiUrl);
@@ -130,6 +146,20 @@ export async function GET(
         telno: detail.telno,
       })),
     };
+
+    // 3. 배송완료된 경우 DB에 캐시 저장
+    if (data.completeYN === "Y" && existingTracking?.id) {
+      await supabase
+        .from("shipping_tracking")
+        .update({
+          is_completed: true,
+          cached_result: normalizedResult,
+          completed_at: new Date().toISOString(),
+          status: "delivered",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", existingTracking.id);
+    }
 
     return NextResponse.json(normalizedResult);
   } catch (error) {

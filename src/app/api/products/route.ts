@@ -53,6 +53,7 @@ export async function GET(request: Request) {
 
   const startDate = searchParams.get("start_date");
   const endDate = searchParams.get("end_date");
+  const userId = searchParams.get("userId") || "";
 
   // 페이지네이션 파라미터
   const page = parseInt(searchParams.get("page") || "1", 10);
@@ -72,6 +73,11 @@ export async function GET(request: Request) {
     // status 필터
     if (status) {
       query = query.eq("status", status);
+    }
+
+    // 유저 필터
+    if (userId) {
+      query = query.eq("user_id", userId);
     }
 
     // 날짜 필터

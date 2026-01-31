@@ -19,11 +19,13 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
   const {
     notifications,
     unreadCount,
+    total,
+    hasMore,
     isLoading,
     markAsRead,
     markAllAsRead,
     deleteNotification,
-  } = useNotifications(userId);
+  } = useNotifications(userId, { limit: 10 });
 
   // 외부 클릭 감지
   useEffect(() => {
@@ -310,52 +312,69 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                   <p className="text-sm">알림이 없습니다</p>
                 </div>
               ) : (
-                notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`
-                      p-3 border-b border-gray-100 cursor-pointer
-                      hover:bg-gray-50 transition-colors
-                      ${!notification.read ? "bg-indigo-50/50" : ""}
-                    `}
-                    onClick={() => handleNotificationClick(notification)}
-                  >
-                    <div className="flex items-start gap-3">
-                      {/* 타입 아이콘 */}
-                      <span
-                        className={`
-                          flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm
-                          ${getTypeColor(notification.type)}
-                        `}
-                      >
-                        {getTypeIcon(notification.type)}
-                      </span>
+                <>
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`
+                        p-3 border-b border-gray-100 cursor-pointer
+                        hover:bg-gray-50 transition-colors
+                        ${!notification.read ? "bg-indigo-50/50" : ""}
+                      `}
+                      onClick={() => handleNotificationClick(notification)}
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* 타입 아이콘 */}
+                        <span
+                          className={`
+                            flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm
+                            ${getTypeColor(notification.type)}
+                          `}
+                        >
+                          {getTypeIcon(notification.type)}
+                        </span>
 
-                      {/* 내용 */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {notification.title}
-                        </p>
-                        <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">
-                          {notification.message}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {formatDistanceToNow(new Date(notification.created_at), {
-                            addSuffix: true,
-                            locale: ko,
-                          })}
-                        </p>
+                        {/* 내용 */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {notification.title}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {formatDistanceToNow(new Date(notification.created_at), {
+                              addSuffix: true,
+                              locale: ko,
+                            })}
+                          </p>
+                        </div>
+
+                        {/* 읽지 않음 표시 */}
+                        {!notification.read && (
+                          <span className="flex-shrink-0 w-2 h-2 bg-indigo-500 rounded-full mt-2" />
+                        )}
                       </div>
-
-                      {/* 읽지 않음 표시 */}
-                      {!notification.read && (
-                        <span className="flex-shrink-0 w-2 h-2 bg-indigo-500 rounded-full mt-2" />
-                      )}
                     </div>
-                  </div>
-                ))
+                  ))}
+                </>
               )}
             </div>
+
+            {/* 전체 알림 보기 링크 */}
+            {(hasMore || total > 10) && (
+              <div className="border-t border-gray-200 bg-gray-50">
+                <button
+                  onClick={() => {
+                    router.push("/notifications");
+                    setIsOpen(false);
+                  }}
+                  className="w-full py-3 text-sm text-indigo-600 hover:text-indigo-800 hover:bg-gray-100 transition-colors font-medium"
+                >
+                  전체 알림 보기 ({total}개)
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
