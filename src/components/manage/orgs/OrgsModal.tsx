@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import FormModal from "@/components/ui/FormModal";
-import { formatPhoneNumber } from "@/lib/formatPhoneNumber";
 
 interface Contact {
   id?: string;
@@ -96,7 +95,7 @@ export default function OrgsModal({
             }}
             value={orgData.phone || ""}
             type="text"
-            onChange={(e) => onOrgDataChange({ phone: formatPhoneNumber(e.target.value) })}
+            onChange={(e) => onOrgDataChange({ phone: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded-md"
             placeholder="02-1234-5678"
             maxLength={13}
@@ -111,7 +110,7 @@ export default function OrgsModal({
             }}
             type="text"
             value={orgData.fax || ""}
-            onChange={(e) => onOrgDataChange({ fax: formatPhoneNumber(e.target.value) })}
+            onChange={(e) => onOrgDataChange({ fax: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded-md"
             placeholder="02-1234-5678"
             maxLength={13}
@@ -158,7 +157,7 @@ export default function OrgsModal({
                 type="text"
                 placeholder="010-1234-5678"
                 value={contact.phone || ""}
-                onChange={(e) => onContactChange(index, "phone", formatPhoneNumber(e.target.value))}
+                onChange={(e) => onContactChange(index, "phone", e.target.value)}
                 className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
                 maxLength={13}
               />

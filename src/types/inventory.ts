@@ -186,3 +186,264 @@ export interface SpecSheetPage {
   companyName: string;
   fields: SpecSheetField[];
 }
+
+// =====================================================
+// LOT 기반 재고 관리 타입
+// =====================================================
+
+// LOT 출처 타입
+export type LotSourceType = "purchase" | "split" | "production" | "return" | "adjust";
+
+// LOT 상태
+export type LotStatus = "available" | "reserved" | "split" | "depleted" | "scrapped";
+
+// LOT 트랜잭션 타입
+export type LotTransactionType =
+  | "inbound"
+  | "outbound"
+  | "split_out"
+  | "split_in"
+  | "adjust"
+  | "reserve"
+  | "unreserve"
+  | "scrap";
+
+// 재고 LOT
+export interface InventoryLot {
+  id: string;
+  product_id: string;
+  lot_number: string;
+  initial_quantity: number;
+  current_quantity: number;
+  unit: string | null;
+  spec_value: string | null;
+  spec_description: string | null;
+  source_type: LotSourceType;
+  source_lot_id: string | null;
+  source_document_id: string | null;
+  supplier_company_id: string | null;
+  status: LotStatus;
+  location: string | null;
+  unit_cost: number | null;
+  total_cost: number | null;
+  received_at: string | null;
+  expiry_date: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  created_by: string | null;
+}
+
+// LOT + 관계 데이터
+export interface InventoryLotWithDetails extends InventoryLot {
+  product?: {
+    id: string;
+    internal_code: string | null;
+    internal_name: string;
+    unit: string | null;
+  };
+  source_lot?: {
+    id: string;
+    lot_number: string;
+  };
+  source_document?: {
+    id: string;
+    document_number: string;
+    type: string;
+  };
+  supplier_company?: {
+    id: string;
+    name: string;
+  };
+  creator?: {
+    id: string;
+    name: string;
+  };
+}
+
+// LOT 분할 기록
+export interface LotSplit {
+  id: string;
+  source_lot_id: string;
+  source_quantity_before: number;
+  split_quantity: number;
+  reason: string | null;
+  output_lot_id: string | null;
+  remnant_lot_id: string | null;
+  related_document_id: string | null;
+  notes: string | null;
+  split_at: string;
+  split_by: string | null;
+}
+
+// LOT 분할 + 관계 데이터
+export interface LotSplitWithDetails extends LotSplit {
+  source_lot?: {
+    id: string;
+    lot_number: string;
+    product_id: string;
+  };
+  output_lot?: {
+    id: string;
+    lot_number: string;
+    current_quantity: number;
+  };
+  remnant_lot?: {
+    id: string;
+    lot_number: string;
+    current_quantity: number;
+  };
+  splitter?: {
+    id: string;
+    name: string;
+  };
+}
+
+// LOT 트랜잭션
+export interface LotTransaction {
+  id: string;
+  lot_id: string;
+  transaction_type: LotTransactionType;
+  quantity: number;
+  quantity_before: number;
+  quantity_after: number;
+  document_id: string | null;
+  split_id: string | null;
+  notes: string | null;
+  created_at: string;
+  created_by: string | null;
+}
+
+// LOT 트랜잭션 + 관계 데이터
+export interface LotTransactionWithDetails extends LotTransaction {
+  lot?: {
+    id: string;
+    lot_number: string;
+    product_id: string;
+  };
+  document?: {
+    id: string;
+    document_number: string;
+    type: string;
+  };
+  creator?: {
+    id: string;
+    name: string;
+  };
+}
+
+// 제품별 LOT 요약 (뷰)
+export interface ProductLotSummary {
+  product_id: string;
+  internal_code: string | null;
+  internal_name: string;
+  unit: string | null;
+  available_lot_count: number;
+  available_quantity: number;
+  reserved_lot_count: number;
+  reserved_quantity: number;
+  total_lot_count: number;
+}
+
+// LOT 생성 요청
+export interface CreateLotRequest {
+  product_id: string;
+  initial_quantity: number;
+  unit?: string;
+  spec_value?: string;
+  spec_description?: string;
+  source_type?: LotSourceType;
+  source_document_id?: string;
+  supplier_company_id?: string;
+  location?: string;
+  unit_cost?: number;
+  received_at?: string;
+  expiry_date?: string;
+  notes?: string;
+}
+
+// LOT 수정 요청
+export interface UpdateLotRequest {
+  location?: string;
+  unit_cost?: number;
+  expiry_date?: string | null;
+  notes?: string | null;
+  status?: LotStatus;
+}
+
+// LOT 분할 요청
+export interface SplitLotRequest {
+  source_lot_id: string;
+  split_quantity: number;
+  reason?: string;
+  notes?: string;
+}
+
+// LOT 분할 응답
+export interface SplitLotResponse {
+  success: boolean;
+  output_lot_id: string;
+  remnant_lot_id: string;
+  split_id: string;
+  output_lot?: InventoryLotWithDetails;
+  remnant_lot?: InventoryLotWithDetails;
+}
+
+// LOT 목록 응답
+export interface LotListResponse {
+  lots: InventoryLotWithDetails[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+// LOT 필터
+export interface LotFilters {
+  product_id?: string;
+  status?: LotStatus | "all";
+  source_type?: LotSourceType;
+  supplier_company_id?: string;
+  location?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+// LOT 상태 레이블
+export const LOT_STATUS_LABELS: Record<LotStatus, string> = {
+  available: "사용 가능",
+  reserved: "예약됨",
+  split: "분할됨",
+  depleted: "소진",
+  scrapped: "폐기",
+};
+
+// LOT 상태 색상
+export const LOT_STATUS_COLORS: Record<LotStatus, string> = {
+  available: "bg-green-100 text-green-800",
+  reserved: "bg-yellow-100 text-yellow-800",
+  split: "bg-blue-100 text-blue-800",
+  depleted: "bg-gray-100 text-gray-800",
+  scrapped: "bg-red-100 text-red-800",
+};
+
+// LOT 출처 레이블
+export const LOT_SOURCE_LABELS: Record<LotSourceType, string> = {
+  purchase: "구매 입고",
+  split: "분할",
+  production: "생산",
+  return: "반품",
+  adjust: "재고 조정",
+};
+
+// LOT 트랜잭션 타입 레이블
+export const LOT_TRANSACTION_LABELS: Record<LotTransactionType, string> = {
+  inbound: "입고",
+  outbound: "출고",
+  split_out: "분할 소멸",
+  split_in: "분할 생성",
+  adjust: "재고 조정",
+  reserve: "예약",
+  unreserve: "예약 해제",
+  scrap: "폐기",
+};

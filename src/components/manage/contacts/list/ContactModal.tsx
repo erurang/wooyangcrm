@@ -4,7 +4,6 @@ import { useRef, useEffect, useState, useMemo } from "react";
 import { User, Building, Briefcase, Mail, Phone } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCompanySearch } from "@/hooks/manage/contacts/useCompanySearch";
-import { formatPhoneNumber } from "@/lib/formatPhoneNumber";
 import FormModal from "@/components/ui/FormModal";
 
 interface ContactData {
@@ -226,7 +225,7 @@ export default function ContactModal({
               value={contactData.mobile}
               onChange={(e) =>
                 onContactDataChange({
-                  mobile: formatPhoneNumber(e.target.value),
+                  mobile: e.target.value,
                 })
               }
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

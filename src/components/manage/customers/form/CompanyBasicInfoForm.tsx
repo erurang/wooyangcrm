@@ -1,7 +1,6 @@
 "use client";
 
 import { AlertCircle } from "lucide-react";
-import { formatPhoneNumber } from "@/lib/formatPhoneNumber";
 
 interface Company {
   name: string;
@@ -126,7 +125,7 @@ export default function CompanyBasicInfoForm({
         <input
           type="text"
           value={company.phone || ""}
-          onChange={(e) => handleChange("phone", formatPhoneNumber(e.target.value))}
+          onChange={(e) => handleChange("phone", e.target.value)}
           className={getInputClass(!!errors.phone)}
           placeholder="02-1234-5678"
           maxLength={13}
@@ -146,7 +145,7 @@ export default function CompanyBasicInfoForm({
         <input
           type="text"
           value={company.fax || ""}
-          onChange={(e) => handleChange("fax", formatPhoneNumber(e.target.value))}
+          onChange={(e) => handleChange("fax", e.target.value)}
           className={getInputClass(false)}
           placeholder="02-1234-5678"
           maxLength={13}
