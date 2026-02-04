@@ -548,7 +548,7 @@ export default function ConsultationPage() {
         contacts={contactsUi}
         setContacts={setContactsUi}
         originalContacts={contacts}
-        onSave={() => handleUpdateContacts(contactsUi, contacts[0]?.company_id, () => setOpenEditContactsModal(false))}
+        onSave={() => handleUpdateContacts(contactsUi, id, () => setOpenEditContactsModal(false))}
         saving={saving}
       />
 
