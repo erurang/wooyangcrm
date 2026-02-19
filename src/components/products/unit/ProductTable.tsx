@@ -111,7 +111,7 @@ export default function ProductTable({
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
         <div className="flex flex-col justify-center items-center p-12">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-500 mt-3">물품을 불러오는 중...</p>
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function ProductTable({
             <div className="flex items-center justify-between text-xs mb-2">
               <button
                 onClick={() => router.push(`/consultations/${product.company_id}`)}
-                className="text-blue-600"
+                className="text-sky-600"
               >
                 {product.company_name}
               </button>
@@ -154,7 +154,7 @@ export default function ProductTable({
               </div>
               <button
                 onClick={() => onDocumentClick?.(product.id)}
-                className="text-xs text-blue-600"
+                className="text-xs text-sky-600"
               >
                 {product.document_number}
               </button>
@@ -195,7 +195,7 @@ export default function ProductTable({
                 <td className="px-6 py-4 whitespace-nowrap text-sm hidden md:table-cell">
                   <button
                     onClick={() => onDocumentClick?.(product.id)}
-                    className="text-blue-600 hover:text-blue-700 hover:underline transition-colors font-medium"
+                    className="text-sky-600 hover:text-sky-700 hover:underline transition-colors font-medium"
                   >
                     {product.document_number}
                   </button>
@@ -208,7 +208,7 @@ export default function ProductTable({
                     onClick={() =>
                       router.push(`/consultations/${product.company_id}`)
                     }
-                    className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                    className="text-sky-600 hover:text-sky-700 hover:underline transition-colors"
                   >
                     {product.company_name}
                   </button>

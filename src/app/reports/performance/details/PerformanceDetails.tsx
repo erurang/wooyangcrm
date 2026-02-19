@@ -123,7 +123,7 @@ const PerformanceDetails = () => {
               value={searchCompany}
               onChange={(e) => setSearchCompany(e.target.value)}
               placeholder="거래처명"
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-slate-300 rounded-r-md"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -140,7 +140,7 @@ const PerformanceDetails = () => {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-slate-300 rounded-r-md"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -156,7 +156,7 @@ const PerformanceDetails = () => {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-gray-300 rounded-r-md"
+              className="w-3/4 p-2 border-r-[1px] border-t-[1px] border-b-[1px] border-slate-300 rounded-r-md"
               whileFocus={{
                 scale: 1.05,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -168,7 +168,7 @@ const PerformanceDetails = () => {
           <div className="flex justify-end">
             <button
               onClick={handleSearch}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md"
+              className="px-4 py-2 bg-sky-500 text-white rounded-md"
             >
               검색
             </button>
@@ -180,7 +180,7 @@ const PerformanceDetails = () => {
       <div>
         <table className="min-w-full table-auto border-collapse text-center">
           <thead>
-            <tr className="bg-gray-100 text-left">
+            <tr className="bg-slate-100 text-left">
               {type === "estimate" && (
                 <>
                   <th className="px-4 py-2 border-b border-r-[1px] text-center">
@@ -223,9 +223,9 @@ const PerformanceDetails = () => {
           <tbody>
             {type === "estimate" &&
               documentData?.map((doc) => (
-                <tr key={doc.companyId} className="hover:bg-gray-50">
+                <tr key={doc.companyId} className="hover:bg-slate-50">
                   <td
-                    className="px-4 py-2 border-b text-blue-500 cursor-pointer border-r-[1px]"
+                    className="px-4 py-2 border-b text-sky-500 cursor-pointer border-r-[1px]"
                     onClick={() =>
                       router.push(
                         `/reports/performance/details/${doc.companyId}?type=estimate`
@@ -253,9 +253,9 @@ const PerformanceDetails = () => {
               ))}
             {type === "order" &&
               documentData.map((doc) => (
-                <tr key={doc.companyId} className="hover:bg-gray-50">
+                <tr key={doc.companyId} className="hover:bg-slate-50">
                   <td
-                    className="px-4 py-2 border-b text-blue-500 cursor-pointer border-r-[1px]"
+                    className="px-4 py-2 border-b text-sky-500 cursor-pointer border-r-[1px]"
                     onClick={() =>
                       router.push(
                         `/reports/performance/details/${doc.companyId}?type=order`
@@ -298,7 +298,7 @@ const PerformanceDetails = () => {
             onClick={() => typeof page === "number" && setCurrentPage(page)}
             className={`px-3 py-1 border rounded ${
               currentPage === page
-                ? "bg-blue-500 text-white font-bold"
+                ? "bg-sky-500 text-white font-bold"
                 : "bg-white"
             }`}
           >

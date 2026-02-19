@@ -49,7 +49,7 @@ function getStatusColor(status: string) {
     case "canceled":
       return "text-rose-600 bg-rose-50";
     default:
-      return "text-gray-600 bg-gray-50";
+      return "text-slate-500 bg-slate-50";
   }
 }
 
@@ -74,7 +74,7 @@ function MobileTabButton({
       onClick={onClick}
       className={`flex-1 flex items-center justify-center gap-1 py-2 px-3 text-sm font-medium rounded-lg transition-colors ${
         active
-          ? "bg-indigo-600 text-white"
+          ? "bg-sky-600 text-white"
           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
       }`}
     >
@@ -93,8 +93,8 @@ export default function ConsultationTab({
   return (
     <div className="bg-white border border-slate-200 shadow-sm p-4 md:p-5 mx-2 md:mx-5 mb-5 rounded-lg">
       <div className="flex items-center mb-4 md:mb-6">
-        <div className="bg-indigo-50 p-2 rounded-md mr-3">
-          <Users className="h-5 w-5 text-indigo-600" />
+        <div className="bg-sky-50 p-2 rounded-md mr-3">
+          <Users className="h-5 w-5 text-sky-600" />
         </div>
         <h2 className="text-lg md:text-xl font-semibold text-slate-800">
           상담 내역 및 문서
@@ -127,9 +127,9 @@ export default function ConsultationTab({
       <div className="space-y-6 overflow-y-auto max-h-[700px] pr-2">
         {/* 데스크탑 헤더 (3열) */}
         <div className="hidden md:grid grid-cols-3 gap-6 text-slate-700 font-semibold border-b pb-2">
-          <div className="text-indigo-600">상담 기록</div>
-          <div className="text-indigo-600">관련 문서</div>
-          <div className="text-indigo-600">품목 리스트</div>
+          <div className="text-sky-600">상담 기록</div>
+          <div className="text-sky-600">관련 문서</div>
+          <div className="text-sky-600">품목 리스트</div>
         </div>
 
         {/* 상담들 */}
@@ -141,7 +141,7 @@ export default function ConsultationTab({
             >
               {/* 왼쪽 열: 상담 기록 */}
               <div
-                className={`p-4 border border-slate-200 rounded-lg bg-white hover:bg-indigo-50 cursor-pointer transition-colors shadow-sm ${
+                className={`p-4 border border-slate-200 rounded-lg bg-white hover:bg-sky-50 cursor-pointer transition-colors shadow-sm ${
                   mobileTab !== "consultation" ? "hidden md:block" : ""
                 }`}
                 onClick={() =>
@@ -152,7 +152,7 @@ export default function ConsultationTab({
                   <span className="text-sm text-slate-500">
                     {consultation.date}
                   </span>
-                  <span className="font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md text-xs">
+                  <span className="font-semibold text-sky-600 bg-sky-50 px-2 py-1 rounded-md text-xs">
                     {consultation.company_name}
                   </span>
                 </div>
@@ -207,7 +207,7 @@ export default function ConsultationTab({
                           </div>
                           <p className="text-xs text-slate-700">
                             문서번호:{" "}
-                            <span className="text-indigo-600 font-semibold">
+                            <span className="text-sky-600 font-semibold">
                               {doc.document_number}
                             </span>
                           </p>
@@ -275,7 +275,7 @@ export default function ConsultationTab({
                             <span className="text-slate-500 text-center">
                               {item.quantity}
                             </span>
-                            <span className="text-indigo-600 font-semibold text-right">
+                            <span className="text-sky-600 font-semibold text-right">
                               {Number(item.amount).toLocaleString()} 원
                             </span>
                           </div>

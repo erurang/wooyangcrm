@@ -38,8 +38,8 @@ export default function DocumentsTab({
   return (
     <div className="bg-white border border-slate-200 shadow-sm p-5 mx-5 mb-5 rounded-lg">
       <div className="flex items-center mb-6">
-        <div className="bg-indigo-50 p-2 rounded-md mr-3">
-          <FileText className="h-5 w-5 text-indigo-600" />
+        <div className="bg-sky-50 p-2 rounded-md mr-3">
+          <FileText className="h-5 w-5 text-sky-600" />
         </div>
         <h2 className="text-xl font-semibold text-slate-800">문서 상태 요약</h2>
       </div>
@@ -48,8 +48,8 @@ export default function DocumentsTab({
         {/* 견적서 상태 */}
         <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <FileText className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <FileText className="h-5 w-5 text-sky-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800">견적서 상태</h3>
           </div>
@@ -120,8 +120,8 @@ export default function DocumentsTab({
         {/* 발주서 상태 */}
         <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <FileText className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <FileText className="h-5 w-5 text-sky-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800">발주서 상태</h3>
           </div>
@@ -193,8 +193,8 @@ export default function DocumentsTab({
       {/* 매출/매입 요약 */}
       <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm mb-6">
         <div className="flex items-center mb-4">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <BarChart3 className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <BarChart3 className="h-5 w-5 text-sky-600" />
           </div>
           <h3 className="text-lg font-semibold text-slate-800">매출/매입 요약</h3>
         </div>

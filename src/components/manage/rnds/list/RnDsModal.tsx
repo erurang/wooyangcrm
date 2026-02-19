@@ -76,7 +76,7 @@ export default function RnDsModal({
             type="text"
             value={rndData.name || ""}
             onChange={(e) => onRndDataChange({ name: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -89,7 +89,7 @@ export default function RnDsModal({
             type="text"
             value={formatNumber(rndData.total_cost || "")}
             onChange={(e) => handleNumberChange("total_cost", e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -102,7 +102,7 @@ export default function RnDsModal({
             type="date"
             value={rndData.start_date || ""}
             onChange={(e) => onRndDataChange({ start_date: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -115,7 +115,7 @@ export default function RnDsModal({
             type="date"
             value={rndData.end_date || ""}
             onChange={(e) => onRndDataChange({ end_date: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -130,7 +130,7 @@ export default function RnDsModal({
             onChange={(e) =>
               handleNumberChange("gov_contribution", e.target.value)
             }
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -160,7 +160,7 @@ export default function RnDsModal({
           }
           value={rndData.notes || ""}
           onChange={(e) => onRndDataChange({ notes: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded-md min-h-52"
+          className="w-full p-2 border border-slate-300 rounded-md min-h-52"
         />
       </div>
     </FormModal>

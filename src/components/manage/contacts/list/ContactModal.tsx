@@ -85,7 +85,7 @@ export default function ContactModal({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* 거래처명 */}
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-600 mb-1">
             거래처명 <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -98,24 +98,24 @@ export default function ContactModal({
                 onContactDataChange({ companyName: e.target.value })
               }
               disabled={mode === "edit"}
-              className={`w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                mode === "edit" ? "bg-gray-50 cursor-not-allowed" : ""
+              className={`w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 ${
+                mode === "edit" ? "bg-slate-50 cursor-not-allowed" : ""
               }`}
             />
             <Building
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               size={18}
             />
 
             {isDropdownOpen && mode === "add" && (
               <ul
                 ref={dropdownRef}
-                className="absolute left-0 right-0 bg-white border border-gray-300 rounded-md mt-1 z-10 shadow-lg max-h-36 overflow-y-auto"
+                className="absolute left-0 right-0 bg-white border border-slate-300 rounded-md mt-1 z-10 shadow-lg max-h-36 overflow-y-auto"
               >
                 {filteredCompanies.map((company: any) => (
                   <li
                     key={company.id}
-                    className="p-2 cursor-pointer hover:bg-gray-100"
+                    className="p-2 cursor-pointer hover:bg-slate-100"
                     onMouseDown={(e) => {
                       e.preventDefault();
                       onContactDataChange({ companyName: company.name });
@@ -132,7 +132,7 @@ export default function ContactModal({
 
         {/* 담당자명 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-600 mb-1">
             담당자명 <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -142,11 +142,11 @@ export default function ContactModal({
               onChange={(e) =>
                 onContactDataChange({ contactName: e.target.value })
               }
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
               placeholder="담당자명 입력"
             />
             <User
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               size={18}
             />
           </div>
@@ -154,7 +154,7 @@ export default function ContactModal({
 
         {/* 직급 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-600 mb-1">
             직급
           </label>
           <div className="relative">
@@ -162,11 +162,11 @@ export default function ContactModal({
               type="text"
               value={contactData.level}
               onChange={(e) => onContactDataChange({ level: e.target.value })}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
               placeholder="직급 입력"
             />
             <Briefcase
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               size={18}
             />
           </div>
@@ -174,7 +174,7 @@ export default function ContactModal({
 
         {/* 부서 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-600 mb-1">
             부서
           </label>
           <div className="relative">
@@ -184,11 +184,11 @@ export default function ContactModal({
               onChange={(e) =>
                 onContactDataChange({ department: e.target.value })
               }
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
               placeholder="부서 입력"
             />
             <Building
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               size={18}
             />
           </div>
@@ -196,7 +196,7 @@ export default function ContactModal({
 
         {/* 이메일 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-600 mb-1">
             이메일
           </label>
           <div className="relative">
@@ -204,11 +204,11 @@ export default function ContactModal({
               type="email"
               value={contactData.email}
               onChange={(e) => onContactDataChange({ email: e.target.value })}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
               placeholder="이메일 입력"
             />
             <Mail
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               size={18}
             />
           </div>
@@ -216,7 +216,7 @@ export default function ContactModal({
 
         {/* 연락처 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-600 mb-1">
             연락처
           </label>
           <div className="relative">
@@ -228,12 +228,12 @@ export default function ContactModal({
                   mobile: e.target.value,
                 })
               }
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
               placeholder="010-1234-5678"
               maxLength={13}
             />
             <Phone
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               size={18}
             />
           </div>
@@ -241,14 +241,14 @@ export default function ContactModal({
 
         {/* 비고 */}
         <div className="md:col-span-2 lg:col-span-3">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-600 mb-1">
             비고
           </label>
           <textarea
             value={contactData.notes}
             onChange={(e) => onContactDataChange({ notes: e.target.value })}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
             placeholder="담당자에 대한 추가 정보를 입력하세요."
           ></textarea>
         </div>

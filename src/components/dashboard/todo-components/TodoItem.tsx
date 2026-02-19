@@ -1,7 +1,6 @@
 "use client";
 
-import CircularProgress from "@mui/material/CircularProgress";
-import { Trash2, CheckCircle, Circle, GripVertical, Calendar, AlertCircle } from "lucide-react";
+import { Trash2, CheckCircle, Circle, GripVertical, Calendar, AlertCircle, Loader2 } from "lucide-react";
 
 // 마감일까지 남은 일수 계산
 function getDueDateStatus(dueDate: string | null): { daysLeft: number; status: "overdue" | "urgent" | "soon" | "normal" | null } {
@@ -73,11 +72,11 @@ export default function TodoItem({
       ? "border-emerald-400 shadow-md opacity-50"
       : "border-slate-200 hover:border-emerald-300"
     : isDragged
-      ? "border-indigo-400 shadow-md opacity-50"
-      : "border-slate-200 hover:border-indigo-300";
+      ? "border-sky-400 shadow-md opacity-50"
+      : "border-slate-200 hover:border-sky-300";
 
-  const hoverColor = isCompleted ? "hover:text-emerald-500" : "hover:text-indigo-500";
-  const ringColor = isCompleted ? "focus:ring-emerald-300" : "focus:ring-indigo-300";
+  const hoverColor = isCompleted ? "hover:text-emerald-500" : "hover:text-sky-500";
+  const ringColor = isCompleted ? "focus:ring-emerald-300" : "focus:ring-sky-300";
   const textStyle = isCompleted ? "text-slate-500 line-through" : "text-slate-700";
 
   // 마감일 상태 계산
@@ -125,7 +124,7 @@ export default function TodoItem({
       <button
         onClick={onToggleComplete}
         className={`flex-shrink-0 mr-3 ${
-          isCompleted ? "" : "text-slate-400 hover:text-indigo-600 transition-colors"
+          isCompleted ? "" : "text-slate-400 hover:text-sky-600 transition-colors"
         }`}
       >
         {isCompleted ? (
@@ -168,7 +167,7 @@ export default function TodoItem({
         disabled={isDeleting}
       >
         {isDeleting ? (
-          <CircularProgress size={16} color="inherit" />
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
           <Trash2 className="h-4 w-4" />
         )}

@@ -64,9 +64,9 @@ export default function DocumentTable({
 
     if (daysLeft < 0) {
       return {
-        className: "text-gray-400 line-through",
+        className: "text-slate-400 line-through",
         label: (
-          <span className="ml-1 px-1.5 py-0.5 text-xs font-medium rounded bg-gray-200 text-gray-600">
+          <span className="ml-1 px-1.5 py-0.5 text-xs font-medium rounded bg-slate-200 text-slate-500">
             만료
           </span>
         ),
@@ -108,22 +108,22 @@ export default function DocumentTable({
   // 행 배경색 (만료 임박 시 하이라이트)
   const getRowClassName = (document: Document) => {
     if (type !== "estimate" || document.status !== "pending") {
-      return "hover:bg-gray-50";
+      return "hover:bg-slate-50";
     }
     const validUntil = document.valid_until;
-    if (!validUntil) return "hover:bg-gray-50";
+    if (!validUntil) return "hover:bg-slate-50";
     const daysLeft = getDaysUntilExpiry(validUntil);
-    if (daysLeft < 0) return "bg-gray-50 opacity-60 hover:bg-gray-100";
+    if (daysLeft < 0) return "bg-slate-50 opacity-60 hover:bg-slate-100";
     if (daysLeft <= 1) return "bg-red-50 hover:bg-red-100";
     if (daysLeft <= 3) return "bg-orange-50 hover:bg-orange-100";
-    return "hover:bg-gray-50";
+    return "hover:bg-slate-50";
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
         return (
-          <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
+          <span className="px-2 py-1 text-xs font-medium rounded-full bg-sky-100 text-sky-800 flex items-center gap-1">
             <Clock className="h-3 w-3" />
             진행중
           </span>
@@ -144,7 +144,7 @@ export default function DocumentTable({
         );
       case "expired":
         return (
-          <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 flex items-center gap-1">
+          <span className="px-2 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-700 flex items-center gap-1">
             <Clock className="h-3 w-3" />
             만료
           </span>
@@ -158,19 +158,19 @@ export default function DocumentTable({
     if (type === "estimate") {
       return (
         <>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
             견적일
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
             유효기간
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden md:table-cell">
             담당자
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden md:table-cell">
             견적자
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
             견적내용
           </th>
         </>
@@ -179,19 +179,19 @@ export default function DocumentTable({
     if (type === "order") {
       return (
         <>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
             발주일
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
             납기일
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden md:table-cell">
             담당자
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden md:table-cell">
             발주자
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
             발주내역
           </th>
         </>
@@ -200,19 +200,19 @@ export default function DocumentTable({
     if (type === "requestQuote") {
       return (
         <>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
             의뢰일
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
             희망견적일
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden md:table-cell">
             담당자
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider hidden md:table-cell">
             의뢰자
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
             의뢰내역
           </th>
         </>
@@ -223,34 +223,34 @@ export default function DocumentTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-slate-200">
+        <thead className="bg-slate-50">
           <tr>
             {getHeaderColumns()}
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
               총액
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
               문서번호
             </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
               상태
             </th>
-            <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase tracking-wider">
               관리
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-slate-200">
           {documents?.length === 0 ? (
             <tr>
-              <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+              <td colSpan={9} className="px-4 py-8 text-center text-slate-400">
                 <div className="flex flex-col items-center justify-center">
-                  <FileText className="h-12 w-12 text-gray-300 mb-2" />
+                  <FileText className="h-12 w-12 text-slate-300 mb-2" />
                   <p>등록된 문서가 없습니다.</p>
                   <button
                     onClick={() => setOpenAddModal(true)}
-                    className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                    className="mt-3 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors text-sm font-medium"
                   >
                     {getDocumentTypeText()} 추가하기
                   </button>
@@ -274,10 +274,10 @@ export default function DocumentTable({
                 ref={isHighlighted ? highlightRef : null}
                 className={`${isHighlighted ? "bg-amber-50 ring-2 ring-amber-300 ring-inset" : getRowClassName(document)} transition-colors`}
               >
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">
                   {document.date}
                 </td>
-                <td className={`px-4 py-3 whitespace-nowrap text-sm ${expiryStyle.className || "text-gray-700"}`}>
+                <td className={`px-4 py-3 whitespace-nowrap text-sm ${expiryStyle.className || "text-slate-600"}`}>
                   <span className="flex items-center">
                     {type === "estimate" && validUntil && (
                       <>
@@ -289,13 +289,13 @@ export default function DocumentTable({
                     {type === "requestQuote" && deliveryDate}
                   </span>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 hidden md:table-cell">
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 hidden md:table-cell">
                   {document.contact_name} {document.contact_level}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 hidden md:table-cell">
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600 hidden md:table-cell">
                   {document.user_name} {document.user_level}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
+                <td className="px-4 py-3 text-sm text-slate-600">
                   <div className="max-h-24 overflow-y-auto">
                     {document.content.items.map((item, index) => (
                       <div key={index} className="mb-1 last:mb-0">
@@ -309,13 +309,13 @@ export default function DocumentTable({
                     ))}
                   </div>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-800">
                   {totalAmount?.toLocaleString()} 원
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-sm">
                   <button
                     onClick={() => handleDocumentNumberClick(document)}
-                    className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                    className="text-sky-600 hover:text-sky-800 hover:underline font-medium"
                   >
                     {document.document_number}
                   </button>
@@ -325,7 +325,7 @@ export default function DocumentTable({
                   user?.id === document.user_id ? (
                     <button
                       onClick={() => setStatusChangeDoc(document)}
-                      className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium"
+                      className="text-sky-600 hover:text-sky-800 hover:underline text-sm font-medium"
                     >
                       변경
                     </button>
@@ -333,14 +333,14 @@ export default function DocumentTable({
                     getStatusBadge(document.status)
                   )}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">
                   <div className="flex items-center justify-center space-x-2">
                     {user?.id === document.user_id && (
                       <>
                         {document.status === "pending" && (
                           <button
                             onClick={() => handleEditModal(document)}
-                            className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                            className="p-1 text-slate-400 hover:text-sky-600 transition-colors"
                             title="수정"
                           >
                             <Edit className="h-4 w-4" />
@@ -348,7 +348,7 @@ export default function DocumentTable({
                         )}
                         <button
                           onClick={() => handleDeleteDocument(document)}
-                          className="p-1 text-gray-500 hover:text-red-600 transition-colors"
+                          className="p-1 text-slate-400 hover:text-red-600 transition-colors"
                           title="삭제"
                         >
                           <Trash2 className="h-4 w-4" />

@@ -345,7 +345,7 @@ export default function ProductGroupedTable({
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
         <div className="flex flex-col justify-center items-center p-12">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-500 mt-3">품목을 불러오는 중...</p>
         </div>
       </div>
@@ -403,7 +403,7 @@ export default function ProductGroupedTable({
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:hidden">
                       <div>
                         <div className="text-[10px] text-slate-400">최신</div>
-                        <span className="font-bold text-blue-600 text-sm">{formatPrice(group.latestPrice)}</span>
+                        <span className="font-bold text-sky-600 text-sm">{formatPrice(group.latestPrice)}</span>
                       </div>
                       <div>
                         <div className="text-[10px] text-slate-400">평균</div>
@@ -424,7 +424,7 @@ export default function ProductGroupedTable({
                       <div className="text-center">
                         <div className="text-xs text-slate-500 mb-0.5">최신 단가</div>
                         <div className="flex items-center justify-center gap-1">
-                          <span className="font-bold text-blue-600 text-lg">
+                          <span className="font-bold text-sky-600 text-lg">
                             {formatPrice(group.latestPrice)}
                           </span>
                           {priceDiff !== 0 && (
@@ -467,7 +467,7 @@ export default function ProductGroupedTable({
                         setChartGroup(group);
                         setChartViewMode("summary");
                       }}
-                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 rounded-md transition-colors"
+                      className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 active:bg-sky-100 rounded-md transition-colors"
                       title="상세 차트 보기"
                     >
                       <Maximize2 size={18} />
@@ -527,7 +527,7 @@ export default function ProductGroupedTable({
                                     );
                                   }
                                 }}
-                                className="text-sm font-medium text-blue-600 hover:underline"
+                                className="text-sm font-medium text-sky-600 hover:underline"
                               >
                                 {company.companyName}
                               </button>
@@ -560,14 +560,14 @@ export default function ProductGroupedTable({
                                       e.stopPropagation();
                                       onDocumentClick?.(history.documentId);
                                     }}
-                                    className="group inline-flex items-center text-xs bg-blue-50 text-slate-700 px-2.5 py-1.5 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+                                    className="group inline-flex items-center text-xs bg-sky-50 text-slate-700 px-2.5 py-1.5 rounded-md border border-sky-200 hover:bg-sky-100 hover:border-sky-300 hover:shadow-sm transition-all cursor-pointer"
                                     title="클릭하여 문서 보기"
                                   >
-                                    <FileText size={11} className="mr-1.5 text-blue-500 group-hover:text-blue-600" />
+                                    <FileText size={11} className="mr-1.5 text-sky-500 group-hover:text-sky-600" />
                                     <Calendar size={10} className="mr-1 text-slate-400" />
                                     {dayjs(history.date).format("YY.MM.DD")}
                                     <span className="mx-1.5 text-slate-300">|</span>
-                                    <span className="font-medium text-blue-600">{history.quantity}{history.unit}</span>
+                                    <span className="font-medium text-sky-600">{history.quantity}{history.unit}</span>
                                     <span className="mx-1.5 text-slate-300">@</span>
                                     <span className="font-medium">{formatPrice(history.price)}</span>
                                   </button>
@@ -620,7 +620,7 @@ export default function ProductGroupedTable({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
                 <div className="bg-slate-50 rounded-md p-2 sm:p-3 text-center">
                   <div className="text-[10px] sm:text-xs text-slate-500">최신 단가</div>
-                  <div className="font-semibold text-blue-600 text-sm sm:text-base">
+                  <div className="font-semibold text-sky-600 text-sm sm:text-base">
                     {formatPrice(chartGroup.latestPrice)}
                   </div>
                 </div>

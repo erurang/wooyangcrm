@@ -54,8 +54,8 @@ export default function UserSalesTab({
       {/* 거래처별 매출 비중 */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5">
         <div className="flex items-center mb-4">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <PieChart className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <PieChart className="h-5 w-5 text-sky-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-800">
             거래처별 매출 비중
@@ -96,8 +96,8 @@ export default function UserSalesTab({
       {/* 아이템별 매출 차트 */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5">
         <div className="flex items-center mb-4">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <BarChart className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <BarChart className="h-5 w-5 text-sky-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-800">
             품목별 매출 TOP 10
@@ -156,8 +156,8 @@ export default function UserSalesTab({
       {/* 견적 금액 (Area Chart) */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5">
         <div className="flex items-center mb-4">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <BarChart3 className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <BarChart3 className="h-5 w-5 text-sky-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-800">견적 금액</h2>
         </div>
@@ -214,8 +214,8 @@ export default function UserSalesTab({
       {/* 매출 거래처 */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5">
         <div className="flex items-center mb-4">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <Users className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <Users className="h-5 w-5 text-sky-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-800">매출 거래처</h2>
         </div>
@@ -225,10 +225,10 @@ export default function UserSalesTab({
             {aggregatedSalesCompanies.map((c) => (
               <div
                 key={c.name}
-                className="flex justify-between items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50/30 transition-colors"
+                className="flex justify-between items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-sky-300 hover:bg-sky-50/30 transition-colors"
               >
                 <span className="font-medium text-slate-800">{c.name}</span>
-                <span className="font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md">
+                <span className="font-semibold text-sky-600 bg-sky-50 px-3 py-1 rounded-md">
                   {c.total.toLocaleString()} 원
                 </span>
               </div>
@@ -236,8 +236,8 @@ export default function UserSalesTab({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-32 text-slate-500">
-            <div className="bg-indigo-50 p-3 rounded-full mb-2">
-              <Users className="h-6 w-6 text-indigo-400" />
+            <div className="bg-sky-50 p-3 rounded-full mb-2">
+              <Users className="h-6 w-6 text-sky-400" />
             </div>
             <p>매출 거래처가 없습니다</p>
           </div>

@@ -39,13 +39,13 @@ function getDocTypeLabel(type: string) {
 function getDocTypeColor(type: string) {
   switch (type) {
     case "estimate":
-      return "bg-blue-100 text-blue-700";
+      return "bg-sky-100 text-sky-700";
     case "order":
       return "bg-green-100 text-green-700";
     case "requestQuote":
       return "bg-purple-100 text-purple-700";
     default:
-      return "bg-gray-100 text-gray-700";
+      return "bg-slate-100 text-slate-600";
   }
 }
 
@@ -71,7 +71,7 @@ function getStatusColor(status: string) {
     case "canceled":
       return "text-rose-600";
     default:
-      return "text-gray-600";
+      return "text-slate-500";
   }
 }
 
@@ -95,7 +95,7 @@ export default function RecentDocumentsCard({
     return (
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-full">
         <div className="flex items-center mb-3">
-          <FileText className="h-4 w-4 text-cyan-600 mr-2" />
+          <FileText className="h-4 w-4 text-sky-600 mr-2" />
           <h2 className="text-sm font-semibold text-slate-800">최근 문서</h2>
         </div>
         <div className="space-y-2">
@@ -117,11 +117,11 @@ export default function RecentDocumentsCard({
     return (
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-full">
         <div className="flex items-center mb-3">
-          <FileText className="h-4 w-4 text-cyan-600 mr-2" />
+          <FileText className="h-4 w-4 text-sky-600 mr-2" />
           <h2 className="text-sm font-semibold text-slate-800">최근 문서</h2>
         </div>
         <div className="flex flex-col items-center justify-center h-32 text-slate-500">
-          <FileText className="h-6 w-6 text-cyan-300 mb-2" />
+          <FileText className="h-6 w-6 text-sky-300 mb-2" />
           <p className="text-sm">최근 문서가 없습니다</p>
         </div>
       </div>
@@ -132,12 +132,12 @@ export default function RecentDocumentsCard({
     <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 h-full">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center">
-          <FileText className="h-4 w-4 text-cyan-600 mr-2" />
+          <FileText className="h-4 w-4 text-sky-600 mr-2" />
           <h2 className="text-sm font-semibold text-slate-800">최근 문서</h2>
         </div>
         <button
           onClick={() => router.push("/documents/review")}
-          className="text-xs text-cyan-600 hover:text-cyan-800 font-medium flex items-center"
+          className="text-xs text-sky-600 hover:text-sky-800 font-medium flex items-center"
         >
           전체보기
           <ChevronRight className="h-3 w-3 ml-0.5" />
@@ -159,7 +159,7 @@ export default function RecentDocumentsCard({
             {/* Document info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-medium text-slate-700 text-sm truncate group-hover:text-cyan-700 transition-colors">
+                <span className="font-medium text-slate-700 text-sm truncate group-hover:text-sky-700 transition-colors">
                   {doc.company_name}
                 </span>
                 <span className={`text-xs ${getStatusColor(doc.status)}`}>
@@ -169,7 +169,7 @@ export default function RecentDocumentsCard({
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <span className="truncate">{doc.document_number}</span>
                 {doc.total_amount > 0 && (
-                  <span className="text-blue-600 font-medium">
+                  <span className="text-sky-600 font-medium">
                     {formatAmount(doc.total_amount)}
                   </span>
                 )}

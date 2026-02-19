@@ -53,7 +53,7 @@ export default function UserTabNavigation({
               onClick={() => onTabChange(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? "bg-indigo-600 text-white shadow-sm"
+                  ? "bg-sky-600 text-white shadow-sm"
                   : "text-slate-600 hover:bg-slate-100"
               }`}
             >

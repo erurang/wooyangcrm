@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CircularProgress } from "@mui/material";
+import { Loader2, Save, X, Building2 } from "lucide-react";
 import {
   CompanyBasicInfoForm,
   ContactsSection,
@@ -50,9 +50,8 @@ interface CompanyFormModalProps {
   saving: boolean;
 }
 
-// 이메일 형식 검증
 const isValidEmail = (email: string) => {
-  if (!email) return true; // 선택 필드이므로 빈 값은 허용
+  if (!email) return true;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
@@ -68,10 +67,8 @@ export default function CompanyFormModal({
   const title = mode === "add" ? "거래처 추가" : "거래처 수정";
   const [errors, setErrors] = useState<FormErrors>({});
 
-  // ESC 키로 모달 닫기
   useEscapeKey(isOpen, onClose);
 
-  // 폼 검증
   const validateForm = useCallback((): boolean => {
     const newErrors: FormErrors = {};
 
@@ -87,7 +84,6 @@ export default function CompanyFormModal({
     return Object.keys(newErrors).length === 0;
   }, [company]);
 
-  // 에러 클리어
   const clearError = useCallback((field: keyof FormErrors) => {
     setErrors(prev => {
       const newErrors = { ...prev };
@@ -96,13 +92,11 @@ export default function CompanyFormModal({
     });
   }, []);
 
-  // 제출 핸들러
   const handleSubmit = useCallback(async () => {
     if (!validateForm()) return;
     await onSubmit();
   }, [validateForm, onSubmit]);
 
-  // 모달 닫기
   const handleClose = useCallback(() => {
     setErrors({});
     onClose();
@@ -149,86 +143,103 @@ export default function CompanyFormModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={handleClose}
         >
           <motion.div
-            className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
           >
-              <div className="bg-white px-4 pt-4 pb-4 sm:p-6 sm:pb-4 flex-1 overflow-y-auto">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-6">
-                      {title}
-                    </h3>
-
-                    <CompanyBasicInfoForm
-                      company={company}
-                      onChange={handleCompanyChange}
-                      errors={errors}
-                      onClearError={clearError}
-                    />
-
-                    <ContactsSection
-                      contacts={company.contact}
-                      mode={mode}
-                      onAddContact={addContact}
-                      onContactChange={handleContactChange}
-                      onRemoveContact={removeContact}
-                    />
-
-                    {/* Notes */}
-                    <div className="mt-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        비고
-                      </label>
-                      <textarea
-                        value={company.notes || ""}
-                        onChange={(e) =>
-                          setCompany({ ...company, notes: e.target.value })
-                        }
-                        rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
-                      ></textarea>
-                    </div>
-                  </div>
+            {/* 헤더 */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200/60">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-sky-50 rounded-xl">
+                  <Building2 className="h-5 w-5 text-sky-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800">{title}</h3>
+                  <p className="text-xs text-slate-400">거래처 정보를 입력해주세요</p>
                 </div>
               </div>
+              <button
+                onClick={handleClose}
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 flex flex-row gap-2 sm:flex-row-reverse shrink-0 border-t">
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={saving}
-                  className="flex-1 sm:flex-none inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2.5 sm:py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  {saving ? (
-                    <>
-                      <CircularProgress size={18} className="mr-2" />
-                      저장 중...
-                    </>
-                  ) : (
-                    "저장"
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  disabled={saving}
-                  className="flex-1 sm:flex-none inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 sm:py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  취소
-                </button>
+            {/* 본문 */}
+            <div className="flex-1 overflow-y-auto px-5 py-5">
+              <CompanyBasicInfoForm
+                company={company}
+                onChange={handleCompanyChange}
+                errors={errors}
+                onClearError={clearError}
+              />
+
+              <ContactsSection
+                contacts={company.contact}
+                mode={mode}
+                onAddContact={addContact}
+                onContactChange={handleContactChange}
+                onRemoveContact={removeContact}
+              />
+
+              {/* 비고 */}
+              <div className="mt-6">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  비고
+                </label>
+                <textarea
+                  value={company.notes || ""}
+                  onChange={(e) =>
+                    setCompany({ ...company, notes: e.target.value })
+                  }
+                  rows={4}
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all placeholder:text-slate-300 text-sm leading-relaxed resize-none"
+                  placeholder="거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
+                />
               </div>
-            </motion.div>
+            </div>
+
+            {/* 하단 액션 바 */}
+            <div className="flex items-center justify-end gap-2.5 px-5 py-3.5 border-t border-slate-200/60 bg-slate-50/50">
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={saving}
+                className="px-4 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-all"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={saving}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition-all shadow-sm shadow-sky-200 hover:shadow-md hover:shadow-sky-200 disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    저장 중...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    저장
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

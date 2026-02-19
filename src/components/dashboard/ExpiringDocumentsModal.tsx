@@ -24,7 +24,7 @@ interface ExpiringDocumentsModalProps {
 
 function getDaysLabel(days: number): { text: string; color: string; bgColor: string } {
   if (days < 0) {
-    return { text: `+${Math.abs(days)}일`, color: "text-gray-600", bgColor: "bg-gray-100" };
+    return { text: `+${Math.abs(days)}일`, color: "text-slate-500", bgColor: "bg-slate-100" };
   } else if (days === 0) {
     return { text: "D-Day", color: "text-red-700", bgColor: "bg-red-100" };
   } else if (days === 1) {
@@ -106,7 +106,7 @@ function DocumentList({
 
             {/* Amount */}
             {doc.total_amount > 0 && (
-              <span className="text-xs font-medium text-blue-600">
+              <span className="text-xs font-medium text-sky-600">
                 {formatAmount(doc.total_amount)}
               </span>
             )}

@@ -43,11 +43,11 @@ export default function RnDsTable({
                 className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer"
                 onClick={() => onRowClick(rnd.id)}
               >
-                <div className="p-2 bg-indigo-50 rounded-lg shrink-0">
-                  <Briefcase className="h-4 w-4 text-indigo-600" />
+                <div className="p-2 bg-sky-50 rounded-lg shrink-0">
+                  <Briefcase className="h-4 w-4 text-sky-600" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-indigo-600 truncate">
+                  <div className="text-sm font-medium text-sky-600 truncate">
                     {rnd.name}
                   </div>
                   <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
@@ -59,7 +59,7 @@ export default function RnDsTable({
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   onClick={(e) => { e.stopPropagation(); onEdit(rnd); }}
-                  className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 active:bg-indigo-100 rounded-lg transition-colors"
+                  className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 active:bg-sky-100 rounded-lg transition-colors"
                 >
                   <Edit className="h-4 w-4" />
                 </button>
@@ -105,7 +105,7 @@ export default function RnDsTable({
               <tr key={rnd.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-4 py-3">
                   <div
-                    className="text-sm font-medium text-indigo-600 cursor-pointer hover:text-indigo-800"
+                    className="text-sm font-medium text-sky-600 cursor-pointer hover:text-sky-800"
                     onClick={() => onRowClick(rnd.id)}
                   >
                     {rnd.name}
@@ -127,7 +127,7 @@ export default function RnDsTable({
                   <div className="flex items-center justify-center gap-1">
                     <button
                       onClick={() => onEdit(rnd)}
-                      className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                     >
                       <Edit className="h-4 w-4" />
                     </button>

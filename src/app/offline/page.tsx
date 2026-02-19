@@ -30,16 +30,16 @@ export default function OfflinePage() {
         {/* 다시 시도 버튼 */}
         <button
           onClick={handleRetry}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-sky-600 text-white font-medium rounded-lg hover:bg-sky-700 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
         >
           <RefreshCw className="w-5 h-5" />
           다시 시도
         </button>
 
         {/* 추가 안내 */}
-        <div className="mt-8 p-4 bg-blue-50 rounded-lg text-sm text-blue-700">
+        <div className="mt-8 p-4 bg-sky-50 rounded-lg text-sm text-sky-700">
           <p className="font-medium mb-1">오프라인에서 사용 가능한 기능</p>
-          <ul className="text-blue-600 text-left list-disc list-inside">
+          <ul className="text-sky-600 text-left list-disc list-inside">
             <li>이전에 방문한 페이지 일부 열람</li>
             <li>저장된 데이터 확인</li>
           </ul>

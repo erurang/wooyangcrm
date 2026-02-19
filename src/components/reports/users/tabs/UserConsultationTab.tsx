@@ -54,8 +54,8 @@ export default function UserConsultationTab({
   return (
     <div className="bg-white border border-slate-200 shadow-sm p-5 mx-5 mb-5 rounded-lg">
       <div className="flex items-center mb-6">
-        <div className="bg-indigo-50 p-2 rounded-md mr-3">
-          <Users className="h-5 w-5 text-indigo-600" />
+        <div className="bg-sky-50 p-2 rounded-md mr-3">
+          <Users className="h-5 w-5 text-sky-600" />
         </div>
         <h2 className="text-xl font-semibold text-slate-800">
           상담 내역 및 문서
@@ -66,9 +66,9 @@ export default function UserConsultationTab({
       <div className="space-y-6 overflow-y-auto max-h-[700px] pr-2">
         {/* 헤더 (3열) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-slate-700 font-semibold min-w-[900px] border-b pb-2">
-          <div className="text-indigo-600">상담 기록</div>
-          <div className="text-indigo-600">관련 문서</div>
-          <div className="text-indigo-600">품목 리스트</div>
+          <div className="text-sky-600">상담 기록</div>
+          <div className="text-sky-600">관련 문서</div>
+          <div className="text-sky-600">품목 리스트</div>
         </div>
 
         {/* 상담들 */}
@@ -80,7 +80,7 @@ export default function UserConsultationTab({
             >
               {/* 왼쪽 열: 상담 기록 */}
               <div
-                className="p-4 border border-slate-200 rounded-lg bg-white hover:bg-indigo-50 cursor-pointer transition-colors shadow-sm"
+                className="p-4 border border-slate-200 rounded-lg bg-white hover:bg-sky-50 cursor-pointer transition-colors shadow-sm"
                 onClick={() =>
                   router.push(`/consultations/${consultation.company_id}`)
                 }
@@ -89,7 +89,7 @@ export default function UserConsultationTab({
                   <span className="text-sm text-slate-500">
                     {consultation.date}
                   </span>
-                  <span className="font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md text-xs">
+                  <span className="font-semibold text-sky-600 bg-sky-50 px-2 py-1 rounded-md text-xs">
                     {consultation.company_name}
                   </span>
                 </div>
@@ -144,7 +144,7 @@ export default function UserConsultationTab({
                           </div>
                           <p className="text-xs text-slate-700">
                             문서번호:{" "}
-                            <span className="text-indigo-600 font-semibold">
+                            <span className="text-sky-600 font-semibold">
                               {doc.document_number}
                             </span>
                           </p>
@@ -206,7 +206,7 @@ export default function UserConsultationTab({
                             <span className="text-slate-500 text-center">
                               {item.quantity}
                             </span>
-                            <span className="text-indigo-600 font-semibold text-right">
+                            <span className="text-sky-600 font-semibold text-right">
                               {Number(item.amount).toLocaleString()} 원
                             </span>
                           </div>

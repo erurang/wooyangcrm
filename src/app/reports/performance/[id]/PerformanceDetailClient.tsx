@@ -257,7 +257,7 @@ export default function PerformanceDetailClient() {
         <div className="px-4 py-3">
           {/* 사용자 정보 */}
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-9 h-9 bg-sky-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
               {user?.name?.charAt(0) || "U"}
             </div>
             <div>
@@ -281,7 +281,7 @@ export default function PerformanceDetailClient() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-blue-50 text-blue-700"
+                      ? "bg-sky-50 text-sky-700"
                       : "text-slate-600 hover:bg-slate-100"
                   }`}
                 >
@@ -316,7 +316,7 @@ export default function PerformanceDetailClient() {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               >
                 {YEARS.map((year) => (
                   <option key={year} value={year}>
@@ -333,7 +333,7 @@ export default function PerformanceDetailClient() {
                 <select
                   value={selectedQuarter}
                   onChange={(e) => setSelectedQuarter(Number(e.target.value))}
-                  className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 >
                   {QUARTERS.map((q) => (
                     <option key={q} value={q}>
@@ -351,7 +351,7 @@ export default function PerformanceDetailClient() {
                 <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                  className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="appearance-none bg-white border border-slate-200 rounded-lg px-3 py-1.5 pr-8 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 >
                   {MONTHS.map((m) => (
                     <option key={m} value={m}>
@@ -471,7 +471,7 @@ export default function PerformanceDetailClient() {
                   <FileText className="h-3.5 w-3.5 mr-1" />
                   견적 건수
                 </div>
-                <p className="text-xl font-bold text-blue-600 mt-1">
+                <p className="text-xl font-bold text-sky-600 mt-1">
                   {totalSalesCount.toLocaleString()}건
                 </p>
               </div>
@@ -499,7 +499,7 @@ export default function PerformanceDetailClient() {
                       onClick={() => setChartType("bar")}
                       className={`px-2 py-1 text-xs rounded ${
                         chartType === "bar"
-                          ? "bg-blue-100 text-blue-700"
+                          ? "bg-sky-100 text-sky-700"
                           : "bg-slate-100 text-slate-500"
                       }`}
                     >
@@ -509,7 +509,7 @@ export default function PerformanceDetailClient() {
                       onClick={() => setChartType("line")}
                       className={`px-2 py-1 text-xs rounded ${
                         chartType === "line"
-                          ? "bg-blue-100 text-blue-700"
+                          ? "bg-sky-100 text-sky-700"
                           : "bg-slate-100 text-slate-500"
                       }`}
                     >
@@ -564,7 +564,7 @@ export default function PerformanceDetailClient() {
                       return (
                         <tr key={stat.month} className="hover:bg-slate-50">
                           <td className="px-4 py-3 font-medium text-slate-700">{stat.month}월</td>
-                          <td className="px-4 py-3 text-right text-blue-600">
+                          <td className="px-4 py-3 text-right text-sky-600">
                             {stat.sales.toLocaleString()}원
                           </td>
                           <td className="px-4 py-3 text-right text-emerald-600">
@@ -590,7 +590,7 @@ export default function PerformanceDetailClient() {
                   <tfoot className="bg-slate-50 font-medium">
                     <tr>
                       <td className="px-4 py-3 text-slate-700">합계</td>
-                      <td className="px-4 py-3 text-right text-blue-600">
+                      <td className="px-4 py-3 text-right text-sky-600">
                         {totalSales.toLocaleString()}원
                       </td>
                       <td className="px-4 py-3 text-right text-emerald-600">
@@ -619,7 +619,7 @@ export default function PerformanceDetailClient() {
             <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
               <div className="p-4 border-b border-slate-200">
                 <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-blue-500" />
+                  <TrendingUp className="h-4 w-4 text-sky-500" />
                   매출 TOP 거래처
                 </h3>
               </div>
@@ -636,7 +636,7 @@ export default function PerformanceDetailClient() {
                         <span
                           className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                             idx < 3
-                              ? "bg-blue-100 text-blue-700"
+                              ? "bg-sky-100 text-sky-700"
                               : "bg-slate-100 text-slate-500"
                           }`}
                         >
@@ -646,7 +646,7 @@ export default function PerformanceDetailClient() {
                           {company.name}
                         </span>
                       </div>
-                      <span className="text-sm font-bold text-blue-600">
+                      <span className="text-sm font-bold text-sky-600">
                         {(company.total / 10000).toLocaleString()}만
                       </span>
                     </div>
@@ -711,7 +711,7 @@ export default function PerformanceDetailClient() {
             <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
               <div className="p-4 border-b border-slate-200">
                 <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-                  <Package className="h-4 w-4 text-blue-500" />
+                  <Package className="h-4 w-4 text-sky-500" />
                   매출 TOP 품목
                 </h3>
               </div>
@@ -728,7 +728,7 @@ export default function PerformanceDetailClient() {
                         <span
                           className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                             idx < 3
-                              ? "bg-blue-100 text-blue-700"
+                              ? "bg-sky-100 text-sky-700"
                               : "bg-slate-100 text-slate-500"
                           }`}
                         >
@@ -743,7 +743,7 @@ export default function PerformanceDetailClient() {
                           )}
                         </div>
                       </div>
-                      <span className="text-sm font-bold text-blue-600">
+                      <span className="text-sm font-bold text-sky-600">
                         {(item.total / 10000).toLocaleString()}만
                       </span>
                     </div>

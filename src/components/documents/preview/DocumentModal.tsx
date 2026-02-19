@@ -113,7 +113,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
+    <div className="fixed inset-0 flex justify-center items-center bg-black/40 backdrop-blur-sm z-50">
       <div
         className={`
           bg-white rounded-lg shadow-xl max-h-[90vh] overflow-hidden flex flex-col
@@ -121,9 +121,9 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
         `}
       >
         {/* 상단 액션 바 */}
-        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b">
+        <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-slate-800">
               {document.document_number}
             </span>
           </div>
@@ -131,7 +131,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             {/* 프린트 버튼 */}
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-sky-600 rounded-md hover:bg-sky-700 transition-colors"
             >
               <Printer size={16} />
               프린트
@@ -139,7 +139,7 @@ const DocumentModal: React.FC<DocumentModalProps> = ({
             {/* 닫기 버튼 */}
             <button
               onClick={onClose}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
             >
               닫기
             </button>

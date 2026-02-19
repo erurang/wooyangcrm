@@ -236,12 +236,12 @@ export default function InventoryCalendarPage() {
               </div>
               <p className="text-2xl font-bold text-emerald-700">{stats.inboundPending}</p>
             </div>
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-              <div className="flex items-center gap-2 text-blue-600 text-xs font-medium mb-1">
+            <div className="bg-sky-50 rounded-lg p-3 border border-sky-100">
+              <div className="flex items-center gap-2 text-sky-600 text-xs font-medium mb-1">
                 <ArrowUpCircle className="h-3.5 w-3.5" />
                 출고 대기
               </div>
-              <p className="text-2xl font-bold text-blue-700">{stats.outboundPending}</p>
+              <p className="text-2xl font-bold text-sky-700">{stats.outboundPending}</p>
             </div>
             <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
               <div className="flex items-center gap-2 text-slate-600 text-xs font-medium mb-1">
@@ -312,7 +312,7 @@ export default function InventoryCalendarPage() {
                   onClick={() => setTypeFilter("outbound")}
                   className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                     typeFilter === "outbound"
-                      ? "bg-blue-500 text-white shadow-sm"
+                      ? "bg-sky-500 text-white shadow-sm"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                 >
@@ -391,7 +391,7 @@ export default function InventoryCalendarPage() {
                 <span className="text-xs text-slate-600">입고</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-blue-500"></span>
+                <span className="w-3 h-3 rounded bg-sky-500"></span>
                 <span className="text-xs text-slate-600">출고</span>
               </div>
               <div className="w-px h-4 bg-slate-200"></div>
@@ -401,7 +401,7 @@ export default function InventoryCalendarPage() {
                 <span className="text-xs text-slate-600">입고 완료</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-blue-100 border border-blue-300"></span>
+                <span className="w-3 h-3 rounded bg-sky-100 border border-sky-300"></span>
                 <span className="text-xs text-slate-600">출고 완료</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -422,7 +422,7 @@ export default function InventoryCalendarPage() {
                   <div
                     key={day}
                     className={`py-2.5 text-center text-xs font-medium ${
-                      i === 0 ? "text-red-500" : i === 6 ? "text-blue-500" : "text-slate-600"
+                      i === 0 ? "text-red-500" : i === 6 ? "text-sky-500" : "text-slate-600"
                     }`}
                   >
                     {day}
@@ -447,18 +447,18 @@ export default function InventoryCalendarPage() {
                       className={`
                         min-h-[100px] p-1.5 border-b border-r border-slate-100 text-left transition-colors relative
                         ${isCurrentMonth ? "bg-white" : "bg-slate-50/50"}
-                        ${isSelected ? "ring-2 ring-inset ring-blue-500" : ""}
-                        ${isToday ? "bg-blue-50/50" : ""}
+                        ${isSelected ? "ring-2 ring-inset ring-sky-500" : ""}
+                        ${isToday ? "bg-sky-50/50" : ""}
                         hover:bg-slate-50
                       `}
                     >
                       <span
                         className={`
                           inline-flex items-center justify-center w-6 h-6 text-xs font-medium rounded-full
-                          ${isToday ? "bg-blue-600 text-white" : ""}
+                          ${isToday ? "bg-sky-600 text-white" : ""}
                           ${!isCurrentMonth ? "text-slate-300" : ""}
                           ${dayOfWeek === 0 && isCurrentMonth && !isToday ? "text-red-500" : ""}
-                          ${dayOfWeek === 6 && isCurrentMonth && !isToday ? "text-blue-500" : ""}
+                          ${dayOfWeek === 6 && isCurrentMonth && !isToday ? "text-sky-500" : ""}
                         `}
                       >
                         {date.date()}
@@ -480,8 +480,8 @@ export default function InventoryCalendarPage() {
                                       ? "bg-emerald-100 text-emerald-700"
                                       : "bg-emerald-500 text-white"
                                     : event.status === "completed"
-                                    ? "bg-blue-100 text-blue-700"
-                                    : "bg-blue-500 text-white"
+                                    ? "bg-sky-100 text-sky-700"
+                                    : "bg-sky-500 text-white"
                                 }
                               `}
                             >
@@ -552,7 +552,7 @@ export default function InventoryCalendarPage() {
                                     ? "bg-red-100 text-red-600"
                                     : event.task_type === "inbound"
                                     ? "bg-emerald-100 text-emerald-600"
-                                    : "bg-blue-100 text-blue-600"
+                                    : "bg-sky-100 text-sky-600"
                                 }
                               `}
                             >
@@ -575,7 +575,7 @@ export default function InventoryCalendarPage() {
                                   className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${
                                     event.task_type === "inbound"
                                       ? "bg-emerald-100 text-emerald-700"
-                                      : "bg-blue-100 text-blue-700"
+                                      : "bg-sky-100 text-sky-700"
                                   }`}
                                 >
                                   {event.task_type === "inbound" ? "입고" : "출고"}

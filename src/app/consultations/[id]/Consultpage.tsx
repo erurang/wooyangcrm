@@ -380,7 +380,7 @@ export default function ConsultationPage() {
               onClick={() => setActiveTab("consultations")}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "consultations"
-                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  ? "border-sky-600 text-sky-600 bg-sky-50"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
@@ -391,7 +391,7 @@ export default function ConsultationPage() {
               onClick={() => setActiveTab("price")}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "price"
-                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  ? "border-sky-600 text-sky-600 bg-sky-50"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
@@ -402,7 +402,7 @@ export default function ConsultationPage() {
               onClick={() => setActiveTab("files")}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "files"
-                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  ? "border-sky-600 text-sky-600 bg-sky-50"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
@@ -413,7 +413,7 @@ export default function ConsultationPage() {
               onClick={() => setActiveTab("posts")}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "posts"
-                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  ? "border-sky-600 text-sky-600 bg-sky-50"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >
@@ -424,7 +424,7 @@ export default function ConsultationPage() {
               onClick={() => setActiveTab("stats")}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "stats"
-                  ? "border-cyan-600 text-cyan-600 bg-cyan-50"
+                  ? "border-sky-600 text-sky-600 bg-sky-50"
                   : "border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50"
               }`}
             >

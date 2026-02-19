@@ -28,12 +28,12 @@ export default function ResignSearchFilter({
   onReset,
 }: ResignSearchFilterProps) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 mb-4">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end">
         {/* 거래처명 */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Building className="w-3 h-3 mr-1 text-gray-400" />
+          <label className="text-xs font-medium text-slate-500 flex items-center">
+            <Building className="w-3 h-3 mr-1 text-slate-400" />
             거래처명
           </label>
           <input
@@ -42,14 +42,14 @@ export default function ResignSearchFilter({
             onChange={(e) => onCompanyNameChange(e.target.value)}
             onKeyDown={onKeyPress}
             placeholder="거래처명"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none"
           />
         </div>
 
         {/* 담당자명 */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <User className="w-3 h-3 mr-1 text-gray-400" />
+          <label className="text-xs font-medium text-slate-500 flex items-center">
+            <User className="w-3 h-3 mr-1 text-slate-400" />
             담당자명
           </label>
           <input
@@ -58,14 +58,14 @@ export default function ResignSearchFilter({
             onChange={(e) => onContactNameChange(e.target.value)}
             onKeyDown={onKeyPress}
             placeholder="담당자명"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none"
           />
         </div>
 
         {/* 이메일 */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Mail className="w-3 h-3 mr-1 text-gray-400" />
+          <label className="text-xs font-medium text-slate-500 flex items-center">
+            <Mail className="w-3 h-3 mr-1 text-slate-400" />
             이메일
           </label>
           <input
@@ -74,14 +74,14 @@ export default function ResignSearchFilter({
             onChange={(e) => onEmailChange(e.target.value)}
             onKeyDown={onKeyPress}
             placeholder="이메일"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none"
           />
         </div>
 
         {/* 연락처 */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-600 flex items-center">
-            <Phone className="w-3 h-3 mr-1 text-gray-400" />
+          <label className="text-xs font-medium text-slate-500 flex items-center">
+            <Phone className="w-3 h-3 mr-1 text-slate-400" />
             연락처
           </label>
           <input
@@ -90,7 +90,7 @@ export default function ResignSearchFilter({
             onChange={(e) => onMobileChange(e.target.value)}
             onKeyDown={onKeyPress}
             placeholder="연락처"
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            className="w-full px-2 py-1.5 text-sm border border-slate-300 rounded focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none"
           />
         </div>
 
@@ -98,7 +98,7 @@ export default function ResignSearchFilter({
         <div>
           <button
             onClick={onReset}
-            className="w-full px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-600 rounded transition-colors flex items-center justify-center"
+            className="w-full px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-500 rounded transition-colors flex items-center justify-center"
           >
             <RefreshCw className="w-3 h-3 mr-1" />
             초기화

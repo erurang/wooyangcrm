@@ -45,8 +45,8 @@ export default function UserItemsTab({
     <div className="bg-white border border-slate-200 shadow-sm p-5 mx-5 mb-5 rounded-lg">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <div className="flex items-center mb-4 md:mb-0">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <Search className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <Search className="h-5 w-5 text-sky-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-800">품목 검색</h2>
         </div>
@@ -59,7 +59,7 @@ export default function UserItemsTab({
               placeholder="품목명 또는 규격 검색..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
 
@@ -70,7 +70,7 @@ export default function UserItemsTab({
                 e.target.value as "all" | "sales" | "purchase"
               )
             }
-            className="border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
           >
             <option value="all">전체 품목</option>
             <option value="sales">매출 품목</option>
@@ -118,14 +118,14 @@ export default function UserItemsTab({
                     <span
                       className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         item.type === "sales"
-                          ? "bg-indigo-100 text-indigo-800"
+                          ? "bg-sky-100 text-sky-800"
                           : "bg-emerald-100 text-emerald-800"
                       }`}
                     >
                       {item.type === "sales" ? "매출" : "매입"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-semibold text-indigo-600">
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-semibold text-sky-600">
                     {item.total.toLocaleString()} 원
                   </td>
                 </tr>
@@ -149,8 +149,8 @@ export default function UserItemsTab({
         {/* 매출 품목 TOP 10 */}
         <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <BarChart className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <BarChart className="h-5 w-5 text-sky-600" />
             </div>
             <h2 className="text-xl font-semibold text-slate-800">
               품목별 매출 TOP 10
@@ -209,8 +209,8 @@ export default function UserItemsTab({
         {/* 매입 품목 TOP 10 */}
         <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <BarChart className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <BarChart className="h-5 w-5 text-sky-600" />
             </div>
             <h2 className="text-xl font-semibold text-slate-800">
               품목별 매입 TOP 10

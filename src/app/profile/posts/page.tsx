@@ -383,7 +383,7 @@ export default function MyPostsPage() {
           </div>
           <button
             onClick={handleNewPost}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             글쓰기
@@ -396,7 +396,7 @@ export default function MyPostsPage() {
             onClick={() => handleTabChange("my")}
             className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               activeTab === "my"
-                ? "bg-blue-600 text-white"
+                ? "bg-sky-600 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
@@ -404,7 +404,7 @@ export default function MyPostsPage() {
             내 글
             {total > 0 && (
               <span className={`px-1.5 py-0.5 text-xs rounded-full ${
-                activeTab === "my" ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-600"
+                activeTab === "my" ? "bg-sky-500 text-white" : "bg-slate-200 text-slate-600"
               }`}>
                 {total}
               </span>
@@ -414,7 +414,7 @@ export default function MyPostsPage() {
             onClick={() => handleTabChange("tagged")}
             className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               activeTab === "tagged"
-                ? "bg-blue-600 text-white"
+                ? "bg-sky-600 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
@@ -422,7 +422,7 @@ export default function MyPostsPage() {
             태그된 글
             {taggedTotal > 0 && (
               <span className={`px-1.5 py-0.5 text-xs rounded-full ${
-                activeTab === "tagged" ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-600"
+                activeTab === "tagged" ? "bg-sky-500 text-white" : "bg-slate-200 text-slate-600"
               }`}>
                 {taggedTotal}
               </span>
@@ -432,7 +432,7 @@ export default function MyPostsPage() {
             onClick={() => handleTabChange("mentioned")}
             className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               activeTab === "mentioned"
-                ? "bg-blue-600 text-white"
+                ? "bg-sky-600 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
@@ -440,7 +440,7 @@ export default function MyPostsPage() {
             멘션된 댓글
             {mentionedTotal > 0 && (
               <span className={`px-1.5 py-0.5 text-xs rounded-full ${
-                activeTab === "mentioned" ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-600"
+                activeTab === "mentioned" ? "bg-sky-500 text-white" : "bg-slate-200 text-slate-600"
               }`}>
                 {mentionedTotal}
               </span>
@@ -456,7 +456,7 @@ export default function MyPostsPage() {
               value={searchTerm}
               onChange={handleSearchChange}
               placeholder="제목 또는 내용으로 검색..."
-              className="w-full max-w-md border border-slate-200 rounded-lg px-4 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="w-full max-w-md border border-slate-200 rounded-lg px-4 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
             />
           </div>
         )}
@@ -464,7 +464,7 @@ export default function MyPostsPage() {
         {/* 테이블 컨트롤 */}
         <div className="flex justify-between items-center mt-4">
           <div className="text-sm text-slate-600">
-            총 <span className="font-bold text-blue-600">{currentTotal}</span>개
+            총 <span className="font-bold text-sky-600">{currentTotal}</span>개
           </div>
           <div className="flex items-center">
             <label className="mr-2 text-sm text-slate-600">표시 개수:</label>
@@ -474,7 +474,7 @@ export default function MyPostsPage() {
                 setPostsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="border border-slate-200 p-1.5 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="border border-slate-200 p-1.5 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
             >
               <option value="10">10개</option>
               <option value="20">20개</option>
@@ -505,7 +505,7 @@ export default function MyPostsPage() {
                 <p className="mb-4">작성한 게시글이 없습니다.</p>
                 <button
                   onClick={handleNewPost}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   첫 글 작성하기
@@ -522,7 +522,7 @@ export default function MyPostsPage() {
           {taggedLoading ? (
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
               <div className="flex flex-col items-center justify-center">
-                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
                 <p className="text-sm text-slate-500 mt-3">태그된 글을 불러오는 중...</p>
               </div>
             </div>
@@ -537,7 +537,7 @@ export default function MyPostsPage() {
                 >
                   <Link
                     href={`/board/${post.id}`}
-                    className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all"
+                    className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-sky-300 hover:shadow-md transition-all"
                   >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -550,7 +550,7 @@ export default function MyPostsPage() {
                         <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${
                           post.tag_type === "coauthor"
                             ? "bg-emerald-100 text-emerald-700"
-                            : "bg-blue-100 text-blue-700"
+                            : "bg-sky-100 text-sky-700"
                         }`}>
                           {post.tag_type === "coauthor" ? "공동작성" : "참조"}
                         </span>
@@ -595,7 +595,7 @@ export default function MyPostsPage() {
           {mentionedLoading ? (
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
               <div className="flex flex-col items-center justify-center">
-                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
                 <p className="text-sm text-slate-500 mt-3">멘션된 댓글을 불러오는 중...</p>
               </div>
             </div>
@@ -610,10 +610,10 @@ export default function MyPostsPage() {
                 >
                   <Link
                     href={`/board/${comment.post_id}?commentId=${comment.id}`}
-                    className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all"
+                    className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-sky-300 hover:shadow-md transition-all"
                   >
                   <div className="flex items-start gap-3">
-                    <MessageSquare className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                    <MessageSquare className="w-5 h-5 text-sky-500 flex-shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1.5 text-xs text-slate-500">
                         <span className="font-medium text-slate-700">

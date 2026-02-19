@@ -219,10 +219,10 @@ export default function CompaniesTab({
         </div>
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
           <div className="flex items-center text-slate-500 text-xs mb-1">
-            <TrendingUp className="h-3.5 w-3.5 mr-1 text-blue-500" />
+            <TrendingUp className="h-3.5 w-3.5 mr-1 text-sky-500" />
             총 매출
           </div>
-          <p className="text-2xl font-bold text-blue-600">
+          <p className="text-2xl font-bold text-sky-600">
             {totals.totalSales >= 100000000
               ? `${(totals.totalSales / 100000000).toFixed(1)}억`
               : `${(totals.totalSales / 10000).toLocaleString()}만`}
@@ -260,7 +260,7 @@ export default function CompaniesTab({
                 placeholder="거래처 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
             </div>
             <span className="text-sm text-slate-500">
@@ -358,7 +358,7 @@ export default function CompaniesTab({
                     <td className="px-4 py-3 font-medium text-slate-700">
                       {company.name}
                     </td>
-                    <td className="px-4 py-3 text-right text-blue-600">
+                    <td className="px-4 py-3 text-right text-sky-600">
                       {company.totalSales.toLocaleString()}원
                     </td>
                     <td className="px-4 py-3 text-right text-emerald-600">

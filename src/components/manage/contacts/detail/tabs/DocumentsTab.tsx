@@ -48,7 +48,7 @@ export default function DocumentsTab({
     <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div className="flex items-center">
-          <FileText className="h-5 w-5 text-indigo-600 mr-2" />
+          <FileText className="h-5 w-5 text-sky-600 mr-2" />
           <h2 className="text-lg font-semibold text-slate-800">문서 관리</h2>
         </div>
 
@@ -58,7 +58,7 @@ export default function DocumentsTab({
             onChange={(e) =>
               onDocumentFilterChange(e.target.value as "all" | "estimate" | "order")
             }
-            className="border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
           >
             <option value="all">모든 문서</option>
             <option value="estimate">견적서</option>
@@ -72,7 +72,7 @@ export default function DocumentsTab({
                 e.target.value as "all" | "pending" | "completed" | "canceled"
               )
             }
-            className="border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
           >
             <option value="all">모든 상태</option>
             <option value="pending">진행 중</option>
@@ -110,7 +110,7 @@ export default function DocumentsTab({
             <tbody className="bg-white divide-y divide-slate-200">
               {filteredDocuments.map((doc, index) => (
                 <tr key={index} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-sky-600 hover:text-sky-800 hover:underline cursor-pointer">
                     {doc.document_number}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">

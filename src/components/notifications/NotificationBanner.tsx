@@ -60,8 +60,8 @@ export default function NotificationBanner({
     >
       <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4">
         <div className="flex items-start gap-3">
-          <div className="p-2 bg-blue-100 rounded-lg shrink-0">
-            <Bell className="w-5 h-5 text-blue-600" />
+          <div className="p-2 bg-sky-100 rounded-lg shrink-0">
+            <Bell className="w-5 h-5 text-sky-600" />
           </div>
           <div className="flex-1 min-w-0">
             <h4 className="font-medium text-slate-800 text-sm">
@@ -74,7 +74,7 @@ export default function NotificationBanner({
               <button
                 onClick={handleEnable}
                 disabled={isLoading}
-                className="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 text-xs font-medium bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50"
               >
                 {isLoading ? "처리 중..." : "알림 허용"}
               </button>

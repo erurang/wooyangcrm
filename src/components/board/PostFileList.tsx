@@ -211,7 +211,7 @@ export default function PostFileList({ postId, currentUserId }: PostFileListProp
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-gray-500 text-sm py-4">
+      <div className="flex items-center gap-2 text-slate-400 text-sm py-4">
         <Loader2 className="w-4 h-4 animate-spin" />
         파일 로딩중...
       </div>
@@ -220,7 +220,7 @@ export default function PostFileList({ postId, currentUserId }: PostFileListProp
 
   if (files.length === 0) {
     return (
-      <p className="text-sm text-gray-400 py-2">첨부된 파일이 없습니다.</p>
+      <p className="text-sm text-slate-400 py-2">첨부된 파일이 없습니다.</p>
     );
   }
 
@@ -229,23 +229,23 @@ export default function PostFileList({ postId, currentUserId }: PostFileListProp
       {files.map((file) => (
         <div
           key={file.id}
-          className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+          className="bg-slate-50 rounded-lg p-3 border border-slate-200"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 flex-1 min-w-0">
               <span className="text-2xl">{getFileIcon(file.file_name)}</span>
               <div className="flex-1 min-w-0">
                 <div
-                  className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer truncate"
+                  className="font-medium text-sky-600 hover:text-sky-800 cursor-pointer truncate"
                   onClick={() => window.open(file.signedUrl, "_blank")}
                   title={file.file_name}
                 >
                   {file.file_name}
                 </div>
                 {file.description && (
-                  <p className="text-sm text-gray-600 mt-1">{file.description}</p>
+                  <p className="text-sm text-slate-500 mt-1">{file.description}</p>
                 )}
-                <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 flex-wrap">
+                <div className="flex items-center gap-3 mt-2 text-xs text-slate-400 flex-wrap">
                   <span className="flex items-center gap-1">
                     <User className="w-3 h-3" />
                     {file.user?.name || "알 수 없음"} {file.user?.level || ""}
@@ -264,7 +264,7 @@ export default function PostFileList({ postId, currentUserId }: PostFileListProp
             <div className="flex items-center gap-1">
               <button
                 onClick={() => handleDownload(file)}
-                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                 title="다운로드"
               >
                 <Download className="w-4 h-4" />
@@ -273,8 +273,8 @@ export default function PostFileList({ postId, currentUserId }: PostFileListProp
                 onClick={() => loadDownloadHistory(file.id)}
                 className={`p-2 rounded-lg transition-colors ${
                   expandedHistory === file.id
-                    ? "text-blue-600 bg-blue-50"
-                    : "text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+                    ? "text-sky-600 bg-sky-50"
+                    : "text-slate-400 hover:text-sky-600 hover:bg-sky-50"
                 }`}
                 title="다운로드 기록"
               >
@@ -289,27 +289,27 @@ export default function PostFileList({ postId, currentUserId }: PostFileListProp
 
           {/* 다운로드 기록 */}
           {expandedHistory === file.id && downloadHistory[file.id] && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <div className="text-xs font-medium text-gray-500 mb-2">다운로드 기록</div>
+            <div className="mt-3 pt-3 border-t border-slate-200">
+              <div className="text-xs font-medium text-slate-400 mb-2">다운로드 기록</div>
               {downloadHistory[file.id].length > 0 ? (
                 <div className="space-y-1 max-h-32 overflow-y-auto">
                   {downloadHistory[file.id].map((record) => (
                     <div
                       key={record.id}
-                      className="flex items-center justify-between text-xs text-gray-600 py-1"
+                      className="flex items-center justify-between text-xs text-slate-500 py-1"
                     >
                       <span className="flex items-center gap-1">
                         <User className="w-3 h-3" />
                         {record.user?.name || "알 수 없음"} {record.user?.level || ""}
                       </span>
-                      <span className="text-gray-400">
+                      <span className="text-slate-400">
                         {dayjs(record.created_at).format("YYYY-MM-DD HH:mm")}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-gray-400">다운로드 기록이 없습니다.</p>
+                <p className="text-xs text-slate-400">다운로드 기록이 없습니다.</p>
               )}
             </div>
           )}

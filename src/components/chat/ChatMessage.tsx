@@ -62,7 +62,7 @@ export default function ChatMessage({
   if (message.message_type === "system") {
     return (
       <div className="flex justify-center my-4">
-        <span className="text-xs text-gray-500 bg-gray-100 px-4 py-1.5 rounded-full">
+        <span className="text-xs text-slate-400 bg-slate-100 px-4 py-1.5 rounded-full">
           {message.content}
         </span>
       </div>
@@ -73,7 +73,7 @@ export default function ChatMessage({
   if (message.is_deleted) {
     return (
       <div className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-2`}>
-        <div className="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 italic text-sm">
+        <div className="px-4 py-2 bg-slate-100 rounded-lg text-slate-400 italic text-sm">
           삭제된 메시지입니다
         </div>
       </div>
@@ -95,12 +95,12 @@ export default function ChatMessage({
           onClick={closeContextMenu}
         />
         <div
-          className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[120px]"
+          className="fixed z-50 bg-white rounded-lg shadow-xl border border-slate-200 py-1 min-w-[120px]"
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
           <button
             onClick={handleCopy}
-            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            className="w-full px-4 py-2 text-left text-sm text-slate-600 hover:bg-slate-100 flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -109,7 +109,7 @@ export default function ChatMessage({
           </button>
           <button
             onClick={handleReply}
-            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+            className="w-full px-4 py-2 text-left text-sm text-slate-600 hover:bg-slate-100 flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
@@ -118,13 +118,13 @@ export default function ChatMessage({
           </button>
           {isOwn && (
             <>
-              <hr className="my-1 border-gray-200" />
+              <hr className="my-1 border-slate-200" />
               <button
                 onClick={() => {
                   onEdit?.(message);
                   setContextMenu(null);
                 }}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                className="w-full px-4 py-2 text-left text-sm text-slate-600 hover:bg-slate-100 flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -136,7 +136,7 @@ export default function ChatMessage({
                   onDelete?.(message.id);
                   setContextMenu(null);
                 }}
-                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
+                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-slate-100 flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -168,7 +168,7 @@ export default function ChatMessage({
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xs font-semibold">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-sky-500 flex items-center justify-center text-white text-xs font-semibold">
               {message.sender?.name?.slice(0, 2) || "?"}
             </div>
           )}
@@ -178,7 +178,7 @@ export default function ChatMessage({
       <div className={`max-w-[70%] ${!isOwn && !showAvatar ? "ml-10" : ""}`}>
         {/* 보낸 사람 이름 (상대방 메시지만) */}
         {!isOwn && showAvatar && (
-          <p className="text-xs text-gray-500 mb-1">{message.sender?.name}</p>
+          <p className="text-xs text-slate-400 mb-1">{message.sender?.name}</p>
         )}
 
         {/* 메시지 + 액션 메뉴 */}
@@ -187,8 +187,8 @@ export default function ChatMessage({
           <div
             className={`relative px-4 py-2 rounded-2xl cursor-pointer ${
               isOwn
-                ? "bg-blue-600 text-white rounded-br-md"
-                : "bg-gray-100 text-gray-900 rounded-bl-md"
+                ? "bg-sky-600 text-white rounded-br-md"
+                : "bg-slate-100 text-slate-800 rounded-bl-md"
             }`}
             onContextMenu={handleContextMenu}
           >
@@ -202,15 +202,15 @@ export default function ChatMessage({
                   }
                 }}
                 className={`mb-2 pb-2 border-b cursor-pointer hover:opacity-80 transition-opacity ${
-                  isOwn ? "border-blue-400/50" : "border-gray-200"
+                  isOwn ? "border-sky-400/50" : "border-slate-200"
                 }`}
               >
-                <p className={`text-xs ${isOwn ? "text-blue-200" : "text-gray-500"}`}>
+                <p className={`text-xs ${isOwn ? "text-sky-200" : "text-slate-400"}`}>
                   {message.reply_to.sender?.name}에게 답장
                 </p>
                 <p
                   className={`text-xs truncate ${
-                    isOwn ? "text-blue-100" : "text-gray-400"
+                    isOwn ? "text-sky-100" : "text-slate-400"
                   }`}
                 >
                   {message.reply_to.content}
@@ -247,11 +247,11 @@ export default function ChatMessage({
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`flex items-center gap-2 p-2 rounded-lg ${
-                        isOwn ? "bg-blue-500" : "bg-white border border-gray-200"
+                        isOwn ? "bg-sky-500" : "bg-white border border-slate-200"
                       }`}
                     >
                       <svg
-                        className={`w-8 h-8 ${isOwn ? "text-white" : "text-gray-400"}`}
+                        className={`w-8 h-8 ${isOwn ? "text-white" : "text-slate-400"}`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -266,13 +266,13 @@ export default function ChatMessage({
                       <div className="flex-1 min-w-0">
                         <p
                           className={`text-sm font-medium truncate ${
-                            isOwn ? "text-white" : "text-gray-900"
+                            isOwn ? "text-white" : "text-slate-800"
                           }`}
                         >
                           {file.file_name}
                         </p>
                         <p
-                          className={`text-xs ${isOwn ? "text-blue-200" : "text-gray-500"}`}
+                          className={`text-xs ${isOwn ? "text-sky-200" : "text-slate-400"}`}
                         >
                           {formatFileSize(file.file_size)}
                         </p>
@@ -286,7 +286,7 @@ export default function ChatMessage({
             {/* 수정됨 표시 */}
             {message.is_edited && (
               <span
-                className={`text-xs mt-1 block ${isOwn ? "text-blue-200" : "text-gray-400"}`}
+                className={`text-xs mt-1 block ${isOwn ? "text-sky-200" : "text-slate-400"}`}
               >
                 (수정됨)
               </span>
@@ -296,11 +296,11 @@ export default function ChatMessage({
           {/* 시간 + 읽음 표시 */}
           <div className={`flex flex-col items-end gap-0.5 ${isOwn ? "mr-1" : "ml-1"}`}>
             {isOwn && (
-              <span className={`text-xs ${isRead ? "text-blue-500" : "text-gray-400"}`}>
+              <span className={`text-xs ${isRead ? "text-sky-500" : "text-slate-400"}`}>
                 {isRead ? "읽음" : "안읽음"}
               </span>
             )}
-            <span className="text-xs text-gray-400">{messageTime}</span>
+            <span className="text-xs text-slate-400">{messageTime}</span>
           </div>
 
           {/* 액션 버튼 (호버 시) */}
@@ -312,7 +312,7 @@ export default function ChatMessage({
             {/* 이모지 반응 */}
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+              className="p-1 text-slate-400 hover:text-slate-500 hover:bg-slate-100 rounded"
               title="반응 추가"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,7 +328,7 @@ export default function ChatMessage({
             {/* 답장 */}
             <button
               onClick={() => onReply?.(message)}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+              className="p-1 text-slate-400 hover:text-slate-500 hover:bg-slate-100 rounded"
               title="답장"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -344,7 +344,7 @@ export default function ChatMessage({
             {/* 더보기 메뉴 */}
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+              className="p-1 text-slate-400 hover:text-slate-500 hover:bg-slate-100 rounded"
               title="더보기"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,7 +359,7 @@ export default function ChatMessage({
 
             {/* 더보기 드롭다운 */}
             {showMenu && (
-              <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-[100px]">
+              <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-10 min-w-[100px]">
                 {isOwn && (
                   <>
                     <button
@@ -367,7 +367,7 @@ export default function ChatMessage({
                         onEdit?.(message);
                         setShowMenu(false);
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                      className="w-full px-4 py-2 text-left text-sm text-slate-600 hover:bg-slate-100"
                     >
                       수정
                     </button>
@@ -376,7 +376,7 @@ export default function ChatMessage({
                         onDelete?.(message.id);
                         setShowMenu(false);
                       }}
-                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-slate-100"
                     >
                       삭제
                     </button>
@@ -387,7 +387,7 @@ export default function ChatMessage({
 
             {/* 이모지 피커 */}
             {showEmojiPicker && (
-              <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-2 z-10">
+              <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg border border-slate-200 p-2 z-10">
                 <div className="flex gap-1">
                   {COMMON_EMOJIS.map((emoji) => (
                     <button
@@ -396,7 +396,7 @@ export default function ChatMessage({
                         onReaction?.(message.id, emoji);
                         setShowEmojiPicker(false);
                       }}
-                      className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 rounded"
+                      className="w-8 h-8 flex items-center justify-center text-lg hover:bg-slate-100 rounded"
                     >
                       {emoji}
                     </button>
@@ -416,9 +416,9 @@ export default function ChatMessage({
                 onClick={() => onReaction?.(message.id, reaction.emoji)}
                 className={`flex items-center gap-1 px-2 py-0.5 text-xs rounded-full border ${
                   reaction.reacted_by_me
-                    ? "bg-blue-50 border-blue-200 text-blue-600"
-                    : "bg-gray-50 border-gray-200 text-gray-600"
-                } hover:bg-gray-100`}
+                    ? "bg-sky-50 border-sky-200 text-sky-600"
+                    : "bg-slate-50 border-slate-200 text-slate-500"
+                } hover:bg-slate-100`}
               >
                 <span>{reaction.emoji}</span>
                 <span>{reaction.count}</span>

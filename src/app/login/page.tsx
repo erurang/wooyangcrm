@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import CircularProgress from "@mui/material/CircularProgress";
+import { Loader2 } from "lucide-react";
 import { useSetLoginUser } from "@/context/login";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
@@ -114,15 +114,15 @@ export default function LoginPage() {
   return <KakaoButton />;
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-slate-100">
       <div className="bg-white shadow-xl rounded-lg p-6 w-full max-w-sm">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-4 text-center">
+        <h1 className="text-2xl font-semibold text-slate-800 mb-4 text-center">
           {step === 1 ? "로그인" : "인증번호 입력"}
         </h1>
 
         {step === 1 && !isLoggedIn && (
           <div className="space-y-4">
-            {/* <label className="block text-gray-700 font-medium">
+            {/* <label className="block text-slate-600 font-medium">
               우양신소재 영업관리
             </label> */}
             <input
@@ -130,18 +130,18 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="이메일을 입력하세요"
-              className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-sky-500"
               disabled={isLoading}
             />
             <button
               onClick={handleSendCode}
-              className={`w-full flex justify-center items-center bg-blue-500 text-white py-2 rounded-md transition hover:bg-blue-600 ${
+              className={`w-full flex justify-center items-center bg-sky-500 text-white py-2 rounded-md transition hover:bg-sky-600 ${
                 isLoading ? "opacity-70 cursor-not-allowed" : ""
               }`}
               disabled={isLoading}
             >
               {isLoading ? (
-                <CircularProgress size={24} color="inherit" />
+                <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
                 "인증번호 받기"
               )}
@@ -151,13 +151,13 @@ export default function LoginPage() {
 
         {step === 2 && !isLoggedIn && (
           <div className="space-y-4">
-            <label className="block text-gray-700 font-medium">인증번호</label>
+            <label className="block text-slate-600 font-medium">인증번호</label>
             <input
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="인증번호 입력"
-              className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-sky-500"
               disabled={isLoading}
             />
             <button
@@ -168,14 +168,14 @@ export default function LoginPage() {
               disabled={isLoading}
             >
               {isLoading ? (
-                <CircularProgress size={24} color="inherit" />
+                <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
                 "로그인"
               )}
             </button>
             <button
               onClick={() => setStep(1)}
-              className="w-full bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
+              className="w-full bg-slate-500 text-white py-2 rounded-md hover:bg-slate-600 transition"
             >
               뒤로가기
             </button>

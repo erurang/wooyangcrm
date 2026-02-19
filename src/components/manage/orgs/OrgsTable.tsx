@@ -28,11 +28,11 @@ export default function OrgsTable({ orgs, onEdit, onDelete }: OrgsTableProps) {
           <div key={org.id} className="p-3 active:bg-slate-50">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                <div className="p-2 bg-blue-50 rounded-lg shrink-0">
-                  <Building2 className="h-4 w-4 text-blue-600" />
+                <div className="p-2 bg-sky-50 rounded-lg shrink-0">
+                  <Building2 className="h-4 w-4 text-sky-600" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-blue-600 truncate">
+                  <div className="text-sm font-medium text-sky-600 truncate">
                     {org.name}
                   </div>
                   {org.address && (
@@ -46,7 +46,7 @@ export default function OrgsTable({ orgs, onEdit, onDelete }: OrgsTableProps) {
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   onClick={() => onEdit(org)}
-                  className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 active:bg-blue-100 rounded-lg transition-colors"
+                  className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 active:bg-sky-100 rounded-lg transition-colors"
                 >
                   <Edit className="h-4 w-4" />
                 </button>
@@ -95,7 +95,7 @@ export default function OrgsTable({ orgs, onEdit, onDelete }: OrgsTableProps) {
             {orgs?.map((org) => (
               <tr key={org.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-blue-600">{org.name}</div>
+                  <div className="text-sm font-medium text-sky-600">{org.name}</div>
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell">
                   <div className="text-sm text-slate-600 truncate max-w-xs">{org.address || "-"}</div>
@@ -113,7 +113,7 @@ export default function OrgsTable({ orgs, onEdit, onDelete }: OrgsTableProps) {
                   <div className="flex items-center justify-center gap-1">
                     <button
                       onClick={() => onEdit(org)}
-                      className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                     >
                       <Edit className="h-4 w-4" />
                     </button>

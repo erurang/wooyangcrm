@@ -20,14 +20,14 @@ export default function LoginPage() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-sky-50 via-white to-sky-50">
       <div className="relative w-full max-w-md">
         {/* Decorative elements */}
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-blue-100 rounded-full opacity-70 blur-2xl"></div>
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-sky-100 rounded-full opacity-70 blur-2xl"></div>
         <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-green-100 rounded-full opacity-70 blur-2xl"></div>
 
         {/* Card */}
-        <div className="relative w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-10">
+        <div className="relative w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-10">
           {/* Logo and header */}
           <div className="flex flex-col items-center mb-2">
             <div className="mb-4">
@@ -43,8 +43,8 @@ export default function LoginPage() {
 
           {/* Login section */}
           <div className="space-y-6">
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-              <p className="text-gray-600 text-sm mb-2 text-center">
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
+              <p className="text-slate-500 text-sm mb-2 text-center">
                 안전한 로그인을 위해 카카오 계정을 사용합니다
               </p>
               <button
@@ -62,8 +62,8 @@ export default function LoginPage() {
           </div>
 
           {/* Footer */}
-          <div className="mt-10 pt-4 border-t border-gray-100">
-            <p className="text-gray-400 text-xs text-center">
+          <div className="mt-10 pt-4 border-t border-slate-100">
+            <p className="text-slate-400 text-xs text-center">
               © {currentYear} 우양신소재. All rights reserved.
             </p>
           </div>

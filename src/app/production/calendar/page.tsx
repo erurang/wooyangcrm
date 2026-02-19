@@ -272,12 +272,12 @@ export default function ProductionCalendarPage() {
               </div>
               <p className="text-2xl font-bold text-slate-700">{stats.pendingWO}</p>
             </div>
-            <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-              <div className="flex items-center gap-2 text-blue-600 text-xs font-medium mb-1">
+            <div className="bg-sky-50 rounded-lg p-3 border border-sky-100">
+              <div className="flex items-center gap-2 text-sky-600 text-xs font-medium mb-1">
                 <ClipboardList className="h-3.5 w-3.5" />
                 진행중
               </div>
-              <p className="text-2xl font-bold text-blue-700">{stats.inProgressWO}</p>
+              <p className="text-2xl font-bold text-sky-700">{stats.inProgressWO}</p>
             </div>
             <div className="bg-green-50 rounded-lg p-3 border border-green-100">
               <div className="flex items-center gap-2 text-green-600 text-xs font-medium mb-1">
@@ -389,7 +389,7 @@ export default function ProductionCalendarPage() {
                   onClick={() => setStatusFilter("in_progress")}
                   className={`px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${
                     statusFilter === "in_progress"
-                      ? "bg-blue-500 text-white shadow-sm"
+                      ? "bg-sky-500 text-white shadow-sm"
                       : "text-slate-500 hover:text-slate-700"
                   }`}
                 >
@@ -424,7 +424,7 @@ export default function ProductionCalendarPage() {
                 <span className="text-xs text-slate-600">작업지시 (대기)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-blue-500"></span>
+                <span className="w-3 h-3 rounded bg-sky-500"></span>
                 <span className="text-xs text-slate-600">작업지시 (진행중)</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -454,7 +454,7 @@ export default function ProductionCalendarPage() {
                   <div
                     key={day}
                     className={`py-2.5 text-center text-xs font-medium ${
-                      i === 0 ? "text-red-500" : i === 6 ? "text-blue-500" : "text-slate-600"
+                      i === 0 ? "text-red-500" : i === 6 ? "text-sky-500" : "text-slate-600"
                     }`}
                   >
                     {day}
@@ -490,7 +490,7 @@ export default function ProductionCalendarPage() {
                           ${isToday ? "bg-purple-600 text-white" : ""}
                           ${!isCurrentMonth ? "text-slate-300" : ""}
                           ${dayOfWeek === 0 && isCurrentMonth && !isToday ? "text-red-500" : ""}
-                          ${dayOfWeek === 6 && isCurrentMonth && !isToday ? "text-blue-500" : ""}
+                          ${dayOfWeek === 6 && isCurrentMonth && !isToday ? "text-sky-500" : ""}
                         `}
                       >
                         {date.date()}
@@ -518,7 +518,7 @@ export default function ProductionCalendarPage() {
                               : wo.status === "completed"
                               ? "bg-green-100 text-green-700"
                               : wo.status === "in_progress"
-                              ? "bg-blue-500 text-white"
+                              ? "bg-sky-500 text-white"
                               : "bg-purple-500 text-white";
 
                             // Show title only on start or single
@@ -648,7 +648,7 @@ export default function ProductionCalendarPage() {
                                       wo.status === "completed"
                                         ? "bg-green-100 text-green-700"
                                         : wo.status === "in_progress"
-                                        ? "bg-blue-100 text-blue-700"
+                                        ? "bg-sky-100 text-sky-700"
                                         : wo.status === "canceled"
                                         ? "bg-red-100 text-red-700"
                                         : "bg-slate-100 text-slate-600"

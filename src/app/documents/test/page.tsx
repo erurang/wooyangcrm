@@ -236,7 +236,7 @@ export default function DocumentTestPage() {
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-700">
             <Clock className="w-3 h-3" />
             진행중
           </span>
@@ -402,7 +402,7 @@ export default function DocumentTestPage() {
               </Link>
               <div>
                 <h1 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                  <Package className={`h-5 w-5 ${documentType === "order" ? "text-indigo-600" : "text-blue-600"}`} />
+                  <Package className={`h-5 w-5 ${documentType === "order" ? "text-sky-600" : "text-sky-600"}`} />
                   문서 작성 (실험실)
                 </h1>
                 <p className="text-sm text-slate-500">
@@ -417,8 +417,8 @@ export default function DocumentTestPage() {
                 saving || !user?.id
                   ? "bg-slate-400 cursor-not-allowed"
                   : documentType === "order"
-                    ? "bg-indigo-600 hover:bg-indigo-700"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-sky-600 hover:bg-sky-700"
+                    : "bg-sky-600 hover:bg-sky-700"
               } text-white`}
             >
               {saving ? (
@@ -491,7 +491,7 @@ export default function DocumentTestPage() {
                 onClick={() => setDocumentType("estimate")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   documentType === "estimate"
-                    ? "bg-blue-600 text-white"
+                    ? "bg-sky-600 text-white"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >
@@ -501,7 +501,7 @@ export default function DocumentTestPage() {
                 onClick={() => setDocumentType("order")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   documentType === "order"
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-sky-600 text-white"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                 }`}
               >
@@ -517,15 +517,15 @@ export default function DocumentTestPage() {
         ) : (
           <div className={`rounded-xl border p-4 ${
             documentType === "order"
-              ? "bg-indigo-50 border-indigo-200"
-              : "bg-blue-50 border-blue-200"
+              ? "bg-sky-50 border-sky-200"
+              : "bg-sky-50 border-sky-200"
           }`}>
             <div className="flex items-center gap-2">
               <Package className={`h-5 w-5 ${
-                documentType === "order" ? "text-indigo-600" : "text-blue-600"
+                documentType === "order" ? "text-sky-600" : "text-sky-600"
               }`} />
               <span className={`font-medium ${
-                documentType === "order" ? "text-indigo-800" : "text-blue-800"
+                documentType === "order" ? "text-sky-800" : "text-sky-800"
               }`}>
                 {documentType === "estimate" ? "견적서 (매출)" : "발주서 (매입)"}
               </span>
@@ -548,8 +548,8 @@ export default function DocumentTestPage() {
                 {isTypeFixed && (
                   <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
                     documentType === "order"
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "bg-blue-100 text-blue-700"
+                      ? "bg-sky-100 text-sky-700"
+                      : "bg-sky-100 text-sky-700"
                   }`}>
                     {documentType === "estimate" ? "견적서" : "발주서"}
                   </span>
@@ -581,8 +581,8 @@ export default function DocumentTestPage() {
                     key={doc.id}
                     className={`p-3 rounded-lg border transition-all hover:shadow-md ${
                       doc.type === "order"
-                        ? "bg-indigo-50/50 border-indigo-100 hover:bg-indigo-50"
-                        : "bg-blue-50/50 border-blue-100 hover:bg-blue-50"
+                        ? "bg-sky-50/50 border-sky-100 hover:bg-sky-50"
+                        : "bg-sky-50/50 border-sky-100 hover:bg-sky-50"
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -591,10 +591,10 @@ export default function DocumentTestPage() {
                         onClick={() => loadDocumentDetail(doc.id)}
                       >
                         <div className={`p-2 rounded-lg ${
-                          doc.type === "order" ? "bg-indigo-100" : "bg-blue-100"
+                          doc.type === "order" ? "bg-sky-100" : "bg-sky-100"
                         }`}>
                           <Package className={`h-4 w-4 ${
-                            doc.type === "order" ? "text-indigo-600" : "text-blue-600"
+                            doc.type === "order" ? "text-sky-600" : "text-sky-600"
                           }`} />
                         </div>
                         <div>
@@ -604,8 +604,8 @@ export default function DocumentTestPage() {
                             </span>
                             <span className={`text-xs px-1.5 py-0.5 rounded ${
                               doc.type === "order"
-                                ? "bg-indigo-100 text-indigo-700"
-                                : "bg-blue-100 text-blue-700"
+                                ? "bg-sky-100 text-sky-700"
+                                : "bg-sky-100 text-sky-700"
                             }`}>
                               {doc.type === "estimate" ? "견적서" : "발주서"}
                             </span>
@@ -654,7 +654,7 @@ export default function DocumentTestPage() {
                         )}
                         <Eye
                           className={`h-4 w-4 cursor-pointer ${
-                            doc.type === "order" ? "text-indigo-400" : "text-blue-400"
+                            doc.type === "order" ? "text-sky-400" : "text-sky-400"
                           }`}
                           onClick={() => loadDocumentDetail(doc.id)}
                         />
@@ -731,7 +731,7 @@ export default function DocumentTestPage() {
             <div className="px-6 py-4 border-b flex items-center justify-between print:hidden">
               <div className="flex items-center gap-3">
                 <FileText className={`h-5 w-5 ${
-                  documentDetail?.document?.type === "order" ? "text-indigo-600" : "text-blue-600"
+                  documentDetail?.document?.type === "order" ? "text-sky-600" : "text-sky-600"
                 }`} />
                 <div>
                   <h2 className="text-lg font-semibold text-slate-800">
@@ -772,7 +772,7 @@ export default function DocumentTestPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className={`text-xl font-bold ${
-                          documentDetail.document.type === "order" ? "text-indigo-700" : "text-blue-700"
+                          documentDetail.document.type === "order" ? "text-sky-700" : "text-sky-700"
                         }`}>
                           {documentDetail.document.type === "estimate" ? "견 적 서" : "발 주 서"}
                         </h3>
@@ -800,8 +800,8 @@ export default function DocumentTestPage() {
                       <thead>
                         <tr className={`text-left text-xs ${
                           documentDetail.document.type === "order"
-                            ? "bg-indigo-50 text-indigo-800"
-                            : "bg-blue-50 text-blue-800"
+                            ? "bg-sky-50 text-sky-800"
+                            : "bg-sky-50 text-sky-800"
                         }`}>
                           <th className="p-2 border border-slate-200">No</th>
                           <th className="p-2 border border-slate-200">품명</th>
@@ -850,8 +850,8 @@ export default function DocumentTestPage() {
                       <tfoot>
                         <tr className={`font-bold ${
                           documentDetail.document.type === "order"
-                            ? "bg-indigo-50"
-                            : "bg-blue-50"
+                            ? "bg-sky-50"
+                            : "bg-sky-50"
                         }`}>
                           <td colSpan={5} className="p-3 border border-slate-200 text-right">
                             합 계

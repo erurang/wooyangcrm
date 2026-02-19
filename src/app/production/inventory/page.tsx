@@ -98,8 +98,8 @@ export default function InventoryPage() {
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <Package className="h-5 w-5 text-indigo-600" />
+              <div className="p-2 bg-sky-100 rounded-lg">
+                <Package className="h-5 w-5 text-sky-600" />
               </div>
               <div>
                 <h1 className="text-lg font-bold text-slate-800">원자재 재고</h1>
@@ -113,7 +113,7 @@ export default function InventoryPage() {
             </div>
             <button
               onClick={() => setIsFormModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
             >
               <Plus className="w-4 h-4" />
               새 품목
@@ -129,7 +129,7 @@ export default function InventoryPage() {
             onClick={() => setViewMode("raw_material")}
             className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               viewMode === "raw_material"
-                ? "bg-indigo-600 text-white"
+                ? "bg-sky-600 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
@@ -139,7 +139,7 @@ export default function InventoryPage() {
             onClick={() => setViewMode("purchased")}
             className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               viewMode === "purchased"
-                ? "bg-indigo-600 text-white"
+                ? "bg-sky-600 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
@@ -159,7 +159,7 @@ export default function InventoryPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="품목명, 코드 검색..."
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
             />
           </div>
 
@@ -187,7 +187,7 @@ export default function InventoryPage() {
       <div className="p-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin h-8 w-8 border-2 border-indigo-600 border-t-transparent rounded-full" />
+            <div className="animate-spin h-8 w-8 border-2 border-sky-600 border-t-transparent rounded-full" />
           </div>
         ) : products.length === 0 ? (
           <motion.div
@@ -207,7 +207,7 @@ export default function InventoryPage() {
             {!showLowStockOnly && (
               <button
                 onClick={() => setIsFormModalOpen(true)}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
               >
                 새 품목 등록
               </button>
@@ -276,7 +276,7 @@ export default function InventoryPage() {
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => openStockModal(product)}
-                            className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            className="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                             title="재고 조정"
                           >
                             <ArrowUpCircle className="h-4 w-4" />

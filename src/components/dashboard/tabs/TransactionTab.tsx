@@ -106,8 +106,8 @@ export default function TransactionTab({
         {/* 거래처별 비중 */}
         <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <PieChart className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <PieChart className="h-5 w-5 text-sky-600" />
             </div>
             <h2 className="text-xl font-semibold text-slate-800">
               거래처별 {config.label} 비중
@@ -141,8 +141,8 @@ export default function TransactionTab({
       {/* 아이템별 차트 */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5">
         <div className="flex items-center mb-4">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <BarChart className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <BarChart className="h-5 w-5 text-sky-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-800">
             품목별 {config.label} TOP 10
@@ -201,8 +201,8 @@ export default function TransactionTab({
       {/* 거래처 목록 */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-5">
         <div className="flex items-center mb-4">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <Users className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <Users className="h-5 w-5 text-sky-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-800">
             {config.label} 거래처
@@ -215,13 +215,13 @@ export default function TransactionTab({
               <div
                 key={c.name}
                 onClick={() => handleCompanyClick(c.name)}
-                className="flex justify-between items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50/30 transition-colors cursor-pointer group"
+                className="flex justify-between items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-sky-300 hover:bg-sky-50/30 transition-colors cursor-pointer group"
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-slate-800 group-hover:text-indigo-600 transition-colors">{c.name}</span>
+                  <span className="font-medium text-slate-800 group-hover:text-sky-600 transition-colors">{c.name}</span>
                   <ChevronRight className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <span className="font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md">
+                <span className="font-semibold text-sky-600 bg-sky-50 px-3 py-1 rounded-md">
                   {c.total.toLocaleString()} 원
                 </span>
               </div>
@@ -229,8 +229,8 @@ export default function TransactionTab({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-32 text-slate-500">
-            <div className="bg-indigo-50 p-3 rounded-full mb-2">
-              <Users className="h-6 w-6 text-indigo-400" />
+            <div className="bg-sky-50 p-3 rounded-full mb-2">
+              <Users className="h-6 w-6 text-sky-400" />
             </div>
             <p>{config.label} 거래처가 없습니다</p>
           </div>

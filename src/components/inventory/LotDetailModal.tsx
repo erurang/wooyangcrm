@@ -95,14 +95,14 @@ export default function LotDetailModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* 헤더 */}
-        <div className="flex items-center justify-between px-6 py-4 border-b bg-blue-50">
+        <div className="flex items-center justify-between px-6 py-4 border-b bg-sky-50">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-100">
-              <Hash className="h-5 w-5 text-blue-600" />
+            <div className="p-2 rounded-lg bg-sky-100">
+              <Hash className="h-5 w-5 text-sky-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-gray-900">{lot.lot_number}</h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="font-semibold text-lg text-slate-800">{lot.lot_number}</h3>
+              <p className="text-sm text-slate-400">
                 {lot.product?.internal_name || "제품 미연결"}
               </p>
             </div>
@@ -117,23 +117,23 @@ export default function LotDetailModal({
             </span>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-sky-100 rounded-lg transition-colors"
             >
-              <X className="h-5 w-5 text-gray-500" />
+              <X className="h-5 w-5 text-slate-400" />
             </button>
           </div>
         </div>
 
         {/* 탭 */}
-        <div className="flex border-b bg-gray-50">
+        <div className="flex border-b bg-slate-50">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab.key
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  ? "border-sky-600 text-sky-600"
+                  : "border-transparent text-slate-400 hover:text-slate-600"
               }`}
             >
               {tab.icon}
@@ -148,21 +148,21 @@ export default function LotDetailModal({
           {activeTab === "info" && (
             <div className="space-y-6">
               {/* 수량 정보 */}
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-slate-50 rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm text-gray-500">현재 수량</div>
-                    <div className="text-3xl font-bold text-gray-900">
+                    <div className="text-sm text-slate-400">현재 수량</div>
+                    <div className="text-3xl font-bold text-slate-800">
                       {lot.current_quantity}
-                      <span className="text-lg font-normal text-gray-500 ml-2">
+                      <span className="text-lg font-normal text-slate-400 ml-2">
                         {unit}
                       </span>
                     </div>
                   </div>
                   {lot.initial_quantity !== lot.current_quantity && (
                     <div className="text-right">
-                      <div className="text-sm text-gray-500">최초 수량</div>
-                      <div className="text-lg text-gray-600">
+                      <div className="text-sm text-slate-400">최초 수량</div>
+                      <div className="text-lg text-slate-500">
                         {lot.initial_quantity} {unit}
                       </div>
                     </div>
@@ -174,15 +174,15 @@ export default function LotDetailModal({
               <div className="grid grid-cols-2 gap-4">
                 {/* 제품 정보 */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
                     <Package className="h-4 w-4" />
                     제품
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-800">
                     {lot.product?.internal_name || "-"}
                   </div>
                   {lot.product?.internal_code && (
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-slate-400">
                       코드: {lot.product.internal_code}
                     </div>
                   )}
@@ -190,27 +190,27 @@ export default function LotDetailModal({
 
                 {/* 규격 */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
                     <FileText className="h-4 w-4" />
                     규격
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-800">
                     {lot.spec_value || "-"}
                   </div>
                 </div>
 
                 {/* 출처 */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
                     <ArrowDownLeft className="h-4 w-4" />
                     출처
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-800">
                     {LOT_SOURCE_LABELS[lot.source_type as keyof typeof LOT_SOURCE_LABELS] ||
                       lot.source_type}
                   </div>
                   {lot.source_lot && (
-                    <div className="text-sm text-blue-600">
+                    <div className="text-sm text-sky-600">
                       원본: {lot.source_lot.lot_number}
                     </div>
                   )}
@@ -218,22 +218,22 @@ export default function LotDetailModal({
 
                 {/* 공급처 */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
                     <Building2 className="h-4 w-4" />
                     공급처
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-800">
                     {lot.supplier_company?.name || "-"}
                   </div>
                 </div>
 
                 {/* 입고일 */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
                     <Calendar className="h-4 w-4" />
                     입고일
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-800">
                     {lot.received_at
                       ? dayjs(lot.received_at).format("YYYY-MM-DD")
                       : "-"}
@@ -242,11 +242,11 @@ export default function LotDetailModal({
 
                 {/* 유효기한 */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
                     <Calendar className="h-4 w-4" />
                     유효기한
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-800">
                     {lot.expiry_date
                       ? dayjs(lot.expiry_date).format("YYYY-MM-DD")
                       : "-"}
@@ -255,11 +255,11 @@ export default function LotDetailModal({
 
                 {/* 단가 */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
                     <DollarSign className="h-4 w-4" />
                     단가
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-800">
                     {lot.unit_cost
                       ? `${lot.unit_cost.toLocaleString()}원`
                       : "-"}
@@ -268,11 +268,11 @@ export default function LotDetailModal({
 
                 {/* 총비용 */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
                     <DollarSign className="h-4 w-4" />
                     총비용
                   </div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-800">
                     {lot.total_cost
                       ? `${lot.total_cost.toLocaleString()}원`
                       : "-"}
@@ -283,14 +283,14 @@ export default function LotDetailModal({
               {/* 위치 (편집 가능) */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
                     <MapPin className="h-4 w-4" />
                     위치
                   </div>
                   {!isEditing && lot.status === "available" && (
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                      className="text-sm text-sky-600 hover:text-sky-800 flex items-center gap-1"
                     >
                       <Edit3 className="h-3.5 w-3.5" />
                       수정
@@ -303,10 +303,10 @@ export default function LotDetailModal({
                     value={editLocation}
                     onChange={(e) => setEditLocation(e.target.value)}
                     placeholder="위치 입력 (예: 창고A-선반1)"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                   />
                 ) : (
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-slate-800">
                     {lot.location || "-"}
                   </div>
                 )}
@@ -314,7 +314,7 @@ export default function LotDetailModal({
 
               {/* 메모 (편집 가능) */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-slate-400">
                   <FileText className="h-4 w-4" />
                   메모
                 </div>
@@ -324,10 +324,10 @@ export default function LotDetailModal({
                     onChange={(e) => setEditNotes(e.target.value)}
                     placeholder="메모..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-none"
                   />
                 ) : (
-                  <div className="text-gray-900 whitespace-pre-wrap">
+                  <div className="text-slate-800 whitespace-pre-wrap">
                     {lot.notes || "-"}
                   </div>
                 )}
@@ -343,14 +343,14 @@ export default function LotDetailModal({
                       setEditNotes(lot.notes || "");
                     }}
                     disabled={isUpdating}
-                    className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                    className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
                   >
                     취소
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={isUpdating}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700 disabled:opacity-50"
                   >
                     {isUpdating ? (
                       <>
@@ -374,10 +374,10 @@ export default function LotDetailModal({
             <div className="space-y-4">
               {transLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                  <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
                 </div>
               ) : transactions.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-slate-400">
                   변동 이력이 없습니다.
                 </div>
               ) : (
@@ -385,7 +385,7 @@ export default function LotDetailModal({
                   {transactions.map((tx: any) => (
                     <div
                       key={tx.id}
-                      className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                      className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg"
                     >
                       <div
                         className={`p-2 rounded-lg ${
@@ -402,7 +402,7 @@ export default function LotDetailModal({
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-gray-900">
+                          <span className="font-medium text-slate-800">
                             {LOT_TRANSACTION_LABELS[
                               tx.transaction_type as keyof typeof LOT_TRANSACTION_LABELS
                             ] || tx.transaction_type}
@@ -416,15 +416,15 @@ export default function LotDetailModal({
                             {tx.quantity} {unit}
                           </span>
                         </div>
-                        <div className="text-sm text-gray-500 mt-1">
+                        <div className="text-sm text-slate-400 mt-1">
                           {tx.quantity_before} → {tx.quantity_after} {unit}
                         </div>
                         {tx.notes && (
-                          <div className="text-sm text-gray-600 mt-1">
+                          <div className="text-sm text-slate-500 mt-1">
                             {tx.notes}
                           </div>
                         )}
-                        <div className="text-xs text-gray-400 mt-1">
+                        <div className="text-xs text-slate-400 mt-1">
                           {dayjs(tx.created_at).format("YYYY-MM-DD HH:mm")}
                           {tx.creator && ` | ${tx.creator.name}`}
                         </div>
@@ -441,30 +441,30 @@ export default function LotDetailModal({
             <div className="space-y-6">
               {splitLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                  <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
                 </div>
               ) : (
                 <>
                   {/* 이 LOT의 출처 (분할로 생성된 경우) */}
                   {splitTo.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">
+                      <h4 className="text-sm font-medium text-slate-600 mb-3">
                         분할 원본 (이 LOT가 분할로 생성됨)
                       </h4>
                       <div className="space-y-2">
                         {splitTo.map((split: any) => (
                           <div
                             key={split.id}
-                            className="p-3 bg-blue-50 rounded-lg border border-blue-200"
+                            className="p-3 bg-sky-50 rounded-lg border border-sky-200"
                           >
                             <div className="flex items-center gap-2 text-sm">
-                              <GitBranch className="h-4 w-4 text-blue-600" />
-                              <span className="font-medium text-blue-800">
+                              <GitBranch className="h-4 w-4 text-sky-600" />
+                              <span className="font-medium text-sky-800">
                                 {split.source_lot?.lot_number}
                               </span>
-                              <span className="text-blue-600">에서 분할됨</span>
+                              <span className="text-sky-600">에서 분할됨</span>
                             </div>
-                            <div className="text-xs text-blue-600 mt-1">
+                            <div className="text-xs text-sky-600 mt-1">
                               {dayjs(split.split_at).format("YYYY-MM-DD HH:mm")}
                               {split.splitter && ` | ${split.splitter.name}`}
                             </div>
@@ -477,7 +477,7 @@ export default function LotDetailModal({
                   {/* 이 LOT에서 분할된 기록 */}
                   {splitFrom.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">
+                      <h4 className="text-sm font-medium text-slate-600 mb-3">
                         분할 기록 (이 LOT에서 분할됨)
                       </h4>
                       <div className="space-y-3">
@@ -526,7 +526,7 @@ export default function LotDetailModal({
                   )}
 
                   {splitFrom.length === 0 && splitTo.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-slate-400">
                       분할 이력이 없습니다.
                     </div>
                   )}

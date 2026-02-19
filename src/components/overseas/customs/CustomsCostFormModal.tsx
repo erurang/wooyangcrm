@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CircularProgress } from "@mui/material";
+import { Loader2 } from "lucide-react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import {
   CustomsCostFormData,
@@ -201,7 +201,7 @@ export default function CustomsCostFormModal({
             onClick={(e) => e.stopPropagation()}
           >
               <div className="bg-white px-4 pt-4 pb-4 sm:p-6 sm:pb-4 flex-1 overflow-y-auto">
-                <h3 className="text-base sm:text-lg leading-6 font-medium text-gray-900 mb-4 sm:mb-6 sticky top-0 bg-white py-2 -mt-2 border-b sm:border-none">
+                <h3 className="text-base sm:text-lg leading-6 font-medium text-slate-800 mb-4 sm:mb-6 sticky top-0 bg-white py-2 -mt-2 border-b sm:border-none">
                   {title}
                 </h3>
 
@@ -209,7 +209,7 @@ export default function CustomsCostFormModal({
                   {/* 기본 정보 */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         거래처 <span className="text-red-500">*</span>
                       </label>
                       <select
@@ -221,8 +221,8 @@ export default function CustomsCostFormModal({
                             consultation_id: "", // 거래처 변경 시 상담 선택 초기화
                           })
                         }
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.company_id ? "border-red-500" : "border-gray-300"
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 ${
+                          errors.company_id ? "border-red-500" : "border-slate-300"
                         }`}
                       >
                         <option value="">거래처 선택</option>
@@ -237,14 +237,14 @@ export default function CustomsCostFormModal({
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         해외 상담 연결
                       </label>
                       <select
                         value={formData.consultation_id}
                         onChange={(e) => handleConsultationSelect(e.target.value)}
                         disabled={!formData.company_id || loadingConsultations}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-slate-100 disabled:cursor-not-allowed"
                       >
                         <option value="">
                           {loadingConsultations
@@ -273,7 +273,7 @@ export default function CustomsCostFormModal({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         통관일 <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -282,8 +282,8 @@ export default function CustomsCostFormModal({
                         onChange={(e) =>
                           setFormData({ ...formData, clearance_date: e.target.value })
                         }
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.clearance_date ? "border-red-500" : "border-gray-300"
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 ${
+                          errors.clearance_date ? "border-red-500" : "border-slate-300"
                         }`}
                       />
                       {errors.clearance_date && (
@@ -291,7 +291,7 @@ export default function CustomsCostFormModal({
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         운송방법
                       </label>
                       <select
@@ -302,7 +302,7 @@ export default function CustomsCostFormModal({
                             shipping_method: e.target.value as ShippingMethodType,
                           })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
                       >
                         {Object.entries(SHIPPING_METHOD_LABELS).map(([value, label]) => (
                           <option key={value} value={value}>
@@ -315,7 +315,7 @@ export default function CustomsCostFormModal({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         Invoice No.
                       </label>
                       <input
@@ -324,12 +324,12 @@ export default function CustomsCostFormModal({
                         onChange={(e) =>
                           setFormData({ ...formData, invoice_no: e.target.value })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
                         placeholder="Invoice Number"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         운송업체
                       </label>
                       <select
@@ -337,7 +337,7 @@ export default function CustomsCostFormModal({
                         onChange={(e) =>
                           setFormData({ ...formData, shipping_carrier_id: e.target.value })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
                       >
                         <option value="">선택</option>
                         {shippingCarriers.map((carrier) => (
@@ -351,65 +351,65 @@ export default function CustomsCostFormModal({
 
                   {/* 비용 항목 */}
                   <div className="border-t pt-4 mt-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">비용 항목</h4>
+                    <h4 className="text-sm font-medium text-slate-600 mb-3">비용 항목</h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">항공료</label>
+                        <label className="block text-xs text-slate-400 mb-1">항공료</label>
                         <input
                           type="text"
                           value={formatNumber(formData.air_freight)}
                           onChange={(e) => handleNumberChange("air_freight", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 text-right"
                           placeholder="0"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">해상료</label>
+                        <label className="block text-xs text-slate-400 mb-1">해상료</label>
                         <input
                           type="text"
                           value={formatNumber(formData.sea_freight)}
                           onChange={(e) => handleNumberChange("sea_freight", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 text-right"
                           placeholder="0"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">관세</label>
+                        <label className="block text-xs text-slate-400 mb-1">관세</label>
                         <input
                           type="text"
                           value={formatNumber(formData.customs_duty)}
                           onChange={(e) => handleNumberChange("customs_duty", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 text-right"
                           placeholder="0"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">포트/통관/창고/핸들링</label>
+                        <label className="block text-xs text-slate-400 mb-1">포트/통관/창고/핸들링</label>
                         <input
                           type="text"
                           value={formatNumber(formData.port_charges)}
                           onChange={(e) => handleNumberChange("port_charges", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 text-right"
                           placeholder="0"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">내국운송료</label>
+                        <label className="block text-xs text-slate-400 mb-1">내국운송료</label>
                         <input
                           type="text"
                           value={formatNumber(formData.domestic_transport)}
                           onChange={(e) => handleNumberChange("domestic_transport", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 text-right"
                           placeholder="0"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">특송운임</label>
+                        <label className="block text-xs text-slate-400 mb-1">특송운임</label>
                         <input
                           type="text"
                           value={formatNumber(formData.express_freight)}
                           onChange={(e) => handleNumberChange("express_freight", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 text-right"
                           placeholder="0"
                         />
                       </div>
@@ -420,29 +420,29 @@ export default function CustomsCostFormModal({
                   <div className="border-t pt-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">부가세 (VAT)</label>
+                        <label className="block text-xs text-slate-400 mb-1">부가세 (VAT)</label>
                         <input
                           type="text"
                           value={formatNumber(formData.vat)}
                           onChange={(e) => handleNumberChange("vat", e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 text-right"
                           placeholder="0"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">소계 (VAT 제외)</label>
+                        <label className="block text-xs text-slate-400 mb-1">소계 (VAT 제외)</label>
                         <div
                           id="subtotal"
-                          className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-right font-medium"
+                          className="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-md text-right font-medium"
                         >
                           {formatNumber(subtotal) || "0"}
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">합계 (VAT 포함)</label>
+                        <label className="block text-xs text-slate-400 mb-1">합계 (VAT 포함)</label>
                         <div
                           id="total"
-                          className="w-full px-3 py-2 bg-blue-50 border border-blue-300 rounded-md text-right font-semibold text-blue-600"
+                          className="w-full px-3 py-2 bg-sky-50 border border-sky-300 rounded-md text-right font-semibold text-sky-600"
                         >
                           {formatNumber(total) || "0"}
                         </div>
@@ -453,7 +453,7 @@ export default function CustomsCostFormModal({
                   {/* 비고 */}
                   <div className="border-t pt-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         비고
                       </label>
                       <input
@@ -462,7 +462,7 @@ export default function CustomsCostFormModal({
                         onChange={(e) =>
                           setFormData({ ...formData, notes: e.target.value })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
                         placeholder="비고"
                       />
                     </div>
@@ -470,16 +470,16 @@ export default function CustomsCostFormModal({
                 </div>
               </div>
 
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 flex flex-row gap-2 sm:flex-row-reverse shrink-0 border-t">
+              <div className="bg-slate-50 px-4 py-3 sm:px-6 flex flex-row gap-2 sm:flex-row-reverse shrink-0 border-t">
                 <button
                   type="button"
                   onClick={handleSubmit}
                   disabled={saving}
-                  className="flex-1 sm:flex-none inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2.5 sm:py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="flex-1 sm:flex-none inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2.5 sm:py-2 bg-sky-600 text-base font-medium text-white hover:bg-sky-700 active:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   {saving ? (
                     <>
-                      <CircularProgress size={18} className="mr-2" />
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       저장 중...
                     </>
                   ) : (
@@ -490,7 +490,7 @@ export default function CustomsCostFormModal({
                   type="button"
                   onClick={handleClose}
                   disabled={saving}
-                  className="flex-1 sm:flex-none inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2.5 sm:py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="flex-1 sm:flex-none inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2.5 sm:py-2 bg-white text-base font-medium text-slate-600 hover:bg-slate-50 active:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   취소
                 </button>

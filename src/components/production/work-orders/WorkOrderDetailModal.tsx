@@ -61,7 +61,7 @@ const statusLabels: Record<WorkOrderStatus, string> = {
 
 const statusColors: Record<WorkOrderStatus, string> = {
   pending: "bg-slate-100 text-slate-600",
-  in_progress: "bg-blue-100 text-blue-600",
+  in_progress: "bg-sky-100 text-sky-600",
   completed: "bg-green-100 text-green-600",
   canceled: "bg-red-100 text-red-600",
 };
@@ -858,25 +858,25 @@ export default function WorkOrderDetailModal({
                     onClick={() => fileInputRef.current?.click()}
                     className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
                       isDraggingFile
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                        ? "border-sky-500 bg-sky-50"
+                        : "border-slate-300 hover:border-sky-400 hover:bg-slate-50"
                     }`}
                   >
                     {uploading ? (
-                      <div className="flex flex-col items-center gap-2 text-gray-500">
+                      <div className="flex flex-col items-center gap-2 text-slate-400">
                         <Loader2 className="h-6 w-6 animate-spin" />
                         <p className="text-sm">업로드 중...</p>
                       </div>
                     ) : isDraggingFile ? (
-                      <div className="flex flex-col items-center gap-2 text-blue-600">
+                      <div className="flex flex-col items-center gap-2 text-sky-600">
                         <Upload className="h-8 w-8" />
                         <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-1 text-gray-500">
+                      <div className="flex flex-col items-center gap-1 text-slate-400">
                         <FileText className="h-6 w-6" />
                         <p className="text-sm">
-                          <span className="font-medium text-blue-600">파일 선택</span>
+                          <span className="font-medium text-sky-600">파일 선택</span>
                           <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
                         </p>
                       </div>
@@ -906,7 +906,7 @@ export default function WorkOrderDetailModal({
                                 e.stopPropagation();
                                 handleDownload(file);
                               }}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded transition-colors"
                               title="다운로드"
                             >
                               <Download className="h-4 w-4" />
@@ -1083,7 +1083,7 @@ export default function WorkOrderDetailModal({
                                     </span>
                                     <button
                                       onClick={() => handleCommentFileDownload(file)}
-                                      className="p-1 text-slate-400 hover:text-blue-600 rounded transition-colors"
+                                      className="p-1 text-slate-400 hover:text-sky-600 rounded transition-colors"
                                       title="다운로드"
                                     >
                                       <Download className="h-3 w-3" />

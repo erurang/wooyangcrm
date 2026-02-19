@@ -37,7 +37,7 @@ export function highlightMentions(text: string): React.ReactNode[] {
   return parts.map((part, index) => {
     if (part.startsWith("@")) {
       return (
-        <span key={index} className="text-blue-600 font-medium">
+        <span key={index} className="text-sky-600 font-medium">
           {part}
         </span>
       );
@@ -297,7 +297,7 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
     return parts.map((part, index) => {
       if (part.startsWith("@")) {
         return (
-          <span key={index} className="text-blue-600 font-medium">
+          <span key={index} className="text-sky-600 font-medium">
             {part}
           </span>
         );
@@ -314,7 +314,7 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="mb-6 relative">
-      <div className="border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+      <div className="border border-slate-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-transparent">
         {/* 입력 영역 */}
         <div className="relative" ref={containerRef}>
           {/* 하이라이트 오버레이 */}
@@ -357,21 +357,21 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
 
         {/* 첨부된 파일 목록 */}
         {attachedFiles.length > 0 && (
-          <div className="px-3 pb-2 space-y-2 border-t border-gray-100 pt-2">
+          <div className="px-3 pb-2 space-y-2 border-t border-slate-100 pt-2">
             {attachedFiles.map((file, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg"
+                className="flex items-center gap-2 p-2 bg-sky-50 border border-sky-200 rounded-lg"
               >
                 <span className="text-lg">{getFileIcon(file.name)}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-700 truncate">{file.name}</p>
-                  <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+                  <p className="text-sm font-medium text-slate-600 truncate">{file.name}</p>
+                  <p className="text-xs text-slate-400">{(file.size / 1024).toFixed(1)} KB</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => removeFile(index)}
-                  className="p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
+                  className="p-1 text-slate-400 hover:text-red-500 rounded transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -382,7 +382,7 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
 
         {/* 참조 연결 섹션 */}
         {showReferences && (
-          <div className="px-3 pb-2 border-t border-gray-100 pt-2">
+          <div className="px-3 pb-2 border-t border-slate-100 pt-2">
             <ReferenceSelector
               selectedReferences={references}
               onAdd={handleAddReference}
@@ -392,7 +392,7 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
         )}
 
         {/* 하단 버튼 영역 */}
-        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-t border-gray-200">
+        <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border-t border-slate-200">
           <div className="flex items-center gap-1">
             {/* 파일 첨부 버튼 */}
             <input
@@ -405,7 +405,7 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
             />
             <label
               htmlFor="comment-file-upload"
-              className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-md transition-colors cursor-pointer"
             >
               <Paperclip className="w-4 h-4" />
               <span className="hidden sm:inline">파일</span>
@@ -415,7 +415,7 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
             <button
               type="button"
               onClick={startMention}
-              className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+              className="flex items-center gap-1.5 px-2 py-1.5 text-sm text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-md transition-colors"
             >
               <AtSign className="w-4 h-4" />
               <span className="hidden sm:inline">멘션</span>
@@ -427,14 +427,14 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
               onClick={() => setShowReferences(!showReferences)}
               className={`flex items-center gap-1.5 px-2 py-1.5 text-sm rounded-md transition-colors ${
                 showReferences || references.length > 0
-                  ? "text-blue-600 bg-blue-50"
-                  : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                  ? "text-sky-600 bg-sky-50"
+                  : "text-slate-500 hover:text-sky-600 hover:bg-sky-50"
               }`}
             >
               <Link2 className="w-4 h-4" />
               <span className="hidden sm:inline">참조</span>
               {references.length > 0 && (
-                <span className="ml-0.5 px-1.5 py-0.5 text-xs bg-blue-100 text-blue-600 rounded-full">
+                <span className="ml-0.5 px-1.5 py-0.5 text-xs bg-sky-100 text-sky-600 rounded-full">
                   {references.length}
                 </span>
               )}
@@ -445,7 +445,7 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
           <button
             type="submit"
             disabled={!content.trim() || isLoading}
-            className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-4 py-1.5 bg-sky-600 text-white text-sm rounded-md hover:bg-sky-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="w-4 h-4" />
             <span>{isLoading ? "등록 중..." : "등록"}</span>
@@ -457,13 +457,13 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
       {showMentions && filteredUsers.length > 0 && (
         <div
           ref={mentionListRef}
-          className="absolute w-80 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+          className="absolute w-80 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-50"
           style={{
             top: mentionPosition.top,
             left: mentionPosition.left,
           }}
         >
-          <div className="px-3 py-2 text-xs text-gray-500 border-b bg-gray-50">
+          <div className="px-3 py-2 text-xs text-slate-400 border-b bg-slate-50">
             멘션할 사용자 선택 (↑↓ 이동, Enter 선택)
           </div>
           {filteredUsers.slice(0, 10).map((user, index) => (
@@ -471,17 +471,17 @@ export default function CommentForm({ onSubmit, isLoading }: CommentFormProps) {
               key={user.id}
               type="button"
               onClick={() => selectMention(user)}
-              className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-gray-100 ${
-                index === mentionIndex ? "bg-blue-50 text-blue-700" : ""
+              className={`w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-slate-100 ${
+                index === mentionIndex ? "bg-sky-50 text-sky-700" : ""
               }`}
             >
-              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-medium shrink-0">
+              <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 text-sm font-medium shrink-0">
                 {user.name.charAt(0)}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="font-medium truncate">{user.name}</div>
                 {user.level && (
-                  <div className="text-xs text-gray-500">{user.level}</div>
+                  <div className="text-xs text-slate-400">{user.level}</div>
                 )}
               </div>
             </button>

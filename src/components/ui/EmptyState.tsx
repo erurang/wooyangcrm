@@ -55,7 +55,7 @@ function EmptyIllustration({ type }: { type: EmptyStateType }) {
           <rect x="35" y="65" width="50" height="4" rx="2" fill="#D1D5DB" />
           <rect x="35" y="75" width="45" height="4" rx="2" fill="#D1D5DB" />
           <rect x="35" y="85" width="30" height="4" rx="2" fill="#D1D5DB" />
-          <circle cx="90" cy="90" r="20" fill="#93C5FD" />
+          <circle cx="90" cy="90" r="20" fill="#7DD3FC" />
           <path d="M85 90H95M90 85V95" stroke="white" strokeWidth="3" strokeLinecap="round" />
         </svg>
       );
@@ -66,7 +66,7 @@ function EmptyIllustration({ type }: { type: EmptyStateType }) {
           <circle cx="60" cy="45" r="20" fill="#E5E7EB" />
           <path d="M30 95C30 77.3269 44.3269 63 62 63C79.6731 63 94 77.3269 94 95" stroke="#E5E7EB" strokeWidth="12" strokeLinecap="round" />
           <circle cx="60" cy="45" r="12" fill="#D1D5DB" />
-          <circle cx="90" cy="90" r="18" fill="#93C5FD" />
+          <circle cx="90" cy="90" r="18" fill="#7DD3FC" />
           <path d="M85 90H95M90 85V95" stroke="white" strokeWidth="3" strokeLinecap="round" />
         </svg>
       );
@@ -91,7 +91,7 @@ function EmptyIllustration({ type }: { type: EmptyStateType }) {
           <rect x="20" y="35" width="80" height="60" rx="4" fill="#E5E7EB" />
           <path d="M20 45L60 70L100 45" stroke="#D1D5DB" strokeWidth="4" />
           <path d="M20 35L60 60L100 35" stroke="#D1D5DB" strokeWidth="4" />
-          <circle cx="90" cy="35" r="15" fill="#93C5FD" />
+          <circle cx="90" cy="35" r="15" fill="#7DD3FC" />
           <text x="90" y="40" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">0</text>
         </svg>
       );
@@ -108,72 +108,72 @@ function EmptyIllustration({ type }: { type: EmptyStateType }) {
 
 const defaultConfig: Record<EmptyStateType, { icon: ReactNode; title: string; description: string; actionLabel?: string }> = {
   search: {
-    icon: <Search className="h-12 w-12 text-gray-300" />,
+    icon: <Search className="h-12 w-12 text-slate-300" />,
     title: "검색 결과가 없습니다",
     description: "다른 검색어로 시도해보세요.",
   },
   data: {
-    icon: <FileText className="h-12 w-12 text-gray-300" />,
+    icon: <FileText className="h-12 w-12 text-slate-300" />,
     title: "데이터가 없습니다",
     description: "아직 등록된 데이터가 없습니다.",
   },
   document: {
-    icon: <FileText className="h-12 w-12 text-gray-300" />,
+    icon: <FileText className="h-12 w-12 text-slate-300" />,
     title: "문서가 없습니다",
     description: "첫 번째 문서를 생성해보세요.",
     actionLabel: "문서 추가",
   },
   contact: {
-    icon: <Users className="h-12 w-12 text-gray-300" />,
+    icon: <Users className="h-12 w-12 text-slate-300" />,
     title: "담당자가 없습니다",
     description: "담당자를 추가하여 관리를 시작하세요.",
     actionLabel: "담당자 추가",
   },
   company: {
-    icon: <Building2 className="h-12 w-12 text-gray-300" />,
+    icon: <Building2 className="h-12 w-12 text-slate-300" />,
     title: "거래처가 없습니다",
     description: "새로운 거래처를 등록해보세요.",
     actionLabel: "거래처 추가",
   },
   consultation: {
-    icon: <MessageSquare className="h-12 w-12 text-gray-300" />,
+    icon: <MessageSquare className="h-12 w-12 text-slate-300" />,
     title: "상담 내역이 없습니다",
     description: "첫 번째 상담을 기록해보세요.",
     actionLabel: "상담 추가",
   },
   resign: {
-    icon: <UserX className="h-12 w-12 text-gray-300" />,
+    icon: <UserX className="h-12 w-12 text-slate-300" />,
     title: "퇴사자가 없습니다",
     description: "퇴사자 검색 결과가 없습니다.",
   },
   product: {
-    icon: <Package className="h-12 w-12 text-gray-300" />,
+    icon: <Package className="h-12 w-12 text-slate-300" />,
     title: "단가 정보가 없습니다",
     description: "검색 조건을 변경해보세요.",
   },
   notification: {
-    icon: <Inbox className="h-12 w-12 text-gray-300" />,
+    icon: <Inbox className="h-12 w-12 text-slate-300" />,
     title: "알림이 없습니다",
     description: "새로운 알림이 오면 여기에 표시됩니다.",
   },
   report: {
-    icon: <BarChart2 className="h-12 w-12 text-gray-300" />,
+    icon: <BarChart2 className="h-12 w-12 text-slate-300" />,
     title: "표시할 데이터가 없습니다",
     description: "기간이나 필터 조건을 변경해보세요.",
   },
   folder: {
-    icon: <FolderOpen className="h-12 w-12 text-gray-300" />,
+    icon: <FolderOpen className="h-12 w-12 text-slate-300" />,
     title: "폴더가 비어있습니다",
     description: "파일을 추가하여 시작하세요.",
     actionLabel: "파일 추가",
   },
   inbox: {
-    icon: <Inbox className="h-12 w-12 text-gray-300" />,
+    icon: <Inbox className="h-12 w-12 text-slate-300" />,
     title: "받은 항목이 없습니다",
     description: "새로운 항목이 도착하면 여기에 표시됩니다.",
   },
   order: {
-    icon: <ShoppingCart className="h-12 w-12 text-gray-300" />,
+    icon: <ShoppingCart className="h-12 w-12 text-slate-300" />,
     title: "주문 내역이 없습니다",
     description: "새 주문을 등록해보세요.",
     actionLabel: "주문 추가",
@@ -236,16 +236,16 @@ export default function EmptyState({
       } ${className}`}
     >
       {renderVisual()}
-      <h3 className={`font-medium text-gray-900 ${compact ? "text-base mb-1" : "text-lg mb-2"}`}>
+      <h3 className={`font-medium text-slate-800 ${compact ? "text-base mb-1" : "text-lg mb-2"}`}>
         {displayTitle}
       </h3>
-      <p className={`text-gray-500 text-center max-w-sm ${compact ? "text-xs mb-4" : "text-sm mb-6"}`}>
+      <p className={`text-slate-500 text-center max-w-sm ${compact ? "text-xs mb-4" : "text-sm mb-6"}`}>
         {displayDescription}
       </p>
       {displayActionLabel && onAction && (
         <button
           onClick={onAction}
-          className={`inline-flex items-center gap-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+          className={`inline-flex items-center gap-2 bg-sky-600 text-white font-medium rounded-lg hover:bg-sky-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 cursor-pointer ${
             compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"
           }`}
         >

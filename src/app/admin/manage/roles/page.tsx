@@ -509,7 +509,7 @@ export default function AdminRolesPage() {
       case "admin":
         return "bg-red-100 text-red-700";
       case "sales":
-        return "bg-blue-100 text-blue-700";
+        return "bg-sky-100 text-sky-700";
       case "research":
         return "bg-green-100 text-green-700";
       case "managementSupport":
@@ -701,7 +701,7 @@ export default function AdminRolesPage() {
                               ) : (
                                 <span className="text-slate-600">
                                   {user.team ? (
-                                    <span className="text-xs px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full">
+                                    <span className="text-xs px-2 py-1 bg-sky-50 text-sky-700 rounded-full">
                                       {user.team.department?.name ? `${user.team.department.name}/` : ""}{user.team.name}
                                     </span>
                                   ) : (
@@ -800,7 +800,7 @@ export default function AdminRolesPage() {
                                 ) : (
                                   <button
                                     onClick={() => handleEditUser(user)}
-                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                    className="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                                   >
                                     <Edit className="w-4 h-4" />
                                   </button>

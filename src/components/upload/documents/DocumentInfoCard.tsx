@@ -40,7 +40,7 @@ export default function DocumentInfoCard({
       <p>날짜: {document.date}</p>
       <p>품목 개수: {document.items.length}</p>
       <button
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+        className="mt-2 px-4 py-2 bg-sky-500 text-white rounded-md"
         onClick={onViewEstimate}
       >
         견적서 보기

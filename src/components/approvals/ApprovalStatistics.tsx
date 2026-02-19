@@ -96,8 +96,8 @@ export default function ApprovalStatisticsComponent({
         onClick={() => compact && setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-indigo-50 rounded-lg">
-            <BarChart3 className="h-4 w-4 text-indigo-600" />
+          <div className="p-1.5 bg-sky-50 rounded-lg">
+            <BarChart3 className="h-4 w-4 text-sky-600" />
           </div>
           <h3 className="font-semibold text-slate-800">결재 통계</h3>
           <span className="text-xs text-slate-500">(최근 6개월)</span>
@@ -201,17 +201,17 @@ export default function ApprovalStatisticsComponent({
                 </div>
 
                 {/* 평균 처리 시간 */}
-                <div className="bg-blue-50 rounded-lg p-3">
+                <div className="bg-sky-50 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <Timer className="h-4 w-4 text-blue-600" />
-                    <span className="text-xs text-blue-600">평균 처리시간</span>
+                    <Timer className="h-4 w-4 text-sky-600" />
+                    <span className="text-xs text-sky-600">평균 처리시간</span>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-bold text-blue-700">
+                    <span className="text-xl font-bold text-sky-700">
                       {formatHours(processing_time.avg_hours)}
                     </span>
                   </div>
-                  <div className="text-xs text-blue-600 mt-1">
+                  <div className="text-xs text-sky-600 mt-1">
                     최소 {formatHours(processing_time.min_hours)} ~ 최대{" "}
                     {formatHours(processing_time.max_hours)}
                   </div>

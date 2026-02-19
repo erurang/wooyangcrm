@@ -269,8 +269,8 @@ export default function TeamsManagementPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-100 rounded-xl">
-              <Building2 className="w-6 h-6 text-indigo-600" />
+            <div className="p-3 bg-sky-100 rounded-xl">
+              <Building2 className="w-6 h-6 text-sky-600" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800">부서/팀 관리</h1>
@@ -279,7 +279,7 @@ export default function TeamsManagementPage() {
           </div>
           <button
             onClick={() => openDeptModal()}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             부서 추가
@@ -294,7 +294,7 @@ export default function TeamsManagementPage() {
               <p className="text-slate-500">등록된 부서가 없습니다</p>
               <button
                 onClick={() => openDeptModal()}
-                className="mt-4 text-indigo-600 hover:text-indigo-700 font-medium"
+                className="mt-4 text-sky-600 hover:text-sky-700 font-medium"
               >
                 첫 부서 추가하기
               </button>
@@ -313,11 +313,11 @@ export default function TeamsManagementPage() {
                   onClick={() => toggleDeptExpand(dept.id)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-100 rounded-lg">
+                    <div className="p-2 bg-sky-100 rounded-lg">
                       {expandedDepts.includes(dept.id) ? (
-                        <ChevronDown className="w-5 h-5 text-indigo-600" />
+                        <ChevronDown className="w-5 h-5 text-sky-600" />
                       ) : (
-                        <ChevronRight className="w-5 h-5 text-indigo-600" />
+                        <ChevronRight className="w-5 h-5 text-sky-600" />
                       )}
                     </div>
                     <div>
@@ -333,14 +333,14 @@ export default function TeamsManagementPage() {
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => openTeamModal(dept.id)}
-                      className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                      className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                       title="팀 추가"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => openDeptModal(dept)}
-                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                       title="수정"
                     >
                       <Edit3 className="w-4 h-4" />
@@ -387,7 +387,7 @@ export default function TeamsManagementPage() {
                             <div className="flex items-center gap-1">
                               <button
                                 onClick={() => openTeamModal(dept.id, team)}
-                                className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded transition-colors"
                                 title="수정"
                               >
                                 <Edit3 className="w-4 h-4" />
@@ -457,7 +457,7 @@ export default function TeamsManagementPage() {
                     value={deptName}
                     onChange={(e) => setDeptName(e.target.value)}
                     placeholder="예: 영업관리"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
                 <div>
@@ -467,7 +467,7 @@ export default function TeamsManagementPage() {
                     value={deptDescription}
                     onChange={(e) => setDeptDescription(e.target.value)}
                     placeholder="부서 설명 (선택)"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>
@@ -481,7 +481,7 @@ export default function TeamsManagementPage() {
                 <button
                   onClick={handleSaveDept}
                   disabled={isSaving}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   {editingDept ? "수정" : "추가"}
@@ -530,7 +530,7 @@ export default function TeamsManagementPage() {
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                     placeholder="예: 호스"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
                 <div>
@@ -540,7 +540,7 @@ export default function TeamsManagementPage() {
                     value={teamDescription}
                     onChange={(e) => setTeamDescription(e.target.value)}
                     placeholder="팀 설명 (선택)"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
                 <div>
@@ -555,14 +555,14 @@ export default function TeamsManagementPage() {
                           key={menu.id}
                           className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
                             teamMenus.includes(menu.id)
-                              ? "bg-indigo-50 border border-indigo-200"
+                              ? "bg-sky-50 border border-sky-200"
                               : "bg-slate-50 border border-slate-200 hover:bg-slate-100"
                           }`}
                         >
                           <div
                             className={`w-4 h-4 rounded border flex items-center justify-center ${
                               teamMenus.includes(menu.id)
-                                ? "bg-indigo-600 border-indigo-600"
+                                ? "bg-sky-600 border-sky-600"
                                 : "border-slate-300"
                             }`}
                             onClick={() => toggleMenu(menu.id)}
@@ -591,7 +591,7 @@ export default function TeamsManagementPage() {
                 <button
                   onClick={handleSaveTeam}
                   disabled={isSaving}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   {editingTeam ? "수정" : "추가"}

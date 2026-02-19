@@ -58,7 +58,7 @@ export default function CommentList({
   }
 
   return (
-    <div className="mt-6 divide-y divide-gray-100">
+    <div className="mt-6 divide-y divide-slate-100">
       {rootComments.map((comment) => {
         const isHighlighted = activeHighlightId === comment.id;
         return (
@@ -77,7 +77,7 @@ export default function CommentList({
           />
           {/* 대댓글 */}
           {getReplies(comment.id).length > 0 && (
-            <div className="ml-8 mt-3 space-y-3 border-l-2 border-gray-100 pl-4">
+            <div className="ml-8 mt-3 space-y-3 border-l-2 border-slate-100 pl-4">
               {getReplies(comment.id).map((reply) => {
                 const isReplyHighlighted = activeHighlightId === reply.id;
                 return (

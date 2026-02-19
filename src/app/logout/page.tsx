@@ -15,8 +15,8 @@ export default function LogoutPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-gray-600">로그아웃 중...</div>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="text-slate-500">로그아웃 중...</div>
     </div>
   );
 }

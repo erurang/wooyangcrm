@@ -210,11 +210,11 @@ export default function NotificationsPage() {
       case "document_expiry":
         return "bg-red-50 border-red-200";
       case "estimate_completed":
-        return "bg-blue-50 border-blue-200";
+        return "bg-sky-50 border-sky-200";
       case "order_completed":
         return "bg-green-50 border-green-200";
       case "consultation_followup":
-        return "bg-blue-50 border-blue-200";
+        return "bg-sky-50 border-sky-200";
       case "todo_reminder":
         return "bg-yellow-50 border-yellow-200";
       case "post_comment":
@@ -222,11 +222,11 @@ export default function NotificationsPage() {
       case "post_mention":
         return "bg-purple-50 border-purple-200";
       case "post_reply":
-        return "bg-indigo-50 border-indigo-200";
+        return "bg-sky-50 border-sky-200";
       case "inventory_assignment":
         return "bg-green-50 border-green-200";
       case "inventory_update":
-        return "bg-blue-50 border-blue-200";
+        return "bg-sky-50 border-sky-200";
       case "inventory_complete":
         return "bg-emerald-50 border-emerald-200";
       case "inventory_cancel":
@@ -240,7 +240,7 @@ export default function NotificationsPage() {
       case "inbound_canceled":
         return "bg-red-50 border-red-200";
       case "outbound_assignment":
-        return "bg-blue-50 border-blue-200";
+        return "bg-sky-50 border-sky-200";
       case "outbound_date_change":
         return "bg-yellow-50 border-yellow-200";
       case "outbound_confirmed":
@@ -250,23 +250,23 @@ export default function NotificationsPage() {
       case "work_order_assignment":
         return "bg-purple-50 border-purple-200";
       case "work_order_unassignment":
-        return "bg-gray-50 border-gray-200";
+        return "bg-slate-50 border-slate-200";
       case "work_order_comment":
-        return "bg-blue-50 border-blue-200";
+        return "bg-sky-50 border-sky-200";
       case "work_order_update":
-        return "bg-indigo-50 border-indigo-200";
+        return "bg-sky-50 border-sky-200";
       case "work_order_status":
         return "bg-orange-50 border-orange-200";
       case "work_order_deadline":
         return "bg-yellow-50 border-yellow-200";
       case "work_order_progress":
-        return "bg-cyan-50 border-cyan-200";
+        return "bg-sky-50 border-sky-200";
       case "work_order_completed":
         return "bg-green-50 border-green-200";
       case "work_order_file":
         return "bg-slate-50 border-slate-200";
       default:
-        return "bg-gray-50 border-gray-200";
+        return "bg-slate-50 border-slate-200";
     }
   };
 
@@ -280,17 +280,17 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-3xl mx-auto px-4">
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              className="p-2 hover:bg-slate-200 rounded-full transition-colors"
             >
               <svg
-                className="w-5 h-5 text-gray-600"
+                className="w-5 h-5 text-slate-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -303,7 +303,7 @@ export default function NotificationsPage() {
                 />
               </svg>
             </button>
-            <h1 className="text-2xl font-bold text-gray-900">알림</h1>
+            <h1 className="text-2xl font-bold text-slate-800">알림</h1>
             {unreadCount > 0 && (
               <span className="bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
                 {unreadCount}
@@ -314,7 +314,7 @@ export default function NotificationsPage() {
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+              className="text-sm text-sky-600 hover:text-sky-800 font-medium"
             >
               모두 읽음
             </button>
@@ -329,8 +329,8 @@ export default function NotificationsPage() {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === f
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-100"
+                  ? "bg-sky-600 text-white"
+                  : "bg-white text-slate-500 hover:bg-slate-100"
               }`}
             >
               {f === "all" && "전체"}
@@ -341,13 +341,13 @@ export default function NotificationsPage() {
         </div>
 
         {/* 알림 목록 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           {isLoading ? (
-            <div className="p-8 text-center text-gray-500">로딩 중...</div>
+            <div className="p-8 text-center text-slate-400">로딩 중...</div>
           ) : filteredNotifications.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">
+            <div className="p-12 text-center text-slate-400">
               <svg
-                className="mx-auto h-16 w-16 text-gray-300 mb-4"
+                className="mx-auto h-16 w-16 text-slate-300 mb-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -362,12 +362,12 @@ export default function NotificationsPage() {
               <p className="text-lg">알림이 없습니다</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-slate-100">
               {filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                    !notification.read ? "bg-indigo-50/50" : ""
+                  className={`p-4 cursor-pointer hover:bg-slate-50 transition-colors ${
+                    !notification.read ? "bg-sky-50/50" : ""
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
@@ -386,19 +386,19 @@ export default function NotificationsPage() {
                       <div className="flex items-start justify-between gap-2">
                         <p
                           className={`text-sm font-medium ${
-                            notification.read ? "text-gray-700" : "text-gray-900"
+                            notification.read ? "text-slate-600" : "text-slate-800"
                           }`}
                         >
                           {notification.title}
                         </p>
                         {!notification.read && (
-                          <span className="flex-shrink-0 w-2 h-2 bg-indigo-500 rounded-full mt-1.5" />
+                          <span className="flex-shrink-0 w-2 h-2 bg-sky-500 rounded-full mt-1.5" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-slate-500 mt-1">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-400 mt-2">
+                      <p className="text-xs text-slate-400 mt-2">
                         {formatDistanceToNow(new Date(notification.created_at), {
                           addSuffix: true,
                           locale: ko,
@@ -412,7 +412,7 @@ export default function NotificationsPage() {
                         e.stopPropagation();
                         deleteNotification(notification.id);
                       }}
-                      className="flex-shrink-0 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                      className="flex-shrink-0 p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                     >
                       <svg
                         className="w-4 h-4"
@@ -441,17 +441,17 @@ export default function NotificationsPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 rounded-lg bg-white border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               이전
             </button>
-            <span className="px-4 py-2 text-sm text-gray-600">
+            <span className="px-4 py-2 text-sm text-slate-500">
               {page} / {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 rounded-lg bg-white border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               다음
             </button>
@@ -459,7 +459,7 @@ export default function NotificationsPage() {
         )}
 
         {/* 총 개수 */}
-        <p className="text-center text-sm text-gray-500 mt-4">
+        <p className="text-center text-sm text-slate-400 mt-4">
           총 {total}개의 알림
         </p>
       </div>

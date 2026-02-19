@@ -64,13 +64,13 @@ const docStatusLabels: Record<string, string> = {
 const docStatusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-600",
   approved: "bg-green-100 text-green-600",
-  completed: "bg-blue-100 text-blue-600",
-  cancelled: "bg-gray-100 text-gray-600",
+  completed: "bg-sky-100 text-sky-600",
+  cancelled: "bg-slate-100 text-slate-500",
   expired: "bg-red-100 text-red-600",
 };
 
 const docTypeIcons: Record<string, React.ReactNode> = {
-  quotation: <FileText className="w-5 h-5 text-blue-500" />,
+  quotation: <FileText className="w-5 h-5 text-sky-500" />,
   order: <ShoppingCart className="w-5 h-5 text-purple-500" />,
 };
 

@@ -52,7 +52,7 @@ export default function TiptapEditor({
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-blue-600 underline cursor-pointer",
+          class: "text-sky-600 underline cursor-pointer",
         },
       }),
       Image.configure({
@@ -176,8 +176,8 @@ export default function TiptapEditor({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${
-        active ? "bg-gray-200 text-blue-600" : "text-gray-600"
+      className={`p-1.5 rounded hover:bg-slate-100 transition-colors ${
+        active ? "bg-slate-200 text-sky-600" : "text-slate-500"
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       {children}
@@ -185,10 +185,10 @@ export default function TiptapEditor({
   );
 
   return (
-    <div className="border border-gray-300 rounded-md overflow-hidden">
+    <div className="border border-slate-300 rounded-md overflow-hidden">
       {/* 툴바 */}
       {editable && (
-        <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-gray-200 bg-gray-50">
+        <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-slate-200 bg-slate-50">
           {/* 실행 취소/다시 실행 */}
           <ToolbarButton
             onClick={() => editor.chain().focus().undo().run()}
@@ -205,7 +205,7 @@ export default function TiptapEditor({
             <Redo className="w-4 h-4" />
           </ToolbarButton>
 
-          <div className="w-px h-5 bg-gray-300 mx-1" />
+          <div className="w-px h-5 bg-slate-300 mx-1" />
 
           {/* 텍스트 스타일 */}
           <ToolbarButton
@@ -251,7 +251,7 @@ export default function TiptapEditor({
             <Code className="w-4 h-4" />
           </ToolbarButton>
 
-          <div className="w-px h-5 bg-gray-300 mx-1" />
+          <div className="w-px h-5 bg-slate-300 mx-1" />
 
           {/* 정렬 */}
           <ToolbarButton
@@ -276,7 +276,7 @@ export default function TiptapEditor({
             <AlignRight className="w-4 h-4" />
           </ToolbarButton>
 
-          <div className="w-px h-5 bg-gray-300 mx-1" />
+          <div className="w-px h-5 bg-slate-300 mx-1" />
 
           {/* 목록 */}
           <ToolbarButton
@@ -301,7 +301,7 @@ export default function TiptapEditor({
             <Quote className="w-4 h-4" />
           </ToolbarButton>
 
-          <div className="w-px h-5 bg-gray-300 mx-1" />
+          <div className="w-px h-5 bg-slate-300 mx-1" />
 
           {/* 링크/이미지 */}
           <ToolbarButton

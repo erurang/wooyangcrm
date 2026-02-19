@@ -26,7 +26,7 @@ export default function RnDNotesModal({
       size="sm"
     >
       <textarea
-        className="w-full min-h-80 p-2 border border-gray-300 rounded-md"
+        className="w-full min-h-80 p-2 border border-slate-300 rounded-md"
         value={notes}
         onChange={(e) => onNotesChange(e.target.value)}
       />

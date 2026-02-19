@@ -47,26 +47,26 @@ export default function CompanyDeleteModal({
                     <AlertCircle className="h-6 w-6 text-red-600" />
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    <h3 className="text-lg leading-6 font-medium text-slate-800">
                       거래처 삭제 요청
                     </h3>
                     <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        <span className="font-semibold text-gray-700">
+                      <p className="text-sm text-slate-400">
+                        <span className="font-semibold text-slate-600">
                           {companyName}
                         </span>{" "}
                         거래처를 삭제 요청하시겠습니까? 이 작업은 관리자 승인
                         후 완료됩니다.
                       </p>
                       <div className="mt-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-600 mb-1">
                           삭제 사유 <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           value={deleteReason}
                           onChange={(e) => setDeleteReason(e.target.value)}
                           rows={4}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                          className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                           placeholder="삭제 사유를 입력해주세요."
                         ></textarea>
                       </div>
@@ -74,7 +74,7 @@ export default function CompanyDeleteModal({
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
                   onClick={onConfirm}
@@ -88,7 +88,7 @@ export default function CompanyDeleteModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-600 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   취소
                 </button>

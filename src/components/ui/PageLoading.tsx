@@ -27,7 +27,7 @@ export default function PageLoading({
     <div className="flex flex-col items-center justify-center gap-3">
       <div className="relative">
         <div className="w-10 h-10 border-3 border-slate-200 rounded-full" />
-        <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-blue-600 rounded-full animate-spin" />
+        <div className="absolute inset-0 w-10 h-10 border-3 border-transparent border-t-sky-600 rounded-full animate-spin" />
       </div>
       <p className="text-sm text-slate-500">{message}</p>
     </div>

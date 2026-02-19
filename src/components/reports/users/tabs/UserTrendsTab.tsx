@@ -37,8 +37,8 @@ export default function UserTrendsTab({
   return (
     <div className="bg-white border border-slate-200 shadow-sm p-5 mx-5 mb-5 rounded-lg">
       <div className="flex items-center mb-6">
-        <div className="bg-indigo-50 p-2 rounded-md mr-3">
-          <TrendingUp className="h-5 w-5 text-indigo-600" />
+        <div className="bg-sky-50 p-2 rounded-md mr-3">
+          <TrendingUp className="h-5 w-5 text-sky-600" />
         </div>
         <h2 className="text-xl font-semibold text-slate-800">
           월별 매출/매입 추이
@@ -107,7 +107,7 @@ export default function UserTrendsTab({
               <span className="text-slate-400">-</span>
             )}
           </div>
-          <p className="text-3xl font-bold text-indigo-600 mb-2">
+          <p className="text-3xl font-bold text-sky-600 mb-2">
             {lastSalesValue > 0
               ? lastSalesValue.toLocaleString() + " 원"
               : "데이터 없음"}
@@ -128,7 +128,7 @@ export default function UserTrendsTab({
               <span className="text-slate-400">-</span>
             )}
           </div>
-          <p className="text-3xl font-bold text-indigo-600 mb-2">
+          <p className="text-3xl font-bold text-sky-600 mb-2">
             {lastPurchaseValue > 0
               ? lastPurchaseValue.toLocaleString() + " 원"
               : "데이터 없음"}
@@ -145,7 +145,7 @@ export default function UserTrendsTab({
             <h3 className="text-lg font-semibold text-slate-800">이익률</h3>
             <span className="text-slate-400">-</span>
           </div>
-          <p className="text-3xl font-bold text-indigo-600 mb-2">
+          <p className="text-3xl font-bold text-sky-600 mb-2">
             {lastSalesValue > 0 ? `${profitRate}%` : "데이터 없음"}
           </p>
           <p className="text-sm text-slate-500">매출 대비 매입 비율 기준</p>

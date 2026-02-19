@@ -99,9 +99,9 @@ export default function ChatInviteModal({
         className="relative w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden"
       >
         {/* 헤더 */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200">
           <h2 className="text-lg font-semibold">참여자 초대</h2>
-          <button onClick={handleClose} className="p-1 text-gray-400 hover:text-gray-600">
+          <button onClick={handleClose} className="p-1 text-slate-400 hover:text-slate-500">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -110,20 +110,20 @@ export default function ChatInviteModal({
 
         {/* 선택된 사용자 */}
         {selectedUsers.length > 0 && (
-          <div className="p-4 border-b border-gray-200 bg-gray-50">
-            <p className="text-sm text-gray-500 mb-2">
+          <div className="p-4 border-b border-slate-200 bg-slate-50">
+            <p className="text-sm text-slate-400 mb-2">
               선택된 참여자 ({selectedUsers.length}명)
             </p>
             <div className="flex flex-wrap gap-2">
               {selectedUsers.map((user) => (
                 <span
                   key={user.id}
-                  className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                  className="flex items-center gap-1 px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-sm"
                 >
                   {user.name}
                   <button
                     onClick={() => toggleUser(user)}
-                    className="ml-1 hover:text-blue-900"
+                    className="ml-1 hover:text-sky-900"
                   >
                     ×
                   </button>
@@ -134,10 +134,10 @@ export default function ChatInviteModal({
         )}
 
         {/* 검색 */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-slate-200">
           <div className="relative">
             <svg
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -149,7 +149,7 @@ export default function ChatInviteModal({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="이름 또는 직책으로 검색..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 bg-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function ChatInviteModal({
         {/* 사용자 목록 */}
         <div className="max-h-[300px] overflow-y-auto">
           {filteredUsers.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-slate-400">
               초대할 수 있는 사용자가 없습니다
             </div>
           ) : (
@@ -167,8 +167,8 @@ export default function ChatInviteModal({
                 <button
                   key={user.id}
                   onClick={() => toggleUser(user)}
-                  className={`w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 ${
-                    isSelected ? "bg-blue-50" : ""
+                  className={`w-full flex items-center gap-3 p-4 text-left hover:bg-slate-50 ${
+                    isSelected ? "bg-sky-50" : ""
                   }`}
                 >
                   <div className="relative">
@@ -179,12 +179,12 @@ export default function ChatInviteModal({
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-sm font-semibold">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-sky-500 flex items-center justify-center text-white text-sm font-semibold">
                         {user.name.slice(0, 2)}
                       </div>
                     )}
                     {isSelected && (
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-sky-600 rounded-full flex items-center justify-center">
                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                         </svg>
@@ -192,8 +192,8 @@ export default function ChatInviteModal({
                     )}
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{user.name}</p>
-                    <p className="text-sm text-gray-500">{user.position}</p>
+                    <p className="font-medium text-slate-800">{user.name}</p>
+                    <p className="text-sm text-slate-400">{user.position}</p>
                   </div>
                 </button>
               );
@@ -202,11 +202,11 @@ export default function ChatInviteModal({
         </div>
 
         {/* 초대 버튼 */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-slate-200">
           <button
             onClick={handleInvite}
             disabled={selectedUsers.length === 0 || isInviting}
-            className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="w-full py-2.5 bg-sky-600 text-white rounded-lg font-medium hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
           >
             {isInviting
               ? "초대 중..."

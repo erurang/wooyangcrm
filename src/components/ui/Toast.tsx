@@ -21,14 +21,14 @@ const iconMap: Record<ToastType, React.ReactNode> = {
   success: <CheckCircle className="h-5 w-5 text-green-500" />,
   error: <XCircle className="h-5 w-5 text-red-500" />,
   warning: <AlertCircle className="h-5 w-5 text-yellow-500" />,
-  info: <Info className="h-5 w-5 text-blue-500" />,
+  info: <Info className="h-5 w-5 text-sky-500" />,
 };
 
 const bgColorMap: Record<ToastType, string> = {
   success: "bg-green-50 border-green-200",
   error: "bg-red-50 border-red-200",
   warning: "bg-yellow-50 border-yellow-200",
-  info: "bg-blue-50 border-blue-200",
+  info: "bg-sky-50 border-sky-200",
 };
 
 const defaultDurations: Record<ToastType, number> = {
@@ -67,12 +67,12 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
       }`}
     >
       {iconMap[toast.type]}
-      <p className="flex-1 text-sm text-gray-800">{toast.message}</p>
+      <p className="flex-1 text-sm text-slate-700">{toast.message}</p>
       <button
         onClick={handleClose}
         className="p-1 hover:bg-black/5 rounded-md transition-colors"
       >
-        <X className="h-4 w-4 text-gray-500" />
+        <X className="h-4 w-4 text-slate-400" />
       </button>
     </div>
   );

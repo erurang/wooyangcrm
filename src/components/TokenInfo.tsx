@@ -4,6 +4,7 @@ import { useSetLoginUser } from "@/context/login";
 import { createSupabaseClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
+import { LogOut } from "lucide-react";
 
 export default function TokenInfo() {
   const router = useRouter();
@@ -19,14 +20,9 @@ export default function TokenInfo() {
         const res = await fetch("/api/auth-token");
         const data = await res.json();
 
-        // await sendKakaoMessage(data.provider_token);
-
-        // console.log("dataasdfsafasdfsdaf", data);
-
         if (!res.ok) {
           setUserData(null);
           setRemainingTime(null);
-          // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
           if (!hasRedirected.current) {
             hasRedirected.current = true;
             router.push("/login");
@@ -37,7 +33,7 @@ export default function TokenInfo() {
         setUserData(data);
         updateRemainingTime(data.expires_at);
       } catch (error) {
-        console.error("❌ 토큰 정보 확인 중 오류 발생:", error);
+        console.error("토큰 정보 확인 중 오류 발생:", error);
       }
     }
 
@@ -47,7 +43,6 @@ export default function TokenInfo() {
 
   async function handleLogout() {
     try {
-      // 카카오 로그아웃 시도 (선택적)
       const { data } = await supabase.auth.getSession();
       if (data?.session?.provider_token) {
         try {
@@ -63,7 +58,6 @@ export default function TokenInfo() {
         }
       }
 
-      // Supabase 로그아웃 (항상 수행)
       await supabase.auth.signOut();
 
       setUserData(null);
@@ -72,7 +66,6 @@ export default function TokenInfo() {
       router.push("/login");
     } catch (error) {
       console.error("로그아웃 처리 중 오류:", error);
-      // 에러가 발생해도 로그인 페이지로 이동
       router.push("/login");
     }
   }
@@ -92,8 +85,7 @@ export default function TokenInfo() {
     const timeLeft = exp - now;
 
     if (timeLeft <= 0) {
-      setRemainingTime("⏳ 세션 만료됨");
-      // 세션이 만료되면 로그인 페이지로 리다이렉트
+      setRemainingTime("세션 만료됨");
       if (!hasRedirected.current) {
         hasRedirected.current = true;
         router.push("/login");
@@ -112,22 +104,21 @@ export default function TokenInfo() {
   }
 
   return (
-    <span className="text-xs text-[#5F5E5B] opacity-60 text-center">
+    <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
       {userData ? (
         <>
-          <span>세션만료: </span>
-          <span className="w-28 font-mono">{remainingTime}</span>
-          <span
-            className="cursor-pointer text-red-500 font-semibold pl-2"
+          <span className="hidden lg:inline font-mono tabular-nums text-slate-500">{remainingTime}</span>
+          <button
+            className="flex items-center gap-1 px-2 py-1 rounded-md text-red-500 hover:bg-red-50 hover:text-red-600 cursor-pointer transition-colors duration-200 font-medium"
             onClick={handleLogout}
           >
-            {" "}
-            로그아웃
-          </span>
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">로그아웃</span>
+          </button>
         </>
       ) : (
-        <span className="text-sm text-red-500 px-3">로그인 만료됨</span>
+        <span className="text-xs text-red-500 px-2">로그인 만료됨</span>
       )}
-    </span>
+    </div>
   );
 }

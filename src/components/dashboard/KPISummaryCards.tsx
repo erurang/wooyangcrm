@@ -16,7 +16,6 @@ interface KPISummaryCardsProps {
   compact?: boolean;
 }
 
-// 전월 대비 변화율 계산
 function calculateChange(current: number, previous: number) {
   if (previous === 0) {
     return current > 0 ? 100 : 0;
@@ -38,7 +37,6 @@ export default function KPISummaryCards({
 }: KPISummaryCardsProps) {
   const router = useRouter();
 
-  // 변화율 계산
   const salesChange = calculateChange(monthSales, previousMonthSales);
   const purchaseChange = calculateChange(monthPurchases, previousMonthPurchases);
 
@@ -48,9 +46,11 @@ export default function KPISummaryCards({
       value: todayConsultations,
       suffix: "건",
       icon: MessageSquare,
-      bgColor: "bg-blue-50",
-      iconColor: "text-blue-600",
-      valueColor: "text-blue-700",
+      gradient: "from-sky-500/10 to-sky-600/5",
+      iconBg: "bg-sky-100",
+      iconColor: "text-sky-600",
+      valueColor: "text-sky-700",
+      borderAccent: "border-l-sky-500",
       href: "/consultations/recent",
     },
     {
@@ -58,9 +58,11 @@ export default function KPISummaryCards({
       value: pendingDocuments,
       suffix: "건",
       icon: FileText,
-      bgColor: "bg-indigo-50",
+      gradient: "from-indigo-500/10 to-indigo-600/5",
+      iconBg: "bg-indigo-100",
       iconColor: "text-indigo-600",
       valueColor: "text-indigo-700",
+      borderAccent: "border-l-indigo-500",
       href: "/documents/review?reviewStatus=pending",
     },
     {
@@ -69,9 +71,11 @@ export default function KPISummaryCards({
       suffix: "",
       format: "currency",
       icon: TrendingUp,
-      bgColor: "bg-green-50",
-      iconColor: "text-green-600",
-      valueColor: "text-green-700",
+      gradient: "from-emerald-500/10 to-emerald-600/5",
+      iconBg: "bg-emerald-100",
+      iconColor: "text-emerald-600",
+      valueColor: "text-emerald-700",
+      borderAccent: "border-l-emerald-500",
       href: "/reports",
       change: salesChange,
       showChange: true,
@@ -82,33 +86,39 @@ export default function KPISummaryCards({
       suffix: "",
       format: "currency",
       icon: TrendingDown,
-      bgColor: "bg-purple-50",
+      gradient: "from-purple-500/10 to-purple-600/5",
+      iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
       valueColor: "text-purple-700",
+      borderAccent: "border-l-purple-500",
       href: "/reports",
       change: purchaseChange,
       showChange: true,
-      invertChange: true, // 매입은 증가하면 나쁜 것
+      invertChange: true,
     },
     {
-      title: "팔로우업 필요",
+      title: "팔로우업",
       value: followUpNeeded,
       suffix: "건",
       icon: Bell,
-      bgColor: followUpNeeded > 0 ? "bg-orange-50" : "bg-slate-50",
+      gradient: followUpNeeded > 0 ? "from-orange-500/10 to-orange-600/5" : "from-slate-500/5 to-slate-600/5",
+      iconBg: followUpNeeded > 0 ? "bg-orange-100" : "bg-slate-100",
       iconColor: followUpNeeded > 0 ? "text-orange-600" : "text-slate-400",
       valueColor: followUpNeeded > 0 ? "text-orange-700" : "text-slate-600",
+      borderAccent: followUpNeeded > 0 ? "border-l-orange-500" : "border-l-slate-300",
       highlight: followUpNeeded > 0,
       href: "/consultations/follow",
     },
     {
-      title: "만료 임박 견적",
+      title: "만료 임박",
       value: expiringDocuments,
       suffix: "건",
       icon: AlertTriangle,
-      bgColor: expiringDocuments > 0 ? "bg-red-50" : "bg-slate-50",
+      gradient: expiringDocuments > 0 ? "from-red-500/10 to-red-600/5" : "from-slate-500/5 to-slate-600/5",
+      iconBg: expiringDocuments > 0 ? "bg-red-100" : "bg-slate-100",
       iconColor: expiringDocuments > 0 ? "text-red-600" : "text-slate-400",
       valueColor: expiringDocuments > 0 ? "text-red-700" : "text-slate-600",
+      borderAccent: expiringDocuments > 0 ? "border-l-red-500" : "border-l-slate-300",
       highlight: expiringDocuments > 0,
       href: "/documents/review?reviewStatus=expired",
     },
@@ -134,24 +144,24 @@ export default function KPISummaryCards({
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="bg-slate-50 rounded-md px-3 py-1.5 animate-pulse flex items-center gap-2"
+              className="bg-slate-50 rounded-lg px-3 py-1.5 animate-pulse flex items-center gap-2"
             >
-              <div className="h-3 bg-slate-200 rounded w-12"></div>
-              <div className="h-4 bg-slate-200 rounded w-8"></div>
+              <div className="h-3 bg-slate-200 rounded w-12" />
+              <div className="h-4 bg-slate-200 rounded w-8" />
             </div>
           ))}
         </div>
       );
     }
     return (
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-lg border border-slate-200 p-4 animate-pulse"
+            className="bg-white rounded-xl border border-slate-200/60 p-4 animate-pulse"
           >
-            <div className="h-4 bg-slate-200 rounded w-20 mb-2"></div>
-            <div className="h-8 bg-slate-200 rounded w-16"></div>
+            <div className="h-4 bg-slate-100 rounded w-20 mb-3" />
+            <div className="h-8 bg-slate-100 rounded w-16" />
           </div>
         ))}
       </div>
@@ -161,36 +171,29 @@ export default function KPISummaryCards({
   // Compact mode: inline badges
   if (compact) {
     return (
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {cards.map((card) => {
           const Icon = card.icon;
-          const borderColor = card.highlight
-            ? "border-orange-300"
-            : card.bgColor === "bg-blue-50" ? "border-blue-200"
-            : card.bgColor === "bg-indigo-50" ? "border-indigo-200"
-            : card.bgColor === "bg-green-50" ? "border-green-200"
-            : card.bgColor === "bg-purple-50" ? "border-purple-200"
-            : card.bgColor === "bg-orange-50" ? "border-orange-200"
-            : card.bgColor === "bg-red-50" ? "border-red-200"
-            : "border-slate-200";
           return (
             <button
               key={card.title}
               onClick={() => card.href && router.push(card.href)}
               className={`
                 group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer
-                ${card.bgColor} border ${borderColor}
-                transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98]
+                bg-gradient-to-r ${card.gradient}
+                border border-slate-200/60
+                transition-all duration-200 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]
+                hover:border-slate-300/80
               `}
             >
               <Icon className={`h-3.5 w-3.5 ${card.iconColor}`} />
-              <span className="text-xs font-medium text-slate-600">{card.title}</span>
-              <span className={`text-sm font-bold ${card.valueColor}`}>
+              <span className="text-xs font-medium text-slate-500">{card.title}</span>
+              <span className={`text-sm font-bold ${card.valueColor} tabular-nums`}>
                 {formatValue(card.value, card.format)}{card.suffix}
               </span>
               {card.showChange && card.change !== undefined && (
-                <span className={`text-xs ${
-                  card.change > 0 ? "text-green-600" : card.change < 0 ? "text-red-600" : "text-slate-400"
+                <span className={`text-[10px] font-semibold ${
+                  card.change > 0 ? "text-emerald-600" : card.change < 0 ? "text-red-500" : "text-slate-400"
                 }`}>
                   {card.change > 0 ? (
                     <ArrowUpRight className="h-3 w-3 inline" />
@@ -199,7 +202,7 @@ export default function KPISummaryCards({
                   ) : null}
                 </span>
               )}
-              <ChevronRight className="h-3 w-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ChevronRight className="h-3 w-3 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
           );
         })}
@@ -208,7 +211,7 @@ export default function KPISummaryCards({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
@@ -216,41 +219,44 @@ export default function KPISummaryCards({
             key={card.title}
             onClick={() => card.href && router.push(card.href)}
             className={`
-              bg-white rounded-lg border shadow-sm p-4 cursor-pointer
-              ${card.highlight ? "border-orange-200 ring-1 ring-orange-100" : "border-slate-200"}
-              transition-all hover:shadow-md hover:scale-[1.02]
+              relative overflow-hidden bg-gradient-to-br ${card.gradient}
+              rounded-xl border border-slate-200/60 border-l-[3px] ${card.borderAccent}
+              p-4 cursor-pointer group
+              transition-all duration-200 hover:shadow-lg hover:shadow-slate-200/50 hover:-translate-y-0.5
+              ${card.highlight ? "ring-1 ring-orange-200/50" : ""}
             `}
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                 {card.title}
               </span>
-              <div className={`${card.bgColor} p-1.5 rounded-md`}>
-                <Icon className={`h-4 w-4 ${card.iconColor}`} />
+              <div className={`${card.iconBg} p-1.5 rounded-lg transition-transform group-hover:scale-110`}>
+                <Icon className={`h-3.5 w-3.5 ${card.iconColor}`} />
               </div>
             </div>
-            <div className="flex items-baseline">
-              <span className={`text-2xl font-bold ${card.valueColor}`}>
+            <div className="flex items-baseline gap-1">
+              <span className={`text-2xl font-extrabold ${card.valueColor} tabular-nums tracking-tight`}>
                 {formatValue(card.value, card.format)}
               </span>
               {card.suffix && (
-                <span className="ml-1 text-sm text-slate-500">{card.suffix}</span>
+                <span className="text-xs font-medium text-slate-400">{card.suffix}</span>
               )}
             </div>
             {card.showChange && card.change !== undefined && (
-              <div className={`flex items-center mt-1 text-xs ${
-                card.change > 0 ? "text-green-600" : card.change < 0 ? "text-red-600" : "text-slate-500"
+              <div className={`flex items-center mt-1.5 text-xs font-medium ${
+                card.change > 0 ? "text-emerald-600" : card.change < 0 ? "text-red-500" : "text-slate-400"
               }`}>
                 {card.change > 0 ? (
-                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
+                  <ArrowUpRight className="h-3.5 w-3.5 mr-0.5" />
                 ) : card.change < 0 ? (
-                  <ArrowDownRight className="h-3 w-3 mr-0.5" />
+                  <ArrowDownRight className="h-3.5 w-3.5 mr-0.5" />
                 ) : (
-                  <Minus className="h-3 w-3 mr-0.5" />
+                  <Minus className="h-3.5 w-3.5 mr-0.5" />
                 )}
-                <span>
-                  {card.change > 0 ? "+" : ""}{Math.abs(card.change).toFixed(1)}% 전월 대비
+                <span className="tabular-nums">
+                  {card.change > 0 ? "+" : ""}{Math.abs(card.change).toFixed(1)}%
                 </span>
+                <span className="text-slate-400 ml-1">전월비</span>
               </div>
             )}
           </div>

@@ -51,7 +51,7 @@ export default function ConsultationsTab({
     <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div className="flex items-center">
-          <FileText className="h-5 w-5 text-indigo-600 mr-2" />
+          <FileText className="h-5 w-5 text-sky-600 mr-2" />
           <h2 className="text-lg font-semibold text-slate-800">상담 내역</h2>
         </div>
 
@@ -62,7 +62,7 @@ export default function ConsultationsTab({
             placeholder="상담 내용 검색..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function ConsultationsTab({
               className="grid grid-cols-1 md:grid-cols-[1fr_0.5fr_1.5fr] gap-6 items-start border-b border-slate-200 pb-6"
             >
               {/* Consultation Content */}
-              <div className="p-4 border border-slate-200 rounded-lg bg-white hover:bg-indigo-50 cursor-pointer transition-colors shadow-sm">
+              <div className="p-4 border border-slate-200 rounded-lg bg-white hover:bg-sky-50 cursor-pointer transition-colors shadow-sm">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-slate-500">
                     {consultation.date}
@@ -108,7 +108,7 @@ export default function ConsultationsTab({
                       </div>
                       <p className="text-xs text-slate-700">
                         {getDocTypeLabel(doc.type)}:{" "}
-                        <span className="text-indigo-600 font-semibold">
+                        <span className="text-sky-600 font-semibold">
                           {doc.document_number || doc.document_id}
                         </span>
                       </p>
@@ -143,7 +143,7 @@ export default function ConsultationsTab({
                           <span className="text-slate-500 text-center">
                             {item.quantity}
                           </span>
-                          <span className="text-indigo-600 font-semibold text-right">
+                          <span className="text-sky-600 font-semibold text-right">
                             {Number(item.amount).toLocaleString()} 원
                           </span>
                         </div>

@@ -28,7 +28,7 @@ import type { WorkOrderCreateRequest } from "@/types/production";
 
 const statusConfig = {
   pending: { label: "대기", color: "bg-slate-100 text-slate-700 border-slate-200", icon: Clock },
-  in_progress: { label: "진행중", color: "bg-blue-100 text-blue-700 border-blue-200", icon: AlertCircle },
+  in_progress: { label: "진행중", color: "bg-sky-100 text-sky-700 border-sky-200", icon: AlertCircle },
   completed: { label: "완료", color: "bg-green-100 text-green-700 border-green-200", icon: CheckCircle2 },
   canceled: { label: "취소됨", color: "bg-red-100 text-red-700 border-red-200", icon: XCircle },
 };
@@ -232,7 +232,7 @@ export default function WorkOrderDetailPage({
           {/* Status Bar */}
           <div className={`h-2 ${
             workOrder.status === "completed" ? "bg-green-500" :
-            workOrder.status === "in_progress" ? "bg-blue-500" :
+            workOrder.status === "in_progress" ? "bg-sky-500" :
             workOrder.status === "canceled" ? "bg-red-500" : "bg-slate-300"
           }`} />
 

@@ -283,7 +283,7 @@ export default function OverseasConsultationSpreadsheet({
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                           consultation.order_type === "import"
-                            ? "bg-blue-50 text-blue-700"
+                            ? "bg-sky-50 text-sky-700"
                             : "bg-emerald-50 text-emerald-700"
                         }`}
                       >

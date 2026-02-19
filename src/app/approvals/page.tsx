@@ -165,10 +165,10 @@ export default function ApprovalsPage() {
             isActive={currentTab === "pending"}
           />
           <SummaryCard
-            icon={<Send className="w-5 h-5 text-blue-600" />}
+            icon={<Send className="w-5 h-5 text-sky-600" />}
             label="내가 기안"
             value={summary.requested_count}
-            iconBg="bg-blue-100"
+            iconBg="bg-sky-100"
             onClick={() => handleTabChange("requested")}
             isActive={currentTab === "requested"}
           />
@@ -205,7 +205,7 @@ export default function ApprovalsPage() {
                   onClick={() => handleTabChange(tab.id)}
                   className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                     currentTab === tab.id
-                      ? "border-blue-600 text-blue-600"
+                      ? "border-sky-600 text-sky-600"
                       : "border-transparent text-slate-500 hover:text-slate-700"
                   }`}
                 >
@@ -215,7 +215,7 @@ export default function ApprovalsPage() {
                     <span
                       className={`ml-1 px-1.5 py-0.5 text-xs rounded-full ${
                         currentTab === tab.id
-                          ? "bg-blue-100 text-blue-700"
+                          ? "bg-sky-100 text-sky-700"
                           : "bg-slate-100 text-slate-600"
                       }`}
                     >
@@ -228,7 +228,7 @@ export default function ApprovalsPage() {
           </div>
           <button
             onClick={handleNewApproval}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 text-white text-sm rounded-lg hover:bg-sky-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             새 결재
@@ -245,7 +245,7 @@ export default function ApprovalsPage() {
         {/* 테이블 컨트롤 */}
         <div className="flex justify-between items-center px-4 py-2 border-b border-slate-100">
           <div className="text-sm text-slate-500">
-            총 <span className="font-semibold text-blue-600">{total}</span>개 문서
+            총 <span className="font-semibold text-sky-600">{total}</span>개 문서
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-500">표시:</span>
@@ -306,7 +306,7 @@ export default function ApprovalsPage() {
                   onClick={() => handlePageChange(pageNum)}
                   className={`px-3 py-1.5 text-xs rounded ${
                     currentPage === pageNum
-                      ? "bg-blue-600 text-white"
+                      ? "bg-sky-600 text-white"
                       : "border border-slate-200 hover:bg-slate-50"
                   }`}
                 >
@@ -356,7 +356,7 @@ function SummaryCard({
       onClick={onClick}
       className={`bg-white rounded-lg border shadow-sm p-3 transition-all ${
         onClick ? "cursor-pointer hover:shadow-md" : ""
-      } ${isActive ? "border-blue-300 ring-1 ring-blue-100" : "border-slate-200"}`}
+      } ${isActive ? "border-sky-300 ring-1 ring-sky-100" : "border-slate-200"}`}
     >
       <div className="flex items-center gap-3">
         <div className={`p-2 ${iconBg} rounded-lg`}>{icon}</div>

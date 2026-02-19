@@ -214,15 +214,15 @@ export default function AccessLogsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-xl">
-              <History className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-sky-100 rounded-xl">
+              <History className="w-6 h-6 text-sky-600" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800">접속 이력</h1>
               <p className="text-slate-500">시스템 접속 및 인증 기록</p>
             </div>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors">
             <Download className="w-4 h-4" />
             내보내기
           </button>
@@ -251,7 +251,7 @@ export default function AccessLogsPage() {
             className="bg-white rounded-xl p-5 shadow-sm border border-slate-200"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Globe className="w-5 h-5 text-blue-500" />
+              <Globe className="w-5 h-5 text-sky-500" />
               <span className="text-slate-500">주간 로그인</span>
             </div>
             <p className="text-2xl font-bold text-slate-800">
@@ -306,7 +306,7 @@ export default function AccessLogsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -315,19 +315,19 @@ export default function AccessLogsPage() {
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
-                className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
               />
               <span className="text-slate-400">~</span>
               <input
                 type="date"
                 value={dateRange.end}
                 onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))}
-                className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
               />
             </div>
             <button
               onClick={handleSearch}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors"
             >
               검색
             </button>

@@ -36,7 +36,7 @@ export default function CompanyFilesTab({ companyId }: CompanyFilesTabProps) {
   const getSourceTypeBadgeColor = (type: string) => {
     switch (type) {
       case "consultation":
-        return "bg-cyan-100 text-cyan-700";
+        return "bg-sky-100 text-sky-700";
       case "post":
         return "bg-amber-100 text-amber-700";
       case "comment":
@@ -92,7 +92,7 @@ export default function CompanyFilesTab({ companyId }: CompanyFilesTabProps) {
               }}
               className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                 filterType === option.value
-                  ? "bg-cyan-600 text-white"
+                  ? "bg-sky-600 text-white"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -141,7 +141,7 @@ export default function CompanyFilesTab({ companyId }: CompanyFilesTabProps) {
                   {sourceLink && (
                     <a
                       href={sourceLink}
-                      className="p-1.5 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                       title="원본 보기"
                     >
                       <ExternalLink size={16} />

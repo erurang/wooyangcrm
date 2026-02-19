@@ -135,7 +135,7 @@ export default function SecuritySettingsPage() {
   }) => (
     <button onClick={() => onChange(!enabled)} className="flex items-center">
       {enabled ? (
-        <ToggleRight className="w-8 h-8 text-blue-500" />
+        <ToggleRight className="w-8 h-8 text-sky-500" />
       ) : (
         <ToggleLeft className="w-8 h-8 text-slate-400" />
       )}
@@ -630,13 +630,13 @@ export default function SecuritySettingsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-blue-50 rounded-xl p-4 border border-blue-200"
+          className="bg-sky-50 rounded-xl p-4 border border-sky-200"
         >
           <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-500 mt-0.5" />
+            <Info className="w-5 h-5 text-sky-500 mt-0.5" />
             <div>
-              <p className="font-medium text-blue-800">보안 설정 안내</p>
-              <p className="text-sm text-blue-600 mt-1">
+              <p className="font-medium text-sky-800">보안 설정 안내</p>
+              <p className="text-sm text-sky-600 mt-1">
                 보안 설정 변경 시 기존 세션에는 즉시 적용되지 않을 수 있습니다.
                 중요한 설정 변경 후에는 모든 세션을 로그아웃하고 다시 로그인하는 것을 권장합니다.
               </p>

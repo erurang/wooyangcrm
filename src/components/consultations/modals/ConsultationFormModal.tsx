@@ -1,8 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { CircularProgress } from "@mui/material";
-import { X, AlertCircle, Paperclip, FileText, Upload, Users, UserCheck } from "lucide-react";
+import { X, AlertCircle, Paperclip, FileText, Upload, Users, UserCheck, Loader2, Save, MessageSquare } from "lucide-react";
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { ContactMethod } from "@/types/consultation";
 import { CONTACT_METHOD_LABELS } from "@/types/consultation";
@@ -238,10 +237,10 @@ export default function ConsultationFormModal({
 
   // 입력 필드 스타일 - 모바일에서 더 큰 터치 영역
   const getInputClass = (hasError: boolean, isDisabled = false) => {
-    const base = "w-full max-w-full px-3 py-2.5 sm:py-2 border rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors box-border";
-    if (isDisabled) return `${base} bg-gray-100 border-gray-300`;
-    if (hasError) return `${base} border-red-500 focus:ring-red-500 bg-red-50`;
-    return `${base} border-gray-300 focus:ring-blue-500`;
+    const base = "w-full max-w-full px-3.5 py-2.5 sm:py-2 border rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 transition-all duration-200 box-border";
+    if (isDisabled) return `${base} bg-slate-100 border-slate-200 text-slate-400`;
+    if (hasError) return `${base} border-red-400 focus:ring-red-500/30 focus:border-red-400 bg-red-50`;
+    return `${base} border-slate-200 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white placeholder:text-slate-300`;
   };
 
   return (
@@ -251,7 +250,7 @@ export default function ConsultationFormModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
           onMouseDown={handleClose}
         >
           <motion.div
@@ -259,14 +258,22 @@ export default function ConsultationFormModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             onMouseDown={(e) => e.stopPropagation()}
-            className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
           >
             {/* 헤더 - 고정 */}
-            <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-b bg-white shrink-0">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900">{modalTitle}</h3>
+            <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-b border-slate-200/60 bg-white shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-sky-50 rounded-xl">
+                  <MessageSquare className="h-5 w-5 text-sky-600" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-800">{modalTitle}</h3>
+                  <p className="text-xs text-slate-400">상담 내역을 입력해주세요</p>
+                </div>
+              </div>
               <button
                 onClick={handleClose}
-                className="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
               >
                 <X size={20} />
               </button>
@@ -277,7 +284,7 @@ export default function ConsultationFormModal({
               <div className="px-4 py-4 sm:px-5 sm:py-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="min-w-0">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                     상담일
                   </label>
                   <div className="overflow-hidden rounded-lg">
@@ -290,7 +297,7 @@ export default function ConsultationFormModal({
                   </div>
                 </div>
                 <div className="min-w-0">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                     후속 날짜
                   </label>
                   <div className="overflow-hidden rounded-lg">
@@ -312,7 +319,7 @@ export default function ConsultationFormModal({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                     담당자 <span className="text-red-500">*</span>
                   </label>
                   <HeadlessSelect
@@ -328,7 +335,7 @@ export default function ConsultationFormModal({
                     placeholder="담당자 선택"
                     icon={<Users className="h-4 w-4" />}
                     className={errors.contact_name ? "border-red-500 focus:ring-red-500 bg-red-50" : ""}
-                    focusClass={errors.contact_name ? "focus:ring-red-500" : "focus:ring-blue-500"}
+                    focusClass={errors.contact_name ? "focus:ring-red-500" : "focus:ring-sky-500"}
                   />
                   {errors.contact_name && (
                     <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
@@ -338,7 +345,7 @@ export default function ConsultationFormModal({
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                     상담자
                   </label>
                   <HeadlessSelect
@@ -357,7 +364,7 @@ export default function ConsultationFormModal({
 
               {/* 접수경로 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
                   접수 경로
                 </label>
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
@@ -366,10 +373,10 @@ export default function ConsultationFormModal({
                       key={option.value}
                       type="button"
                       onClick={() => handleFieldChange("contact_method", option.value)}
-                      className={`px-3 py-2 sm:py-1.5 text-sm rounded-full border transition-colors ${
+                      className={`px-3 py-2 sm:py-1.5 text-sm rounded-xl border transition-all duration-200 ${
                         formData.contact_method === option.value
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 active:bg-gray-100"
+                          ? "bg-sky-600 text-white border-sky-600 shadow-sm shadow-sky-200"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-sky-400 hover:bg-sky-50/50 active:bg-slate-100"
                       }`}
                     >
                       {option.label}
@@ -380,7 +387,7 @@ export default function ConsultationFormModal({
 
               {/* 제목 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                   제목
                 </label>
                 <input
@@ -394,7 +401,7 @@ export default function ConsultationFormModal({
 
               {/* 상담 내용 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                   상담 내용 <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -410,7 +417,7 @@ export default function ConsultationFormModal({
                     {errors.content}
                   </p>
                 ) : isAddMode && (
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-400">
                     담당자를 선택 후 상담을 작성해주세요. 후속 날짜를 설정하면
                     지정날짜 7일 전에 대시보드의 후속 상담 필요 고객 리스트에
                     표시됩니다.
@@ -420,7 +427,7 @@ export default function ConsultationFormModal({
 
               {/* 파일 첨부 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
                   <div className="flex items-center gap-2">
                     <Paperclip className="h-4 w-4" />
                     파일 첨부
@@ -433,21 +440,21 @@ export default function ConsultationFormModal({
                     {pendingFiles.map((file, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-2 p-2.5 sm:p-2 bg-blue-50 border border-blue-200 rounded-lg"
+                        className="flex items-center gap-2 p-2.5 sm:p-2 bg-sky-50 border border-sky-200 rounded-lg"
                       >
                         <span className="text-lg">{getFileIcon(file.name)}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-700 truncate">
+                          <p className="text-sm font-medium text-slate-600 truncate">
                             {file.name}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-slate-400">
                             {(file.size / 1024).toFixed(1)} KB
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => removePendingFile(index)}
-                          className="p-2 sm:p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
+                          className="p-2 sm:p-1 text-slate-400 hover:text-red-500 rounded transition-colors"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -463,10 +470,10 @@ export default function ConsultationFormModal({
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className={`relative border-2 border-dashed rounded-lg p-4 sm:p-4 text-center cursor-pointer transition-all active:bg-gray-100 ${
+                  className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all duration-200 active:bg-slate-100 ${
                     isDragging
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                      ? "border-sky-500 bg-sky-50/80"
+                      : "border-slate-200 hover:border-sky-400 hover:bg-slate-50/50"
                   }`}
                 >
                   <input
@@ -477,15 +484,15 @@ export default function ConsultationFormModal({
                     onChange={handleFileSelect}
                   />
                   {isDragging ? (
-                    <div className="flex flex-col items-center gap-2 text-blue-600">
+                    <div className="flex flex-col items-center gap-2 text-sky-600">
                       <Upload className="h-8 w-8" />
                       <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center gap-1 sm:gap-2 text-gray-500">
+                    <div className="flex flex-col items-center gap-1 sm:gap-2 text-slate-400">
                       <FileText className="h-6 w-6 sm:h-8 sm:w-8" />
                       <p className="text-sm">
-                        <span className="font-medium text-blue-600">파일 선택</span>
+                        <span className="font-medium text-sky-600">파일 선택</span>
                         <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
                       </p>
                     </div>
@@ -496,26 +503,29 @@ export default function ConsultationFormModal({
             </div>
 
             {/* 푸터 - 고정 */}
-            <div className="flex justify-end items-center gap-2 sm:gap-3 px-4 py-3 sm:px-5 sm:py-4 bg-gray-50 border-t shrink-0">
+            <div className="flex justify-end items-center gap-2.5 px-4 py-3.5 sm:px-5 bg-slate-50/50 border-t border-slate-200/60 shrink-0">
               <button
                 onClick={handleClose}
-                className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 active:bg-gray-100"
+                className="flex-1 sm:flex-none px-4 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all"
                 disabled={saving}
               >
                 취소
               </button>
               <button
                 onClick={handleSubmit}
-                className="flex-1 sm:flex-none px-4 py-2.5 sm:py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition-all shadow-sm shadow-sky-200 hover:shadow-md hover:shadow-sky-200 disabled:opacity-50"
                 disabled={saving}
               >
                 {saving ? (
                   <>
-                    <CircularProgress size={16} className="mr-2" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     저장 중...
                   </>
                 ) : (
-                  "저장"
+                  <>
+                    <Save className="h-4 w-4" />
+                    저장
+                  </>
                 )}
               </button>
             </div>

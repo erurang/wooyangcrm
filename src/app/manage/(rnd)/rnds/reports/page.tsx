@@ -36,8 +36,8 @@ const REPORT_STATUS_LABELS = {
 };
 
 const REPORT_STATUS_COLORS = {
-  draft: "bg-gray-100 text-gray-700",
-  submitted: "bg-blue-100 text-blue-700",
+  draft: "bg-slate-100 text-slate-600",
+  submitted: "bg-sky-100 text-sky-700",
   approved: "bg-green-100 text-green-700",
   revision_required: "bg-red-100 text-red-700",
 };
@@ -136,7 +136,7 @@ export default function RnDReportsOverviewPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
+        <RefreshCw className="w-8 h-8 animate-spin text-slate-400" />
       </div>
     );
   }
@@ -145,10 +145,10 @@ export default function RnDReportsOverviewPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <p className="text-gray-600">{error}</p>
+        <p className="text-slate-500">{error}</p>
         <button
           onClick={fetchReports}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="mt-4 px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600"
         >
           다시 시도
         </button>
@@ -161,14 +161,14 @@ export default function RnDReportsOverviewPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">보고서 일정</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-slate-800">보고서 일정</h1>
+          <p className="text-sm text-slate-400 mt-1">
             중간보고서, 연차보고서, 최종보고서 등 제출 일정 관리
           </p>
         </div>
         <button
           onClick={fetchReports}
-          className="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50"
+          className="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg hover:bg-slate-50"
         >
           <RefreshCw className="w-4 h-4" />
           새로고침
@@ -179,36 +179,36 @@ export default function RnDReportsOverviewPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-2 mb-1">
-            <FileStack className="w-4 h-4 text-gray-500" />
-            <span className="text-xs text-gray-500">전체</span>
+            <FileStack className="w-4 h-4 text-slate-400" />
+            <span className="text-xs text-slate-400">전체</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{statusSummary.total}</p>
+          <p className="text-2xl font-bold text-slate-800">{statusSummary.total}</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-2 mb-1">
-            <Clock className="w-4 h-4 text-gray-500" />
-            <span className="text-xs text-gray-500">작성중</span>
+            <Clock className="w-4 h-4 text-slate-400" />
+            <span className="text-xs text-slate-400">작성중</span>
           </div>
-          <p className="text-2xl font-bold text-gray-700">{statusSummary.draft}</p>
+          <p className="text-2xl font-bold text-slate-600">{statusSummary.draft}</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-2 mb-1">
-            <CheckCircle className="w-4 h-4 text-blue-500" />
-            <span className="text-xs text-gray-500">제출완료</span>
+            <CheckCircle className="w-4 h-4 text-sky-500" />
+            <span className="text-xs text-slate-400">제출완료</span>
           </div>
-          <p className="text-2xl font-bold text-blue-600">{statusSummary.submitted}</p>
+          <p className="text-2xl font-bold text-sky-600">{statusSummary.submitted}</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-2 mb-1">
             <CheckCircle className="w-4 h-4 text-green-500" />
-            <span className="text-xs text-gray-500">승인</span>
+            <span className="text-xs text-slate-400">승인</span>
           </div>
           <p className="text-2xl font-bold text-green-600">{statusSummary.approved}</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-2 mb-1">
             <AlertCircle className="w-4 h-4 text-red-500" />
-            <span className="text-xs text-gray-500">수정요청</span>
+            <span className="text-xs text-slate-400">수정요청</span>
           </div>
           <p className="text-2xl font-bold text-red-600">{statusSummary.revision_required}</p>
         </div>
@@ -218,14 +218,14 @@ export default function RnDReportsOverviewPage() {
         >
           <div className="flex items-center gap-2 mb-1">
             <Calendar className="w-4 h-4 text-orange-500" />
-            <span className="text-xs text-gray-500">30일 이내</span>
+            <span className="text-xs text-slate-400">30일 이내</span>
           </div>
           <p className="text-2xl font-bold text-orange-600">{statusSummary.upcoming}</p>
         </button>
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-2 mb-1">
             <AlertCircle className="w-4 h-4 text-red-500" />
-            <span className="text-xs text-gray-500">마감초과</span>
+            <span className="text-xs text-slate-400">마감초과</span>
           </div>
           <p className="text-2xl font-bold text-red-600">{statusSummary.overdue}</p>
         </div>
@@ -235,7 +235,7 @@ export default function RnDReportsOverviewPage() {
       <div className="bg-white rounded-lg shadow p-4">
         <div className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="보고서 제목 검색..."
@@ -287,35 +287,35 @@ export default function RnDReportsOverviewPage() {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-slate-50 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">
                   유형
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">
                   제목
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">
                   과제
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">
                   연도
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">
                   마감일
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">
                   상태
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">
                   상세
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-slate-200">
               {filteredReports.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
                     등록된 보고서가 없습니다.
                   </td>
                 </tr>
@@ -323,7 +323,7 @@ export default function RnDReportsOverviewPage() {
                 filteredReports.map((report) => (
                   <tr
                     key={report.id}
-                    className={`hover:bg-gray-50 cursor-pointer ${
+                    className={`hover:bg-slate-50 cursor-pointer ${
                       report.days_until_due !== undefined && report.days_until_due < 0
                         ? "bg-red-50"
                         : report.days_until_due !== undefined && report.days_until_due <= 7
@@ -333,26 +333,26 @@ export default function RnDReportsOverviewPage() {
                     onClick={() => router.push(`/manage/rnds/${report.rnd_id}?tab=reports`)}
                   >
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-slate-600">
                         {RND_REPORT_TYPE_LABELS[report.report_type]}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900 truncate max-w-xs">
+                      <p className="font-medium text-slate-800 truncate max-w-xs">
                         {report.title}
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-gray-700 truncate max-w-xs">
+                      <p className="text-sm text-slate-600 truncate max-w-xs">
                         {report.project?.name || "-"}
                       </p>
                     </td>
-                    <td className="px-6 py-4 text-center text-sm text-gray-600">
+                    <td className="px-6 py-4 text-center text-sm text-slate-500">
                       {report.year || "-"}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex flex-col items-center">
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-slate-500">
                           {report.due_date || "-"}
                         </span>
                         {report.days_until_due !== undefined && (
@@ -362,7 +362,7 @@ export default function RnDReportsOverviewPage() {
                                 ? "text-red-600 font-medium"
                                 : report.days_until_due <= 7
                                 ? "text-orange-600 font-medium"
-                                : "text-gray-500"
+                                : "text-slate-400"
                             }`}
                           >
                             {report.days_until_due < 0
@@ -389,12 +389,12 @@ export default function RnDReportsOverviewPage() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="text-blue-600 hover:text-blue-800"
+                            className="text-sky-600 hover:text-sky-800"
                           >
                             <Download className="w-4 h-4" />
                           </a>
                         )}
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
                       </div>
                     </td>
                   </tr>

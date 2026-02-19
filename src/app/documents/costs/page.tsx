@@ -248,10 +248,10 @@ export default function DocumentCostsDashboard() {
           className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5"
         >
           <div className="flex items-center text-slate-500 text-xs mb-2">
-            <TrendingUp className="w-4 h-4 mr-1 text-blue-500" />
+            <TrendingUp className="w-4 h-4 mr-1 text-sky-500" />
             총 매출 (견적 완료)
           </div>
-          <p className="text-xl sm:text-2xl font-bold text-blue-600">
+          <p className="text-xl sm:text-2xl font-bold text-sky-600">
             {formatCurrency(summary.totalSales)}
           </p>
           <p className="text-xs text-slate-400 mt-1">
@@ -337,8 +337,8 @@ export default function DocumentCostsDashboard() {
                 <span className="text-lg font-bold text-slate-800">{counts.total}건</span>
               </div>
               <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                <div className="bg-blue-50 rounded-lg p-2">
-                  <p className="text-blue-600 font-medium">{counts.pending}</p>
+                <div className="bg-sky-50 rounded-lg p-2">
+                  <p className="text-sky-600 font-medium">{counts.pending}</p>
                   <p className="text-slate-500">진행</p>
                 </div>
                 <div className="bg-green-50 rounded-lg p-2">
@@ -470,7 +470,7 @@ export default function DocumentCostsDashboard() {
                     <td className="px-4 py-3">
                       <span className="font-medium text-slate-800">{company.company_name}</span>
                     </td>
-                    <td className="px-4 py-3 text-right text-blue-600 font-medium">
+                    <td className="px-4 py-3 text-right text-sky-600 font-medium">
                       {formatCurrency(company.estimate_amount)}
                     </td>
                     <td className="px-4 py-3 text-right text-emerald-600 font-medium">

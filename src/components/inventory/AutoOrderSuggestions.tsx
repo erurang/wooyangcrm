@@ -242,7 +242,7 @@ export default function AutoOrderSuggestions({
                         {/* 권장 발주량 */}
                         <div className="text-right shrink-0">
                           <div className="text-xs text-slate-500 mb-1">권장 발주량</div>
-                          <div className="text-lg font-bold text-blue-600">
+                          <div className="text-lg font-bold text-sky-600">
                             {item.suggestedOrderQuantity.toLocaleString()}
                             <span className="text-sm font-normal text-slate-500 ml-0.5">
                               {item.unit}
@@ -257,7 +257,7 @@ export default function AutoOrderSuggestions({
                                   item.preferredSupplier?.id
                                 )
                               }
-                              className="mt-2 flex items-center gap-1 px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                              className="mt-2 flex items-center gap-1 px-2 py-1 text-xs bg-sky-600 text-white rounded hover:bg-sky-700 transition-colors"
                             >
                               <ShoppingCart className="h-3 w-3" />
                               발주하기

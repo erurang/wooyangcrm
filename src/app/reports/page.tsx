@@ -72,7 +72,7 @@ export default function ReportsPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-blue-50 text-blue-700"
+                      ? "bg-sky-50 text-sky-700"
                       : "text-slate-600 hover:bg-slate-100"
                   }`}
                 >

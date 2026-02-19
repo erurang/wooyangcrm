@@ -24,7 +24,7 @@ export default function ApprovalList({
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
       </div>
     );
   }
@@ -85,7 +85,7 @@ function ApprovalListItem({
     <div
       onClick={onClick}
       className={`px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors ${
-        isMyTurn ? "bg-blue-50/30 border-l-2 border-l-blue-500" : ""
+        isMyTurn ? "bg-sky-50/30 border-l-2 border-l-sky-500" : ""
       }`}
     >
       <div className="flex items-start gap-3">
@@ -101,7 +101,7 @@ function ApprovalListItem({
               {approval.category?.name || "기타"}
             </span>
             {isMyTurn && (
-              <span className="text-[11px] px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded font-medium">
+              <span className="text-[11px] px-1.5 py-0.5 bg-sky-100 text-sky-700 rounded font-medium">
                 내 결재
               </span>
             )}
@@ -133,7 +133,7 @@ function ApprovalListItem({
                         : line.status === "rejected"
                         ? "bg-red-50 text-red-700"
                         : line.line_order === approval.current_line_order
-                        ? "bg-blue-50 text-blue-700 font-medium"
+                        ? "bg-sky-50 text-sky-700 font-medium"
                         : "bg-slate-50 text-slate-500"
                     }`}
                   >
@@ -174,9 +174,9 @@ function getStatusConfig(status: string) {
   switch (status) {
     case "pending":
       return {
-        icon: <Clock className="w-4 h-4 text-blue-600" />,
-        bgColor: "bg-blue-50",
-        badgeColor: "bg-blue-50 text-blue-700",
+        icon: <Clock className="w-4 h-4 text-sky-600" />,
+        bgColor: "bg-sky-50",
+        badgeColor: "bg-sky-50 text-sky-700",
       };
     case "approved":
       return {

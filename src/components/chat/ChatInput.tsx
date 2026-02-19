@@ -133,18 +133,18 @@ export default function ChatInput({
   }, []);
 
   return (
-    <div className="bg-white border-t border-gray-200 p-4">
+    <div className="bg-white border-t border-slate-200 p-4">
       {/* 답장 표시 */}
       {replyTo && (
-        <div className="flex items-center gap-2 mb-2 p-2 bg-gray-50 rounded-lg">
-          <div className="w-1 h-8 bg-blue-500 rounded-full" />
+        <div className="flex items-center gap-2 mb-2 p-2 bg-slate-50 rounded-lg">
+          <div className="w-1 h-8 bg-sky-500 rounded-full" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500">{replyTo.sender?.name}에게 답장</p>
-            <p className="text-sm text-gray-700 truncate">{replyTo.content}</p>
+            <p className="text-xs text-slate-400">{replyTo.sender?.name}에게 답장</p>
+            <p className="text-sm text-slate-600 truncate">{replyTo.content}</p>
           </div>
           <button
             onClick={onCancelReply}
-            className="p-1 text-gray-400 hover:text-gray-600"
+            className="p-1 text-slate-400 hover:text-slate-500"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -159,18 +159,18 @@ export default function ChatInput({
           {pendingFiles.map((file) => (
             <div
               key={file.id}
-              className="relative flex items-center gap-2 p-2 bg-gray-100 rounded-lg"
+              className="relative flex items-center gap-2 p-2 bg-slate-100 rounded-lg"
             >
               {file.preview ? (
                 <img src={file.preview} alt={file.name} className="w-10 h-10 rounded object-cover" />
               ) : (
-                <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-slate-200 rounded flex items-center justify-center">
+                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                   </svg>
                 </div>
               )}
-              <span className="text-sm text-gray-700 max-w-[100px] truncate">{file.name}</span>
+              <span className="text-sm text-slate-600 max-w-[100px] truncate">{file.name}</span>
               <button
                 onClick={() => removeFile(file.id)}
                 className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs"
@@ -196,7 +196,7 @@ export default function ChatInput({
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading || disabled}
-          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg disabled:opacity-50 transition-colors"
+          className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg disabled:opacity-50 transition-colors"
           title="파일 첨부"
         >
           {isUploading ? (
@@ -223,7 +223,7 @@ export default function ChatInput({
             placeholder={placeholder}
             disabled={disabled}
             rows={1}
-            className="w-full px-4 py-2.5 bg-gray-100 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors disabled:opacity-50"
+            className="w-full px-4 py-2.5 bg-slate-100 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-colors disabled:opacity-50"
             style={{ maxHeight: "150px" }}
           />
         </div>
@@ -236,7 +236,7 @@ export default function ChatInput({
             isSending ||
             disabled
           }
-          className="p-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2.5 bg-sky-600 text-white rounded-full hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isSending ? (
             <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">

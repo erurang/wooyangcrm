@@ -21,7 +21,7 @@ const typeIcons: Record<ReferenceType, React.ReactNode> = {
 };
 
 const typeColors: Record<ReferenceType, string> = {
-  company: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
+  company: "bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100",
   consultation: "bg-green-50 text-green-700 border-green-200 hover:bg-green-100",
   document: "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100",
 };
@@ -45,10 +45,10 @@ export default function ReferenceDisplay({ references }: ReferenceDisplayProps) 
   }
 
   return (
-    <div className="border-t border-gray-200 pt-4 mt-4">
-      <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-        <span className="text-gray-500">연결된 항목</span>
-        <span className="bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded">
+    <div className="border-t border-slate-200 pt-4 mt-4">
+      <h3 className="text-sm font-medium text-slate-600 mb-3 flex items-center gap-2">
+        <span className="text-slate-400">연결된 항목</span>
+        <span className="bg-slate-100 text-slate-500 text-xs px-1.5 py-0.5 rounded">
           {references.length}
         </span>
       </h3>

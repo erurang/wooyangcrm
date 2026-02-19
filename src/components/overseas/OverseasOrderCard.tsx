@@ -61,9 +61,9 @@ export default function OverseasOrderCard({
   const getShippingIcon = (method?: string) => {
     switch (method) {
       case "air":
-        return <Plane size={14} className="text-blue-500" />;
+        return <Plane size={14} className="text-sky-500" />;
       case "sea":
-        return <Ship size={14} className="text-cyan-500" />;
+        return <Ship size={14} className="text-sky-500" />;
       case "express":
         return <Truck size={14} className="text-orange-500" />;
       default:

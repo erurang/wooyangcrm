@@ -98,7 +98,7 @@ export default function RnDConsultationsTable({
         {consultations.length > 0 && (
           <table className="min-w-full table-auto border-collapse text-center">
             <thead>
-              <tr className="bg-gray-100 text-left">
+              <tr className="bg-slate-100 text-left">
                 <th className="px-4 py-2 border-b border-r-[1px] text-center w-1/12">
                   작성일자
                 </th>
@@ -135,7 +135,7 @@ export default function RnDConsultationsTable({
               {consultations.map((consultation) => (
                 <tr
                   key={consultation.id}
-                  className="hover:bg-gray-100 border-b"
+                  className="hover:bg-slate-100 border-b"
                 >
                   <td className="px-4 py-2 border-r-[1px]">{consultation.date}</td>
                   <td className="px-4 py-2 border-r-[1px]">
@@ -177,7 +177,7 @@ export default function RnDConsultationsTable({
                     <span
                       className={`px-4 py-2 border-r-[1px] ${
                         loginUserId === consultation.user_id &&
-                        "text-blue-500 cursor-pointer"
+                        "text-sky-500 cursor-pointer"
                       }`}
                       onClick={() => {
                         if (loginUserId === consultation.user_id)
@@ -212,7 +212,7 @@ export default function RnDConsultationsTable({
           <button
             onClick={prevPage}
             disabled={currentPage === 1}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+            className="px-3 py-1 border rounded bg-white hover:bg-slate-100"
           >
             이전
           </button>
@@ -223,8 +223,8 @@ export default function RnDConsultationsTable({
               onClick={() => typeof page === "number" && onPageChange(page)}
               className={`px-3 py-1 border rounded ${
                 currentPage === page
-                  ? "bg-blue-500 text-white font-bold"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-200"
+                  ? "bg-sky-500 text-white font-bold"
+                  : "bg-slate-50 text-slate-500 hover:bg-slate-200"
               }`}
             >
               {page}
@@ -234,7 +234,7 @@ export default function RnDConsultationsTable({
           <button
             onClick={nextPage}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded bg-white hover:bg-gray-100"
+            className="px-3 py-1 border rounded bg-white hover:bg-slate-100"
           >
             다음
           </button>

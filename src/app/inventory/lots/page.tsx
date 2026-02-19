@@ -25,7 +25,6 @@ import {
   List,
   LayoutGrid,
 } from "lucide-react";
-import { CircularProgress } from "@mui/material";
 import Pagination from "@/components/ui/Pagination";
 import { useLots, useLotMutations } from "@/hooks/inventory/useLots";
 import { useLoginUser } from "@/context/login";
@@ -262,9 +261,9 @@ export default function InventoryLotsPage() {
 
   if (isLoading && (viewMode === "products" ? productSummaries.length === 0 : lots.length === 0)) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+      <div className="min-h-screen bg-slate-50 p-4 md:p-6">
         <div className="flex items-center justify-center h-64">
-          <CircularProgress size={40} />
+          <Loader2 className="h-10 w-10 animate-spin text-sky-600" />
         </div>
       </div>
     );
@@ -292,18 +291,18 @@ export default function InventoryLotsPage() {
           {stats && viewMode === "products" && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
               <div className="bg-white rounded-lg border p-3">
-                <div className="flex items-center gap-2 text-gray-500 text-xs">
+                <div className="flex items-center gap-2 text-slate-400 text-xs">
                   <Package className="w-4 h-4" />
                   전체 제품
                 </div>
                 <div className="text-2xl font-bold mt-1">{stats.totalProducts}개</div>
               </div>
-              <div className="bg-white rounded-lg border p-3 border-blue-200">
-                <div className="flex items-center gap-2 text-blue-600 text-xs">
+              <div className="bg-white rounded-lg border p-3 border-sky-200">
+                <div className="flex items-center gap-2 text-sky-600 text-xs">
                   <Hash className="w-4 h-4" />
                   전체 LOT
                 </div>
-                <div className="text-2xl font-bold text-blue-600 mt-1">{stats.totalLots}개</div>
+                <div className="text-2xl font-bold text-sky-600 mt-1">{stats.totalLots}개</div>
               </div>
               <div className="bg-white rounded-lg border p-3 border-yellow-200">
                 <div className="flex items-center gap-2 text-yellow-600 text-xs">
@@ -379,17 +378,17 @@ export default function InventoryLotsPage() {
           {/* 검색 및 액션 */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-blue-600" />
+              <Package className="h-5 w-5 text-sky-600" />
               <h1 className="text-lg font-bold text-slate-800">재고 관리</h1>
 
               {/* 뷰 모드 토글 */}
-              <div className="flex items-center bg-gray-100 rounded-lg p-1 ml-4">
+              <div className="flex items-center bg-slate-100 rounded-lg p-1 ml-4">
                 <button
                   onClick={() => setViewMode("products")}
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                     viewMode === "products"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-white text-slate-800 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   <LayoutGrid className="h-4 w-4" />
@@ -399,8 +398,8 @@ export default function InventoryLotsPage() {
                   onClick={() => setViewMode("lots")}
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                     viewMode === "lots"
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-white text-slate-800 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   <List className="h-4 w-4" />
@@ -421,7 +420,7 @@ export default function InventoryLotsPage() {
                     setSearchQuery(e.target.value);
                     setPage(1);
                   }}
-                  className="w-full pl-9 pr-8 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full pl-9 pr-8 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
                 />
                 {searchQuery && (
                   <button
@@ -451,7 +450,7 @@ export default function InventoryLotsPage() {
                       type="checkbox"
                       checked={lowStockOnly}
                       onChange={(e) => setLowStockOnly(e.target.checked)}
-                      className="w-4 h-4 rounded border-gray-300 text-yellow-600"
+                      className="w-4 h-4 rounded border-slate-300 text-yellow-600"
                     />
                     <span className="text-yellow-600 font-medium">부족만</span>
                   </label>
@@ -468,7 +467,7 @@ export default function InventoryLotsPage() {
               {/* 새로고침 */}
               <button
                 onClick={() => viewMode === "products" ? fetchProductSummaries() : refreshLots()}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-gray-600 bg-white border rounded-lg hover:bg-gray-50 text-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-slate-500 bg-white border rounded-lg hover:bg-slate-50 text-sm"
               >
                 <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
               </button>
@@ -476,7 +475,7 @@ export default function InventoryLotsPage() {
               {/* 새 LOT */}
               <button
                 onClick={() => setCreateModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-1.5 text-sm font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 새 LOT
@@ -525,37 +524,37 @@ export default function InventoryLotsPage() {
                               {product.lot_count > 0 && (
                                 <button
                                   onClick={() => toggleProduct(product.id)}
-                                  className="p-1 hover:bg-gray-100 rounded"
+                                  className="p-1 hover:bg-slate-100 rounded"
                                 >
                                   {isExpanded ? (
-                                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                                    <ChevronDown className="h-4 w-4 text-slate-400" />
                                   ) : (
-                                    <ChevronRight className="h-4 w-4 text-gray-500" />
+                                    <ChevronRight className="h-4 w-4 text-slate-400" />
                                   )}
                                 </button>
                               )}
                             </td>
-                            <td className="px-4 py-3 text-gray-600 font-mono text-xs">
+                            <td className="px-4 py-3 text-slate-500 font-mono text-xs">
                               {product.internal_code || "-"}
                             </td>
                             <td className="px-4 py-3 font-medium">{product.internal_name}</td>
                             <td className="px-4 py-3 text-center">
-                              <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">
+                              <span className="px-2 py-0.5 bg-slate-100 rounded text-xs">
                                 {getTypeLabel(product.type)}
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right font-bold text-lg">
                               {formatNumber(product.current_stock)}
-                              <span className="text-sm font-normal text-gray-500 ml-1">
+                              <span className="text-sm font-normal text-slate-400 ml-1">
                                 {product.unit || "개"}
                               </span>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
+                              <span className="px-2 py-1 bg-sky-50 text-sky-700 rounded-full text-xs font-medium">
                                 {product.lot_count}개
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-right text-gray-500">
+                            <td className="px-4 py-3 text-right text-slate-400">
                               {product.min_stock_alert ? formatNumber(product.min_stock_alert) : "-"}
                             </td>
                             <td className="px-4 py-3 text-center">
@@ -579,15 +578,15 @@ export default function InventoryLotsPage() {
                                       <div className="flex items-center gap-4">
                                         <div>
                                           <div className="flex items-center gap-2">
-                                            <Hash className="h-3.5 w-3.5 text-gray-400" />
-                                            <span className="font-medium text-blue-600">
+                                            <Hash className="h-3.5 w-3.5 text-slate-400" />
+                                            <span className="font-medium text-sky-600">
                                               {lot.lot_number}
                                             </span>
                                             <span className={`px-2 py-0.5 text-xs rounded-full ${LOT_STATUS_COLORS[lot.status as LotStatus]}`}>
                                               {LOT_STATUS_LABELS[lot.status as LotStatus]}
                                             </span>
                                           </div>
-                                          <div className="text-xs text-gray-500 mt-1">
+                                          <div className="text-xs text-slate-400 mt-1">
                                             {lot.spec_value || "-"} | {lot.location || "위치 미지정"}
                                           </div>
                                         </div>
@@ -597,14 +596,14 @@ export default function InventoryLotsPage() {
                                           <div className="font-bold">
                                             {lot.current_quantity} {lot.unit || product.unit || "개"}
                                           </div>
-                                          <div className="text-xs text-gray-400">
+                                          <div className="text-xs text-slate-400">
                                             {lot.received_at ? dayjs(lot.received_at).format("YYYY-MM-DD") : "-"}
                                           </div>
                                         </div>
                                         <div className="flex items-center gap-1">
                                           <button
                                             onClick={() => handleOpenDetailModal(lot)}
-                                            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                            className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
                                             title="상세"
                                           >
                                             <Eye className="h-4 w-4" />
@@ -612,7 +611,7 @@ export default function InventoryLotsPage() {
                                           {lot.status === "available" && lot.current_quantity > 0 && (
                                             <button
                                               onClick={() => handleOpenSplitModal(lot)}
-                                              className="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded"
+                                              className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded"
                                               title="분할"
                                             >
                                               <Scissors className="h-4 w-4" />
@@ -632,7 +631,7 @@ export default function InventoryLotsPage() {
                   </tbody>
                 </table>
                 {filteredProducts.length > 0 && (
-                  <div className="px-4 py-3 bg-gray-50 border-t text-sm text-gray-500">
+                  <div className="px-4 py-3 bg-slate-50 border-t text-sm text-slate-400">
                     총 {filteredProducts.length}개 제품
                   </div>
                 )}
@@ -659,7 +658,7 @@ export default function InventoryLotsPage() {
                 <h3 className="text-base font-medium text-slate-800 mb-1">LOT가 없습니다</h3>
                 <button
                   onClick={() => setCreateModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 mt-4 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                  className="inline-flex items-center gap-2 px-4 py-2 mt-4 text-sm font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700"
                 >
                   <Plus className="h-4 w-4" />
                   새 LOT 등록
@@ -690,46 +689,46 @@ export default function InventoryLotsPage() {
                       return (
                         <tr key={lot.id} className="hover:bg-slate-50">
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-1 text-sm font-medium text-blue-600">
+                            <div className="flex items-center gap-1 text-sm font-medium text-sky-600">
                               <Hash className="h-3.5 w-3.5" />
                               {lot.lot_number}
                             </div>
                             {lot.source_lot && (
-                              <div className="text-xs text-gray-400 mt-0.5">
+                              <div className="text-xs text-slate-400 mt-0.5">
                                 원본: {lot.source_lot.lot_number}
                               </div>
                             )}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-slate-800">
                               {lot.product?.internal_name || "-"}
                             </div>
                             {lot.product?.internal_code && (
-                              <div className="text-xs text-gray-400">{lot.product.internal_code}</div>
+                              <div className="text-xs text-slate-400">{lot.product.internal_code}</div>
                             )}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <div className="flex items-baseline gap-1">
-                              <span className="text-lg font-bold text-gray-900">{lot.current_quantity}</span>
-                              <span className="text-sm text-gray-500">{unit}</span>
+                              <span className="text-lg font-bold text-slate-800">{lot.current_quantity}</span>
+                              <span className="text-sm text-slate-400">{unit}</span>
                             </div>
                           </td>
                           <td className="px-4 py-4">
-                            <div className="text-sm text-gray-700">{lot.spec_value || "-"}</div>
+                            <div className="text-sm text-slate-600">{lot.spec_value || "-"}</div>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700">
+                            <span className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-600">
                               {LOT_SOURCE_LABELS[lot.source_type as LotSourceType] || lot.source_type}
                             </span>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             {lot.location ? (
-                              <div className="flex items-center gap-1 text-sm text-gray-700">
-                                <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                              <div className="flex items-center gap-1 text-sm text-slate-600">
+                                <MapPin className="h-3.5 w-3.5 text-slate-400" />
                                 {lot.location}
                               </div>
                             ) : (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-slate-400">-</span>
                             )}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
@@ -738,8 +737,8 @@ export default function InventoryLotsPage() {
                             </span>
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-1 text-sm text-gray-600">
-                              <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                            <div className="flex items-center gap-1 text-sm text-slate-500">
+                              <Calendar className="h-3.5 w-3.5 text-slate-400" />
                               {lot.received_at ? dayjs(lot.received_at).format("YYYY-MM-DD") : "-"}
                             </div>
                           </td>
@@ -747,7 +746,7 @@ export default function InventoryLotsPage() {
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 onClick={() => handleOpenDetailModal(lot)}
-                                className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                className="p-1.5 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded"
                                 title="상세"
                               >
                                 <Eye className="h-4 w-4" />
@@ -755,7 +754,7 @@ export default function InventoryLotsPage() {
                               {canSplit && (
                                 <button
                                   onClick={() => handleOpenSplitModal(lot)}
-                                  className="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded"
+                                  className="p-1.5 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded"
                                   title="분할"
                                 >
                                   <Scissors className="h-4 w-4" />
@@ -765,7 +764,7 @@ export default function InventoryLotsPage() {
                                 <button
                                   onClick={() => handleDelete(lot)}
                                   disabled={isDeleting}
-                                  className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded disabled:opacity-50"
+                                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded disabled:opacity-50"
                                   title="폐기"
                                 >
                                   <Trash2 className="h-4 w-4" />

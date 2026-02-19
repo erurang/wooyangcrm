@@ -71,14 +71,14 @@ export default function ShippingTracker({
     <div className={`bg-white rounded-lg border ${compact ? "p-3" : "p-4"}`}>
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-medium text-gray-900 flex items-center gap-2">
-          <Truck size={18} className="text-blue-500" />
+        <h3 className="font-medium text-slate-800 flex items-center gap-2">
+          <Truck size={18} className="text-sky-500" />
           배송 추적
         </h3>
         {mode === "manage" && (
           <button
             onClick={() => setShowRegisterModal(true)}
-            className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            className="text-xs text-sky-600 hover:text-sky-800 flex items-center gap-1"
           >
             <Plus size={14} />
             수동 등록
@@ -91,7 +91,7 @@ export default function ShippingTracker({
         <select
           value={carrier}
           onChange={(e) => setCarrier(e.target.value as CarrierCode)}
-          className="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
         >
           <option value="">택배사 선택</option>
           <optgroup label="국내">
@@ -117,14 +117,14 @@ export default function ShippingTracker({
             onChange={(e) => setTrackingNumber(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="송장번호 입력"
-            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
           />
         </div>
 
         <button
           onClick={handleSearch}
           disabled={!carrier || !trackingNumber || isLoading}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           {isLoading ? (
             <RefreshCw size={16} className="animate-spin" />
@@ -144,7 +144,7 @@ export default function ShippingTracker({
             exit={{ opacity: 0 }}
             className="flex items-center justify-center py-8"
           >
-            <RefreshCw size={24} className="animate-spin text-blue-500" />
+            <RefreshCw size={24} className="animate-spin text-sky-500" />
           </motion.div>
         )}
 
@@ -158,7 +158,7 @@ export default function ShippingTracker({
             <p className="text-sm">조회에 실패했습니다.</p>
             <button
               onClick={handleSearch}
-              className="mt-2 text-xs text-blue-600 hover:underline"
+              className="mt-2 text-xs text-sky-600 hover:underline"
             >
               다시 시도
             </button>
@@ -172,17 +172,17 @@ export default function ShippingTracker({
             exit={{ opacity: 0 }}
           >
             {/* 요약 정보 */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 p-3 bg-slate-50 rounded-lg">
               <div>
-                <p className="text-xs text-gray-500">송장번호</p>
+                <p className="text-xs text-slate-400">송장번호</p>
                 <p className="font-medium text-sm">{tracking.trackingNumber}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">택배사</p>
+                <p className="text-xs text-slate-400">택배사</p>
                 <p className="font-medium text-sm">{tracking.carrierName}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">상태</p>
+                <p className="text-xs text-slate-400">상태</p>
                 <span
                   className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(tracking.status)}`}
                 >
@@ -191,7 +191,7 @@ export default function ShippingTracker({
               </div>
               {tracking.eta && (
                 <div>
-                  <p className="text-xs text-gray-500">예상 도착</p>
+                  <p className="text-xs text-slate-400">예상 도착</p>
                   <p className="font-medium text-sm flex items-center gap-1">
                     <Calendar size={12} />
                     {tracking.eta}
@@ -202,7 +202,7 @@ export default function ShippingTracker({
 
             {/* 출발지/도착지 */}
             {(tracking.origin || tracking.destination) && (
-              <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
+              <div className="flex items-center gap-2 mb-4 text-sm text-slate-500">
                 {tracking.origin && (
                   <span className="flex items-center gap-1">
                     <MapPin size={14} className="text-green-500" />
@@ -210,7 +210,7 @@ export default function ShippingTracker({
                   </span>
                 )}
                 {tracking.origin && tracking.destination && (
-                  <span className="text-gray-400">→</span>
+                  <span className="text-slate-400">→</span>
                 )}
                 {tracking.destination && (
                   <span className="flex items-center gap-1">
@@ -233,7 +233,7 @@ export default function ShippingTracker({
                 href={getTrackingUrl(tracking.carrier, tracking.trackingNumber)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                className="text-xs text-sky-600 hover:underline flex items-center gap-1"
               >
                 <ExternalLink size={12} />
                 택배사 사이트에서 확인
@@ -247,7 +247,7 @@ export default function ShippingTracker({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-center py-8 text-gray-500"
+            className="text-center py-8 text-slate-400"
           >
             <Package size={32} className="mx-auto mb-2 opacity-50" />
             <p className="text-sm">배송 정보가 없습니다.</p>
@@ -348,7 +348,7 @@ function ManualRegisterModal({
           <h3 className="font-semibold text-lg">배송 정보 수동 등록</h3>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded"
+            className="p-1 hover:bg-slate-100 rounded"
           >
             <X size={20} />
           </button>
@@ -357,7 +357,7 @@ function ManualRegisterModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-600 mb-1">
                 택배사 *
               </label>
               <select
@@ -377,7 +377,7 @@ function ManualRegisterModal({
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-600 mb-1">
                 상태
               </label>
               <select
@@ -400,7 +400,7 @@ function ManualRegisterModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               송장번호 *
             </label>
             <input
@@ -417,7 +417,7 @@ function ManualRegisterModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-600 mb-1">
                 출발지
               </label>
               <input
@@ -431,7 +431,7 @@ function ManualRegisterModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-600 mb-1">
                 도착지
               </label>
               <input
@@ -447,7 +447,7 @@ function ManualRegisterModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               예상 도착일
             </label>
             <input
@@ -468,14 +468,14 @@ function ManualRegisterModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              className="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg"
             >
               취소
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 disabled:opacity-50 flex items-center gap-2"
             >
               {isSubmitting && <RefreshCw size={14} className="animate-spin" />}
               등록

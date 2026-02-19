@@ -239,8 +239,8 @@ export default function DefaultApprovalLinesPage() {
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-50 rounded-lg">
-                <Users className="h-5 w-5 text-indigo-600" />
+              <div className="p-2 bg-sky-50 rounded-lg">
+                <Users className="h-5 w-5 text-sky-600" />
               </div>
               <div>
                 <h1 className="text-lg font-bold text-slate-800">
@@ -259,7 +259,7 @@ export default function DefaultApprovalLinesPage() {
       <div className="p-4 max-w-4xl mx-auto">
         {isLoading || categoriesLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin h-8 w-8 border-2 border-indigo-600 border-t-transparent rounded-full" />
+            <div className="animate-spin h-8 w-8 border-2 border-sky-600 border-t-transparent rounded-full" />
           </div>
         ) : categories.length === 0 ? (
           <motion.div
@@ -318,7 +318,7 @@ export default function DefaultApprovalLinesPage() {
                               e.stopPropagation();
                               openAddModal(category.id);
                             }}
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                             title="추가"
                           >
                             <Plus className="h-4 w-4" />
@@ -360,7 +360,7 @@ export default function DefaultApprovalLinesPage() {
                                   className="flex items-center gap-2 p-3 bg-white rounded-lg border border-slate-200"
                                 >
                                   <GripVertical className="h-4 w-4 text-slate-400 cursor-move" />
-                                  <span className="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                                  <span className="w-8 h-8 flex items-center justify-center bg-sky-100 text-sky-700 rounded-full text-sm font-medium">
                                     {line.line_order}
                                   </span>
 
@@ -413,7 +413,7 @@ export default function DefaultApprovalLinesPage() {
                             <div className="flex items-center justify-between mt-4">
                               <button
                                 onClick={addEditingLine}
-                                className="flex items-center gap-2 px-3 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50"
+                                className="flex items-center gap-2 px-3 py-2 text-sky-600 border border-sky-300 rounded-lg hover:bg-sky-50"
                               >
                                 <Plus className="h-4 w-4" />
                                 결재선 추가
@@ -429,7 +429,7 @@ export default function DefaultApprovalLinesPage() {
                                 <button
                                   onClick={saveEditing}
                                   disabled={isBulkUpdating}
-                                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                                  className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50"
                                 >
                                   <Save className="h-4 w-4" />
                                   {isBulkUpdating ? "저장 중..." : "저장"}
@@ -443,7 +443,7 @@ export default function DefaultApprovalLinesPage() {
                             <p className="text-sm">설정된 결재선이 없습니다</p>
                             <button
                               onClick={() => openAddModal(category.id)}
-                              className="mt-2 text-blue-600 text-sm hover:underline"
+                              className="mt-2 text-sky-600 text-sm hover:underline"
                             >
                               결재선 추가하기
                             </button>
@@ -457,17 +457,17 @@ export default function DefaultApprovalLinesPage() {
                                   key={line.id}
                                   className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg"
                                 >
-                                  <span className="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                                  <span className="w-8 h-8 flex items-center justify-center bg-sky-100 text-sky-700 rounded-full text-sm font-medium">
                                     {line.line_order}
                                   </span>
 
                                   <span
                                     className={`px-2 py-1 text-xs font-medium rounded ${
                                       line.line_type === "approval"
-                                        ? "bg-blue-100 text-blue-700"
+                                        ? "bg-sky-100 text-sky-700"
                                         : line.line_type === "review"
                                         ? "bg-yellow-100 text-yellow-700"
-                                        : "bg-gray-100 text-gray-600"
+                                        : "bg-slate-100 text-slate-500"
                                     }`}
                                   >
                                     {LINE_TYPE_LABELS[line.line_type]}
@@ -538,7 +538,7 @@ export default function DefaultApprovalLinesPage() {
                 <h3 className="text-lg font-semibold">결재선 추가</h3>
                 <button
                   onClick={() => setIsAddModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-500"
+                  className="text-slate-400 hover:text-slate-400"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -547,7 +547,7 @@ export default function DefaultApprovalLinesPage() {
               <div className="p-4 space-y-4">
                 {/* 결재자 타입 */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     결재자 유형
                   </label>
                   <HeadlessSelect
@@ -574,7 +574,7 @@ export default function DefaultApprovalLinesPage() {
 
                 {/* 결재자 선택 */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     결재자 {newLineData.approver_type === "position" ? "직급" : ""}
                   </label>
                   <HeadlessSelect
@@ -593,7 +593,7 @@ export default function DefaultApprovalLinesPage() {
 
                 {/* 결재선 유형 */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     결재선 유형
                   </label>
                   <div className="flex gap-2">
@@ -607,11 +607,11 @@ export default function DefaultApprovalLinesPage() {
                           className={`flex-1 px-3 py-2 text-sm rounded-lg border transition-colors ${
                             newLineData.line_type === type
                               ? type === "approval"
-                                ? "bg-blue-50 text-blue-700 border-blue-300"
+                                ? "bg-sky-50 text-sky-700 border-sky-300"
                                 : type === "review"
                                 ? "bg-yellow-50 text-yellow-700 border-yellow-300"
-                                : "bg-gray-50 text-gray-700 border-gray-300"
-                              : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                                : "bg-slate-50 text-slate-600 border-slate-300"
+                              : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
                           }`}
                         >
                           {LINE_TYPE_LABELS[type]}
@@ -633,21 +633,21 @@ export default function DefaultApprovalLinesPage() {
                         is_required: e.target.checked,
                       })
                     }
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-500"
                   />
                   <label
                     htmlFor="is_required"
-                    className="text-sm text-gray-700"
+                    className="text-sm text-slate-600"
                   >
                     필수 결재 (체크 해제 시 생략 가능)
                   </label>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 p-4 bg-gray-50 border-t">
+              <div className="flex justify-end gap-2 p-4 bg-slate-50 border-t">
                 <button
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
                   disabled={isCreating}
                 >
                   취소
@@ -655,7 +655,7 @@ export default function DefaultApprovalLinesPage() {
                 <button
                   onClick={handleAddLine}
                   disabled={isCreating || !newLineData.approver_value}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50"
                 >
                   {isCreating ? "추가 중..." : "추가"}
                 </button>

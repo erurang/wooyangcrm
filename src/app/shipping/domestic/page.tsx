@@ -39,9 +39,9 @@ type DomesticCarrierCode = keyof typeof DOMESTIC_CARRIERS;
 
 // 배송 상태 색상
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  pending: { bg: "bg-gray-100", text: "text-gray-600" },
-  picked_up: { bg: "bg-blue-100", text: "text-blue-600" },
-  in_transit: { bg: "bg-indigo-100", text: "text-indigo-600" },
+  pending: { bg: "bg-slate-100", text: "text-slate-500" },
+  picked_up: { bg: "bg-sky-100", text: "text-sky-600" },
+  in_transit: { bg: "bg-sky-100", text: "text-sky-600" },
   out_for_delivery: { bg: "bg-orange-100", text: "text-orange-600" },
   delivered: { bg: "bg-green-100", text: "text-green-600" },
   exception: { bg: "bg-red-100", text: "text-red-600" },
@@ -202,8 +202,8 @@ export default function DomesticShippingPage() {
             <Truck className="w-5 h-5 text-green-600" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">국내택배 배송현황</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-xl font-bold text-slate-800">국내택배 배송현황</h1>
+            <p className="text-sm text-slate-400">
               CJ대한통운, 로젠, 한진, 롯데 등 국내 택배 추적
             </p>
           </div>
@@ -233,20 +233,20 @@ export default function DomesticShippingPage() {
       {/* 통계 카드 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-xl border p-4">
-          <div className="text-sm text-gray-500 mb-1">전체</div>
-          <div className="text-2xl font-bold text-gray-900">{statusCounts.total}</div>
+          <div className="text-sm text-slate-400 mb-1">전체</div>
+          <div className="text-2xl font-bold text-slate-800">{statusCounts.total}</div>
         </div>
         <div className="bg-white rounded-xl border p-4">
-          <div className="text-sm text-gray-500 mb-1">배송중</div>
-          <div className="text-2xl font-bold text-indigo-600">{statusCounts.inTransit}</div>
+          <div className="text-sm text-slate-400 mb-1">배송중</div>
+          <div className="text-2xl font-bold text-sky-600">{statusCounts.inTransit}</div>
         </div>
         <div className="bg-white rounded-xl border p-4">
-          <div className="text-sm text-gray-500 mb-1">배송완료</div>
+          <div className="text-sm text-slate-400 mb-1">배송완료</div>
           <div className="text-2xl font-bold text-green-600">{statusCounts.delivered}</div>
         </div>
         <div className="bg-white rounded-xl border p-4">
-          <div className="text-sm text-gray-500 mb-1">조회대기</div>
-          <div className="text-2xl font-bold text-gray-600">{statusCounts.pending}</div>
+          <div className="text-sm text-slate-400 mb-1">조회대기</div>
+          <div className="text-2xl font-bold text-slate-500">{statusCounts.pending}</div>
         </div>
       </div>
 
@@ -254,7 +254,7 @@ export default function DomesticShippingPage() {
       <div className="mb-6 space-y-3">
         {/* 날짜 필터 */}
         <div className="flex flex-wrap items-center gap-3 p-3 bg-white rounded-lg border">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="flex items-center gap-2 text-sm text-slate-500">
             <Calendar className="w-4 h-4" />
             <span>기간</span>
           </div>
@@ -265,7 +265,7 @@ export default function DomesticShippingPage() {
               onChange={(e) => setStartDate(e.target.value)}
               className="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
-            <span className="text-gray-400">~</span>
+            <span className="text-slate-400">~</span>
             <input
               type="date"
               value={endDate}
@@ -279,7 +279,7 @@ export default function DomesticShippingPage() {
               setStartDate(range.startDate);
               setEndDate(range.endDate);
             }}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
           >
             최근 1달
           </button>
@@ -291,7 +291,7 @@ export default function DomesticShippingPage() {
               setStartDate(getDateString(startDate));
               setEndDate(getDateString(endDate));
             }}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="px-3 py-1.5 text-sm text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
           >
             최근 3달
           </button>
@@ -299,7 +299,7 @@ export default function DomesticShippingPage() {
 
         {/* 검색 */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="송장번호, 메모로 검색..."
@@ -314,7 +314,7 @@ export default function DomesticShippingPage() {
       {trackingsLoading && (
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="w-6 h-6 text-green-600 animate-spin" />
-          <span className="ml-3 text-gray-500">목록 불러오는 중...</span>
+          <span className="ml-3 text-slate-400">목록 불러오는 중...</span>
         </div>
       )}
 
@@ -323,27 +323,27 @@ export default function DomesticShippingPage() {
         <div className="bg-white rounded-xl border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-slate-50 border-b">
                 <tr>
-                  <th className="text-center py-3 px-3 text-xs font-semibold text-gray-600 w-12">
+                  <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 w-12">
                     #
                   </th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                     택배사
                   </th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                     송장번호
                   </th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                     상태
                   </th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                     최근 위치
                   </th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                     상품명
                   </th>
-                  <th className="text-center py-3 px-4 text-xs font-semibold text-gray-600">
+                  <th className="text-center py-3 px-4 text-xs font-semibold text-slate-500">
                     액션
                   </th>
                 </tr>
@@ -351,8 +351,8 @@ export default function DomesticShippingPage() {
               <tbody>
                 {filteredTrackings.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-gray-500">
-                      <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <td colSpan={7} className="py-12 text-center text-slate-400">
+                      <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                       <p>
                         {searchTerm
                           ? "검색 결과가 없습니다."
@@ -385,13 +385,13 @@ export default function DomesticShippingPage() {
                               fetchTrackingStatus(tracking);
                             }
                           }}
-                          className={`hover:bg-gray-50 transition-colors cursor-pointer border-b ${isExpanded ? "bg-green-50" : ""}`}
+                          className={`hover:bg-slate-50 transition-colors cursor-pointer border-b ${isExpanded ? "bg-green-50" : ""}`}
                         >
-                          <td className="py-3 px-3 text-center text-sm text-gray-500 font-medium">
+                          <td className="py-3 px-3 text-center text-sm text-slate-400 font-medium">
                             {index + 1}
                           </td>
                           <td className="py-3 px-4">
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-medium text-slate-600">
                               {DOMESTIC_CARRIERS[tracking.carrier_code as DomesticCarrierCode] || tracking.carrier_code || "CJ대한통운"}
                             </span>
                           </td>
@@ -400,16 +400,16 @@ export default function DomesticShippingPage() {
                               <div
                                 className={`transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
                               >
-                                <ChevronRight className="w-4 h-4 text-gray-400" />
+                                <ChevronRight className="w-4 h-4 text-slate-400" />
                               </div>
-                              <span className="font-mono font-semibold text-gray-900">
+                              <span className="font-mono font-semibold text-slate-800">
                                 {tracking.tracking_number}
                               </span>
                             </div>
                           </td>
                           <td className="py-3 px-4">
                             {!result && isRefreshing ? (
-                              <span className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-500">
+                              <span className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-400">
                                 <RefreshCw className="w-3 h-3 animate-spin" />
                                 조회중
                               </span>
@@ -426,21 +426,21 @@ export default function DomesticShippingPage() {
                               </span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-sm text-gray-600">
+                          <td className="py-3 px-4 text-sm text-slate-500">
                             {!result && isRefreshing ? (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-slate-400">-</span>
                             ) : lastEvent ? (
                               <div className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3 text-gray-400" />
+                                <MapPin className="w-3 h-3 text-slate-400" />
                                 {lastEvent.location || "-"}
                               </div>
                             ) : (
                               "-"
                             )}
                           </td>
-                          <td className="py-3 px-4 text-sm text-gray-700 max-w-[180px] truncate">
+                          <td className="py-3 px-4 text-sm text-slate-600 max-w-[180px] truncate">
                             {!result && isRefreshing ? (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-slate-400">-</span>
                             ) : (
                               result?.itemName || "-"
                             )}
@@ -452,14 +452,14 @@ export default function DomesticShippingPage() {
                                   e.stopPropagation();
                                   fetchTrackingStatus(tracking);
                                 }}
-                                className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
                                 title="새로고침"
                               >
                                 <RefreshCw className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={(e) => handleDelete(tracking.id, e)}
-                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                                 title="삭제"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -470,7 +470,7 @@ export default function DomesticShippingPage() {
                         {/* 확장된 상세 정보 */}
                         {isExpanded && (
                           <tr>
-                            <td colSpan={7} className="p-0 bg-gray-50 border-b">
+                            <td colSpan={7} className="p-0 bg-slate-50 border-b">
                               <TrackingDetailPanel
                                 trackingNumber={tracking.tracking_number}
                                 result={result}
@@ -517,7 +517,7 @@ function TrackingDetailPanel({
     return (
       <div className="flex items-center justify-center py-8">
         <RefreshCw className="w-5 h-5 text-green-600 animate-spin" />
-        <span className="ml-2 text-gray-500 text-sm">배송 정보 조회 중...</span>
+        <span className="ml-2 text-slate-400 text-sm">배송 정보 조회 중...</span>
       </div>
     );
   }
@@ -540,7 +540,7 @@ function TrackingDetailPanel({
             className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-full ${
               result.status === "delivered"
                 ? "bg-green-100 text-green-700"
-                : "bg-indigo-100 text-indigo-700"
+                : "bg-sky-100 text-sky-700"
             }`}
           >
             {result.status === "delivered" ? <Check className="w-4 h-4" /> : <Truck className="w-4 h-4" />}
@@ -555,26 +555,26 @@ function TrackingDetailPanel({
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-          <div className="bg-gray-50 rounded-lg p-2">
-            <span className="text-gray-400 text-xs block">택배사</span>
-            <span className="font-medium text-gray-700">{result.carrierName}</span>
+          <div className="bg-slate-50 rounded-lg p-2">
+            <span className="text-slate-400 text-xs block">택배사</span>
+            <span className="font-medium text-slate-600">{result.carrierName}</span>
           </div>
           {result.itemName && (
-            <div className="bg-gray-50 rounded-lg p-2">
-              <span className="text-gray-400 text-xs block">상품명</span>
-              <span className="font-medium text-gray-700">{result.itemName}</span>
+            <div className="bg-slate-50 rounded-lg p-2">
+              <span className="text-slate-400 text-xs block">상품명</span>
+              <span className="font-medium text-slate-600">{result.itemName}</span>
             </div>
           )}
           {result.receiverName && (
-            <div className="bg-gray-50 rounded-lg p-2">
-              <span className="text-gray-400 text-xs block">수령인</span>
-              <span className="font-medium text-gray-700">{result.receiverName}</span>
+            <div className="bg-slate-50 rounded-lg p-2">
+              <span className="text-slate-400 text-xs block">수령인</span>
+              <span className="font-medium text-slate-600">{result.receiverName}</span>
             </div>
           )}
           {result.estimate && (
-            <div className="bg-gray-50 rounded-lg p-2">
-              <span className="text-gray-400 text-xs block">예상 도착</span>
-              <span className="font-medium text-gray-700">{result.estimate}</span>
+            <div className="bg-slate-50 rounded-lg p-2">
+              <span className="text-slate-400 text-xs block">예상 도착</span>
+              <span className="font-medium text-slate-600">{result.estimate}</span>
             </div>
           )}
         </div>
@@ -582,8 +582,8 @@ function TrackingDetailPanel({
 
       {/* 타임라인 */}
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-          <Clock className="w-4 h-4 text-gray-400" />
+        <h4 className="text-sm font-medium text-slate-600 mb-3 flex items-center gap-2">
+          <Clock className="w-4 h-4 text-slate-400" />
           배송 이력
         </h4>
         <div className="max-h-72 overflow-y-auto">
@@ -606,10 +606,10 @@ function TrackingDetailPanel({
                         }`}
                       />
                       <div className="flex-1 min-w-0">
-                        <div className={`text-sm ${isLatest ? "font-semibold text-gray-900" : "text-gray-700"}`}>
+                        <div className={`text-sm ${isLatest ? "font-semibold text-slate-800" : "text-slate-600"}`}>
                           {event.description}
                         </div>
-                        <div className="text-xs text-gray-500 flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5">
+                        <div className="text-xs text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {event.date} {event.time}
@@ -633,7 +633,7 @@ function TrackingDetailPanel({
               </div>
             </div>
           ) : (
-            <div className="text-center py-4 text-gray-400 text-sm">
+            <div className="text-center py-4 text-slate-400 text-sm">
               <Info className="w-5 h-5 mx-auto mb-1" />
               배송 이력이 없습니다.
             </div>
@@ -691,12 +691,12 @@ function AddDomesticTrackingModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-sm">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-slate-800">
             국내택배 송장 등록
           </h2>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600 rounded"
+            className="p-1 text-slate-400 hover:text-slate-500 rounded"
           >
             <X className="w-5 h-5" />
           </button>
@@ -711,7 +711,7 @@ function AddDomesticTrackingModal({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               택배사 <span className="text-red-500">*</span>
             </label>
             <select
@@ -728,7 +728,7 @@ function AddDomesticTrackingModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               송장번호 <span className="text-red-500">*</span>
             </label>
             <input
@@ -739,7 +739,7 @@ function AddDomesticTrackingModal({
               className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono"
               autoFocus
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-slate-400">
               송장번호를 입력하세요 (숫자만)
             </p>
           </div>
@@ -748,7 +748,7 @@ function AddDomesticTrackingModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
             >
               취소
             </button>

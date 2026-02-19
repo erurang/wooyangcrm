@@ -48,9 +48,9 @@ export default function ChatRoomInfo({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* 헤더 */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 border-b border-slate-200">
         <h2 className="text-lg font-semibold">대화방 정보</h2>
-        <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600">
+        <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-500">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -59,7 +59,7 @@ export default function ChatRoomInfo({
 
       <div className="flex-1 overflow-y-auto">
         {/* 대화방 이미지/이름 */}
-        <div className="p-6 flex flex-col items-center border-b border-gray-200">
+        <div className="p-6 flex flex-col items-center border-b border-slate-200">
           {room.type === "direct" && room.other_user?.profile_image ? (
             <img
               src={room.other_user.profile_image}
@@ -71,7 +71,7 @@ export default function ChatRoomInfo({
               className={`w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-semibold mb-3 ${
                 room.type === "group"
                   ? "bg-gradient-to-br from-purple-500 to-pink-500"
-                  : "bg-gradient-to-br from-blue-500 to-cyan-500"
+                  : "bg-gradient-to-br from-sky-500 to-sky-500"
               }`}
             >
               {room.type === "group" ? (
@@ -90,7 +90,7 @@ export default function ChatRoomInfo({
                 type="text"
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-1.5 border border-slate-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-sky-500"
                 autoFocus
               />
               <button
@@ -107,7 +107,7 @@ export default function ChatRoomInfo({
                   setIsEditing(false);
                   setRoomName(room.name || "");
                 }}
-                className="p-1.5 text-gray-400 hover:bg-gray-100 rounded"
+                className="p-1.5 text-slate-400 hover:bg-slate-100 rounded"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -116,11 +116,11 @@ export default function ChatRoomInfo({
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <h3 className="text-xl font-semibold text-gray-900">{displayName}</h3>
+              <h3 className="text-xl font-semibold text-slate-800">{displayName}</h3>
               {isAdmin && room.type === "group" && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="p-1 text-gray-400 hover:text-gray-600"
+                  className="p-1 text-slate-400 hover:text-slate-500"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -131,7 +131,7 @@ export default function ChatRoomInfo({
           )}
 
           {room.type === "group" && (
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-slate-400 mt-1">
               참여자 {room.participants?.length || 0}명
             </p>
           )}
@@ -141,10 +141,10 @@ export default function ChatRoomInfo({
         {room.type === "group" && (
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium text-gray-900">참여자</h4>
+              <h4 className="font-medium text-slate-800">참여자</h4>
               <button
                 onClick={onInvite}
-                className="text-sm text-blue-600 hover:text-blue-700"
+                className="text-sm text-sky-600 hover:text-sky-700"
               >
                 + 초대하기
               </button>
@@ -153,7 +153,7 @@ export default function ChatRoomInfo({
               {room.participants?.map((participant: ChatParticipantWithUser) => (
                 <div
                   key={participant.id}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50"
                 >
                   {participant.user?.profile_image ? (
                     <img
@@ -162,25 +162,25 @@ export default function ChatRoomInfo({
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-sm font-semibold">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-sky-500 flex items-center justify-center text-white text-sm font-semibold">
                       {participant.user?.name?.slice(0, 2) || "?"}
                     </div>
                   )}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-slate-800">
                         {participant.user?.name}
                         {participant.user_id === currentUserId && (
-                          <span className="text-gray-400 text-sm ml-1">(나)</span>
+                          <span className="text-slate-400 text-sm ml-1">(나)</span>
                         )}
                       </span>
                       {participant.role === "admin" && (
-                        <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
+                        <span className="px-1.5 py-0.5 bg-sky-100 text-sky-700 text-xs rounded">
                           관리자
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-400">
                       {participant.user?.position}
                     </p>
                   </div>
@@ -193,22 +193,22 @@ export default function ChatRoomInfo({
         {/* 1:1 대화 상대방 정보 */}
         {room.type === "direct" && room.other_user && (
           <div className="p-4">
-            <h4 className="font-medium text-gray-900 mb-3">상대방 정보</h4>
+            <h4 className="font-medium text-slate-800 mb-3">상대방 정보</h4>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-500">이름</span>
-                <span className="text-gray-900">{room.other_user.name}</span>
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span className="text-slate-400">이름</span>
+                <span className="text-slate-800">{room.other_user.name}</span>
               </div>
               {room.other_user.position && (
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-500">직책</span>
-                  <span className="text-gray-900">{room.other_user.position}</span>
+                <div className="flex justify-between py-2 border-b border-slate-100">
+                  <span className="text-slate-400">직책</span>
+                  <span className="text-slate-800">{room.other_user.position}</span>
                 </div>
               )}
               {room.other_user.level && (
-                <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-500">직급</span>
-                  <span className="text-gray-900">{room.other_user.level}</span>
+                <div className="flex justify-between py-2 border-b border-slate-100">
+                  <span className="text-slate-400">직급</span>
+                  <span className="text-slate-800">{room.other_user.level}</span>
                 </div>
               )}
             </div>
@@ -217,16 +217,16 @@ export default function ChatRoomInfo({
       </div>
 
       {/* 하단 버튼 */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-slate-200">
         {showLeaveConfirm ? (
           <div className="space-y-2">
-            <p className="text-sm text-gray-600 text-center mb-3">
+            <p className="text-sm text-slate-500 text-center mb-3">
               정말 대화방을 나가시겠습니까?
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowLeaveConfirm(false)}
-                className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="flex-1 py-2 border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50"
               >
                 취소
               </button>

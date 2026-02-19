@@ -57,13 +57,13 @@ export default function ViewersModal({
         {/* 헤더 */}
         <div className="flex items-center justify-between p-4 border-b shrink-0">
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Eye className="w-5 h-5 text-blue-600" />
+            <Eye className="w-5 h-5 text-sky-600" />
             조회자 목록
-            <span className="text-sm font-normal text-gray-500">({total}명)</span>
+            <span className="text-sm font-normal text-slate-400">({total}명)</span>
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 hover:bg-slate-100 rounded-full transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -73,30 +73,30 @@ export default function ViewersModal({
         <div className="flex-1 overflow-y-auto p-4">
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-sky-500" />
             </div>
           ) : viewers.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Eye className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-8 text-slate-400">
+              <Eye className="w-12 h-12 mx-auto mb-4 text-slate-300" />
               <p>아직 조회자가 없습니다.</p>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-slate-100">
               {viewers.map((viewer) => (
                 <li key={viewer.id} className="py-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium">
+                  <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 font-medium">
                     {viewer.user?.name?.charAt(0) || <User className="w-4 h-4" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">
+                    <p className="font-medium text-slate-800 truncate">
                       {viewer.user?.name || "알 수 없음"}
                       {viewer.user?.level && (
-                        <span className="ml-1 text-sm text-gray-500">
+                        <span className="ml-1 text-sm text-slate-400">
                           {viewer.user.level}
                         </span>
                       )}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-slate-400">
                       {dayjs(viewer.viewed_at).format("YYYY-MM-DD HH:mm")}
                     </p>
                   </div>
@@ -112,17 +112,17 @@ export default function ViewersModal({
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm text-slate-500 hover:bg-slate-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             >
               이전
             </button>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-slate-400">
               {page} / {totalPages}
             </span>
             <button
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm text-slate-500 hover:bg-slate-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             >
               다음
             </button>
@@ -133,7 +133,7 @@ export default function ViewersModal({
         <div className="flex justify-end p-4 border-t shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            className="px-4 py-2 text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
           >
             닫기
           </button>

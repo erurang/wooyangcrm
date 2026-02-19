@@ -313,11 +313,11 @@ export default function ProductMappingPage() {
   const getDocTypeLabel = (type: string) => {
     switch (type) {
       case "order":
-        return { label: "발주", color: "bg-blue-100 text-blue-700" };
+        return { label: "발주", color: "bg-sky-100 text-sky-700" };
       case "estimate":
         return { label: "견적", color: "bg-green-100 text-green-700" };
       default:
-        return { label: type, color: "bg-gray-100 text-gray-700" };
+        return { label: type, color: "bg-slate-100 text-slate-600" };
     }
   };
 
@@ -370,9 +370,9 @@ export default function ProductMappingPage() {
             <div className="text-xs text-orange-600 mb-1">2018년 이후 미연결</div>
             <div className="text-xl font-bold text-orange-600">{stats.total.toLocaleString()}개</div>
           </div>
-          <div className="rounded-lg border border-blue-200 p-3 bg-blue-50">
-            <div className="text-xs text-blue-600 mb-1">발주서 (매입)</div>
-            <div className="text-xl font-bold text-blue-700">{stats.order.toLocaleString()}개</div>
+          <div className="rounded-lg border border-sky-200 p-3 bg-sky-50">
+            <div className="text-xs text-sky-600 mb-1">발주서 (매입)</div>
+            <div className="text-xl font-bold text-sky-700">{stats.order.toLocaleString()}개</div>
           </div>
           <div className="rounded-lg border border-green-200 p-3 bg-green-50">
             <div className="text-xs text-green-600 mb-1">견적서 (매출)</div>
@@ -535,13 +535,13 @@ export default function ProductMappingPage() {
                             <div className="col-span-1">
                               <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
                                 item.document?.type === "order"
-                                  ? "bg-blue-100 text-blue-700"
+                                  ? "bg-sky-100 text-sky-700"
                                   : "bg-green-100 text-green-700"
                               }`}>
                                 {item.document?.type === "order" ? "발주" : "견적"}
                               </span>
                             </div>
-                            <div className="col-span-2 font-mono text-blue-600 text-xs truncate">
+                            <div className="col-span-2 font-mono text-sky-600 text-xs truncate">
                               {item.document?.document_number || "-"}
                             </div>
                             <div className="col-span-1 text-slate-500 text-xs">
@@ -764,7 +764,7 @@ export default function ProductMappingPage() {
               <div className="bg-slate-50 rounded-lg p-4 space-y-3">
                 {/* 문서 품목 정보 (왼쪽: 거래처 품목명) */}
                 <div className="bg-white rounded-lg p-3 border border-slate-200">
-                  <div className="text-xs text-blue-600 font-medium mb-1">
+                  <div className="text-xs text-sky-600 font-medium mb-1">
                     📄 문서에 적힌 품목명 ({selectedGroup.count}건)
                   </div>
                   <div className="font-semibold text-slate-900 text-lg">
@@ -814,9 +814,9 @@ export default function ProductMappingPage() {
                 </div>
               </div>
 
-              <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
+              <div className="bg-sky-50 rounded-lg p-3 text-xs text-sky-700">
                 <div className="font-medium mb-1">💡 연결 후 동작</div>
-                <ul className="space-y-0.5 text-blue-600">
+                <ul className="space-y-0.5 text-sky-600">
                   <li>• <strong>발주서</strong> 입고 완료 시 → "{pendingLinkProduct.internal_name}" 재고 <span className="text-green-600 font-medium">증가</span></li>
                   <li>• <strong>견적서</strong> 출고 완료 시 → "{pendingLinkProduct.internal_name}" 재고 <span className="text-red-600 font-medium">감소</span></li>
                 </ul>

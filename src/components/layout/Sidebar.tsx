@@ -32,7 +32,6 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
   const { favorites, isLoading: favLoading } = useFavorites(user?.id);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
-  // Build menu based on user role, position, team's allowed_menus, and role-based sidebar permissions
   const menuItems = buildSidebarMenu(
     user?.id,
     user?.role,
@@ -41,7 +40,6 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
     user?.sidebarPermissions
   );
 
-  // Build favorites menu
   const favoritesMenu: SidebarMenuItem | null =
     !favLoading && favorites && favorites.length > 0
       ? {
@@ -67,10 +65,8 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
     ? [favoritesMenu, ...menuItems]
     : menuItems;
 
-  // Refs for menu items to scroll into view
   const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
-  // Toggle submenu expansion with scroll into view
   const toggleMenu = (menuId: string) => {
     const isCurrentlyExpanded = expandedMenus.includes(menuId);
 
@@ -80,18 +76,16 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
         : [...prev, menuId]
     );
 
-    // Scroll into view when expanding (after animation)
     if (!isCurrentlyExpanded) {
       setTimeout(() => {
         const element = menuRefs.current[menuId];
         if (element) {
           element.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
-      }, 250); // Wait for animation to complete
+      }, 250);
     }
   };
 
-  // Check if path matches current route
   const isActivePath = (path: string): boolean => {
     const [basePath, queryString] = path.split("?");
 
@@ -108,12 +102,10 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
     return true;
   };
 
-  // Check if any subitem is active
   const hasActiveSubItem = (subItems: SidebarSubItem[]): boolean => {
     return subItems.some((sub) => isActivePath(sub.path));
   };
 
-  // Auto-expand menus with active items
   useEffect(() => {
     const activeMenus: string[] = [];
     allMenuItems.forEach((menu) => {
@@ -126,7 +118,6 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
     }
   }, [pathname, searchParams]);
 
-  // Open Naver Works
   const openWorksWindow = () => {
     if (!user?.worksEmail) return;
     window.open(
@@ -140,42 +131,42 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
     <aside
       className={`
         fixed left-0 top-0 h-full z-40
-        bg-white border-r border-gray-200
+        bg-sidebar-bg
         transition-all duration-300 ease-in-out
         hidden lg:flex flex-col
         ${isExpanded ? "w-60" : "w-16"}
       `}
     >
       {/* Logo & Toggle */}
-      <div className="flex items-center justify-between h-14 px-3 border-b border-gray-200">
-        <Link
-          href="/dashboard"
-          className="font-bold text-gray-800 tracking-tight whitespace-nowrap hover:text-indigo-600 transition-colors"
-        >
-          WOOYANG CRM
-        </Link>
-        {/* {isExpanded ? (
-          <span className="font-bold text-gray-800 tracking-tight whitespace-nowrap">
+      <div className="flex items-center justify-between h-14 px-3 border-b border-white/10">
+        {isExpanded ? (
+          <Link
+            href="/dashboard"
+            className="font-bold text-white tracking-tight whitespace-nowrap hover:text-sky-400 transition-colors duration-200"
+          >
             WOOYANG CRM
-          </span>
+          </Link>
         ) : (
-          <span className="font-bold text-gray-800 text-lg mx-auto">W</span>
+          <Link
+            href="/dashboard"
+            className="font-bold text-white text-lg mx-auto hover:text-sky-400 transition-colors duration-200"
+          >
+            W
+          </Link>
         )}
-        <button
-          onClick={onToggle}
-          className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-          title={isExpanded ? "접기" : "펼치기"}
-        >
-          {isExpanded ? (
-            <ChevronLeft className="w-4 h-4" />
-          ) : (
-            <ChevronRight className="w-4 h-4" />
-          )}
-        </button> */}
+        {isExpanded && (
+          <>
+            {process.env.NODE_ENV === "development" && (
+              <span className="px-1.5 py-0.5 bg-red-500/90 text-white text-[10px] font-bold rounded">
+                DEV
+              </span>
+            )}
+          </>
+        )}
       </div>
 
       {/* Menu Items */}
-      <nav className="flex-1 overflow-y-auto py-2">
+      <nav className="flex-1 overflow-y-auto py-3 scrollbar-hide">
         {allMenuItems.map((menu) => {
           const Icon = menu.icon;
           const isMenuExpanded = expandedMenus.includes(menu.id);
@@ -191,38 +182,36 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
               ref={(el) => {
                 menuRefs.current[menu.id] = el;
               }}
-              className="px-2 mb-1"
+              className="px-2 mb-0.5"
             >
               {/* Menu Header */}
               {menu.path && !menu.subItems ? (
-                // Direct link menu (no sub-items)
                 <Link
                   href={menu.path}
                   className={`
-                    w-full flex items-center rounded-md
-                    transition-colors duration-150
-                    ${isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center"}
+                    w-full flex items-center rounded-lg cursor-pointer
+                    transition-all duration-200
+                    ${isExpanded ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
                     ${
                       hasActiveItem
-                        ? "bg-indigo-50 text-indigo-600"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        ? "bg-sidebar-active text-white shadow-md shadow-sky-900/30"
+                        : "text-sidebar-text hover:bg-sidebar-hover hover:text-white"
                     }
                   `}
                   title={!isExpanded ? menu.title : undefined}
                 >
                   <Icon
-                    className={`w-5 h-5 flex-shrink-0 ${
-                      hasActiveItem ? "text-indigo-600" : "text-gray-500"
+                    className={`w-[18px] h-[18px] flex-shrink-0 ${
+                      hasActiveItem ? "text-white" : ""
                     }`}
                   />
                   {isExpanded && (
-                    <span className="ml-3 text-sm font-medium truncate flex-1 text-left">
+                    <span className="ml-3 text-[13px] font-medium truncate flex-1 text-left">
                       {menu.title}
                     </span>
                   )}
                 </Link>
               ) : (
-                // Expandable menu with subItems
                 <button
                   onClick={() => {
                     if (menu.subItems) {
@@ -230,30 +219,30 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                     }
                   }}
                   className={`
-                    w-full flex items-center rounded-md
-                    transition-colors duration-150
-                    ${isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center"}
+                    w-full flex items-center rounded-lg cursor-pointer
+                    transition-all duration-200
+                    ${isExpanded ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"}
                     ${
                       hasActiveItem
-                        ? "bg-indigo-50 text-indigo-600"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        ? "bg-sidebar-hover text-white"
+                        : "text-sidebar-text hover:bg-sidebar-hover hover:text-white"
                     }
                   `}
                   title={!isExpanded ? menu.title : undefined}
                 >
                   <Icon
-                    className={`w-5 h-5 flex-shrink-0 ${
-                      hasActiveItem ? "text-indigo-600" : "text-gray-500"
+                    className={`w-[18px] h-[18px] flex-shrink-0 ${
+                      hasActiveItem ? "text-sky-400" : ""
                     }`}
                   />
                   {isExpanded && (
                     <>
-                      <span className="ml-3 text-sm font-medium truncate flex-1 text-left">
+                      <span className="ml-3 text-[13px] font-medium truncate flex-1 text-left">
                         {menu.title}
                       </span>
                       {menu.subItems && (
                         <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
+                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
                             isMenuExpanded ? "rotate-180" : ""
                           }`}
                         />
@@ -277,7 +266,7 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                       {menu.id === "board" ? (
                         <BoardDropdown isExpanded={isMenuExpanded} />
                       ) : (
-                        <div className="ml-5 mt-1 space-y-0.5 border-l border-gray-200 pl-3">
+                        <div className="ml-5 mt-1 space-y-0.5 border-l border-white/10 pl-3">
                           {menu.subItems.map((sub) => {
                             const isActive = isActivePath(sub.path);
                             const isWorksLink = sub.id === "works";
@@ -287,10 +276,10 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                                 <button
                                   key={sub.id}
                                   onClick={openWorksWindow}
-                                  className="w-full flex items-center px-2 py-1.5 text-sm rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                                  className="w-full flex items-center px-2 py-1.5 text-[13px] rounded-md text-sidebar-text hover:bg-sidebar-hover hover:text-white transition-colors duration-150 cursor-pointer"
                                 >
                                   <span className="truncate">{sub.title}</span>
-                                  <ExternalLink className="w-3 h-3 ml-1 flex-shrink-0" />
+                                  <ExternalLink className="w-3 h-3 ml-1 flex-shrink-0 opacity-50" />
                                 </button>
                               );
                             }
@@ -300,12 +289,12 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                                 key={sub.id}
                                 href={sub.path}
                                 className={`
-                                  flex items-center justify-between px-2 py-1.5 text-sm rounded-md
-                                  transition-colors duration-150
+                                  flex items-center justify-between px-2 py-1.5 text-[13px] rounded-md
+                                  transition-colors duration-150 cursor-pointer
                                   ${
                                     isActive
-                                      ? "bg-indigo-100 text-indigo-700 font-medium"
-                                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                      ? "bg-sidebar-active/80 text-white font-medium"
+                                      : "text-sidebar-text hover:bg-sidebar-hover hover:text-white"
                                   }
                                 `}
                               >
@@ -324,8 +313,8 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
               {!isExpanded && menu.subItems && (
                 <div className="group relative">
                   <div className="absolute left-full top-0 ml-2 hidden group-hover:block z-50">
-                    <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-48">
-                      <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <div className="bg-white rounded-xl shadow-crm-xl border border-slate-100 py-2 min-w-48">
+                      <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                         {menu.title}
                       </div>
                       {menu.subItems.map((sub) => {
@@ -337,10 +326,10 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                             <button
                               key={sub.id}
                               onClick={openWorksWindow}
-                              className="w-full flex items-center px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                              className="w-full flex items-center px-3 py-2 text-sm text-slate-500 hover:bg-slate-50 hover:text-slate-800 cursor-pointer transition-colors duration-150"
                             >
                               <span>{sub.title}</span>
-                              <ExternalLink className="w-3 h-3 ml-1" />
+                              <ExternalLink className="w-3 h-3 ml-1 opacity-40" />
                             </button>
                           );
                         }
@@ -350,11 +339,12 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
                             key={sub.id}
                             href={sub.path}
                             className={`
-                              flex items-center justify-between px-3 py-1.5 text-sm
+                              flex items-center justify-between px-3 py-2 text-sm cursor-pointer
+                              transition-colors duration-150
                               ${
                                 isActive
-                                  ? "bg-indigo-50 text-indigo-700 font-medium"
-                                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                  ? "bg-sky-50 text-sky-700 font-medium"
+                                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                               }
                             `}
                           >
@@ -373,20 +363,20 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
 
       {/* User Info */}
       {user && (
-        <div className="border-t border-gray-200 p-2">
+        <div className="border-t border-white/10 p-2">
           <Link
             href="/profile"
             className={`
-              flex items-center rounded-md transition-colors duration-150
-              hover:bg-indigo-50
-              ${isExpanded ? "px-3 py-2 gap-3" : "justify-center py-2"}
-              ${pathname.startsWith("/profile") ? "bg-indigo-50" : ""}
+              flex items-center rounded-lg transition-all duration-200 cursor-pointer
+              hover:bg-sidebar-hover
+              ${isExpanded ? "px-3 py-2.5 gap-3" : "justify-center py-2.5"}
+              ${pathname.startsWith("/profile") ? "bg-sidebar-hover" : ""}
             `}
             title={!isExpanded ? `${user.name} ${user.level} - 마이페이지` : undefined}
           >
             <div
               className={`
-                rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-sm flex-shrink-0
+                rounded-full bg-sky-600 flex items-center justify-center text-white font-medium text-sm flex-shrink-0
                 ${isExpanded ? "w-8 h-8" : "w-10 h-10"}
               `}
             >
@@ -394,10 +384,10 @@ export default function Sidebar({ isExpanded, onToggle }: SidebarProps) {
             </div>
             {isExpanded && (
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">
+                <div className="text-[13px] font-medium text-white truncate">
                   {user.name} {user.level}
                 </div>
-                <div className="text-xs text-gray-500">마이페이지</div>
+                <div className="text-[11px] text-sidebar-text">마이페이지</div>
               </div>
             )}
           </Link>

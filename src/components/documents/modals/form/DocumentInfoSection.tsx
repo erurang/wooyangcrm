@@ -126,8 +126,8 @@ export default function DocumentInfoSection({
   // 발주서 전용 레이아웃
   if (type === "order") {
     return (
-      <div className="bg-gray-50 p-4 sm:p-5 rounded-xl">
-        <div className="flex items-center gap-2 mb-3 sm:mb-4 text-gray-800">
+      <div className="bg-slate-50 p-4 sm:p-5 rounded-xl">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4 text-slate-700">
           <FileText className={`h-5 w-5 ${iconColor}`} />
           <h4 className="text-base sm:text-lg font-semibold">문서 정보</h4>
         </div>
@@ -136,7 +136,7 @@ export default function DocumentInfoSection({
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
           {/* 담당자명 */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               담당자명 <span className="text-red-500">*</span>
             </label>
             <HeadlessSelect
@@ -159,7 +159,7 @@ export default function DocumentInfoSection({
 
           {/* 발주자 */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               발주자
             </label>
             {isAddMode ? (
@@ -179,12 +179,12 @@ export default function DocumentInfoSection({
               />
             ) : (
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                 <input
                   disabled
                   type="text"
                   value={user?.name}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-100 border border-slate-300 rounded-lg text-sm"
                 />
               </div>
             )}
@@ -192,7 +192,7 @@ export default function DocumentInfoSection({
 
           {/* 결제조건 */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               결제조건 <span className="text-red-500">*</span>
             </label>
             <HeadlessSelect
@@ -215,26 +215,26 @@ export default function DocumentInfoSection({
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
           {/* 납기일 */}
           <div className="min-w-0">
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
-              납기일 <span className="text-gray-400 text-xs">(내부)</span> <span className="text-red-500">*</span>
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
+              납기일 <span className="text-slate-400 text-xs">(내부)</span> <span className="text-red-500">*</span>
             </label>
             <div className="relative overflow-hidden rounded-lg">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 z-10" />
               <input
                 type="date"
                 value={newDocument.delivery_date}
                 onChange={(e) =>
                   setNewDocument({ ...newDocument, delivery_date: e.target.value })
                 }
-                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
+                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
               />
             </div>
           </div>
 
           {/* 납기 표시 */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
-              납기 표시 <span className="text-gray-400 text-xs">(문서)</span>
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
+              납기 표시 <span className="text-slate-400 text-xs">(문서)</span>
             </label>
             <HeadlessSelect
               value={getCurrentNotePreset()}
@@ -252,11 +252,11 @@ export default function DocumentInfoSection({
           {/* 직접 입력 선택 시 텍스트 입력 필드 표시 */}
           {isCustomNote && (
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+              <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
                 직접 입력
               </label>
               <div className="relative">
-                <MessageSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <MessageSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                 <input
                   type="text"
                   placeholder="예: 2월 중순경"
@@ -264,7 +264,7 @@ export default function DocumentInfoSection({
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, delivery_date_note: e.target.value || "__직접입력__" })
                   }
-                  className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                  className={`w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
                 />
               </div>
             </div>
@@ -277,8 +277,8 @@ export default function DocumentInfoSection({
   // 견적서 전용 레이아웃
   if (type === "estimate") {
     return (
-      <div className="bg-gray-50 p-4 sm:p-5 rounded-xl">
-        <div className="flex items-center gap-2 mb-3 sm:mb-4 text-gray-800">
+      <div className="bg-slate-50 p-4 sm:p-5 rounded-xl">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4 text-slate-700">
           <FileText className={`h-5 w-5 ${iconColor}`} />
           <h4 className="text-base sm:text-lg font-semibold">문서 정보</h4>
         </div>
@@ -287,7 +287,7 @@ export default function DocumentInfoSection({
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
           {/* 담당자명 */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               담당자명 <span className="text-red-500">*</span>
             </label>
             <HeadlessSelect
@@ -310,7 +310,7 @@ export default function DocumentInfoSection({
 
           {/* 견적자 */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               견적자
             </label>
             {isAddMode ? (
@@ -330,12 +330,12 @@ export default function DocumentInfoSection({
               />
             ) : (
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                 <input
                   disabled
                   type="text"
                   value={user?.name}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-100 border border-slate-300 rounded-lg text-sm"
                 />
               </div>
             )}
@@ -343,7 +343,7 @@ export default function DocumentInfoSection({
 
           {/* 결제조건 */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               결제조건 <span className="text-red-500">*</span>
             </label>
             <HeadlessSelect
@@ -366,25 +366,25 @@ export default function DocumentInfoSection({
         <div className="mt-4 grid grid-cols-3 gap-3 sm:gap-5">
           {/* 견적유효기간 - 1칸 */}
           <div className="min-w-0">
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               견적유효기간 <span className="text-red-500">*</span>
             </label>
             <div className="relative overflow-hidden rounded-lg">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 z-10" />
               <input
                 type="date"
                 value={newDocument.valid_until}
                 onChange={(e) =>
                   setNewDocument({ ...newDocument, valid_until: e.target.value })
                 }
-                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
+                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
               />
             </div>
           </div>
 
           {/* 납품장소 - 2칸 */}
           <div className="col-span-2">
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               납품장소{" "}
               {companyAddress && (
                 <button
@@ -392,21 +392,21 @@ export default function DocumentInfoSection({
                   onClick={() =>
                     setNewDocument({ ...newDocument, delivery_place: companyAddress })
                   }
-                  className="text-blue-500 hover:text-blue-700 hover:underline cursor-pointer text-xs font-normal transition-colors"
+                  className="text-sky-500 hover:text-sky-700 hover:underline cursor-pointer text-xs font-normal transition-colors"
                 >
                   (주소 불러오기)
                 </button>
               )}
             </label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
               <input
                 type="text"
                 value={newDocument.delivery_place || ""}
                 onChange={(e) =>
                   setNewDocument({ ...newDocument, delivery_place: e.target.value })
                 }
-                className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                className={`w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
               />
             </div>
           </div>
@@ -416,26 +416,26 @@ export default function DocumentInfoSection({
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
           {/* 납품일 (내부) */}
           <div className="min-w-0">
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
-              납품일 <span className="text-gray-400 text-xs">(내부)</span> <span className="text-red-500">*</span>
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
+              납품일 <span className="text-slate-400 text-xs">(내부)</span> <span className="text-red-500">*</span>
             </label>
             <div className="relative overflow-hidden rounded-lg">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 z-10" />
               <input
                 type="date"
                 value={newDocument.delivery_date}
                 onChange={(e) =>
                   setNewDocument({ ...newDocument, delivery_date: e.target.value })
                 }
-                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
+                className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
               />
             </div>
           </div>
 
           {/* 납기 표시 (문서) */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
-              납기 표시 <span className="text-gray-400 text-xs">(문서)</span>
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
+              납기 표시 <span className="text-slate-400 text-xs">(문서)</span>
             </label>
             <HeadlessSelect
               value={getCurrentNotePreset()}
@@ -453,11 +453,11 @@ export default function DocumentInfoSection({
           {/* 직접 입력 선택 시 텍스트 입력 필드 표시 */}
           {isCustomNote && (
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+              <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
                 직접 입력
               </label>
               <div className="relative">
-                <MessageSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <MessageSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                 <input
                   type="text"
                   placeholder="예: 2월 중순경"
@@ -465,7 +465,7 @@ export default function DocumentInfoSection({
                   onChange={(e) =>
                     setNewDocument({ ...newDocument, delivery_date_note: e.target.value || "__직접입력__" })
                   }
-                  className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                  className={`w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
                 />
               </div>
             </div>
@@ -477,8 +477,8 @@ export default function DocumentInfoSection({
 
   // 견적의뢰서 레이아웃
   return (
-    <div className="bg-gray-50 p-4 sm:p-5 rounded-xl">
-      <div className="flex items-center gap-2 mb-3 sm:mb-4 text-gray-800">
+    <div className="bg-slate-50 p-4 sm:p-5 rounded-xl">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4 text-slate-700">
         <FileText className={`h-5 w-5 ${iconColor}`} />
         <h4 className="text-base sm:text-lg font-semibold">문서 정보</h4>
       </div>
@@ -486,7 +486,7 @@ export default function DocumentInfoSection({
         {/* 결제조건 */}
         {!isAddMode && (
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               결제조건 <span className="text-red-500">*</span>
             </label>
             <HeadlessSelect
@@ -507,41 +507,41 @@ export default function DocumentInfoSection({
 
         {/* 의뢰일 */}
         <div className="min-w-0">
-          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+          <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
             의뢰일
           </label>
           <div className="relative overflow-hidden rounded-lg">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 z-10" />
             <input
               type="date"
               disabled
               value={isAddMode ? newDocument.date : newDocument.created_at}
-              className="w-full max-w-full pl-10 pr-3 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm box-border"
+              className="w-full max-w-full pl-10 pr-3 py-2.5 bg-slate-100 border border-slate-300 rounded-lg text-sm box-border"
             />
           </div>
         </div>
 
         {/* 희망견적일 */}
         <div className="min-w-0">
-          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+          <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
             희망견적일 <span className="text-red-500">*</span>
           </label>
           <div className="relative overflow-hidden rounded-lg">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 z-10" />
             <input
               type="date"
               value={newDocument.delivery_date}
               onChange={(e) =>
                 setNewDocument({ ...newDocument, delivery_date: e.target.value })
               }
-              className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
+              className={`w-full max-w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm box-border ${focusClass} focus:border-transparent`}
             />
           </div>
         </div>
 
         {/* 의뢰자 */}
         <div>
-          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+          <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
             의뢰자
           </label>
           {isAddMode ? (
@@ -561,12 +561,12 @@ export default function DocumentInfoSection({
             />
           ) : (
             <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
               <input
                 disabled
                 type="text"
                 value={user?.name}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-100 border border-slate-300 rounded-lg text-sm"
               />
             </div>
           )}

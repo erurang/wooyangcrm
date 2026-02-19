@@ -1,7 +1,5 @@
 "use client";
 
-import { Skeleton } from "@mui/material";
-
 interface RnDDetail {
   id: string;
   name: string;
@@ -30,17 +28,23 @@ const formatNumber = (value: string) => {
 export default function RnDInfoCard({ rndsDetail, isLoading }: RnDInfoCardProps) {
   if (isLoading) {
     return (
-      <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-48 flex flex-col justify-between">
-        <Skeleton variant="text" width="100%" height="100%" />
+      <div className="bg-white rounded-xl border border-slate-200/60 px-4 pt-3 h-48 flex flex-col justify-between">
+        <div className="animate-pulse space-y-3">
+          <div className="h-5 bg-slate-200 rounded w-2/3" />
+          <div className="h-4 bg-slate-200 rounded w-full" />
+          <div className="h-4 bg-slate-200 rounded w-3/4" />
+          <div className="h-4 bg-slate-200 rounded w-full" />
+          <div className="h-4 bg-slate-200 rounded w-1/2" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-48 flex flex-col justify-between">
+    <div className="bg-white rounded-xl border border-slate-200/60 px-4 pt-3 h-48 flex flex-col justify-between">
       <div>
         <h2 className="font-semibold text-md mb-2">{rndsDetail?.name}</h2>
-        <ul className="space-y-1 text-gray-700 text-sm pl-1">
+        <ul className="space-y-1 text-slate-600 text-sm pl-1">
           <li className="flex items-center">
             <span className="font-medium w-20">지원기관</span>
             <span className="flex-1 truncate">{rndsDetail?.rnd_orgs?.name}</span>

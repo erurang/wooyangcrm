@@ -97,7 +97,7 @@ export default function UsersListPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-              <Users className="w-6 h-6 text-indigo-500" />
+              <Users className="w-6 h-6 text-sky-500" />
               직원별 실적
             </h1>
             <p className="text-sm text-slate-500 mt-1">
@@ -105,7 +105,7 @@ export default function UsersListPage() {
             </p>
           </div>
           <div className="text-sm text-slate-600">
-            총 <span className="font-bold text-indigo-600">{filteredUsers.length}</span>명
+            총 <span className="font-bold text-sky-600">{filteredUsers.length}</span>명
           </div>
         </div>
 
@@ -119,7 +119,7 @@ export default function UsersListPage() {
               placeholder="직원 이름 검색..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors"
             />
           </div>
 
@@ -137,7 +137,7 @@ export default function UsersListPage() {
                   onClick={() => setDateFilter(option.value as "year" | "quarter" | "month")}
                   className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     dateFilter === option.value
-                      ? "bg-indigo-600 text-white"
+                      ? "bg-sky-600 text-white"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >
@@ -158,7 +158,7 @@ export default function UsersListPage() {
       {isLoading || isSalesLoading || isConsultationsLoading ? (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
           <div className="flex flex-col items-center justify-center">
-            <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
             <p className="text-sm text-slate-500 mt-3">데이터를 불러오는 중...</p>
           </div>
         </div>
@@ -204,16 +204,16 @@ export default function UsersListPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 onClick={() => router.push(`/reports/performance/${user.id}`)}
-                className="bg-white border border-slate-200 rounded-xl p-5 cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all group"
+                className="bg-white border border-slate-200 rounded-xl p-5 cursor-pointer hover:border-sky-300 hover:shadow-md transition-all group"
               >
                 {/* 유저 정보 */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold shadow-sm">
+                    <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center text-white font-semibold shadow-sm">
                       {user.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors">
+                      <p className="font-semibold text-slate-800 group-hover:text-sky-600 transition-colors">
                         {user.name}
                       </p>
                       {user.position && (
@@ -221,16 +221,16 @@ export default function UsersListPage() {
                       )}
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                  <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-sky-500 transition-colors" />
                 </div>
 
                 {/* 실적 요약 */}
                 <div className="grid grid-cols-2 gap-3">
                   {/* 견적 */}
-                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                  <div className="bg-sky-50 border border-sky-100 rounded-lg p-3">
                     <div className="flex items-center gap-1.5 mb-2">
-                      <FileText className="w-4 h-4 text-blue-500" />
-                      <span className="text-xs font-medium text-blue-700">견적</span>
+                      <FileText className="w-4 h-4 text-sky-500" />
+                      <span className="text-xs font-medium text-sky-700">견적</span>
                     </div>
                     <p className="text-lg font-bold text-slate-800">
                       {userConsultations.estimates.total.toLocaleString()}
@@ -246,7 +246,7 @@ export default function UsersListPage() {
                         {userConsultations.estimates.canceled}
                       </span>
                     </div>
-                    <p className="text-xs text-blue-600 font-medium mt-2">
+                    <p className="text-xs text-sky-600 font-medium mt-2">
                       {userSales.estimates.completed.toLocaleString()}원
                     </p>
                   </div>

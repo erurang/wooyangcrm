@@ -135,7 +135,7 @@ export default function RnDBudgetsOverviewPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
+        <RefreshCw className="w-8 h-8 animate-spin text-slate-400" />
       </div>
     );
   }
@@ -144,10 +144,10 @@ export default function RnDBudgetsOverviewPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <p className="text-gray-600">{error}</p>
+        <p className="text-slate-500">{error}</p>
         <button
           onClick={fetchBudgetData}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="mt-4 px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600"
         >
           다시 시도
         </button>
@@ -160,8 +160,8 @@ export default function RnDBudgetsOverviewPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">예산 현황</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-slate-800">예산 현황</h1>
+          <p className="text-sm text-slate-400 mt-1">
             과제별 예산 배정 및 집행 현황
           </p>
         </div>
@@ -180,7 +180,7 @@ export default function RnDBudgetsOverviewPage() {
           </select>
           <button
             onClick={fetchBudgetData}
-            className="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50"
+            className="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg hover:bg-slate-50"
           >
             <RefreshCw className="w-4 h-4" />
             새로고침
@@ -192,12 +192,12 @@ export default function RnDBudgetsOverviewPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-sky-100 rounded-lg flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-sky-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">총 예산</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-slate-400">총 예산</p>
+              <p className="text-xl font-bold text-slate-800">
                 {formatCurrency(totalStats.budget)}원
               </p>
             </div>
@@ -210,11 +210,11 @@ export default function RnDBudgetsOverviewPage() {
               <TrendingUp className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">집행 금액</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-slate-400">집행 금액</p>
+              <p className="text-xl font-bold text-slate-800">
                 {formatCurrency(totalStats.expenditure)}원
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-slate-400">
                 집행률:{" "}
                 {totalStats.budget > 0
                   ? ((totalStats.expenditure / totalStats.budget) * 100).toFixed(1)
@@ -231,8 +231,8 @@ export default function RnDBudgetsOverviewPage() {
               <TrendingDown className="w-5 h-5 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">잔여 예산</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-slate-400">잔여 예산</p>
+              <p className="text-xl font-bold text-slate-800">
                 {formatCurrency(totalStats.remaining)}원
               </p>
             </div>
@@ -243,7 +243,7 @@ export default function RnDBudgetsOverviewPage() {
       {/* 검색 */}
       <div className="bg-white rounded-lg shadow p-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="과제명 검색..."
@@ -258,32 +258,32 @@ export default function RnDBudgetsOverviewPage() {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-slate-50 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">
                   과제명
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">
                   예산
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">
                   집행
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">
                   잔여
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">
                   집행률
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">
                   상세
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-slate-200">
               {filteredProjects.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
                     예산 데이터가 없습니다.
                   </td>
                 </tr>
@@ -291,23 +291,23 @@ export default function RnDBudgetsOverviewPage() {
                 filteredProjects.map((item) => (
                   <tr
                     key={item.project.id}
-                    className="hover:bg-gray-50 cursor-pointer"
+                    className="hover:bg-slate-50 cursor-pointer"
                     onClick={() => router.push(`/manage/rnds/${item.project.id}?tab=budget`)}
                   >
                     <td className="px-6 py-4">
                       <div className="max-w-xs">
-                        <p className="font-medium text-gray-900 truncate">
+                        <p className="font-medium text-slate-800 truncate">
                           {item.project.name}
                         </p>
-                        <p className="text-sm text-gray-500 truncate">
+                        <p className="text-sm text-slate-400 truncate">
                           {item.project.rnd_orgs?.name || "지원기관 미지정"}
                         </p>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right font-medium text-gray-900">
+                    <td className="px-6 py-4 text-right font-medium text-slate-800">
                       {formatCurrency(item.total_budget)}원
                     </td>
-                    <td className="px-6 py-4 text-right text-blue-600">
+                    <td className="px-6 py-4 text-right text-sky-600">
                       {formatCurrency(item.total_expenditure)}원
                     </td>
                     <td className="px-6 py-4 text-right text-orange-600">
@@ -315,25 +315,25 @@ export default function RnDBudgetsOverviewPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center">
-                        <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                        <div className="w-16 bg-slate-200 rounded-full h-2 mr-2">
                           <div
                             className={`h-2 rounded-full ${
                               item.execution_rate >= 80
                                 ? "bg-green-500"
                                 : item.execution_rate >= 50
-                                ? "bg-blue-500"
+                                ? "bg-sky-500"
                                 : "bg-orange-500"
                             }`}
                             style={{ width: `${Math.min(item.execution_rate, 100)}%` }}
                           />
                         </div>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-slate-500">
                           {item.execution_rate.toFixed(1)}%
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <ChevronRight className="w-4 h-4 text-gray-400 inline" />
+                      <ChevronRight className="w-4 h-4 text-slate-400 inline" />
                     </td>
                   </tr>
                 ))
@@ -346,7 +346,7 @@ export default function RnDBudgetsOverviewPage() {
       {/* 비목별 집계 */}
       {filteredProjects.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">
             비목별 예산 현황
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -370,20 +370,20 @@ export default function RnDBudgetsOverviewPage() {
                   key={category}
                   className="p-4 border rounded-lg"
                 >
-                  <p className="text-sm font-medium text-gray-700 mb-2">
+                  <p className="text-sm font-medium text-slate-600 mb-2">
                     {label}
                   </p>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-lg font-bold text-slate-800">
                     {formatCurrency(categoryData.budget)}
                   </p>
                   <div className="mt-2 flex items-center">
-                    <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                    <div className="flex-1 bg-slate-200 rounded-full h-1.5">
                       <div
-                        className="bg-blue-500 h-1.5 rounded-full"
+                        className="bg-sky-500 h-1.5 rounded-full"
                         style={{ width: `${Math.min(rate, 100)}%` }}
                       />
                     </div>
-                    <span className="ml-2 text-xs text-gray-500">
+                    <span className="ml-2 text-xs text-slate-400">
                       {rate.toFixed(0)}%
                     </span>
                   </div>

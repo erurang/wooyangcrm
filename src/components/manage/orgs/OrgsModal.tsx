@@ -70,7 +70,7 @@ export default function OrgsModal({
             type="text"
             value={orgData.name || ""}
             onChange={(e) => onOrgDataChange({ name: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -83,7 +83,7 @@ export default function OrgsModal({
             type="text"
             value={orgData.address || ""}
             onChange={(e) => onOrgDataChange({ address: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -96,7 +96,7 @@ export default function OrgsModal({
             value={orgData.phone || ""}
             type="text"
             onChange={(e) => onOrgDataChange({ phone: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
             placeholder="02-1234-5678"
             maxLength={13}
           />
@@ -111,7 +111,7 @@ export default function OrgsModal({
             type="text"
             value={orgData.fax || ""}
             onChange={(e) => onOrgDataChange({ fax: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
             placeholder="02-1234-5678"
             maxLength={13}
           />
@@ -126,7 +126,7 @@ export default function OrgsModal({
             type="email"
             value={orgData.email || ""}
             onChange={(e) => onOrgDataChange({ email: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
       </div>
@@ -136,7 +136,7 @@ export default function OrgsModal({
         <div className="flex justify-between items-center">
           <label className="block mb-1">담당자</label>
           <button
-            className="px-3 py-1 bg-gray-200 text-xs md:text-sm rounded-md hover:bg-gray-300"
+            className="px-3 py-1 bg-slate-200 text-xs md:text-sm rounded-md hover:bg-slate-300"
             onClick={onAddContact}
           >
             + 추가
@@ -151,14 +151,14 @@ export default function OrgsModal({
                 placeholder="이름"
                 value={contact.name || ""}
                 onChange={(e) => onContactChange(index, "name", e.target.value)}
-                className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                className="p-2 border border-slate-300 rounded-md w-full md:w-auto"
               />
               <motion.input
                 type="text"
                 placeholder="010-1234-5678"
                 value={contact.phone || ""}
                 onChange={(e) => onContactChange(index, "phone", e.target.value)}
-                className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                className="p-2 border border-slate-300 rounded-md w-full md:w-auto"
                 maxLength={13}
               />
               <motion.input
@@ -166,21 +166,21 @@ export default function OrgsModal({
                 placeholder="부서"
                 value={contact.department || ""}
                 onChange={(e) => onContactChange(index, "department", e.target.value)}
-                className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                className="p-2 border border-slate-300 rounded-md w-full md:w-auto"
               />
               <motion.input
                 type="text"
                 placeholder="직급"
                 value={contact.level || ""}
                 onChange={(e) => onContactChange(index, "level", e.target.value)}
-                className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                className="p-2 border border-slate-300 rounded-md w-full md:w-auto"
               />
               <motion.input
                 type="email"
                 placeholder="이메일"
                 value={contact.email || ""}
                 onChange={(e) => onContactChange(index, "email", e.target.value)}
-                className="p-2 border border-gray-300 rounded-md w-full md:w-auto"
+                className="p-2 border border-slate-300 rounded-md w-full md:w-auto"
               />
               <button
                 onClick={() => onRemoveContact(index)}
@@ -199,7 +199,7 @@ export default function OrgsModal({
         <textarea
           value={orgData.notes || ""}
           onChange={(e) => onOrgDataChange({ notes: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded-md min-h-52"
+          className="w-full p-2 border border-slate-300 rounded-md min-h-52"
         />
       </div>
     </FormModal>

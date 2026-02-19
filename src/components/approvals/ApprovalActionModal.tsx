@@ -113,7 +113,7 @@ export default function ApprovalActionModal({
       title: "결재 승인",
       description: "이 결재를 승인하시겠습니까?",
       confirmText: "승인",
-      confirmColor: "bg-blue-600 hover:bg-blue-700",
+      confirmColor: "bg-sky-600 hover:bg-sky-700",
       showComment: true,
       commentRequired: false,
       commentPlaceholder: "결재 의견을 입력할 수 있습니다.",
@@ -131,7 +131,7 @@ export default function ApprovalActionModal({
       title: "결재 위임",
       description: "다른 사람에게 결재를 위임합니다.",
       confirmText: "위임",
-      confirmColor: "bg-blue-600 hover:bg-blue-700",
+      confirmColor: "bg-sky-600 hover:bg-sky-700",
       showComment: false,
       commentRequired: false,
       commentPlaceholder: "",
@@ -174,7 +174,7 @@ export default function ApprovalActionModal({
               </label>
 
               {selectedUser ? (
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-sky-50 rounded-lg">
                   <div>
                     <span className="font-medium text-slate-800">
                       {selectedUser.name}
@@ -209,7 +209,7 @@ export default function ApprovalActionModal({
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="사원명을 입력하세요"
-                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
 
                   {/* 검색 결과 */}
@@ -250,7 +250,7 @@ export default function ApprovalActionModal({
                   onChange={(e) => setDelegatedReason(e.target.value)}
                   placeholder="위임 사유를 입력하세요"
                   rows={2}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
                 />
               </div>
             </div>
@@ -268,7 +268,7 @@ export default function ApprovalActionModal({
                 onChange={(e) => setComment(e.target.value)}
                 placeholder={config.commentPlaceholder}
                 rows={3}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
               />
             </div>
           )}

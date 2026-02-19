@@ -69,7 +69,7 @@ export default function UserTagSelector({
 
   const getTagTypeColor = (type: "reference" | "coauthor") => {
     return type === "reference"
-      ? "bg-blue-50 text-blue-600 border-blue-200"
+      ? "bg-sky-50 text-sky-600 border-sky-200"
       : "bg-purple-50 text-purple-600 border-purple-200";
   };
 
@@ -105,23 +105,23 @@ export default function UserTagSelector({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:text-blue-600 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500 border border-dashed border-slate-300 rounded-lg hover:border-sky-400 hover:text-sky-600 transition-colors"
         >
           <UserPlus className="w-4 h-4" />
           유저 태그 추가
         </button>
 
         {isOpen && (
-          <div className="absolute left-0 top-full mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+          <div className="absolute left-0 top-full mt-1 w-80 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
             {/* 태그 타입 선택 */}
-            <div className="flex gap-2 p-3 border-b bg-gray-50">
+            <div className="flex gap-2 p-3 border-b bg-slate-50">
               <button
                 type="button"
                 onClick={() => setTagType("reference")}
                 className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
                   tagType === "reference"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-600 hover:bg-gray-100"
+                    ? "bg-sky-600 text-white"
+                    : "bg-white text-slate-500 hover:bg-slate-100"
                 }`}
               >
                 참조
@@ -132,7 +132,7 @@ export default function UserTagSelector({
                 className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
                   tagType === "coauthor"
                     ? "bg-purple-600 text-white"
-                    : "bg-white text-gray-600 hover:bg-gray-100"
+                    : "bg-white text-slate-500 hover:bg-slate-100"
                 }`}
               >
                 공동작성
@@ -142,13 +142,13 @@ export default function UserTagSelector({
             {/* 검색 */}
             <div className="p-2 border-b">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="이름 검색..."
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
                   autoFocus
                 />
               </div>
@@ -157,8 +157,8 @@ export default function UserTagSelector({
             {/* 유저 목록 */}
             <div className="max-h-48 overflow-y-auto">
               {filteredUsers.length === 0 ? (
-                <div className="px-4 py-6 text-center text-gray-500 text-sm">
-                  <Users className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                <div className="px-4 py-6 text-center text-slate-400 text-sm">
+                  <Users className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                   {search ? "검색 결과가 없습니다." : "모든 유저가 태그되었습니다."}
                 </div>
               ) : (
@@ -167,15 +167,15 @@ export default function UserTagSelector({
                     key={user.id}
                     type="button"
                     onClick={() => handleSelect(user)}
-                    className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-gray-50 transition-colors"
+                    className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-slate-50 transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-medium shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 text-sm font-medium shrink-0">
                       {user.name.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">{user.name}</div>
+                      <div className="font-medium text-slate-800 truncate">{user.name}</div>
                       {user.level && (
-                        <div className="text-xs text-gray-500">{user.level}</div>
+                        <div className="text-xs text-slate-400">{user.level}</div>
                       )}
                     </div>
                   </button>

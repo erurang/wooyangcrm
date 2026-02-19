@@ -21,8 +21,8 @@ export default function DashboardTodoPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.3 }}
       >
-        <div className="bg-indigo-50 p-2 rounded-md mr-3">
-          <CheckCircle className="h-5 w-5 text-indigo-600" />
+        <div className="bg-sky-50 p-2 rounded-md mr-3">
+          <CheckCircle className="h-5 w-5 text-sky-600" />
         </div>
         <h2 className="text-xl font-semibold text-slate-800">할 일 관리</h2>
       </motion.div>

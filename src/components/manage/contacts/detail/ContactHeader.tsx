@@ -30,7 +30,7 @@ export default function ContactHeader({ contactData }: ContactHeaderProps) {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <User className="h-5 w-5 text-indigo-600" />
+            <User className="h-5 w-5 text-sky-600" />
             <h1 className="text-2xl font-bold text-slate-800">
               {contactData.contact_name}
               <span className="ml-2 text-lg font-normal text-slate-500">
@@ -44,7 +44,7 @@ export default function ContactHeader({ contactData }: ContactHeaderProps) {
               <Building className="h-4 w-4 text-slate-400" />
               <Link
                 href={`/consultations/${contactData.company_id}`}
-                className="text-indigo-600 hover:text-indigo-800 hover:underline"
+                className="text-sky-600 hover:text-sky-800 hover:underline"
               >
                 {contactData.company_name}
               </Link>
@@ -80,7 +80,7 @@ export default function ContactHeader({ contactData }: ContactHeaderProps) {
 
           <button
             onClick={() => window.print()}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-1"
+            className="px-4 py-2 bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-colors flex items-center gap-1"
           >
             <Download className="h-4 w-4" />
             <span>내보내기</span>

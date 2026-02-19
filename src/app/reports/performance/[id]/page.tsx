@@ -39,7 +39,7 @@ export default function PerformanceDetailPage() {
       fallback={
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
           <div className="flex flex-col items-center justify-center">
-            <div className="w-10 h-10 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
             <p className="text-sm text-slate-500 mt-4">데이터를 불러오는 중입니다...</p>
           </div>
         </div>

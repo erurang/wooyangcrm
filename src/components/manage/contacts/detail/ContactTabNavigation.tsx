@@ -32,7 +32,7 @@ export default function ContactTabNavigation({
             key={tab.id}
             className={`py-3 px-4 rounded-md font-medium text-sm transition-all ${
               activeTab === tab.id
-                ? "bg-indigo-600 text-white shadow-sm"
+                ? "bg-sky-600 text-white shadow-sm"
                 : "text-slate-600 hover:bg-slate-100"
             }`}
             onClick={() => onTabChange(tab.id)}

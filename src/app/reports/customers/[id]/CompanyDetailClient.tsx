@@ -189,7 +189,7 @@ export default function CompanyDetailClient() {
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-bold text-slate-800">{company?.name}</h1>
                   {company?.is_overseas && (
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                    <span className="px-2 py-0.5 bg-sky-100 text-sky-700 text-xs font-medium rounded-full">
                       해외
                     </span>
                   )}
@@ -325,16 +325,16 @@ export default function CompanyDetailClient() {
             {stats?.yoyComparison && renderChange(stats.yoyComparison.purchases.change)}
           </div>
 
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+          <div className="bg-sky-50 border border-sky-100 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
-              <FileText className="w-4 h-4 text-blue-600" />
-              <span className="text-xs font-medium text-blue-700">견적서</span>
+              <FileText className="w-4 h-4 text-sky-600" />
+              <span className="text-xs font-medium text-sky-700">견적서</span>
             </div>
-            <p className="text-lg font-bold text-blue-600">
+            <p className="text-lg font-bold text-sky-600">
               {stats?.documentStats?.estimate?.total || 0}
               <span className="text-xs font-normal ml-1">건</span>
             </p>
-            <span className="text-xs text-blue-500">
+            <span className="text-xs text-sky-500">
               완료 {stats?.documentStats?.estimate?.completed || 0}건
             </span>
           </div>
@@ -452,7 +452,7 @@ export default function CompanyDetailClient() {
           {stats?.userActivity && stats.userActivity.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <h3 className="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <Users className="w-5 h-5 text-indigo-500" />
+                <Users className="w-5 h-5 text-sky-500" />
                 담당 영업사원
               </h3>
               <div className="space-y-3">
@@ -462,7 +462,7 @@ export default function CompanyDetailClient() {
                     className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold text-sm">
+                      <div className="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 font-semibold text-sm">
                         {idx + 1}
                       </div>
                       <div>
@@ -472,7 +472,7 @@ export default function CompanyDetailClient() {
                         </p>
                       </div>
                     </div>
-                    <p className="text-sm font-bold text-indigo-600">
+                    <p className="text-sm font-bold text-sky-600">
                       {(user.totalAmount / 10000).toLocaleString()}만원
                     </p>
                   </div>
@@ -485,7 +485,7 @@ export default function CompanyDetailClient() {
           {stats?.recentDocuments && stats.recentDocuments.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:col-span-2">
               <h3 className="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-blue-500" />
+                <FileText className="w-5 h-5 text-sky-500" />
                 최근 문서
               </h3>
               <div className="overflow-x-auto">
@@ -507,7 +507,7 @@ export default function CompanyDetailClient() {
                           <span
                             className={`inline-flex px-2 py-0.5 text-xs rounded-full ${
                               doc.type === "estimate"
-                                ? "bg-blue-100 text-blue-700"
+                                ? "bg-sky-100 text-sky-700"
                                 : doc.type === "order"
                                 ? "bg-purple-100 text-purple-700"
                                 : "bg-amber-100 text-amber-700"
@@ -590,7 +590,7 @@ export default function CompanyDetailClient() {
           {stats?.quarterlyData && stats.quarterlyData.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <h3 className="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-indigo-500" />
+                <BarChart3 className="w-5 h-5 text-sky-500" />
                 분기별 비교
               </h3>
               <ReactApexChart
@@ -721,8 +721,8 @@ export default function CompanyDetailClient() {
           {/* 견적서 통계 */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                <FileText className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center">
+                <FileText className="w-5 h-5 text-sky-600" />
               </div>
               <div>
                 <h3 className="text-base font-semibold text-slate-800">견적서</h3>
@@ -749,7 +749,7 @@ export default function CompanyDetailClient() {
               <div className="pt-3 border-t border-slate-100">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-600">총 금액</span>
-                  <span className="font-bold text-blue-600">
+                  <span className="font-bold text-sky-600">
                     {((stats?.documentStats?.estimate?.amount || 0) / 10000).toLocaleString()}만원
                   </span>
                 </div>
@@ -848,7 +848,7 @@ export default function CompanyDetailClient() {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
             <h3 className="text-base font-semibold text-slate-800 flex items-center gap-2">
-              <User className="w-5 h-5 text-indigo-500" />
+              <User className="w-5 h-5 text-sky-500" />
               담당자 목록
               <span className="text-xs font-normal text-slate-500 ml-auto">
                 {contacts?.length || 0}명 (활성 {contacts?.filter((c: Contact) => !c.resign).length || 0}명)
@@ -865,7 +865,7 @@ export default function CompanyDetailClient() {
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold">
+                    <div className="w-10 h-10 bg-sky-100 rounded-full flex items-center justify-center text-sky-600 font-semibold">
                       {contact.contact_name?.charAt(0) || "?"}
                     </div>
                     <div>

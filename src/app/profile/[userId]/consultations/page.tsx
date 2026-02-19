@@ -108,8 +108,8 @@ export default function UserConsultationsPage() {
 
   if (!targetUserId) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-500">
-        <MessageSquare className="w-12 h-12 mb-4 text-gray-300" />
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400">
+        <MessageSquare className="w-12 h-12 mb-4 text-slate-300" />
         <p>유저를 찾을 수 없습니다.</p>
       </div>
     );
@@ -125,7 +125,7 @@ export default function UserConsultationsPage() {
         className="mb-6"
       >
         <h1 className="text-xl font-semibold">상담 기록</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-slate-400 mt-1">
           이 사용자가 등록한 상담 기록입니다.
         </p>
       </motion.div>
@@ -134,38 +134,38 @@ export default function UserConsultationsPage() {
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         {/* 검색 */}
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={handleSearchChange}
             placeholder="상담 내용 검색..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
 
         {/* 날짜 필터 */}
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-gray-400" />
+          <Calendar className="w-4 h-4 text-slate-400" />
           <input
             type="date"
             value={startDate}
             onChange={(e) => handleDateChange("start", e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
-          <span className="text-gray-400">~</span>
+          <span className="text-slate-400">~</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => handleDateChange("end", e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
       </div>
 
       {/* 총 개수 */}
       <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-slate-500">
           총 <span className="font-semibold">{consultations.length}</span>개
         </div>
       </div>
@@ -173,7 +173,7 @@ export default function UserConsultationsPage() {
       {/* 상담 목록 */}
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-sky-500"></div>
         </div>
       ) : consultations.length > 0 ? (
         <div className="space-y-2">
@@ -192,18 +192,18 @@ export default function UserConsultationsPage() {
               >
                 <Link
                   href={consultationUrl}
-                  className="block bg-white border border-gray-200 rounded-lg p-4 hover:border-indigo-300 hover:shadow-sm transition-all"
+                  className="block bg-white border border-slate-200 rounded-lg p-4 hover:border-sky-300 hover:shadow-sm transition-all"
                 >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     {/* 회사/담당자 정보 */}
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="flex items-center gap-1 text-sm font-medium text-gray-900">
-                        <Building2 className="w-4 h-4 text-gray-400" />
+                      <span className="flex items-center gap-1 text-sm font-medium text-slate-800">
+                        <Building2 className="w-4 h-4 text-slate-400" />
                         {consultation.companies?.name || "회사명 없음"}
                       </span>
                       {consultation.contacts && consultation.contacts.length > 0 && (
-                        <span className="flex items-center gap-1 text-sm text-gray-500">
+                        <span className="flex items-center gap-1 text-sm text-slate-400">
                           <User className="w-3 h-3" />
                           {consultation.contacts
                             .map((c: any) => c.contact_name)
@@ -213,19 +213,19 @@ export default function UserConsultationsPage() {
                     </div>
 
                     {/* 상담 내용 */}
-                    <p className="text-sm text-gray-700 line-clamp-2">
+                    <p className="text-sm text-slate-600 line-clamp-2">
                       {consultation.content}
                     </p>
 
                     {/* 메타 정보 */}
-                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
                         {dayjs(consultation.consult_date).format("YYYY-MM-DD")}
                       </span>
                       {consultation.documents &&
                         consultation.documents.length > 0 && (
-                          <span className="flex items-center gap-1 text-indigo-600">
+                          <span className="flex items-center gap-1 text-sky-600">
                             <FileText className="w-3 h-3" />
                             문서 {consultation.documents.length}개
                           </span>
@@ -239,8 +239,8 @@ export default function UserConsultationsPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-          <MessageSquare className="w-12 h-12 mb-4 text-gray-300" />
+        <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+          <MessageSquare className="w-12 h-12 mb-4 text-slate-300" />
           <p>등록한 상담이 없습니다.</p>
         </div>
       )}
@@ -251,7 +251,7 @@ export default function UserConsultationsPage() {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
           >
             이전
           </button>
@@ -274,8 +274,8 @@ export default function UserConsultationsPage() {
                   onClick={() => handlePageChange(page)}
                   className={`px-3 py-1.5 text-sm rounded-lg ${
                     currentPage === page
-                      ? "bg-indigo-600 text-white"
-                      : "border border-gray-300 hover:bg-gray-50"
+                      ? "bg-sky-600 text-white"
+                      : "border border-slate-300 hover:bg-slate-50"
                   }`}
                 >
                   {page}
@@ -286,7 +286,7 @@ export default function UserConsultationsPage() {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            className="px-3 py-1.5 text-sm border border-slate-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
           >
             다음
           </button>

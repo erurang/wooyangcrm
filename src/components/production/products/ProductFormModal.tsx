@@ -133,8 +133,8 @@ export default function ProductFormModal({
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <Package className="h-5 w-5 text-indigo-600" />
+              <div className="p-2 bg-sky-100 rounded-lg">
+                <Package className="h-5 w-5 text-sky-600" />
               </div>
               <h2 className="text-lg font-semibold text-slate-800">
                 {isEditing ? "제품 수정" : "새 제품 등록"}
@@ -171,8 +171,8 @@ export default function ProductFormModal({
                     disabled={isEditing}
                     className={`flex-1 px-3 py-2 text-sm rounded-lg border transition-colors ${
                       type === t
-                        ? "bg-indigo-600 text-white border-indigo-600"
-                        : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300"
+                        ? "bg-sky-600 text-white border-sky-600"
+                        : "bg-white text-slate-600 border-slate-200 hover:border-sky-300"
                     } ${isEditing ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     {typeLabels[t]}
@@ -191,7 +191,7 @@ export default function ProductFormModal({
                 value={internalCode}
                 onChange={(e) => setInternalCode(e.target.value)}
                 placeholder="예: RAW-001"
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
 
@@ -205,7 +205,7 @@ export default function ProductFormModal({
                 value={internalName}
                 onChange={(e) => setInternalName(e.target.value)}
                 placeholder="제품명을 입력하세요"
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
 
@@ -218,7 +218,7 @@ export default function ProductFormModal({
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   placeholder="예: 부자재"
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
               <div>
@@ -228,7 +228,7 @@ export default function ProductFormModal({
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                   placeholder="개"
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
             </div>
@@ -241,7 +241,7 @@ export default function ProductFormModal({
                 value={spec}
                 onChange={(e) => setSpec(e.target.value)}
                 placeholder="예: 100mm x 50mm"
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
 
@@ -256,7 +256,7 @@ export default function ProductFormModal({
                     onChange={(e) => setCurrentStock(Number(e.target.value))}
                     min={0}
                     step={0.001}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
                 <div>
@@ -272,7 +272,7 @@ export default function ProductFormModal({
                     min={0}
                     step={0.001}
                     placeholder="미설정"
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default function ProductFormModal({
                 onChange={(e) => setUnitPrice(e.target.value ? Number(e.target.value) : undefined)}
                 min={0}
                 placeholder="미설정"
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
 
@@ -299,7 +299,7 @@ export default function ProductFormModal({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="제품에 대한 추가 설명"
                 rows={3}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
               />
             </div>
 
@@ -315,7 +315,7 @@ export default function ProductFormModal({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50"
               >
                 {isLoading ? "저장 중..." : isEditing ? "수정" : "등록"}
               </button>

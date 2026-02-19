@@ -87,7 +87,7 @@ export default function DocumentsDashboard() {
     <div className="min-h-screen bg-slate-50 text-sm text-slate-800">
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3" />
+          <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin mb-3" />
           <p className="text-sm text-slate-500">문서 현황을 불러오는 중...</p>
         </div>
       ) : (
@@ -182,7 +182,7 @@ export default function DocumentsDashboard() {
                                 key={doc.document_number}
                                 className="hover:bg-slate-50 transition-colors"
                               >
-                                <td className="px-3 py-2 text-sm text-indigo-600 font-medium">
+                                <td className="px-3 py-2 text-sm text-sky-600 font-medium">
                                   {doc.document_number}
                                 </td>
                                 <td className="px-3 py-2 text-sm text-slate-700">

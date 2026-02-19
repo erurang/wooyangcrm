@@ -22,7 +22,7 @@ export default function DocumentPagination({
           key={idx}
           onClick={() => onSelectIndex(idx)}
           className={`px-3 py-1 border rounded ${
-            idx === currentIndex ? "bg-blue-500 text-white" : "bg-white"
+            idx === currentIndex ? "bg-sky-500 text-white" : "bg-white"
           }`}
         >
           {idx + 1}

@@ -51,12 +51,12 @@ export default function UserActivityPage() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 animate-pulse"
+            className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 animate-pulse"
           >
-            <div className="h-6 w-32 bg-gray-200 rounded mb-4" />
+            <div className="h-6 w-32 bg-slate-200 rounded mb-4" />
             <div className="space-y-3">
               {[1, 2, 3].map((j) => (
-                <div key={j} className="h-4 bg-gray-100 rounded" />
+                <div key={j} className="h-4 bg-slate-100 rounded" />
               ))}
             </div>
           </div>
@@ -91,26 +91,26 @@ export default function UserActivityPage() {
         isLoading={recentActivitiesIsLoading}
       >
         {(recentActivities?.recent_consultations?.length ?? 0) > 0 ? (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-slate-100">
             {recentActivities!.recent_consultations
               .slice(0, 5)
               .map((item: { id: string; company_name: string; company_id: string; content: string; created_at: string }, idx: number) => (
                 <li key={item.id || idx} className="py-3">
                   <Link
                     href={item.company_id ? `/consultations/${item.company_id}?highlight=${item.id}` : "#"}
-                    className="block hover:bg-gray-50 -mx-2 px-2 py-1 rounded transition-colors"
+                    className="block hover:bg-slate-50 -mx-2 px-2 py-1 rounded transition-colors"
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-900 flex items-center gap-1">
-                        <Building2 className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-sm font-medium text-slate-800 flex items-center gap-1">
+                        <Building2 className="w-3.5 h-3.5 text-slate-400" />
                         {item.company_name || "회사명 없음"}
                       </span>
-                      <span className="text-xs text-gray-400 flex items-center gap-1">
+                      <span className="text-xs text-slate-400 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {formatDate(item.created_at)}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-500 line-clamp-1 pl-4">
+                    <p className="text-sm text-slate-400 line-clamp-1 pl-4">
                       {item.content || "내용 없음"}
                     </p>
                   </Link>
@@ -136,7 +136,7 @@ export default function UserActivityPage() {
         isLoading={recentActivitiesIsLoading}
       >
         {(recentActivities?.recent_documents?.length ?? 0) > 0 ? (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-slate-100">
             {recentActivities!.recent_documents
               .slice(0, 5)
               .map((item: { company_name: string; created_at: string }, idx: number) => (
@@ -144,10 +144,10 @@ export default function UserActivityPage() {
                   key={idx}
                   className="py-3 flex items-center justify-between"
                 >
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-slate-600">
                     {item.company_name || "회사명 없음"}
                   </span>
-                  <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <span className="text-xs text-slate-400 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {formatDate(item.created_at)}
                   </span>
@@ -168,29 +168,29 @@ export default function UserActivityPage() {
       >
         <ActivitySection
           title="최근 게시글"
-        icon={<FileText className="w-5 h-5 text-blue-500" />}
+        icon={<FileText className="w-5 h-5 text-sky-500" />}
         viewAllHref={`${basePath}/posts`}
         isLoading={postsLoading}
       >
         {recentPosts?.posts?.length ? (
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-slate-100">
             {recentPosts.posts.slice(0, 5).map((post) => (
               <li key={post.id} className="py-3">
                 <Link
                   href={`/board/${post.id}`}
-                  className="flex items-center justify-between hover:bg-gray-50 -mx-2 px-2 py-1 rounded transition-colors"
+                  className="flex items-center justify-between hover:bg-slate-50 -mx-2 px-2 py-1 rounded transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     {post.category && (
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                      <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded">
                         {post.category.name}
                       </span>
                     )}
-                    <span className="text-sm text-gray-700 hover:text-indigo-600">
+                    <span className="text-sm text-slate-600 hover:text-sky-600">
                       {post.title}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <span className="text-xs text-slate-400 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {formatDate(post.created_at)}
                   </span>
@@ -221,15 +221,15 @@ function ActivitySection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           {icon}
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+          <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
         </div>
         <Link
           href={viewAllHref}
-          className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+          className="text-sm text-sky-600 hover:text-sky-700 flex items-center gap-1"
         >
           전체보기
           <ArrowRight className="w-4 h-4" />
@@ -238,7 +238,7 @@ function ActivitySection({
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-4 bg-gray-100 rounded animate-pulse" />
+            <div key={i} className="h-4 bg-slate-100 rounded animate-pulse" />
           ))}
         </div>
       ) : (
@@ -250,6 +250,6 @@ function ActivitySection({
 
 function EmptyMessage({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-sm text-gray-400 text-center py-4">{children}</p>
+    <p className="text-sm text-slate-400 text-center py-4">{children}</p>
   );
 }

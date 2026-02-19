@@ -9,7 +9,7 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
   loading: () => (
     <div className="h-[350px] flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
     </div>
   ),
 });
@@ -202,7 +202,7 @@ export default function DrillDownChart({
           {levelStack.length > 1 && (
             <button
               onClick={handleGoToTop}
-              className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+              className="text-xs text-sky-600 hover:text-sky-800 transition-colors"
             >
               처음으로
             </button>
@@ -224,7 +224,7 @@ export default function DrillDownChart({
               {idx > 0 && <ChevronRight className="w-3 h-3 mx-1" />}
               <button
                 onClick={() => setLevelStack((prev) => prev.slice(0, idx + 1))}
-                className={`hover:text-blue-600 transition-colors ${
+                className={`hover:text-sky-600 transition-colors ${
                   idx === levelStack.length - 1 ? "font-medium text-slate-700" : ""
                 }`}
               >

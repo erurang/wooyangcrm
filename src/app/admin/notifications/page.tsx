@@ -316,8 +316,8 @@ export default function NotificationTriggersPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-xl">
-              <Bell className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-sky-100 rounded-xl">
+              <Bell className="w-6 h-6 text-sky-600" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800">알림 트리거</h1>
@@ -326,7 +326,7 @@ export default function NotificationTriggersPage() {
           </div>
           <button
             onClick={() => setShowSendModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
           >
             <Send className="w-4 h-4" />
             수동 알림 발송
@@ -356,7 +356,7 @@ export default function NotificationTriggersPage() {
             className="bg-white rounded-xl p-5 shadow-sm border border-slate-200"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-5 h-5 text-blue-500" />
+              <Clock className="w-5 h-5 text-sky-500" />
               <span className="text-slate-500">스케줄</span>
             </div>
             <p className="text-2xl font-bold text-slate-800">
@@ -402,7 +402,7 @@ export default function NotificationTriggersPage() {
                   <div
                     className={`p-2 rounded-lg ${
                       trigger.type === "scheduled"
-                        ? "bg-blue-100"
+                        ? "bg-sky-100"
                         : "bg-violet-100"
                     }`}
                   >
@@ -410,7 +410,7 @@ export default function NotificationTriggersPage() {
                       <Calendar
                         className={`w-5 h-5 ${
                           trigger.type === "scheduled"
-                            ? "text-blue-600"
+                            ? "text-sky-600"
                             : "text-violet-600"
                         }`}
                       />
@@ -445,7 +445,7 @@ export default function NotificationTriggersPage() {
                   <button
                     onClick={() => handleRunNow(trigger.id)}
                     disabled={!trigger.enabled || runningTrigger === trigger.id}
-                    className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 text-slate-400 hover:text-sky-500 hover:bg-sky-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title="지금 실행"
                   >
                     {runningTrigger === trigger.id ? (
@@ -459,7 +459,7 @@ export default function NotificationTriggersPage() {
                     className="flex items-center"
                   >
                     {trigger.enabled ? (
-                      <ToggleRight className="w-8 h-8 text-blue-500" />
+                      <ToggleRight className="w-8 h-8 text-sky-500" />
                     ) : (
                       <ToggleLeft className="w-8 h-8 text-slate-400" />
                     )}
@@ -475,13 +475,13 @@ export default function NotificationTriggersPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-blue-50 rounded-xl p-4 border border-blue-200"
+          className="bg-sky-50 rounded-xl p-4 border border-sky-200"
         >
           <div className="flex items-start gap-3">
-            <Settings className="w-5 h-5 text-blue-500 mt-0.5" />
+            <Settings className="w-5 h-5 text-sky-500 mt-0.5" />
             <div>
-              <p className="font-medium text-blue-800">트리거 관리 안내</p>
-              <ul className="text-sm text-blue-600 mt-2 space-y-1 list-disc list-inside">
+              <p className="font-medium text-sky-800">트리거 관리 안내</p>
+              <ul className="text-sm text-sky-600 mt-2 space-y-1 list-disc list-inside">
                 <li>스케줄 트리거는 설정된 시간에 자동으로 실행됩니다.</li>
                 <li>이벤트 트리거는 해당 이벤트 발생 시 즉시 실행됩니다.</li>
                 <li>&quot;지금 실행&quot; 버튼으로 수동 실행할 수 있습니다.</li>
@@ -511,7 +511,7 @@ export default function NotificationTriggersPage() {
               {/* 모달 헤더 */}
               <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-2">
-                  <Send className="w-5 h-5 text-blue-600" />
+                  <Send className="w-5 h-5 text-sky-600" />
                   <h3 className="text-lg font-semibold text-slate-800">
                     수동 알림 발송
                   </h3>
@@ -531,7 +531,7 @@ export default function NotificationTriggersPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <Users className="w-4 h-4 inline mr-1" />
                     수신자 선택 <span className="text-red-500">*</span>
-                    <span className="ml-2 text-blue-600 font-normal">
+                    <span className="ml-2 text-sky-600 font-normal">
                       ({selectedUsers.length}명 선택됨)
                     </span>
                   </label>
@@ -545,7 +545,7 @@ export default function NotificationTriggersPage() {
                         placeholder="이름 또는 직책으로 검색..."
                         value={userSearchQuery}
                         onChange={(e) => setUserSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                       />
                     </div>
                     <button
@@ -570,13 +570,13 @@ export default function NotificationTriggersPage() {
                           <label
                             key={user.id}
                             className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 ${
-                              selectedUsers.includes(user.id) ? "bg-blue-50" : ""
+                              selectedUsers.includes(user.id) ? "bg-sky-50" : ""
                             }`}
                           >
                             <div
                               className={`w-5 h-5 rounded border flex items-center justify-center ${
                                 selectedUsers.includes(user.id)
-                                  ? "bg-blue-600 border-blue-600"
+                                  ? "bg-sky-600 border-sky-600"
                                   : "border-slate-300"
                               }`}
                               onClick={() => toggleUserSelection(user.id)}
@@ -610,7 +610,7 @@ export default function NotificationTriggersPage() {
                     value={notificationTitle}
                     onChange={(e) => setNotificationTitle(e.target.value)}
                     placeholder="알림 제목을 입력하세요"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
@@ -624,7 +624,7 @@ export default function NotificationTriggersPage() {
                     onChange={(e) => setNotificationMessage(e.target.value)}
                     placeholder="알림 내용을 입력하세요"
                     rows={4}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
                   />
                 </div>
 
@@ -634,8 +634,8 @@ export default function NotificationTriggersPage() {
                     <p className="text-xs text-slate-500 mb-2">알림 미리보기</p>
                     <div className="bg-white rounded-lg p-3 border border-slate-200 shadow-sm">
                       <div className="flex items-start gap-2">
-                        <div className="p-1.5 bg-blue-100 rounded-lg">
-                          <Bell className="w-4 h-4 text-blue-600" />
+                        <div className="p-1.5 bg-sky-100 rounded-lg">
+                          <Bell className="w-4 h-4 text-sky-600" />
                         </div>
                         <div>
                           <p className="text-sm font-medium text-slate-800">
@@ -663,7 +663,7 @@ export default function NotificationTriggersPage() {
                 <button
                   onClick={handleSendNotification}
                   disabled={isSending || selectedUsers.length === 0}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSending ? (
                     <>

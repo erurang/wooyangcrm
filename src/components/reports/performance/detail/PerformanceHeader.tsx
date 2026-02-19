@@ -17,7 +17,7 @@ export default function PerformanceHeader({
     <div className="mb-4">
       {type === "estimate" ? (
         <span
-          className="cursor-pointer text-blue-500 hover:font-bold"
+          className="cursor-pointer text-sky-500 hover:font-bold"
           onClick={() =>
             router.push("/reports/performance/details?type=estimate")
           }
@@ -26,7 +26,7 @@ export default function PerformanceHeader({
         </span>
       ) : (
         <span
-          className="cursor-pointer text-blue-500 hover:font-bold"
+          className="cursor-pointer text-sky-500 hover:font-bold"
           onClick={() => router.push("/reports/performance/details?type=order")}
         >
           매입 분석

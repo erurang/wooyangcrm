@@ -168,7 +168,7 @@ export default function MyActivityPage() {
       >
         <ActivitySection
           title="최근 게시글"
-        icon={<FileText className="w-5 h-5 text-blue-500" />}
+        icon={<FileText className="w-5 h-5 text-sky-500" />}
         viewAllHref="/profile/posts"
         isLoading={postsLoading}
         accentColor="blue"
@@ -187,7 +187,7 @@ export default function MyActivityPage() {
                         {post.category.name}
                       </span>
                     )}
-                    <span className="text-sm text-slate-700 hover:text-blue-600">
+                    <span className="text-sm text-slate-700 hover:text-sky-600">
                       {post.title}
                     </span>
                   </div>
@@ -242,7 +242,7 @@ function ActivitySection({
   accentColor?: "blue" | "emerald" | "purple";
 }) {
   const linkColors = {
-    blue: "text-blue-600 hover:text-blue-700",
+    blue: "text-sky-600 hover:text-sky-700",
     emerald: "text-emerald-600 hover:text-emerald-700",
     purple: "text-purple-600 hover:text-purple-700",
   };

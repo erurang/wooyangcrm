@@ -230,7 +230,7 @@ export default function ApiMonitorPage() {
 
   const getMethodColor = (method: string) => {
     const colors: Record<string, string> = {
-      GET: "bg-blue-100 text-blue-700",
+      GET: "bg-sky-100 text-sky-700",
       POST: "bg-emerald-100 text-emerald-700",
       PUT: "bg-amber-100 text-amber-700",
       DELETE: "bg-red-100 text-red-700",
@@ -269,8 +269,8 @@ export default function ApiMonitorPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-100 rounded-xl">
-              <Activity className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-sky-100 rounded-xl">
+              <Activity className="w-6 h-6 text-sky-600" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800">API 모니터링</h1>
@@ -309,7 +309,7 @@ export default function ApiMonitorPage() {
             className="bg-white rounded-xl p-5 shadow-sm border border-slate-200"
           >
             <div className="flex items-center gap-3 mb-2">
-              <Globe className="w-5 h-5 text-blue-500" />
+              <Globe className="w-5 h-5 text-sky-500" />
               <span className="text-slate-500">오늘 API 호출</span>
             </div>
             <p className="text-2xl font-bold text-slate-800">
@@ -394,7 +394,7 @@ export default function ApiMonitorPage() {
                 <select
                   value={filter}
                   onChange={(e) => setFilter(e.target.value as typeof filter)}
-                  className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 >
                   <option value="all">전체</option>
                   <option value="healthy">정상</option>
@@ -504,7 +504,7 @@ export default function ApiMonitorPage() {
                   setSearchEndpoint(e.target.value);
                   setPage(1);
                 }}
-                className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
             </div>
             <select
@@ -513,7 +513,7 @@ export default function ApiMonitorPage() {
                 setFilterMethod(e.target.value);
                 setPage(1);
               }}
-              className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
             >
               <option value="">모든 메서드</option>
               <option value="GET">GET</option>
@@ -528,7 +528,7 @@ export default function ApiMonitorPage() {
                 setFilterStatus(e.target.value);
                 setPage(1);
               }}
-              className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
             >
               <option value="">모든 상태</option>
               <option value="200">성공 (2xx)</option>
@@ -544,7 +544,7 @@ export default function ApiMonitorPage() {
                   setDateRange({ ...dateRange, start: e.target.value });
                   setPage(1);
                 }}
-                className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
               <span className="text-slate-400">~</span>
               <input
@@ -554,7 +554,7 @@ export default function ApiMonitorPage() {
                   setDateRange({ ...dateRange, end: e.target.value });
                   setPage(1);
                 }}
-                className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -690,7 +690,7 @@ export default function ApiMonitorPage() {
                       onClick={() => setPage(pageNum)}
                       className={`w-8 h-8 rounded-lg text-sm ${
                         page === pageNum
-                          ? "bg-blue-600 text-white"
+                          ? "bg-sky-600 text-white"
                           : "hover:bg-slate-100 text-slate-700"
                       }`}
                     >

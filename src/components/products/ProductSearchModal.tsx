@@ -541,15 +541,15 @@ export default function ProductSearchModal({
     if (info.totalPages <= 1) return null;
 
     return (
-      <div className="flex items-center justify-between px-4 py-2 border-t bg-gray-50 text-sm">
-        <span className="text-gray-500">
+      <div className="flex items-center justify-between px-4 py-2 border-t bg-slate-50 text-sm">
+        <span className="text-slate-400">
           총 {info.total}개 중 {(info.page - 1) * info.pageSize + 1}-{Math.min(info.page * info.pageSize, info.total)}
         </span>
         <div className="flex items-center gap-1">
           <button
             onClick={() => onChange(info.page - 1)}
             disabled={info.page <= 1}
-            className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -564,7 +564,7 @@ export default function ProductSearchModal({
               <button
                 key={pageNum}
                 onClick={() => onChange(pageNum)}
-                className={`w-8 h-8 rounded text-sm ${pageNum === info.page ? "bg-indigo-600 text-white" : "hover:bg-gray-200"}`}
+                className={`w-8 h-8 rounded text-sm ${pageNum === info.page ? "bg-sky-600 text-white" : "hover:bg-slate-200"}`}
               >
                 {pageNum}
               </button>
@@ -573,7 +573,7 @@ export default function ProductSearchModal({
           <button
             onClick={() => onChange(info.page + 1)}
             disabled={info.page >= info.totalPages}
-            className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-1.5 rounded hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -605,21 +605,21 @@ export default function ProductSearchModal({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col">
             {/* 헤더 */}
-            <div className="px-5 py-4 border-b bg-indigo-50 flex items-center justify-between">
+            <div className="px-5 py-4 border-b bg-sky-50 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-slate-800">
                   {orderStep === "list" && "입고 제품 선택"}
                   {orderStep === "add_step1" && "새 입고제품 등록 (1/2)"}
                   {orderStep === "add_step2" && "새 입고제품 등록 (2/2)"}
                 </h2>
-                <p className="text-sm text-gray-500 mt-0.5">
+                <p className="text-sm text-slate-400 mt-0.5">
                   {orderStep === "list" && `${companyName || "매입처"}의 제품 목록`}
                   {orderStep === "add_step1" && "매입처에서 사용하는 제품 정보를 입력하세요"}
                   {orderStep === "add_step2" && "내부 재고와 연결할 제품을 선택하세요"}
                 </p>
               </div>
               <button onClick={onClose} className="p-2 hover:bg-white/50 rounded-lg transition-colors">
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-slate-400" />
               </button>
             </div>
 
@@ -629,13 +629,13 @@ export default function ProductSearchModal({
                 {/* 검색 */}
                 <div className="px-5 py-3 border-b">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                     <input
                       type="text"
                       placeholder="입고제품명, 규격으로 검색..."
                       value={aliasSearchQuery}
                       onChange={(e) => setAliasSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                       autoFocus
                     />
                   </div>
@@ -645,12 +645,12 @@ export default function ProductSearchModal({
                 <div className="flex-1 overflow-hidden flex flex-col">
                   {loading ? (
                     <div className="flex-1 flex items-center justify-center">
-                      <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+                      <Loader2 className="h-8 w-8 text-sky-500 animate-spin" />
                     </div>
                   ) : filteredAliases.length > 0 ? (
                     <>
                       {/* 테이블 헤더: 체크박스 | 입고제품명 | 연결된 내부제품 | 규격 | 단가 | 추이 */}
-                      <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs font-medium text-gray-600 border-b bg-indigo-50/50">
+                      <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs font-medium text-slate-500 border-b bg-sky-50/50">
                         <div className="col-span-1 text-center">
                           <input
                             type="checkbox"
@@ -662,7 +662,7 @@ export default function ProductSearchModal({
                                 setSelectedAliasIds(new Set());
                               }
                             }}
-                            className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                            className="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500"
                           />
                         </div>
                         <div className="col-span-3">입고제품명</div>
@@ -676,8 +676,8 @@ export default function ProductSearchModal({
                         {filteredAliases.map((alias) => (
                           <label
                             key={alias.id}
-                            className={`w-full grid grid-cols-12 gap-2 px-4 py-3 border-b border-gray-100 hover:bg-indigo-50/50 items-center text-sm cursor-pointer ${
-                              selectedAliasIds.has(alias.id) ? "bg-indigo-50" : ""
+                            className={`w-full grid grid-cols-12 gap-2 px-4 py-3 border-b border-slate-100 hover:bg-sky-50/50 items-center text-sm cursor-pointer ${
+                              selectedAliasIds.has(alias.id) ? "bg-sky-50" : ""
                             }`}
                           >
                             <div className="col-span-1 flex justify-center">
@@ -685,13 +685,13 @@ export default function ProductSearchModal({
                                 type="checkbox"
                                 checked={selectedAliasIds.has(alias.id)}
                                 onChange={() => toggleAliasSelection(alias)}
-                                className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                                className="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500"
                               />
                             </div>
                             <div className="col-span-3">
-                              <div className="font-medium text-gray-900">{alias.external_name}</div>
+                              <div className="font-medium text-slate-800">{alias.external_name}</div>
                               {alias.external_code && (
-                                <div className="text-xs text-gray-500">{alias.external_code}</div>
+                                <div className="text-xs text-slate-400">{alias.external_code}</div>
                               )}
                             </div>
                             <div className="col-span-3">
@@ -700,8 +700,8 @@ export default function ProductSearchModal({
                                 <span className="truncate">{alias.product?.internal_name || "-"}</span>
                               </div>
                             </div>
-                            <div className="col-span-2 text-gray-600">{alias.external_spec || "-"}</div>
-                            <div className="col-span-2 text-right text-gray-700">
+                            <div className="col-span-2 text-slate-500">{alias.external_spec || "-"}</div>
+                            <div className="col-span-2 text-right text-slate-600">
                               {alias.external_unit_price?.toLocaleString() || "-"}원
                             </div>
                             <div className="col-span-1 flex justify-center">
@@ -716,7 +716,7 @@ export default function ProductSearchModal({
                                     companyName
                                   );
                                 }}
-                                className="p-1.5 text-indigo-500 hover:bg-indigo-100 rounded-lg transition-colors"
+                                className="p-1.5 text-sky-500 hover:bg-sky-100 rounded-lg transition-colors"
                                 title="단가 추이"
                               >
                                 <TrendingUp className="h-4 w-4" />
@@ -729,13 +729,13 @@ export default function ProductSearchModal({
                   ) : (
                     <div className="flex-1 flex items-center justify-center">
                       <div className="text-center p-8">
-                        <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500 mb-2">
+                        <Package className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                        <p className="text-slate-400 mb-2">
                           {aliasSearchQuery
                             ? `"${aliasSearchQuery}"에 대한 검색 결과가 없습니다.`
                             : `${companyName || "이 매입처"}에 등록된 입고제품이 없습니다.`}
                         </p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-slate-400">
                           아래 버튼으로 새 입고제품을 추가하세요.
                         </p>
                       </div>
@@ -744,27 +744,27 @@ export default function ProductSearchModal({
                 </div>
 
                 {/* 푸터 */}
-                <div className="px-5 py-3 border-t bg-gray-50 flex justify-between items-center">
+                <div className="px-5 py-3 border-t bg-slate-50 flex justify-between items-center">
                   <button
                     onClick={startAddNewProduct}
-                    className="flex items-center gap-2 px-4 py-2 text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50"
+                    className="flex items-center gap-2 px-4 py-2 text-sky-600 border border-sky-600 rounded-lg hover:bg-sky-50"
                   >
                     <Plus className="h-4 w-4" />
                     새 입고제품 추가
                   </button>
                   <div className="flex items-center gap-3">
                     {selectedAliasIds.size > 0 && (
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-slate-500">
                         {selectedAliasIds.size}개 선택됨
                       </span>
                     )}
-                    <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg">
+                    <button onClick={onClose} className="px-4 py-2 text-slate-500 hover:bg-slate-200 rounded-lg">
                       닫기
                     </button>
                     <button
                       onClick={handleConfirmAliasSelection}
                       disabled={selectedAliasIds.size === 0}
-                      className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Check className="h-4 w-4" />
                       확인
@@ -780,15 +780,15 @@ export default function ProductSearchModal({
                 <div className="flex-1 p-6 overflow-y-auto">
                   <div className="max-w-lg mx-auto space-y-6">
                     <div className="text-center mb-6">
-                      <Package className="h-12 w-12 text-indigo-500 mx-auto mb-2" />
-                      <h3 className="text-lg font-medium text-gray-900">매입처 제품 정보 입력</h3>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <Package className="h-12 w-12 text-sky-500 mx-auto mb-2" />
+                      <h3 className="text-lg font-medium text-slate-800">매입처 제품 정보 입력</h3>
+                      <p className="text-sm text-slate-400 mt-1">
                         {companyName || "매입처"}에서 사용하는 품명, 규격, 단가를 입력하세요
                       </p>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         외부 품명 <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -796,13 +796,13 @@ export default function ProductSearchModal({
                         value={externalInfo.externalName}
                         onChange={(e) => setExternalInfo(prev => ({ ...prev, externalName: e.target.value }))}
                         placeholder="매입처에서 사용하는 제품명"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-lg"
                         autoFocus
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         외부 규격
                       </label>
                       <input
@@ -810,12 +810,12 @@ export default function ProductSearchModal({
                         value={externalInfo.externalSpec}
                         onChange={(e) => setExternalInfo(prev => ({ ...prev, externalSpec: e.target.value }))}
                         placeholder="예: ID38*5M, 100mm x 50mm"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-slate-600 mb-1">
                         매입 단가
                       </label>
                       <div className="relative">
@@ -827,25 +827,25 @@ export default function ProductSearchModal({
                             setExternalInfo(prev => ({ ...prev, externalUnitPrice: parseInt(value) || 0 }));
                           }}
                           placeholder="0"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-right pr-12"
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent text-right pr-12"
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">원</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">원</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="px-5 py-3 border-t bg-gray-50 flex justify-between items-center">
+                <div className="px-5 py-3 border-t bg-slate-50 flex justify-between items-center">
                   <button
                     onClick={() => setOrderStep("list")}
-                    className="flex items-center gap-1 px-3 py-2 text-gray-600 hover:bg-gray-200 rounded-lg"
+                    className="flex items-center gap-1 px-3 py-2 text-slate-500 hover:bg-slate-200 rounded-lg"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     이전
                   </button>
                   <button
                     onClick={goToStep2}
-                    className="flex items-center gap-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                    className="flex items-center gap-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700"
                   >
                     다음: 내부 제품 연결
                     <ArrowRight className="h-4 w-4" />
@@ -858,20 +858,20 @@ export default function ProductSearchModal({
             {orderStep === "add_step2" && (
               <>
                 {/* 선택된 외부 정보 표시 */}
-                <div className="px-5 py-3 bg-indigo-100 border-b">
+                <div className="px-5 py-3 bg-sky-100 border-b">
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="font-medium text-indigo-900">입고제품:</span>
-                    <span className="text-indigo-700">{externalInfo.externalName}</span>
+                    <span className="font-medium text-sky-900">입고제품:</span>
+                    <span className="text-sky-700">{externalInfo.externalName}</span>
                     {externalInfo.externalSpec && (
                       <>
-                        <span className="text-indigo-400">|</span>
-                        <span className="text-indigo-700">{externalInfo.externalSpec}</span>
+                        <span className="text-sky-400">|</span>
+                        <span className="text-sky-700">{externalInfo.externalSpec}</span>
                       </>
                     )}
                     {externalInfo.externalUnitPrice > 0 && (
                       <>
-                        <span className="text-indigo-400">|</span>
-                        <span className="text-indigo-700">{externalInfo.externalUnitPrice.toLocaleString()}원</span>
+                        <span className="text-sky-400">|</span>
+                        <span className="text-sky-700">{externalInfo.externalUnitPrice.toLocaleString()}원</span>
                       </>
                     )}
                   </div>
@@ -880,13 +880,13 @@ export default function ProductSearchModal({
                 {/* 내부 제품 검색 */}
                 <div className="px-5 py-3 border-b">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                     <input
                       type="text"
                       placeholder="내부 제품명, 코드로 검색..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                       autoFocus
                     />
                   </div>
@@ -896,11 +896,11 @@ export default function ProductSearchModal({
                 <div className="flex-1 overflow-hidden flex flex-col">
                   {loading ? (
                     <div className="flex-1 flex items-center justify-center">
-                      <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+                      <Loader2 className="h-8 w-8 text-sky-500 animate-spin" />
                     </div>
                   ) : results.length > 0 ? (
                     <>
-                      <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs font-medium text-gray-600 border-b bg-gray-50">
+                      <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs font-medium text-slate-500 border-b bg-slate-50">
                         <div className="col-span-2">코드</div>
                         <div className="col-span-3">내부 제품명</div>
                         <div className="col-span-2">규격</div>
@@ -915,23 +915,23 @@ export default function ProductSearchModal({
                           return (
                             <div
                               key={product.id}
-                              className={`w-full grid grid-cols-12 gap-2 px-4 py-3 border-b border-gray-100 items-center text-sm ${
+                              className={`w-full grid grid-cols-12 gap-2 px-4 py-3 border-b border-slate-100 items-center text-sm ${
                                 isAlreadyLinked
-                                  ? "bg-gray-50 opacity-60"
-                                  : "hover:bg-indigo-50/50"
+                                  ? "bg-slate-50 opacity-60"
+                                  : "hover:bg-sky-50/50"
                               }`}
                             >
-                              <div className="col-span-2 text-gray-500 font-mono text-xs">
+                              <div className="col-span-2 text-slate-400 font-mono text-xs">
                                 {product.internal_code}
                               </div>
                               <div className="col-span-3">
-                                <div className="font-medium text-gray-900">{product.internal_name}</div>
+                                <div className="font-medium text-slate-800">{product.internal_name}</div>
                                 {isAlreadyLinked && (
                                   <div className="text-xs text-orange-600">이미 이 회사에 연결됨</div>
                                 )}
                               </div>
-                              <div className="col-span-2 text-gray-600">{product.spec || "-"}</div>
-                              <div className={`col-span-2 text-right font-medium ${product.current_stock > 0 ? "text-green-600" : "text-gray-400"}`}>
+                              <div className="col-span-2 text-slate-500">{product.spec || "-"}</div>
+                              <div className={`col-span-2 text-right font-medium ${product.current_stock > 0 ? "text-green-600" : "text-slate-400"}`}>
                                 {product.current_stock}{product.unit}
                               </div>
                               <div className="col-span-1 flex justify-center">
@@ -945,7 +945,7 @@ export default function ProductSearchModal({
                                       companyName
                                     );
                                   }}
-                                  className="p-1.5 text-indigo-500 hover:bg-indigo-100 rounded-lg transition-colors"
+                                  className="p-1.5 text-sky-500 hover:bg-sky-100 rounded-lg transition-colors"
                                   title="단가 추이"
                                 >
                                   <TrendingUp className="h-4 w-4" />
@@ -953,7 +953,7 @@ export default function ProductSearchModal({
                               </div>
                               <div className="col-span-2 flex justify-center">
                                 {isAlreadyLinked ? (
-                                  <span className="flex items-center gap-1 px-3 py-1.5 bg-gray-400 text-white rounded-lg text-xs">
+                                  <span className="flex items-center gap-1 px-3 py-1.5 bg-slate-400 text-white rounded-lg text-xs">
                                     <Link2 className="h-3 w-3" />
                                     연결됨
                                   </span>
@@ -961,7 +961,7 @@ export default function ProductSearchModal({
                                   <button
                                     onClick={() => setPendingLinkProduct(product)}
                                     disabled={isRegistering}
-                                    className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs hover:bg-indigo-700 disabled:opacity-50"
+                                    className="flex items-center gap-1 px-3 py-1.5 bg-sky-600 text-white rounded-lg text-xs hover:bg-sky-700 disabled:opacity-50"
                                   >
                                     <Check className="h-3 w-3" />
                                     연결
@@ -978,13 +978,13 @@ export default function ProductSearchModal({
                   ) : (
                     <div className="flex-1 flex items-center justify-center p-8">
                       <div className="text-center">
-                        <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500 mb-4">
+                        <Package className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                        <p className="text-slate-400 mb-4">
                           {searchQuery ? `"${searchQuery}"에 대한 검색 결과가 없습니다.` : "등록된 내부 제품이 없습니다."}
                         </p>
                         <button
                           onClick={() => setShowProductFormModal(true)}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700"
                         >
                           <Plus className="h-4 w-4" />
                           새 내부제품 등록
@@ -994,24 +994,24 @@ export default function ProductSearchModal({
                   )}
                 </div>
 
-                <div className="px-5 py-3 border-t bg-gray-50 flex justify-between items-center">
+                <div className="px-5 py-3 border-t bg-slate-50 flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setOrderStep("add_step1")}
-                      className="flex items-center gap-1 px-3 py-2 text-gray-600 hover:bg-gray-200 rounded-lg"
+                      className="flex items-center gap-1 px-3 py-2 text-slate-500 hover:bg-slate-200 rounded-lg"
                     >
                       <ArrowLeft className="h-4 w-4" />
                       이전
                     </button>
                     <button
                       onClick={() => setShowProductFormModal(true)}
-                      className="text-sm text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                      className="text-sm text-sky-600 hover:text-sky-800 flex items-center gap-1"
                     >
                       <Plus className="h-4 w-4" />
                       새 내부제품 등록
                     </button>
                   </div>
-                  <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg">
+                  <button onClick={onClose} className="px-4 py-2 text-slate-500 hover:bg-slate-200 rounded-lg">
                     닫기
                   </button>
                 </div>
@@ -1032,58 +1032,58 @@ export default function ProductSearchModal({
         {pendingLinkProduct && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
-              <div className="px-5 py-4 border-b bg-indigo-50">
-                <h3 className="text-lg font-semibold text-gray-900">제품 연결 확인</h3>
+              <div className="px-5 py-4 border-b bg-sky-50">
+                <h3 className="text-lg font-semibold text-slate-800">제품 연결 확인</h3>
               </div>
 
               <div className="p-5 space-y-4">
-                <p className="text-gray-600 text-center">
+                <p className="text-slate-500 text-center">
                   아래 제품을 연결하시겠습니까?
                 </p>
 
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div className="bg-slate-50 rounded-lg p-4 space-y-3">
                   {/* 외부 제품 정보 */}
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">매입처 제품 (외부)</div>
-                    <div className="font-medium text-gray-900">{externalInfo.externalName}</div>
+                    <div className="text-xs text-slate-400 mb-1">매입처 제품 (외부)</div>
+                    <div className="font-medium text-slate-800">{externalInfo.externalName}</div>
                     {externalInfo.externalSpec && (
-                      <div className="text-sm text-gray-600">{externalInfo.externalSpec}</div>
+                      <div className="text-sm text-slate-500">{externalInfo.externalSpec}</div>
                     )}
                     {externalInfo.externalUnitPrice > 0 && (
-                      <div className="text-sm text-indigo-600">{externalInfo.externalUnitPrice.toLocaleString()}원</div>
+                      <div className="text-sm text-sky-600">{externalInfo.externalUnitPrice.toLocaleString()}원</div>
                     )}
                   </div>
 
                   {/* 화살표 */}
                   <div className="flex justify-center">
-                    <div className="flex items-center gap-2 text-indigo-500">
-                      <div className="h-px w-8 bg-indigo-300"></div>
+                    <div className="flex items-center gap-2 text-sky-500">
+                      <div className="h-px w-8 bg-sky-300"></div>
                       <Link2 className="h-5 w-5" />
-                      <div className="h-px w-8 bg-indigo-300"></div>
+                      <div className="h-px w-8 bg-sky-300"></div>
                     </div>
                   </div>
 
                   {/* 내부 제품 정보 */}
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">내부 재고 제품</div>
-                    <div className="font-medium text-gray-900">{pendingLinkProduct.internal_name}</div>
+                    <div className="text-xs text-slate-400 mb-1">내부 재고 제품</div>
+                    <div className="font-medium text-slate-800">{pendingLinkProduct.internal_name}</div>
                     {pendingLinkProduct.spec && (
-                      <div className="text-sm text-gray-600">{pendingLinkProduct.spec}</div>
+                      <div className="text-sm text-slate-500">{pendingLinkProduct.spec}</div>
                     )}
-                    <div className="text-sm text-gray-500 font-mono">{pendingLinkProduct.internal_code}</div>
+                    <div className="text-sm text-slate-400 font-mono">{pendingLinkProduct.internal_code}</div>
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-500 text-center">
+                <p className="text-xs text-slate-400 text-center">
                   연결하면 다음부터 "{externalInfo.externalName}"을(를) 입력하면
                   <br />자동으로 내부 재고와 연동됩니다.
                 </p>
               </div>
 
-              <div className="px-5 py-3 border-t bg-gray-50 flex justify-end gap-2">
+              <div className="px-5 py-3 border-t bg-slate-50 flex justify-end gap-2">
                 <button
                   onClick={() => setPendingLinkProduct(null)}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg"
+                  className="px-4 py-2 text-slate-500 hover:bg-slate-200 rounded-lg"
                   disabled={isRegistering}
                 >
                   취소
@@ -1094,7 +1094,7 @@ export default function ProductSearchModal({
                     setPendingLinkProduct(null);
                   }}
                   disabled={isRegistering}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50 flex items-center gap-2"
                 >
                   {isRegistering ? (
                     <>
@@ -1136,28 +1136,28 @@ export default function ProductSearchModal({
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col">
           {/* 헤더 */}
-          <div className="px-5 py-4 border-b bg-blue-50 flex items-center justify-between">
+          <div className="px-5 py-4 border-b bg-sky-50 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">출고 제품 선택</h2>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <h2 className="text-lg font-semibold text-slate-800">출고 제품 선택</h2>
+              <p className="text-sm text-slate-400 mt-0.5">
                 내부 재고에서 선택{companyName ? ` (거래처: ${companyName})` : ""}
               </p>
             </div>
             <button onClick={onClose} className="p-2 hover:bg-white/50 rounded-lg transition-colors">
-              <X className="h-5 w-5 text-gray-500" />
+              <X className="h-5 w-5 text-slate-400" />
             </button>
           </div>
 
           {/* 검색 영역 */}
           <div className="px-5 py-3 border-b">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
                 type="text"
                 placeholder="내부 제품명, 제품코드, 규격으로 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 autoFocus
               />
             </div>
@@ -1167,12 +1167,12 @@ export default function ProductSearchModal({
           <div className="flex-1 overflow-hidden flex flex-col">
             {loading ? (
               <div className="flex-1 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+                <Loader2 className="h-8 w-8 text-sky-500 animate-spin" />
               </div>
             ) : results.length > 0 ? (
               <>
                 {/* 테이블 헤더: 선택 | 코드 | 내부제품명 | 규격 | 재고 | 단가 | 추이 */}
-                <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs font-medium text-gray-600 border-b bg-blue-50/50">
+                <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs font-medium text-slate-500 border-b bg-sky-50/50">
                   <div className="col-span-1 text-center">선택</div>
                   <div className="col-span-2">코드</div>
                   <div className="col-span-3">내부제품명</div>
@@ -1186,12 +1186,12 @@ export default function ProductSearchModal({
                   {results.map((product) => (
                     <div
                       key={product.id}
-                      className="border-b border-gray-100"
+                      className="border-b border-slate-100"
                     >
                       {/* 내부 제품명 행 */}
                       <label
-                        className={`grid grid-cols-12 gap-2 px-4 py-2.5 hover:bg-gray-50 items-center text-sm cursor-pointer ${
-                          selectedProducts.has(product.id) ? "bg-blue-50" : ""
+                        className={`grid grid-cols-12 gap-2 px-4 py-2.5 hover:bg-slate-50 items-center text-sm cursor-pointer ${
+                          selectedProducts.has(product.id) ? "bg-sky-50" : ""
                         }`}
                       >
                         <div className="col-span-1 flex justify-center">
@@ -1199,21 +1199,21 @@ export default function ProductSearchModal({
                             type="checkbox"
                             checked={selectedProducts.has(product.id)}
                             onChange={() => toggleProductSelection(product)}
-                            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                            className="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500"
                           />
                         </div>
-                        <div className="col-span-2 text-gray-500 font-mono text-xs">{product.internal_code}</div>
+                        <div className="col-span-2 text-slate-400 font-mono text-xs">{product.internal_code}</div>
                         <div className="col-span-3">
                           <div className="flex items-center gap-1">
                             <Link2 className="h-3 w-3 text-green-500 shrink-0" />
-                            <span className="font-medium text-gray-900 truncate">{product.internal_name}</span>
+                            <span className="font-medium text-slate-800 truncate">{product.internal_name}</span>
                           </div>
                         </div>
-                        <div className="col-span-2 text-gray-600 truncate">{product.spec || "-"}</div>
-                        <div className={`col-span-1 text-right font-medium ${product.current_stock > 0 ? "text-green-600" : "text-gray-400"}`}>
+                        <div className="col-span-2 text-slate-500 truncate">{product.spec || "-"}</div>
+                        <div className={`col-span-1 text-right font-medium ${product.current_stock > 0 ? "text-green-600" : "text-slate-400"}`}>
                           {product.current_stock}
                         </div>
-                        <div className="col-span-2 text-right text-gray-700">
+                        <div className="col-span-2 text-right text-slate-600">
                           {product.unit_price?.toLocaleString() || "-"}원
                         </div>
                         <div className="col-span-1 flex justify-center">
@@ -1223,7 +1223,7 @@ export default function ProductSearchModal({
                               e.stopPropagation();
                               handleOpenPriceHistory(product.id, product.internal_name, companyId, companyName);
                             }}
-                            className="p-1.5 text-blue-500 hover:bg-blue-100 rounded-lg transition-colors"
+                            className="p-1.5 text-sky-500 hover:bg-sky-100 rounded-lg transition-colors"
                             title="단가 추이"
                           >
                             <TrendingUp className="h-4 w-4" />
@@ -1237,8 +1237,8 @@ export default function ProductSearchModal({
                         return (
                           <label
                             key={alias.id}
-                            className={`grid grid-cols-12 gap-2 px-4 py-2 hover:bg-blue-50/50 items-center text-sm cursor-pointer border-t border-gray-50 ${
-                              selectedProducts.has(aliasKey) ? "bg-blue-50" : "bg-gray-50/30"
+                            className={`grid grid-cols-12 gap-2 px-4 py-2 hover:bg-sky-50/50 items-center text-sm cursor-pointer border-t border-slate-50 ${
+                              selectedProducts.has(aliasKey) ? "bg-sky-50" : "bg-slate-50/30"
                             }`}
                           >
                             <div className="col-span-1 flex justify-center">
@@ -1246,21 +1246,21 @@ export default function ProductSearchModal({
                                 type="checkbox"
                                 checked={selectedProducts.has(aliasKey)}
                                 onChange={() => toggleProductSelection(product, alias)}
-                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                className="w-4 h-4 text-sky-600 rounded border-slate-300 focus:ring-sky-500"
                               />
                             </div>
                             <div className="col-span-2"></div>
                             <div className="col-span-3">
-                              <div className="flex items-center gap-1 text-blue-600">
-                                <span className="text-gray-400 ml-2">→</span>
+                              <div className="flex items-center gap-1 text-sky-600">
+                                <span className="text-slate-400 ml-2">→</span>
                                 <span className="truncate">{alias.external_name}</span>
                               </div>
                             </div>
-                            <div className="col-span-2 text-gray-500 truncate text-xs">
+                            <div className="col-span-2 text-slate-400 truncate text-xs">
                               {alias.external_spec || product.spec || "-"}
                             </div>
                             <div className="col-span-1"></div>
-                            <div className="col-span-2 text-right text-gray-600">
+                            <div className="col-span-2 text-right text-slate-500">
                               {alias.external_unit_price?.toLocaleString() || product.unit_price?.toLocaleString() || "-"}원
                             </div>
                             <div className="col-span-1"></div>
@@ -1276,11 +1276,11 @@ export default function ProductSearchModal({
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center p-8">
-                  <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">
+                  <Package className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-400">
                     {searchQuery ? `"${searchQuery}"에 대한 검색 결과가 없습니다.` : "등록된 제품이 없습니다."}
                   </p>
-                  <p className="text-sm text-gray-400 mt-2">
+                  <p className="text-sm text-slate-400 mt-2">
                     제품 관리에서 먼저 제품을 등록해주세요.
                   </p>
                 </div>
@@ -1289,20 +1289,20 @@ export default function ProductSearchModal({
           </div>
 
           {/* 푸터 */}
-          <div className="px-5 py-3 border-t bg-gray-50 flex justify-between items-center">
-            <div className="text-sm text-gray-500">
+          <div className="px-5 py-3 border-t bg-slate-50 flex justify-between items-center">
+            <div className="text-sm text-slate-400">
               {selectedProducts.size > 0 && (
-                <span className="font-medium text-blue-600">{selectedProducts.size}개 선택됨</span>
+                <span className="font-medium text-sky-600">{selectedProducts.size}개 선택됨</span>
               )}
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg">
+              <button onClick={onClose} className="px-4 py-2 text-slate-500 hover:bg-slate-200 rounded-lg">
                 닫기
               </button>
               <button
                 onClick={handleConfirmProductSelection}
                 disabled={selectedProducts.size === 0}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Check className="h-4 w-4" />
                 확인

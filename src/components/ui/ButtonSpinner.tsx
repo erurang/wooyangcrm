@@ -32,8 +32,8 @@ export default function ButtonSpinner({
 
   const colorClasses = {
     white: "border-white/30 border-t-white",
-    blue: "border-blue-200 border-t-blue-600",
-    gray: "border-gray-200 border-t-gray-600",
+    blue: "border-sky-200 border-t-sky-600",
+    gray: "border-slate-200 border-t-slate-600",
   };
 
   return (

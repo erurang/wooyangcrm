@@ -36,8 +36,8 @@ export default function UserDashboardTab({
         {/* 후속 상담 필요 거래처 */}
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <Clock className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <Clock className="h-5 w-5 text-sky-600" />
             </div>
             <h2 className="text-lg font-semibold text-slate-800">
               후속 상담 필요 거래처
@@ -52,7 +52,7 @@ export default function UserDashboardTab({
                   className="p-3 bg-white border border-slate-200 rounded-lg shadow-sm"
                 >
                   <div
-                    className="text-slate-800 font-medium cursor-pointer hover:text-indigo-600 transition-colors flex items-center justify-between"
+                    className="text-slate-800 font-medium cursor-pointer hover:text-sky-600 transition-colors flex items-center justify-between"
                     onClick={() =>
                       router.push(`/consultations/${client.company_id}`)
                     }
@@ -69,8 +69,8 @@ export default function UserDashboardTab({
             </ul>
           ) : (
             <div className="flex flex-col items-center justify-center h-32 text-slate-500">
-              <div className="bg-indigo-50 p-3 rounded-full mb-2">
-                <Clock className="h-6 w-6 text-indigo-400" />
+              <div className="bg-sky-50 p-3 rounded-full mb-2">
+                <Clock className="h-6 w-6 text-sky-400" />
               </div>
               <p>후속 상담이 필요한 고객이 없습니다</p>
             </div>
@@ -80,8 +80,8 @@ export default function UserDashboardTab({
         {/* 곧 만료되는 견적서 */}
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <AlertCircle className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <AlertCircle className="h-5 w-5 text-sky-600" />
             </div>
             <h2 className="text-lg font-semibold text-slate-800">
               곧 만료되는 견적서
@@ -107,7 +107,7 @@ export default function UserDashboardTab({
                       <span className="text-xs text-slate-500">
                         만료일: {validUntil ? new Date(validUntil).toLocaleDateString() : ""}
                       </span>
-                      <span className="text-sm font-medium text-indigo-600">
+                      <span className="text-sm font-medium text-sky-600">
                         {totalAmount.toLocaleString()}원
                       </span>
                     </div>
@@ -117,8 +117,8 @@ export default function UserDashboardTab({
             </ul>
           ) : (
             <div className="flex flex-col items-center justify-center h-32 text-slate-500">
-              <div className="bg-indigo-50 p-3 rounded-full mb-2">
-                <AlertCircle className="h-6 w-6 text-indigo-400" />
+              <div className="bg-sky-50 p-3 rounded-full mb-2">
+                <AlertCircle className="h-6 w-6 text-sky-400" />
               </div>
               <p>유효기간 7일 내 만료 임박한 견적서가 없습니다</p>
             </div>

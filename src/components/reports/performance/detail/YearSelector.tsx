@@ -25,7 +25,7 @@ export default function YearSelector({
             onChange={() => onToggleYear(year)}
           />
           <span
-            className={year === currentYear ? "font-bold text-blue-600" : ""}
+            className={year === currentYear ? "font-bold text-sky-600" : ""}
           >
             {year}
           </span>

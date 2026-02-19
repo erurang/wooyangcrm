@@ -113,7 +113,7 @@ export default function OverseasConsultationCard({
 
           {/* 파일 개수 표시 */}
           {consultation.files && consultation.files.length > 0 && (
-            <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded-full">
+            <span className="flex items-center gap-1 px-2 py-0.5 bg-sky-50 text-sky-600 text-xs rounded-full">
               <FileText size={12} />
               {consultation.files.length}개 파일
             </span>

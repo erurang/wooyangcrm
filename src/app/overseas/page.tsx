@@ -300,22 +300,22 @@ export default function OverseasCompaniesPage() {
               <div className="p-2 bg-red-100 rounded-full">
                 <AlertTriangle className="h-5 w-5 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">거래처 삭제</h3>
+              <h3 className="text-lg font-semibold text-slate-800">거래처 삭제</h3>
             </div>
 
             <div className="p-5">
-              <p className="text-sm text-gray-600">
-                <span className="font-semibold text-gray-900">&quot;{companyToDelete.name}&quot;</span> 거래처를 삭제하시겠습니까?
+              <p className="text-sm text-slate-500">
+                <span className="font-semibold text-slate-800">&quot;{companyToDelete.name}&quot;</span> 거래처를 삭제하시겠습니까?
               </p>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-slate-400">
                 삭제된 거래처는 복구할 수 없습니다.
               </p>
             </div>
 
-            <div className="flex justify-end items-center gap-3 px-5 py-4 bg-gray-50 border-t">
+            <div className="flex justify-end items-center gap-3 px-5 py-4 bg-slate-50 border-t">
               <button
                 onClick={cancelDelete}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
                 disabled={deleting}
               >
                 취소

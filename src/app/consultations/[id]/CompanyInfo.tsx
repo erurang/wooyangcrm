@@ -1,5 +1,4 @@
 "use client";
-import { Snackbar, Skeleton } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -21,15 +20,13 @@ interface Company {
   fax: string;
   notes: string;
   business_number: string;
-  contact: Contact[]; // 연락처 배열 추가
+  contact: Contact[];
 }
 
 export default function CompanyInfo(id: any) {
   const [company, setCompany] = useState<Company | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [companyLoading, setCompanyLoading] = useState(false); // 🔹 회사 정보 로딩 상태
-  const [snackbarMessage, setSnackbarMessage] = useState<string>("");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [companyLoading, setCompanyLoading] = useState(false);
 
   useEffect(() => {
     fetchCompanyData();
@@ -45,10 +42,7 @@ export default function CompanyInfo(id: any) {
         .select("id, contact_name, mobile, department, level, email")
         .eq("company_id", id);
 
-      if (contactsError) {
-        setSnackbarMessage("담당자를 불러오는 데 실패했습니다.");
-        setOpenSnackbar(true);
-      } else {
+      if (!contactsError) {
         setContacts(contactsData || []);
       }
 
@@ -64,14 +58,10 @@ export default function CompanyInfo(id: any) {
       });
 
       if (companyDataError) {
-        setSnackbarMessage("회사를 불러오는 데 실패했습니다.");
-        setOpenSnackbar(true);
-        return;
+        console.error("회사 정보 로드 실패:", companyDataError.message);
       }
     } catch (error) {
-      console.error("❗ 회사정보 로딩 중 오류 발생:", error);
-      setSnackbarMessage("회사정보를 가져오는 중 오류가 발생했습니다.");
-      setOpenSnackbar(true);
+      console.error("회사정보 로딩 중 오류 발생:", error);
     } finally {
       setCompanyLoading(false);
     }
@@ -79,44 +69,50 @@ export default function CompanyInfo(id: any) {
 
   const companyMemo = useMemo(() => company, [company]);
 
+  const SkeletonBlock = () => (
+    <div className="animate-pulse space-y-2">
+      <div className="h-3 bg-slate-200 rounded w-3/4" />
+      <div className="h-3 bg-slate-200 rounded w-1/2" />
+      <div className="h-3 bg-slate-200 rounded w-2/3" />
+    </div>
+  );
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* 🏢 회사 정보 */}
-        <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3  h-40 flex flex-col justify-between">
+        {/* 회사 정보 */}
+        <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm px-4 pt-3 h-40 flex flex-col justify-between">
           {companyLoading ? (
-            <>
-              <Skeleton variant="text" width="100%" height="100%" />
-            </>
+            <SkeletonBlock />
           ) : (
             <div>
-              <ul className="space-y-1 text-gray-700 text-sm pl-1">
+              <ul className="space-y-1 text-slate-600 text-sm pl-1">
                 <li className="flex items-center">
-                  <span className="font-medium w-14">회사명</span>
+                  <span className="font-semibold w-14 text-slate-700">회사명</span>
                   <span className="flex-1 truncate">{companyMemo?.name}</span>
                 </li>
                 <li className="flex items-center">
-                  <span className="font-medium w-14">주소</span>
+                  <span className="font-semibold w-14 text-slate-700">주소</span>
                   <span className="flex-1 truncate">
-                    {companyMemo?.address || "정보 없음"}
+                    {companyMemo?.address || <span className="text-slate-400">정보 없음</span>}
                   </span>
                 </li>
                 <li className="flex items-center">
-                  <span className="font-medium w-14">전화</span>
-                  <span className="flex-1">
-                    {companyMemo?.phone || "정보 없음"}
+                  <span className="font-semibold w-14 text-slate-700">전화</span>
+                  <span className="flex-1 tabular-nums">
+                    {companyMemo?.phone || <span className="text-slate-400">정보 없음</span>}
                   </span>
                 </li>
                 <li className="flex items-center">
-                  <span className="font-medium w-14">팩스</span>
-                  <span className="flex-1">
-                    {companyMemo?.fax || "정보 없음"}
+                  <span className="font-semibold w-14 text-slate-700">팩스</span>
+                  <span className="flex-1 tabular-nums">
+                    {companyMemo?.fax || <span className="text-slate-400">정보 없음</span>}
                   </span>
                 </li>
                 <li className="flex items-center">
-                  <span className="font-medium w-14">이메일</span>
+                  <span className="font-semibold w-14 text-slate-700">이메일</span>
                   <span className="flex-1 truncate">
-                    {companyMemo?.email || "정보 없음"}
+                    {companyMemo?.email || <span className="text-slate-400">정보 없음</span>}
                   </span>
                 </li>
               </ul>
@@ -124,41 +120,30 @@ export default function CompanyInfo(id: any) {
           )}
         </div>
 
-        {/* 📝 비고 */}
-        <div className="bg-[#FBFBFB] rounded-md border px-4 pt-3 h-40 flex flex-col">
+        {/* 담당자 */}
+        <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm px-4 pt-3 h-40 flex flex-col">
           {companyLoading ? (
-            <>
-              <Skeleton variant="text" width="100%" height="100%" />
-            </>
+            <SkeletonBlock />
           ) : (
             <>
-              <h2 className="font-semibold text-md mb-1">담당자</h2>
-
-              <div className=" h-28 overflow-y-auto">
+              <h2 className="font-bold text-sm text-slate-800 mb-1">담당자</h2>
+              <div className="h-28 overflow-y-auto">
                 <table className="w-full text-xs border-collapse">
-                  {/* 🔹 테이블 헤더 고정 (sticky top-0 적용) */}
-                  <thead className="border-b font-semibold bg-gray-100 sticky top-0">
-                    {/* <tr>
-                      <th className="text-left px-2 py-1">이름</th>
-                      <th className="text-left px-2 py-1">직급</th>
-                      <th className="text-left px-2 py-1">부서</th>
-                      <th className="text-left px-2 py-1">이메일</th>
-                    </tr> */}
+                  <thead className="border-b font-semibold bg-slate-50 sticky top-0">
                   </thead>
-                  {/* 🔹 내용만 스크롤 */}
                   <tbody className="text-sm">
                     {company?.contact.map((contact, index) => (
                       <tr
                         key={index}
                         className={`${
-                          index !== company.contact.length - 1 ? "border-b" : ""
+                          index !== company.contact.length - 1 ? "border-b border-slate-100" : ""
                         }`}
                       >
-                        <td className="px-1 py-1">{contact.contact_name}</td>
-                        <td className="px-1 py-1">{contact.level}</td>
-                        <td className="px-1 py-1">{contact.department}</td>
-                        <td className="px-1 py-1">{contact.mobile}</td>
-                        <td className="px-1 py-1 truncate">{contact.email}</td>
+                        <td className="px-1 py-1 font-medium text-slate-800">{contact.contact_name}</td>
+                        <td className="px-1 py-1 text-slate-500">{contact.level}</td>
+                        <td className="px-1 py-1 text-slate-500">{contact.department}</td>
+                        <td className="px-1 py-1 text-slate-500 tabular-nums">{contact.mobile}</td>
+                        <td className="px-1 py-1 truncate text-slate-500">{contact.email}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -168,14 +153,15 @@ export default function CompanyInfo(id: any) {
           )}
         </div>
 
-        <div className="bg-[#FBFBFB] rounded-md border pl-4 pt-3 h-[11.25rem]">
+        {/* 비고 */}
+        <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm pl-4 pt-3 h-[11.25rem]">
           {companyLoading ? (
-            <Skeleton variant="rectangular" width="100%" height="100%" />
+            <SkeletonBlock />
           ) : (
             <>
-              <h2 className="font-semibold text-md mb-1">비고</h2>
-              <div className="text-sm h-[9rem] overflow-y-auto pl-1">
-                <span>{companyMemo?.notes || "내용 없음"}</span>
+              <h2 className="font-bold text-sm text-slate-800 mb-1">비고</h2>
+              <div className="text-sm h-[9rem] overflow-y-auto pl-1 text-slate-600 leading-relaxed">
+                <span>{companyMemo?.notes || <span className="text-slate-400">내용 없음</span>}</span>
               </div>
             </>
           )}

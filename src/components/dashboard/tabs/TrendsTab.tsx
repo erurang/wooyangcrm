@@ -37,8 +37,8 @@ export default function TrendsTab({
     <div className="bg-white border border-slate-200 shadow-sm p-5 mx-5 mb-5 rounded-lg">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <TrendingUp className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <TrendingUp className="h-5 w-5 text-sky-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-800">
             월별 매출/매입 추이
@@ -114,7 +114,7 @@ export default function TrendsTab({
               <span className="text-slate-400">-</span>
             )}
           </div>
-          <p className="text-3xl font-bold text-indigo-600 mb-2">
+          <p className="text-3xl font-bold text-sky-600 mb-2">
             {monthlyTrendData.salesData.length > 0
               ? monthlyTrendData.salesData[
                   monthlyTrendData.salesData.length - 1
@@ -140,7 +140,7 @@ export default function TrendsTab({
               <span className="text-slate-400">-</span>
             )}
           </div>
-          <p className="text-3xl font-bold text-indigo-600 mb-2">
+          <p className="text-3xl font-bold text-sky-600 mb-2">
             {monthlyTrendData.purchaseData.length > 0
               ? monthlyTrendData.purchaseData[
                   monthlyTrendData.purchaseData.length - 1
@@ -175,7 +175,7 @@ export default function TrendsTab({
             const isPositive = profitRate >= 0;
 
             return (
-              <p className={`text-3xl font-bold mb-2 ${isPositive ? "text-indigo-600" : "text-red-500"}`}>
+              <p className={`text-3xl font-bold mb-2 ${isPositive ? "text-sky-600" : "text-red-500"}`}>
                 {profitRate}%
               </p>
             );

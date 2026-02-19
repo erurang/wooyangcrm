@@ -23,11 +23,11 @@ export default function ErrorFallback({
       <div className="bg-red-50 rounded-full p-4 mb-4">
         <AlertTriangle className="h-8 w-8 text-red-500" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-600 mb-4 max-w-md">{message}</p>
+      <h3 className="text-lg font-semibold text-slate-800 mb-2">{title}</h3>
+      <p className="text-sm text-slate-500 mb-4 max-w-md">{message}</p>
       {error && process.env.NODE_ENV === "development" && (
-        <div className="mb-4 p-3 bg-gray-100 rounded-md max-w-md overflow-auto">
-          <p className="text-xs font-mono text-gray-700 break-all">
+        <div className="mb-4 p-3 bg-slate-100 rounded-md max-w-md overflow-auto">
+          <p className="text-xs font-mono text-slate-600 break-all">
             {error.message}
           </p>
         </div>
@@ -36,7 +36,7 @@ export default function ErrorFallback({
         {onRetry && (
           <button
             onClick={onRetry}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white text-sm font-medium rounded-md hover:bg-sky-700 transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
             다시 시도
@@ -45,7 +45,7 @@ export default function ErrorFallback({
         {showHomeButton && (
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 text-sm font-medium rounded-md hover:bg-slate-200 transition-colors"
           >
             <Home className="h-4 w-4" />
             홈으로

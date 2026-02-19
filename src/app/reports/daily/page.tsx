@@ -89,7 +89,7 @@ const getDocTypeText = (type: string) => {
 // 문서 타입별 스타일
 const getDocTypeStyle = (type: string) => {
   switch (type) {
-    case "estimate": return { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", icon: FileText };
+    case "estimate": return { bg: "bg-sky-50", border: "border-sky-200", text: "text-sky-700", icon: FileText };
     case "order": return { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", icon: ShoppingCart };
     case "requestQuote": return { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700", icon: ClipboardList };
     default: return { bg: "bg-slate-50", border: "border-slate-200", text: "text-slate-700", icon: FileText };
@@ -374,8 +374,8 @@ function DailyReportContent() {
         {/* 타이틀 + 액션 버튼 */}
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-indigo-100 rounded-xl">
-              <FileText className="w-5 h-5 text-indigo-600" />
+            <div className="p-2.5 bg-sky-100 rounded-xl">
+              <FileText className="w-5 h-5 text-sky-600" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-800">업무일지</h1>
@@ -402,7 +402,7 @@ function DailyReportContent() {
             <button
               onClick={handlePrint}
               disabled={!reportData?.items.length}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-sky-600 bg-sky-50 rounded-lg hover:bg-sky-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Printer className="w-4 h-4" />
               인쇄
@@ -425,7 +425,7 @@ function DailyReportContent() {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="px-2 py-1 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-2 py-1 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
             <button
               onClick={goToNextDay}
@@ -437,7 +437,7 @@ function DailyReportContent() {
             {selectedDate !== today && (
               <button
                 onClick={goToToday}
-                className="px-2 py-1 text-xs text-indigo-600 hover:bg-indigo-50 rounded"
+                className="px-2 py-1 text-xs text-sky-600 hover:bg-sky-50 rounded"
               >
                 오늘
               </button>
@@ -474,7 +474,7 @@ function DailyReportContent() {
                   type="checkbox"
                   checked={allUsers}
                   onChange={(e) => setAllUsers(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                  className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
                 />
                 <Users className="w-4 h-4 text-slate-400" />
                 <span className="text-sm text-slate-600">전체 직원</span>
@@ -492,7 +492,7 @@ function DailyReportContent() {
                 onClick={() => setViewMode(mode)}
                 className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
                   viewMode === mode
-                    ? "bg-white text-indigo-600 shadow-sm"
+                    ? "bg-white text-sky-600 shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -507,7 +507,7 @@ function DailyReportContent() {
       <div className="max-w-7xl mx-auto px-2 mt-4 print:p-0 print:max-w-none print:mt-0">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : error ? (
           <div className="text-center py-20 text-red-600">
@@ -537,11 +537,11 @@ function DailyReportContent() {
               <div className="flex-1 p-4">
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="flex">
-                    <span className="font-medium text-gray-500 w-16">작성일</span>
+                    <span className="font-medium text-slate-400 w-16">작성일</span>
                     <span>{formatDisplayDate(reportData.date, reportData.dayOfWeek, reportData.dateEnd)}</span>
                   </div>
                   <div className="flex">
-                    <span className="font-medium text-gray-500 w-16">작성자</span>
+                    <span className="font-medium text-slate-400 w-16">작성자</span>
                     <span>{reportData.author}</span>
                   </div>
                 </div>
@@ -549,7 +549,7 @@ function DailyReportContent() {
               <div className="border-l">
                 <table className="h-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50">
+                    <tr className="bg-slate-50">
                       <th className="px-4 py-2 border-r w-16">담당</th>
                       <th className="px-4 py-2 border-r w-16">검토</th>
                       <th className="px-4 py-2 w-16">대표</th>
@@ -578,22 +578,22 @@ function DailyReportContent() {
                     className="space-y-1"
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <TrendingUp className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-medium text-gray-700">매출 (견적)</span>
+                      <TrendingUp className="w-4 h-4 text-sky-600" />
+                      <span className="text-sm font-medium text-slate-600">매출 (견적)</span>
                     </div>
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-1.5">
                         <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded">진행</span>
                         <span className="font-medium">{formatCurrency(totals.salesPending)}</span>
                         {totals.salesPendingCount > 0 && (
-                          <span className="text-xs text-gray-400">({totals.salesPendingCount}건)</span>
+                          <span className="text-xs text-slate-400">({totals.salesPendingCount}건)</span>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-xs rounded">완료</span>
                         <span className="font-medium text-green-600">{formatCurrency(totals.salesCompleted)}</span>
                         {totals.salesCompletedCount > 0 && (
-                          <span className="text-xs text-gray-400">({totals.salesCompletedCount}건)</span>
+                          <span className="text-xs text-slate-400">({totals.salesCompletedCount}건)</span>
                         )}
                       </div>
                     </div>
@@ -607,21 +607,21 @@ function DailyReportContent() {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <TrendingDown className="w-4 h-4 text-orange-600" />
-                      <span className="text-sm font-medium text-gray-700">매입 (발주)</span>
+                      <span className="text-sm font-medium text-slate-600">매입 (발주)</span>
                     </div>
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-1.5">
                         <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded">진행</span>
                         <span className="font-medium">{formatCurrency(totals.purchasePending)}</span>
                         {totals.purchasePendingCount > 0 && (
-                          <span className="text-xs text-gray-400">({totals.purchasePendingCount}건)</span>
+                          <span className="text-xs text-slate-400">({totals.purchasePendingCount}건)</span>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-xs rounded">완료</span>
                         <span className="font-medium text-green-600">{formatCurrency(totals.purchaseCompleted)}</span>
                         {totals.purchaseCompletedCount > 0 && (
-                          <span className="text-xs text-gray-400">({totals.purchaseCompletedCount}건)</span>
+                          <span className="text-xs text-slate-400">({totals.purchaseCompletedCount}건)</span>
                         )}
                       </div>
                     </div>
@@ -634,7 +634,7 @@ function DailyReportContent() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm main-content-table">
                 <thead>
-                  <tr className="bg-gray-50 border-b">
+                  <tr className="bg-slate-50 border-b">
                     <th className="px-3 py-3 text-center font-medium w-12 border-r">No.</th>
                     <th className="px-3 py-3 text-center font-medium w-28 border-r">업체명</th>
                     <th className="px-3 py-3 text-left font-medium border-r w-[45%]">내용</th>
@@ -643,19 +643,19 @@ function DailyReportContent() {
                 </thead>
                 <tbody>
                   {reportData.items.map((item) => (
-                    <tr key={item.consultationId} className="border-b hover:bg-gray-50">
+                    <tr key={item.consultationId} className="border-b hover:bg-slate-50">
                       <td className="px-3 py-3 text-center align-middle border-r">
                         {item.no}
                       </td>
                       <td className="px-3 py-3 text-center align-middle border-r">
                         <span
                           onClick={() => router.push(`/consultations/${item.companyId}`)}
-                          className="text-blue-600 hover:underline cursor-pointer print:text-black print:cursor-default"
+                          className="text-sky-600 hover:underline cursor-pointer print:text-black print:cursor-default"
                         >
                           {item.companyName}
                         </span>
                         {item.authorName && (
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-slate-400 mt-1">
                             ({item.authorName})
                           </div>
                         )}
@@ -663,7 +663,7 @@ function DailyReportContent() {
                       <td className="px-3 py-3 border-r">
                         {/* 주간/월간 모드에서 상담 날짜 표시 */}
                         {viewMode !== "daily" && item.consultationDate && (
-                          <div className="mb-2 text-xs text-gray-500 font-medium">
+                          <div className="mb-2 text-xs text-slate-400 font-medium">
                             {item.consultationDate}
                           </div>
                         )}
@@ -675,13 +675,13 @@ function DailyReportContent() {
                         )}
                         <div
                           onClick={() => handleConsultationClick(item.companyId, item.consultationId)}
-                          className="whitespace-pre-wrap cursor-pointer hover:bg-blue-50 rounded p-1 -m-1 print:cursor-default print:hover:bg-transparent"
+                          className="whitespace-pre-wrap cursor-pointer hover:bg-sky-50 rounded p-1 -m-1 print:cursor-default print:hover:bg-transparent"
                         >
                           {item.content}
                         </div>
 
                         {item.documents.length > 0 && (
-                          <div className="space-y-2 mt-3 pt-3 border-t border-gray-100">
+                          <div className="space-y-2 mt-3 pt-3 border-t border-slate-100">
                             {item.documents.map((doc) => {
                               const style = getDocTypeStyle(doc.type);
                               const statusInfo = getStatusInfo(doc.status);
@@ -717,25 +717,25 @@ function DailyReportContent() {
                                     <table className="w-full text-xs table-fixed">
                                       <thead>
                                         <tr className="bg-white/50">
-                                          <th className="border border-gray-300 px-2 py-1 text-left w-[35%]">품목</th>
-                                          <th className="border border-gray-300 px-2 py-1 text-left w-[20%]">규격</th>
-                                          <th className="border border-gray-300 px-2 py-1 text-right w-[10%]">수량</th>
-                                          <th className="border border-gray-300 px-2 py-1 text-right w-[15%]">단가</th>
-                                          <th className="border border-gray-300 px-2 py-1 text-right w-[20%]">금액</th>
+                                          <th className="border border-slate-300 px-2 py-1 text-left w-[35%]">품목</th>
+                                          <th className="border border-slate-300 px-2 py-1 text-left w-[20%]">규격</th>
+                                          <th className="border border-slate-300 px-2 py-1 text-right w-[10%]">수량</th>
+                                          <th className="border border-slate-300 px-2 py-1 text-right w-[15%]">단가</th>
+                                          <th className="border border-slate-300 px-2 py-1 text-right w-[20%]">금액</th>
                                         </tr>
                                       </thead>
                                       <tbody>
                                         {doc.items.map((docItem, idx) => (
                                           <tr key={idx} className="bg-white/30">
-                                            <td className="border border-gray-300 px-2 py-1">{docItem.name}</td>
-                                            <td className="border border-gray-300 px-2 py-1 text-gray-600">{docItem.spec || "-"}</td>
-                                            <td className="border border-gray-300 px-2 py-1 text-right whitespace-nowrap">
+                                            <td className="border border-slate-300 px-2 py-1">{docItem.name}</td>
+                                            <td className="border border-slate-300 px-2 py-1 text-slate-500">{docItem.spec || "-"}</td>
+                                            <td className="border border-slate-300 px-2 py-1 text-right whitespace-nowrap">
                                               {docItem.quantity}{docItem.unit || ""}
                                             </td>
-                                            <td className="border border-gray-300 px-2 py-1 text-right whitespace-nowrap">
+                                            <td className="border border-slate-300 px-2 py-1 text-right whitespace-nowrap">
                                               {formatCurrency(docItem.unit_price)}
                                             </td>
-                                            <td className="border border-gray-300 px-2 py-1 text-right font-medium whitespace-nowrap">
+                                            <td className="border border-slate-300 px-2 py-1 text-right font-medium whitespace-nowrap">
                                               {formatCurrency(docItem.amount)}
                                             </td>
                                           </tr>
@@ -755,7 +755,7 @@ function DailyReportContent() {
                             <textarea
                               value={editNoteValue}
                               onChange={(e) => setEditNoteValue(e.target.value)}
-                              className="w-full min-h-[60px] px-2 py-1 text-sm border rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="w-full min-h-[60px] px-2 py-1 text-sm border rounded resize-none focus:outline-none focus:ring-2 focus:ring-sky-500"
                               autoFocus
                             />
                             <div className="flex gap-1 justify-center">
@@ -777,11 +777,11 @@ function DailyReportContent() {
                           </div>
                         ) : (
                           <div className="flex items-center justify-center gap-1">
-                            <span className="text-gray-600">{item.note || "-"}</span>
+                            <span className="text-slate-500">{item.note || "-"}</span>
                             {canEditNote && (
                               <button
                                 onClick={() => handleStartEditNote(item.consultationId, item.note)}
-                                className="p-1 text-gray-300 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors print:hidden"
+                                className="p-1 text-slate-300 hover:text-sky-600 hover:bg-sky-50 rounded transition-colors print:hidden"
                                 title="비고 수정"
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
@@ -885,13 +885,13 @@ function DailyReportContent() {
             margin-top: 6px !important;
           }
 
-          #print-area .bg-gray-50 {
+          #print-area .bg-slate-50 {
             background-color: #f9fafb !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
 
-          #print-area .bg-blue-50 {
+          #print-area .bg-sky-50 {
             background-color: #eff6ff !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -940,8 +940,8 @@ function DailyReportContent() {
 export default function DailyReportPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-sky-600 border-t-transparent rounded-full animate-spin" />
       </div>
     }>
       <DailyReportContent />

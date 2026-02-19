@@ -33,8 +33,8 @@ export default function UserClientsTab({
   return (
     <div className="bg-white border border-slate-200 shadow-sm p-5 mx-5 mb-5 rounded-lg">
       <div className="flex items-center mb-6">
-        <div className="bg-indigo-50 p-2 rounded-md mr-3">
-          <Building className="h-5 w-5 text-indigo-600" />
+        <div className="bg-sky-50 p-2 rounded-md mr-3">
+          <Building className="h-5 w-5 text-sky-600" />
         </div>
         <h2 className="text-xl font-semibold text-slate-800">거래처 분석</h2>
       </div>
@@ -79,7 +79,7 @@ export default function UserClientsTab({
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-slate-500">
                     {client.orders}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-semibold text-indigo-600">
+                  <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-semibold text-sky-600">
                     {client.totalSales.toLocaleString()} 원
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-semibold text-emerald-600">
@@ -105,8 +105,8 @@ export default function UserClientsTab({
         {/* 거래처별 상담 빈도 */}
         <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <Users className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <Users className="h-5 w-5 text-sky-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800">
               거래처별 상담 빈도
@@ -158,8 +158,8 @@ export default function UserClientsTab({
         {/* 거래처별 매출 비중 */}
         <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <PieChart className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <PieChart className="h-5 w-5 text-sky-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800">
               거래처별 매출 비중

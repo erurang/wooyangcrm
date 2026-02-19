@@ -1,8 +1,7 @@
 "use client";
 
 import type React from "react";
-import CircularProgress from "@mui/material/CircularProgress";
-import { Plus, CheckCircle, Circle } from "lucide-react";
+import { Plus, CheckCircle, Circle, Loader2 } from "lucide-react";
 import TodoItem from "./TodoItem";
 
 interface Todo {
@@ -59,7 +58,7 @@ export default function TodoSection({
   const headerIcon = isComplete ? (
     <CheckCircle className="h-4 w-4 text-emerald-500 mr-1" />
   ) : (
-    <Circle className="h-4 w-4 text-indigo-500 mr-1" />
+    <Circle className="h-4 w-4 text-sky-500 mr-1" />
   );
 
   const headerTitle = isComplete
@@ -73,7 +72,7 @@ export default function TodoSection({
   const dragOverClass = isDragOver
     ? isComplete
       ? "bg-emerald-50/30 rounded-lg"
-      : "bg-indigo-50/30 rounded-lg"
+      : "bg-sky-50/30 rounded-lg"
     : "";
 
   return (
@@ -89,11 +88,11 @@ export default function TodoSection({
         {!isComplete && onAddTodo && (
           <button
             onClick={onAddTodo}
-            className="flex items-center px-2 py-1 text-xs bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors disabled:opacity-70"
+            className="flex items-center px-2 py-1 text-xs bg-sky-600 text-white rounded hover:bg-sky-700 transition-colors disabled:opacity-70"
             disabled={isAdding}
           >
             {isAdding ? (
-              <CircularProgress size={12} color="inherit" className="mr-1" />
+              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
             ) : (
               <Plus className="h-3 w-3 mr-1" />
             )}

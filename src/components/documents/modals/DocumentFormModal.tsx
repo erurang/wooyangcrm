@@ -101,25 +101,25 @@ export default function DocumentFormModal({
 
   const colorConfig = isAddMode
     ? {
-        gradient: "from-blue-600 to-blue-700",
-        focus: "focus:ring-blue-500",
+        gradient: "from-sky-600 to-sky-700",
+        focus: "focus:ring-sky-500",
         accent: "blue" as const,
-        iconColor: "text-blue-600",
-        button: "bg-blue-600 hover:bg-blue-700",
+        iconColor: "text-sky-600",
+        button: "bg-sky-600 hover:bg-sky-700",
       }
     : {
-        gradient: "from-indigo-600 to-indigo-700",
-        focus: "focus:ring-indigo-500",
+        gradient: "from-sky-600 to-sky-700",
+        focus: "focus:ring-sky-500",
         accent: "indigo" as const,
-        iconColor: "text-indigo-600",
-        button: "bg-indigo-600 hover:bg-indigo-700",
+        iconColor: "text-sky-600",
+        button: "bg-sky-600 hover:bg-sky-700",
       };
 
   const showAmountInfo = isAddMode ? type !== "requestQuote" : true;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 overflow-y-auto py-8"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm overflow-y-auto py-8"
       onClick={onClose}
     >
       <div

@@ -84,8 +84,8 @@ export default function StockAdjustmentModal({
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <Package className="h-5 w-5 text-indigo-600" />
+              <div className="p-2 bg-sky-100 rounded-lg">
+                <Package className="h-5 w-5 text-sky-600" />
               </div>
               <h2 className="text-lg font-semibold text-slate-800">재고 조정</h2>
             </div>
@@ -160,14 +160,14 @@ export default function StockAdjustmentModal({
                 min={0}
                 step={0.001}
                 placeholder="0"
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-lg"
               />
               {quantity > 0 && (
                 <p className="mt-2 text-sm">
                   예상 재고:{" "}
                   <span
                     className={`font-bold ${
-                      expectedStock < 0 ? "text-red-600" : "text-indigo-600"
+                      expectedStock < 0 ? "text-red-600" : "text-sky-600"
                     }`}
                   >
                     {expectedStock.toLocaleString()} {product.unit}
@@ -184,7 +184,7 @@ export default function StockAdjustmentModal({
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="조정 사유를 입력하세요 (선택사항)"
                 rows={2}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
               />
             </div>
 

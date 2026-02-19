@@ -23,7 +23,7 @@ import { useLoginUser } from "@/context/login";
 const priorityLabels = {
   urgent: { label: "긴급", color: "bg-red-100 text-red-700", icon: AlertTriangle },
   high: { label: "높음", color: "bg-orange-100 text-orange-700", icon: ArrowUp },
-  normal: { label: "보통", color: "bg-blue-100 text-blue-700", icon: Minus },
+  normal: { label: "보통", color: "bg-sky-100 text-sky-700", icon: Minus },
   low: { label: "낮음", color: "bg-slate-100 text-slate-600", icon: ArrowDown },
 };
 
@@ -235,7 +235,7 @@ export default function AnnouncementsPage() {
                         <div className="flex items-center justify-center gap-1">
                           <button
                             onClick={() => openEditModal(announcement)}
-                            className="p-1.5 rounded-lg hover:bg-blue-100 text-slate-400 hover:text-blue-600 transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-sky-100 text-slate-400 hover:text-sky-600 transition-colors"
                             title="수정"
                           >
                             <Edit2 className="h-4 w-4" />

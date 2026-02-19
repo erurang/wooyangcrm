@@ -231,14 +231,14 @@ export default function Page() {
         </div>
 
         <div className="flex items-center">
-          <label className="mr-2 text-sm text-gray-600">표시 개수:</label>
+          <label className="mr-2 text-sm text-slate-500">표시 개수:</label>
           <select
             value={developsPerPage}
             onChange={(e) => {
               setDevelopsPerPage(Number(e.target.value));
               setCurrentPage(1);
             }}
-            className="border border-gray-300 p-2 rounded-md text-sm"
+            className="border border-slate-300 p-2 rounded-md text-sm"
           >
             <option value="10">10개</option>
             <option value="20">20개</option>

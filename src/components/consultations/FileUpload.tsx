@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { CircularProgress } from "@mui/material";
-import { Download, Trash2, User, Calendar, FileText, X, History, ChevronDown, ChevronUp, Upload } from "lucide-react";
+import { Download, Trash2, User, Calendar, FileText, X, History, ChevronDown, ChevronUp, Upload, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useGlobalToast } from "@/context/toast";
 import dayjs from "dayjs";
@@ -397,29 +396,29 @@ export default function FileUpload({
       <div className="space-y-3 max-h-[400px] overflow-y-auto">
         {loading ? (
           <div className="flex justify-center py-8">
-            <CircularProgress size={24} />
+            <Loader2 className="h-6 w-6 animate-spin text-sky-600" />
           </div>
         ) : files.length > 0 ? (
           files.map((file) => (
             <div
               key={file.id}
-              className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+              className="bg-slate-50/50 rounded-xl p-3 border border-slate-200/60"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <span className="text-2xl">{getFileIcon(file.file_name)}</span>
                   <div className="flex-1 min-w-0">
                     <div
-                      className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer truncate"
+                      className="font-medium text-sky-600 hover:text-sky-800 cursor-pointer truncate"
                       onClick={() => window.open(file.signedUrl, "_blank")}
                       title={file.file_name}
                     >
                       {file.file_name}
                     </div>
                     {file.description && (
-                      <p className="text-sm text-gray-600 mt-1">{file.description}</p>
+                      <p className="text-sm text-slate-500 mt-1">{file.description}</p>
                     )}
-                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
                       <span className="flex items-center gap-1">
                         <User className="w-3 h-3" />
                         {file.user?.name || "알 수 없음"} {file.user?.level || ""}
@@ -438,7 +437,7 @@ export default function FileUpload({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => handleDownload(file)}
-                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
                     title="다운로드"
                   >
                     <Download className="w-4 h-4" />
@@ -447,13 +446,13 @@ export default function FileUpload({
                     onClick={() => loadDownloadHistory(file.id)}
                     className={`p-2 rounded-lg transition-colors ${
                       expandedHistory === file.id
-                        ? "text-blue-600 bg-blue-50"
-                        : "text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+                        ? "text-sky-600 bg-sky-50"
+                        : "text-slate-400 hover:text-sky-600 hover:bg-sky-50"
                     }`}
                     title="다운로드 기록"
                   >
                     {loadingHistory === file.id ? (
-                      <CircularProgress size={16} />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <History className="w-4 h-4" />
                     )}
@@ -461,12 +460,12 @@ export default function FileUpload({
                   {file.user_id === userId && (
                     <button
                       onClick={() => handleDelete(file.id, file.file_url)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       disabled={deletingFile === file.id}
                       title="삭제"
                     >
                       {deletingFile === file.id ? (
-                        <CircularProgress size={16} />
+                        <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <Trash2 className="w-4 h-4" />
                       )}
@@ -477,35 +476,35 @@ export default function FileUpload({
 
               {/* 다운로드 기록 */}
               {expandedHistory === file.id && downloadHistory[file.id] && (
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <div className="text-xs font-medium text-gray-500 mb-2">다운로드 기록</div>
+                <div className="mt-3 pt-3 border-t border-slate-200">
+                  <div className="text-xs font-medium text-slate-400 mb-2">다운로드 기록</div>
                   {downloadHistory[file.id].length > 0 ? (
                     <div className="space-y-1 max-h-32 overflow-y-auto">
                       {downloadHistory[file.id].map((record) => (
                         <div
                           key={record.id}
-                          className="flex items-center justify-between text-xs text-gray-600 py-1"
+                          className="flex items-center justify-between text-xs text-slate-500 py-1"
                         >
                           <span className="flex items-center gap-1">
                             <User className="w-3 h-3" />
                             {record.user?.name || "알 수 없음"} {record.user?.level || ""}
                           </span>
-                          <span className="text-gray-400">
+                          <span className="text-slate-400">
                             {dayjs(record.created_at).format("YYYY-MM-DD HH:mm")}
                           </span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-gray-400">다운로드 기록이 없습니다.</p>
+                    <p className="text-xs text-slate-400">다운로드 기록이 없습니다.</p>
                   )}
                 </div>
               )}
             </div>
           ))
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            <FileText className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+          <div className="text-center py-8 text-slate-400">
+            <FileText className="w-12 h-12 mx-auto mb-2 text-slate-300" />
             <p>첨부된 파일이 없습니다.</p>
           </div>
         )}
@@ -513,12 +512,12 @@ export default function FileUpload({
 
       {/* 업로드 폼 (파일 선택 후 표시) */}
       {showUploadForm && pendingFiles.length > 0 && (
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+        <div className="bg-sky-50/50 rounded-xl p-4 border border-sky-200/60">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-blue-800">파일 업로드</h4>
+            <h4 className="font-medium text-sky-800">파일 업로드</h4>
             <button
               onClick={cancelUpload}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-slate-400 hover:text-slate-500"
             >
               <X className="w-5 h-5" />
             </button>
@@ -529,7 +528,7 @@ export default function FileUpload({
                 <div className="flex items-center gap-2 mb-2">
                   <span>{getFileIcon(file.name)}</span>
                   <span className="font-medium text-sm truncate">{file.name}</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-slate-400">
                     ({(file.size / 1024).toFixed(1)} KB)
                   </span>
                 </div>
@@ -543,7 +542,7 @@ export default function FileUpload({
                       [file.name]: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
                 />
               </div>
             ))}
@@ -551,16 +550,16 @@ export default function FileUpload({
           <div className="flex justify-end gap-2 mt-4">
             <button
               onClick={cancelUpload}
-              className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+              className="px-4 py-2 text-sm text-slate-500 hover:bg-slate-100 rounded-lg"
             >
               취소
             </button>
             <button
               onClick={handleUpload}
               disabled={uploading}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 text-sm font-bold bg-sky-600 text-white rounded-xl hover:bg-sky-700 disabled:opacity-50 flex items-center gap-2 shadow-sm shadow-sky-200 transition-all"
             >
-              {uploading && <CircularProgress size={16} className="text-white" />}
+              {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
               {uploading ? "업로드 중..." : "업로드"}
             </button>
           </div>
@@ -570,10 +569,10 @@ export default function FileUpload({
       {/* 파일 선택 영역 */}
       {!showUploadForm && (
         <div
-          className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
+          className={`relative border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all duration-200 ${
             dragging
-              ? "border-blue-500 bg-blue-50"
-              : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+              ? "border-sky-500 bg-sky-50/80"
+              : "border-slate-200 hover:border-sky-400 hover:bg-slate-50/50"
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -588,15 +587,15 @@ export default function FileUpload({
             onChange={(e) => handleFileSelect(e.target.files)}
           />
           {dragging ? (
-            <div className="flex flex-col items-center gap-2 text-blue-600">
+            <div className="flex flex-col items-center gap-2 text-sky-600">
               <Upload className="h-8 w-8" />
               <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-1 text-gray-500">
+            <div className="flex flex-col items-center gap-1 text-slate-400">
               <FileText className="h-6 w-6" />
               <p className="text-sm">
-                <span className="font-medium text-blue-600">파일 선택</span>
+                <span className="font-medium text-sky-600">파일 선택</span>
                 <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
               </p>
             </div>

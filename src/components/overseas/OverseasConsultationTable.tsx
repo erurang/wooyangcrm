@@ -53,15 +53,15 @@ interface OverseasConsultationTableProps {
 
 // 파일 타입별 색상
 const FILE_TYPE_COLORS: Record<OverseasFileType, string> = {
-  PI: "bg-blue-50 text-blue-700 border-blue-200",
+  PI: "bg-sky-50 text-sky-700 border-sky-200",
   CI: "bg-green-50 text-green-700 border-green-200",
   PL: "bg-purple-50 text-purple-700 border-purple-200",
   BL: "bg-orange-50 text-orange-700 border-orange-200",
-  AWB: "bg-cyan-50 text-cyan-700 border-cyan-200",
+  AWB: "bg-sky-50 text-sky-700 border-sky-200",
   CO: "bg-pink-50 text-pink-700 border-pink-200",
   LC: "bg-amber-50 text-amber-700 border-amber-200",
   REMITTANCE: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  CONTRACT: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  CONTRACT: "bg-sky-50 text-sky-700 border-sky-200",
   CATALOG: "bg-teal-50 text-teal-700 border-teal-200",
   OTHER: "bg-slate-50 text-slate-700 border-slate-200",
 };
@@ -357,7 +357,7 @@ export default function OverseasConsultationTable({
                             <span
                               className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                                 consultation.order_type === "import"
-                                  ? "bg-blue-50 text-blue-700"
+                                  ? "bg-sky-50 text-sky-700"
                                   : "bg-emerald-50 text-emerald-700"
                               }`}
                             >

@@ -260,7 +260,7 @@ export default function ProductDetailChartPage() {
                   key={company}
                   className={`px-4 py-2 focus:outline-none ${
                     selectedCompany === company
-                      ? "border-b-2 border-blue-500 font-bold"
+                      ? "border-b-2 border-sky-500 font-bold"
                       : ""
                   }`}
                   onClick={() => {
@@ -290,7 +290,7 @@ export default function ProductDetailChartPage() {
                       key={status}
                       className={`px-4 py-2 focus:outline-none ${
                         selectedStatus === status
-                          ? "border-b-2 border-blue-500 font-bold"
+                          ? "border-b-2 border-sky-500 font-bold"
                           : ""
                       }`}
                       onClick={() => setSelectedStatus(status)}

@@ -289,7 +289,7 @@ export default function AdminSessionsPage() {
   const getRoleLabel = (roleName: string | null) => {
     const roles: Record<string, { label: string; color: string }> = {
       admin: { label: "관리자", color: "bg-red-100 text-red-700" },
-      sales: { label: "영업", color: "bg-blue-100 text-blue-700" },
+      sales: { label: "영업", color: "bg-sky-100 text-sky-700" },
       research: { label: "연구실", color: "bg-violet-100 text-violet-700" },
       managementSupport: {
         label: "경영지원",
@@ -488,7 +488,7 @@ export default function AdminSessionsPage() {
                   <div
                     key={session.id}
                     className={`p-4 flex items-center justify-between hover:bg-slate-50 transition-colors ${
-                      session.isCurrent ? "bg-blue-50" : ""
+                      session.isCurrent ? "bg-sky-50" : ""
                     } ${session.is_locked ? "opacity-60" : ""}`}
                   >
                     <div className="flex items-center gap-4">
@@ -519,7 +519,7 @@ export default function AdminSessionsPage() {
                             {session.name}
                           </p>
                           {session.isCurrent && (
-                            <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                            <span className="text-xs px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full">
                               현재 세션
                             </span>
                           )}

@@ -167,8 +167,8 @@ const ReportsPage = () => {
           <div className="flex items-center gap-4">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md ${
               isEstimate
-                ? "bg-gradient-to-br from-blue-500 to-blue-600"
-                : "bg-gradient-to-br from-purple-500 to-purple-600"
+                ? "bg-gradient-to-br from-sky-500 to-sky-600"
+                : "bg-gradient-to-br from-purple-500 to-sky-700"
             }`}>
               {isEstimate ? (
                 <FileText className="w-6 h-6 text-white" />
@@ -253,7 +253,7 @@ const ReportsPage = () => {
                   router.push(`/reports/${type}?date=${e.target.value}`);
                 }
               }}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
         </div>
@@ -264,15 +264,15 @@ const ReportsPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className={`rounded-xl p-4 ${isEstimate ? "bg-blue-50 border border-blue-100" : "bg-purple-50 border border-purple-100"}`}
+            className={`rounded-xl p-4 ${isEstimate ? "bg-sky-50 border border-sky-100" : "bg-purple-50 border border-purple-100"}`}
           >
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className={`w-4 h-4 ${isEstimate ? "text-blue-600" : "text-purple-600"}`} />
-              <span className={`text-xs font-medium ${isEstimate ? "text-blue-700" : "text-purple-700"}`}>
+              <TrendingUp className={`w-4 h-4 ${isEstimate ? "text-sky-600" : "text-purple-600"}`} />
+              <span className={`text-xs font-medium ${isEstimate ? "text-sky-700" : "text-purple-700"}`}>
                 총 {isEstimate ? "매출" : "매입"}액
               </span>
             </div>
-            <p className={`text-xl font-bold ${isEstimate ? "text-blue-600" : "text-purple-600"}`}>
+            <p className={`text-xl font-bold ${isEstimate ? "text-sky-600" : "text-purple-600"}`}>
               {(stats.total / 10000).toLocaleString()}
               <span className="text-xs font-normal ml-1">만원</span>
             </p>
@@ -349,7 +349,7 @@ const ReportsPage = () => {
               placeholder="거래처명 또는 문서번호 검색..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -357,7 +357,7 @@ const ReportsPage = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-              className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors"
             >
               <option value="all">전체 상태</option>
               <option value="completed">완료</option>
@@ -372,7 +372,7 @@ const ReportsPage = () => {
       {isLoading ? (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
           <div className="flex flex-col items-center justify-center">
-            <div className={`w-10 h-10 border-2 ${isEstimate ? "border-blue-600" : "border-purple-600"} border-t-transparent rounded-full animate-spin`} />
+            <div className={`w-10 h-10 border-2 ${isEstimate ? "border-sky-600" : "border-purple-600"} border-t-transparent rounded-full animate-spin`} />
             <p className="text-sm text-slate-500 mt-4">데이터를 불러오는 중입니다...</p>
           </div>
         </div>
@@ -437,7 +437,7 @@ const ReportsPage = () => {
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <span className={`font-bold ${isEstimate ? "text-blue-600" : "text-purple-600"}`}>
+                        <span className={`font-bold ${isEstimate ? "text-sky-600" : "text-purple-600"}`}>
                           {(report.total_amount ?? 0).toLocaleString()}
                         </span>
                         <span className="text-slate-400 text-xs ml-1">원</span>
@@ -468,7 +468,7 @@ const ReportsPage = () => {
             <span className="text-sm text-slate-500">
               총 {filteredReports.length}건
             </span>
-            <span className={`text-sm font-bold ${isEstimate ? "text-blue-600" : "text-purple-600"}`}>
+            <span className={`text-sm font-bold ${isEstimate ? "text-sky-600" : "text-purple-600"}`}>
               합계: {stats.total.toLocaleString()}원
             </span>
           </div>

@@ -102,7 +102,7 @@ export default function DocumentsTable({
       <div className="p-4">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3" />
+            <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-sm text-slate-500">문서 목록을 불러오는 중...</p>
           </div>
         </div>
@@ -146,7 +146,7 @@ export default function DocumentsTable({
                 {/* 상단: 거래처 + 상태 */}
                 <div className="flex items-center justify-between mb-2">
                   <div
-                    className="text-sm font-medium text-indigo-600 truncate flex-1"
+                    className="text-sm font-medium text-sky-600 truncate flex-1"
                     onClick={() => onCompanyClick(doc.company_id)}
                   >
                     {doc.company_name}
@@ -177,7 +177,7 @@ export default function DocumentsTable({
                 {/* 문서번호 + 날짜 */}
                 <div className="flex items-center justify-between mb-2">
                   <div
-                    className="text-sm font-medium text-indigo-600"
+                    className="text-sm font-medium text-sky-600"
                     onClick={() => onDocumentClick(doc)}
                   >
                     {doc.document_number}
@@ -195,7 +195,7 @@ export default function DocumentsTable({
                 {doc.user_id === loginUserId && doc.status === "pending" && (
                   <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
                     <button
-                      className="flex-1 px-3 py-2 text-xs rounded-lg bg-indigo-50 text-indigo-600 active:bg-indigo-100 transition-colors"
+                      className="flex-1 px-3 py-2 text-xs rounded-lg bg-sky-50 text-sky-600 active:bg-sky-100 transition-colors"
                       onClick={() => router.push(`/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&highlight=${doc.id}`)}
                     >
                       수정
@@ -291,7 +291,7 @@ export default function DocumentsTable({
                   {/* 거래처 */}
                   <td className="px-4 py-3 whitespace-nowrap">
                     <div
-                      className="text-sm font-medium text-indigo-600 cursor-pointer hover:text-indigo-800 truncate max-w-[120px]"
+                      className="text-sm font-medium text-sky-600 cursor-pointer hover:text-sky-800 truncate max-w-[120px]"
                       onClick={() => onCompanyClick(doc.company_id)}
                       title={doc.company_name}
                     >
@@ -302,7 +302,7 @@ export default function DocumentsTable({
                   {/* 문서번호 */}
                   <td className="px-4 py-3 whitespace-nowrap">
                     <div
-                      className="text-sm font-medium text-indigo-600 cursor-pointer hover:text-indigo-800"
+                      className="text-sm font-medium text-sky-600 cursor-pointer hover:text-sky-800"
                       onClick={() => onDocumentClick(doc)}
                     >
                       {doc.document_number}
@@ -360,7 +360,7 @@ export default function DocumentsTable({
                           <>
                             {/* 수정 버튼 - 본인 문서 + pending 상태만 */}
                             <button
-                              className="px-2 py-1 text-xs rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                              className="px-2 py-1 text-xs rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors"
                               onClick={() => router.push(`/documents/${doc.type}?consultId=${doc.consultation_id}&compId=${doc.company_id}&highlight=${doc.id}`)}
                             >
                               수정

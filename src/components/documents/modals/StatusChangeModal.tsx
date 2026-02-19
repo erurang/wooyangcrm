@@ -22,8 +22,8 @@ export default function StatusChangeModal({
   handleStatusChange,
 }: StatusChangeModalProps) {
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 sm:p-4">
-      <div className="bg-white w-full h-full sm:h-auto sm:rounded-xl shadow-2xl sm:max-w-md overflow-auto flex flex-col">
+    <div className="fixed inset-0 flex justify-center items-center bg-black/40 backdrop-blur-sm z-50 sm:p-4">
+      <div className="bg-white w-full h-full sm:h-auto sm:rounded-2xl shadow-2xl sm:max-w-md overflow-auto flex flex-col">
         {/* 모달 헤더 */}
         <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-4 sm:p-5 text-white sticky top-0 z-10">
           <div className="flex items-center justify-between gap-3">
@@ -46,7 +46,7 @@ export default function StatusChangeModal({
         <div className="p-4 sm:p-6 flex-1">
           <div className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
                 상태 선택
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -54,7 +54,7 @@ export default function StatusChangeModal({
                   className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                     selectedStatus === "completed"
                       ? "border-green-500 bg-green-50 text-green-700"
-                      : "border-gray-200 hover:border-gray-300 text-gray-600"
+                      : "border-slate-200 hover:border-slate-300 text-slate-500"
                   }`}
                   onClick={() => {
                     setSelectedStatus("completed");
@@ -70,7 +70,7 @@ export default function StatusChangeModal({
                     className={`h-5 w-5 ${
                       selectedStatus === "completed"
                         ? "text-green-500"
-                        : "text-gray-400"
+                        : "text-slate-400"
                     }`}
                   />
                   <span className="font-medium">완료</span>
@@ -79,7 +79,7 @@ export default function StatusChangeModal({
                   className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                     selectedStatus === "canceled"
                       ? "border-red-500 bg-red-50 text-red-700"
-                      : "border-gray-200 hover:border-gray-300 text-gray-600"
+                      : "border-slate-200 hover:border-slate-300 text-slate-500"
                   }`}
                   onClick={() => {
                     setSelectedStatus("canceled");
@@ -95,7 +95,7 @@ export default function StatusChangeModal({
                     className={`h-5 w-5 ${
                       selectedStatus === "canceled"
                         ? "text-red-500"
-                        : "text-gray-400"
+                        : "text-slate-400"
                     }`}
                   />
                   <span className="font-medium">취소</span>
@@ -104,7 +104,7 @@ export default function StatusChangeModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
                 {selectedStatus === "completed" ? "완료 사유" : "취소 사유"}
               </label>
               <div className="relative">
@@ -137,7 +137,7 @@ export default function StatusChangeModal({
 
             <div className="flex justify-end space-x-3 mt-2">
               <button
-                className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-4 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                 onClick={() => setStatusChangeDoc(null)}
               >
                 취소

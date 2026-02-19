@@ -312,7 +312,7 @@ export default function StatisticsTab({
             <FileText className="h-3.5 w-3.5 mr-1" />
             견적 건수
           </div>
-          <p className="text-xl font-bold text-blue-600 mt-1">
+          <p className="text-xl font-bold text-sky-600 mt-1">
             {totalSalesCount.toLocaleString()}건
           </p>
         </div>
@@ -370,7 +370,7 @@ export default function StatisticsTab({
                 onClick={() => setChartType("bar")}
                 className={`px-2 py-1 text-xs rounded ${
                   chartType === "bar"
-                    ? "bg-blue-100 text-blue-700"
+                    ? "bg-sky-100 text-sky-700"
                     : "bg-slate-100 text-slate-500"
                 }`}
               >
@@ -380,7 +380,7 @@ export default function StatisticsTab({
                 onClick={() => setChartType("line")}
                 className={`px-2 py-1 text-xs rounded ${
                   chartType === "line"
-                    ? "bg-blue-100 text-blue-700"
+                    ? "bg-sky-100 text-sky-700"
                     : "bg-slate-100 text-slate-500"
                 }`}
               >
@@ -474,7 +474,7 @@ export default function StatisticsTab({
                     <td className="px-4 py-3 font-medium text-slate-700">
                       {stat.month}월
                     </td>
-                    <td className="px-4 py-3 text-right text-blue-600">
+                    <td className="px-4 py-3 text-right text-sky-600">
                       {stat.sales.toLocaleString()}원
                     </td>
                     <td className="px-4 py-3 text-right text-emerald-600">
@@ -500,7 +500,7 @@ export default function StatisticsTab({
             <tfoot className="bg-slate-50 font-medium">
               <tr>
                 <td className="px-4 py-3 text-slate-700">합계</td>
-                <td className="px-4 py-3 text-right text-blue-600">
+                <td className="px-4 py-3 text-right text-sky-600">
                   {totalSales.toLocaleString()}원
                 </td>
                 <td className="px-4 py-3 text-right text-emerald-600">

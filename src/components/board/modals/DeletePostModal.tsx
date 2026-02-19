@@ -53,7 +53,7 @@ export default function DeletePostModal({
           </h2>
           <button
             onClick={handleClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 hover:bg-slate-100 rounded-full transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -62,17 +62,17 @@ export default function DeletePostModal({
         {/* 내용 */}
         <div className="p-4 space-y-4">
           <div>
-            <p className="text-gray-700">
-              <strong className="text-gray-900">"{post.title}"</strong> 게시글 삭제를
+            <p className="text-slate-600">
+              <strong className="text-slate-800">"{post.title}"</strong> 게시글 삭제를
               요청하시겠습니까?
             </p>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-slate-400">
               관리자 승인 후 삭제됩니다.
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               삭제 사유 <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -80,7 +80,7 @@ export default function DeletePostModal({
               onChange={(e) => setReason(e.target.value)}
               placeholder="삭제 사유를 입력하세요..."
               rows={3}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+              className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
             />
           </div>
         </div>
@@ -89,7 +89,7 @@ export default function DeletePostModal({
         <div className="flex justify-end gap-2 p-4 border-t">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            className="px-4 py-2 text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
           >
             취소
           </button>

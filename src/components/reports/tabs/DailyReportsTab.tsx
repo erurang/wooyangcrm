@@ -174,10 +174,10 @@ export default function DailyReportsTab({ year, month }: DailyReportsTabProps) {
         </div>
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
           <div className="flex items-center text-slate-500 text-xs mb-1">
-            <TrendingUp className="h-3.5 w-3.5 mr-1 text-blue-500" />
+            <TrendingUp className="h-3.5 w-3.5 mr-1 text-sky-500" />
             총 매출
           </div>
-          <p className="text-2xl font-bold text-blue-600">
+          <p className="text-2xl font-bold text-sky-600">
             {totals.totalSales >= 100000000
               ? `${(totals.totalSales / 100000000).toFixed(1)}억`
               : `${(totals.totalSales / 10000).toLocaleString()}만`}
@@ -313,7 +313,7 @@ export default function DailyReportsTab({ year, month }: DailyReportsTabProps) {
                       {report.estimateCount > 0 ? (
                         <button
                           onClick={() => openReportPopup(report.date, "estimate")}
-                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-sky-600 bg-sky-50 rounded-lg hover:bg-sky-100 transition-colors"
                         >
                           <Printer className="h-3 w-3" />
                           매출 일보 ({report.estimateCount})
@@ -323,7 +323,7 @@ export default function DailyReportsTab({ year, month }: DailyReportsTabProps) {
                         <span className="text-slate-400 text-xs">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right text-blue-600">
+                    <td className="px-4 py-3 text-right text-sky-600">
                       {report.totalSales > 0
                         ? `${report.totalSales.toLocaleString()}원`
                         : "-"}
@@ -358,10 +358,10 @@ export default function DailyReportsTab({ year, month }: DailyReportsTabProps) {
               <tfoot className="bg-slate-50 font-medium">
                 <tr>
                   <td className="px-4 py-3 text-slate-700">합계</td>
-                  <td className="px-4 py-3 text-center text-blue-600">
+                  <td className="px-4 py-3 text-center text-sky-600">
                     {totals.estimateCount}건
                   </td>
-                  <td className="px-4 py-3 text-right text-blue-600">
+                  <td className="px-4 py-3 text-right text-sky-600">
                     {totals.totalSales.toLocaleString()}원
                   </td>
                   <td className="px-4 py-3 text-center text-emerald-600">

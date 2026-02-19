@@ -38,10 +38,10 @@ export default function ResignTable({
   // 로딩 상태
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-6">
         <div className="flex flex-col items-center justify-center py-16">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500 mt-3">퇴사자 목록을 불러오는 중...</p>
+          <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-slate-400 mt-3">퇴사자 목록을 불러오는 중...</p>
         </div>
       </div>
     );
@@ -50,7 +50,7 @@ export default function ResignTable({
   // 빈 상태
   if (!contacts || contacts.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-6">
         <EmptyState type={hasSearchQuery ? "search" : "resign"} />
       </div>
     );
@@ -65,7 +65,7 @@ export default function ResignTable({
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <div
-                  className="text-sm font-medium text-blue-600"
+                  className="text-sm font-medium text-sky-600"
                   onClick={() => router.push(`/manage/contacts/${contact.id}`)}
                 >
                   {contact.contact_name || "-"}
@@ -139,7 +139,7 @@ export default function ResignTable({
               <tr key={contact.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-4 py-3 whitespace-nowrap">
                   <div
-                    className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
+                    className="text-sm font-medium text-sky-600 cursor-pointer hover:text-sky-800 hover:underline"
                     onClick={() =>
                       router.push(`/consultations/${contact.company_id}`)
                     }
@@ -149,7 +149,7 @@ export default function ResignTable({
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <div
-                    className="text-sm font-medium text-blue-600 cursor-pointer hover:text-blue-800 hover:underline"
+                    className="text-sm font-medium text-sky-600 cursor-pointer hover:text-sky-800 hover:underline"
                     onClick={() =>
                       router.push(`/manage/contacts/${contact.id}`)
                     }

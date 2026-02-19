@@ -63,13 +63,13 @@ export default function AdminBackupPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-blue-50 rounded-xl p-5 border border-blue-200"
+          className="bg-sky-50 rounded-xl p-5 border border-sky-200"
         >
           <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-500 mt-0.5" />
+            <Info className="w-5 h-5 text-sky-500 mt-0.5" />
             <div>
-              <p className="font-medium text-blue-800">Supabase 백업 시스템</p>
-              <p className="text-sm text-blue-700 mt-1">
+              <p className="font-medium text-sky-800">Supabase 백업 시스템</p>
+              <p className="text-sm text-sky-700 mt-1">
                 데이터베이스 백업은 Supabase에서 자동으로 관리됩니다.
                 백업 확인 및 복원은 Supabase 대시보드에서 진행해주세요.
               </p>
@@ -101,8 +101,8 @@ export default function AdminBackupPage() {
             className="bg-white rounded-xl p-5 shadow-sm border border-slate-200"
           >
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Clock className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-sky-100 rounded-lg">
+                <Clock className="w-5 h-5 text-sky-600" />
               </div>
               <span className="text-slate-500">보관 기간</span>
             </div>

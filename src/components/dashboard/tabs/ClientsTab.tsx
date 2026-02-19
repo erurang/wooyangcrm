@@ -143,8 +143,8 @@ export default function ClientsTab({
     <div className="bg-white border border-slate-200 shadow-sm p-5 mx-5 mb-5 rounded-lg">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
-          <div className="bg-indigo-50 p-2 rounded-md mr-3">
-            <Building className="h-5 w-5 text-indigo-600" />
+          <div className="bg-sky-50 p-2 rounded-md mr-3">
+            <Building className="h-5 w-5 text-sky-600" />
           </div>
           <h2 className="text-xl font-semibold text-slate-800">거래처 분석</h2>
         </div>
@@ -155,7 +155,7 @@ export default function ClientsTab({
           </div>
           <button
             onClick={() => exportClientsToExcel(sortedClients, periodLabel)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-sky-600 bg-sky-50 hover:bg-sky-100 rounded-md transition-colors"
             title="Excel로 내보내기"
           >
             <Download className="h-4 w-4" />
@@ -223,9 +223,9 @@ export default function ClientsTab({
                   <tr
                     key={client.id}
                     onClick={() => handleCompanyClick(client.id)}
-                    className="hover:bg-indigo-50/50 cursor-pointer group"
+                    className="hover:bg-sky-50/50 cursor-pointer group"
                   >
-                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-700 group-hover:text-indigo-600 transition-colors">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-700 group-hover:text-sky-600 transition-colors">
                       <div className="flex items-center gap-1">
                         {client.name}
                         <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -240,7 +240,7 @@ export default function ClientsTab({
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-slate-500">
                       {client.orders}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-semibold text-indigo-600">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-semibold text-sky-600">
                       {client.totalSales.toLocaleString()} 원
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-semibold text-emerald-600">
@@ -266,8 +266,8 @@ export default function ClientsTab({
         {/* 거래처별 상담 빈도 */}
         <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <Users className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <Users className="h-5 w-5 text-sky-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800">
               거래처별 상담 빈도
@@ -321,8 +321,8 @@ export default function ClientsTab({
         {/* 거래처별 매출 비중 */}
         <div className="bg-white border border-slate-200 p-5 rounded-lg shadow-sm">
           <div className="flex items-center mb-4">
-            <div className="bg-indigo-50 p-2 rounded-md mr-3">
-              <PieChart className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-50 p-2 rounded-md mr-3">
+              <PieChart className="h-5 w-5 text-sky-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800">
               거래처별 매출 비중

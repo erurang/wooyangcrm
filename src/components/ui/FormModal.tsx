@@ -1,8 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { CircularProgress } from "@mui/material";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useEffect } from "react";
 
@@ -93,7 +92,7 @@ export default function FormModal({
         {!hideCancelButton && (
           <button
             onClick={onClose}
-            className={`flex-1 sm:flex-none bg-gray-500 text-white px-4 py-2.5 sm:py-2 rounded-md text-sm active:bg-gray-600 ${
+            className={`flex-1 sm:flex-none bg-slate-500 hover:bg-slate-600 text-white px-4 py-2.5 sm:py-2 rounded-lg text-sm cursor-pointer transition-colors duration-200 ${
               isSaving ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={isSaving}
@@ -104,13 +103,13 @@ export default function FormModal({
         {!hideSaveButton && onSave && (
           <button
             onClick={onSave}
-            className={`flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2.5 sm:py-2 rounded-md text-sm flex items-center justify-center ${
+            className={`flex-1 sm:flex-none bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white px-4 py-2.5 sm:py-2 rounded-lg text-sm flex items-center justify-center cursor-pointer transition-colors duration-200 ${
               isSaving || saveDisabled ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={isSaving || saveDisabled}
           >
             {saveText}
-            {isSaving && <CircularProgress size={18} className="ml-2" />}
+            {isSaving && <Loader2 className="h-4 w-4 ml-2 animate-spin" />}
           </button>
         )}
       </div>
@@ -121,7 +120,7 @@ export default function FormModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 flex justify-center items-center bg-black/50 z-50 sm:px-2"
+          className="fixed inset-0 flex justify-center items-center bg-black/40 backdrop-blur-sm z-50 sm:px-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -129,7 +128,7 @@ export default function FormModal({
           onClick={onClose}
         >
           <motion.div
-            className={`bg-white w-full h-full sm:h-auto sm:rounded-lg ${sizeClasses[size]} sm:max-h-[85vh] overflow-hidden flex flex-col`}
+            className={`bg-white w-full h-full sm:h-auto sm:rounded-2xl shadow-2xl ${sizeClasses[size]} sm:max-h-[85vh] overflow-hidden flex flex-col`}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -137,14 +136,14 @@ export default function FormModal({
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b bg-white shrink-0">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-900">
+            <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200/60 bg-white shrink-0">
+              <h3 className="text-lg md:text-xl font-bold text-slate-800">
                 {modalTitle}
               </h3>
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 -mr-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer transition-all duration-200"
                 >
                   <X size={20} />
                 </button>

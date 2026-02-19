@@ -111,7 +111,7 @@ export default function GreetingComponent() {
 
   return (
     <div className="">
-      <p className="text-md text-gray-700">{randomGreeting}</p>
+      <p className="text-md text-slate-600">{randomGreeting}</p>
     </div>
   );
 }

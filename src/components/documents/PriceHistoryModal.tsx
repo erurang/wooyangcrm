@@ -155,13 +155,13 @@ export default function PriceHistoryModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
         {/* 헤더 */}
-        <div className="px-5 py-4 border-b bg-indigo-50 flex items-center justify-between shrink-0">
+        <div className="px-5 py-4 border-b bg-sky-50 flex items-center justify-between shrink-0">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">단가 추이</h2>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <h2 className="text-lg font-semibold text-slate-800">단가 추이</h2>
+            <p className="text-sm text-slate-400 mt-0.5">
               {productName || "제품"} {companyName ? `(${companyName})` : ""}
             </p>
           </div>
@@ -169,7 +169,7 @@ export default function PriceHistoryModal({
             onClick={onClose}
             className="p-2 hover:bg-white/50 rounded-lg transition-colors"
           >
-            <X className="h-5 w-5 text-gray-500" />
+            <X className="h-5 w-5 text-slate-400" />
           </button>
         </div>
 
@@ -177,13 +177,13 @@ export default function PriceHistoryModal({
         <div className="flex-1 overflow-y-auto p-5">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 text-indigo-500 animate-spin" />
+              <Loader2 className="h-8 w-8 text-sky-500 animate-spin" />
             </div>
           ) : history.length === 0 ? (
             <div className="text-center py-12">
-              <TrendingUp className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">단가 이력이 없습니다.</p>
-              <p className="text-sm text-gray-400 mt-1">
+              <TrendingUp className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-slate-400">단가 이력이 없습니다.</p>
+              <p className="text-sm text-slate-400 mt-1">
                 문서 작성 시 단가가 자동으로 기록됩니다.
               </p>
             </div>
@@ -192,9 +192,9 @@ export default function PriceHistoryModal({
               {/* 통계 카드 */}
               {stats && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-xs text-gray-500 mb-1">현재 단가</div>
-                    <div className="text-lg font-bold text-gray-900">
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-xs text-slate-400 mb-1">현재 단가</div>
+                    <div className="text-lg font-bold text-slate-800">
                       {stats.latestPrice.toLocaleString()}원
                     </div>
                     {stats.priceChange !== 0 && (
@@ -202,7 +202,7 @@ export default function PriceHistoryModal({
                         className={`flex items-center gap-1 text-xs ${
                           stats.priceChange > 0
                             ? "text-red-500"
-                            : "text-blue-500"
+                            : "text-sky-500"
                         }`}
                       >
                         {stats.priceChange > 0 ? (
@@ -215,20 +215,20 @@ export default function PriceHistoryModal({
                       </div>
                     )}
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-xs text-gray-500 mb-1">평균 단가</div>
-                    <div className="text-lg font-bold text-gray-900">
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-xs text-slate-400 mb-1">평균 단가</div>
+                    <div className="text-lg font-bold text-slate-800">
                       {stats.avgPrice.toLocaleString()}원
                     </div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-xs text-gray-500 mb-1">최저</div>
-                    <div className="text-lg font-bold text-blue-600">
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-xs text-slate-400 mb-1">최저</div>
+                    <div className="text-lg font-bold text-sky-600">
                       {stats.minPrice.toLocaleString()}원
                     </div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <div className="text-xs text-gray-500 mb-1">최고</div>
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-xs text-slate-400 mb-1">최고</div>
                     <div className="text-lg font-bold text-red-600">
                       {stats.maxPrice.toLocaleString()}원
                     </div>
@@ -238,8 +238,8 @@ export default function PriceHistoryModal({
 
               {/* 차트 */}
               {chartData.length > 1 && (
-                <div className="bg-white border border-gray-200 rounded-lg p-4 mb-5">
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">
+                <div className="bg-white border border-slate-200 rounded-lg p-4 mb-5">
+                  <h3 className="text-sm font-medium text-slate-600 mb-3">
                     단가 변동 추이
                   </h3>
                   <Chart
@@ -252,47 +252,47 @@ export default function PriceHistoryModal({
               )}
 
               {/* 이력 테이블 */}
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <div className="bg-gray-50 px-4 py-2 border-b">
-                  <h3 className="text-sm font-medium text-gray-700">
+              <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <div className="bg-slate-50 px-4 py-2 border-b">
+                  <h3 className="text-sm font-medium text-slate-600">
                     상세 이력 ({history.length}건)
                   </h3>
                 </div>
                 <div className="max-h-60 overflow-y-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 sticky top-0">
+                    <thead className="bg-slate-50 sticky top-0">
                       <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
+                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-400">
                           날짜
                         </th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                        <th className="px-4 py-2 text-right text-xs font-medium text-slate-400">
                           단가
                         </th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">
+                        <th className="px-4 py-2 text-right text-xs font-medium text-slate-400">
                           변동
                         </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">
+                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-400">
                           거래처
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-slate-100">
                       {history.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-2 text-gray-600">
+                        <tr key={item.id} className="hover:bg-slate-50">
+                          <td className="px-4 py-2 text-slate-500">
                             <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3 text-gray-400" />
+                              <Calendar className="h-3 w-3 text-slate-400" />
                               {new Date(item.effective_date).toLocaleDateString(
                                 "ko-KR"
                               )}
                             </div>
                           </td>
-                          <td className="px-4 py-2 text-right font-medium text-gray-900">
+                          <td className="px-4 py-2 text-right font-medium text-slate-800">
                             {item.unit_price.toLocaleString()}원
                           </td>
                           <td className="px-4 py-2 text-right">
                             {item.price_change === 0 ? (
-                              <span className="text-gray-400 flex items-center justify-end gap-1">
+                              <span className="text-slate-400 flex items-center justify-end gap-1">
                                 <Minus className="h-3 w-3" />-
                               </span>
                             ) : (
@@ -300,7 +300,7 @@ export default function PriceHistoryModal({
                                 className={`flex items-center justify-end gap-1 ${
                                   item.price_change > 0
                                     ? "text-red-500"
-                                    : "text-blue-500"
+                                    : "text-sky-500"
                                 }`}
                               >
                                 {item.price_change > 0 ? (
@@ -313,10 +313,10 @@ export default function PriceHistoryModal({
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-2 text-gray-500">
+                          <td className="px-4 py-2 text-slate-400">
                             {item.company?.name ? (
                               <div className="flex items-center gap-1">
-                                <Building2 className="h-3 w-3 text-gray-400" />
+                                <Building2 className="h-3 w-3 text-slate-400" />
                                 <span className="truncate max-w-[120px]">
                                   {item.company.name}
                                 </span>
@@ -336,10 +336,10 @@ export default function PriceHistoryModal({
         </div>
 
         {/* 푸터 */}
-        <div className="px-5 py-3 border-t bg-gray-50 flex justify-end shrink-0">
+        <div className="px-5 py-3 border-t bg-slate-50 flex justify-end shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg"
+            className="px-4 py-2 text-slate-500 hover:bg-slate-200 rounded-lg"
           >
             닫기
           </button>

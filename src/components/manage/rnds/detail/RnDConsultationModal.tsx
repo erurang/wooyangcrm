@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CircularProgress } from "@mui/material";
+import { Loader2 } from "lucide-react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface ConsultationData {
@@ -71,7 +71,7 @@ export default function RnDConsultationModal({
               value={consultation.date}
               readOnly={mode === "add"}
               disabled={mode === "edit"}
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
             />
           </div>
           <div>
@@ -79,7 +79,7 @@ export default function RnDConsultationModal({
             <input
               type="date"
               value={consultation.start_date}
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
               onChange={(e) => onConsultationChange({ start_date: e.target.value })}
             />
           </div>
@@ -88,7 +88,7 @@ export default function RnDConsultationModal({
             <input
               type="date"
               value={consultation.end_date}
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
               onChange={(e) => onConsultationChange({ end_date: e.target.value })}
             />
           </div>
@@ -98,7 +98,7 @@ export default function RnDConsultationModal({
               value={consultation.user_id}
               disabled
               onChange={(e) => onConsultationChange({ user_id: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
             >
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
@@ -124,7 +124,7 @@ export default function RnDConsultationModal({
                 const numericValue = e.target.value.replace(/[^0-9]/g, "");
                 onConsultationChange({ total_cost: numericValue });
               }}
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
             />
           </div>
           <div className="mb-2">
@@ -140,7 +140,7 @@ export default function RnDConsultationModal({
                 const numericValue = e.target.value.replace(/[^0-9]/g, "");
                 onConsultationChange({ gov_contribution: numericValue });
               }}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-slate-300 rounded-md"
             />
           </div>
           <div className="mb-2">
@@ -156,7 +156,7 @@ export default function RnDConsultationModal({
                 const numericValue = e.target.value.replace(/[^0-9]/g, "");
                 onConsultationChange({ pri_contribution: numericValue });
               }}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-slate-300 rounded-md"
             />
           </div>
           <div className="mb-2">
@@ -164,7 +164,7 @@ export default function RnDConsultationModal({
             <select
               value={consultation.participation || ""}
               onChange={(e) => onConsultationChange({ participation: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-2 border border-slate-300 rounded-md"
             >
               <option value="">선택하세요.</option>
               {participationTypes.map((type, index) => (
@@ -182,7 +182,7 @@ export default function RnDConsultationModal({
           <textarea
             value={consultation.content}
             onChange={(e) => onConsultationChange({ content: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+            className="w-full p-2 border border-slate-300 rounded-md text-sm"
             rows={16}
           />
         </div>
@@ -191,7 +191,7 @@ export default function RnDConsultationModal({
         <div className="flex justify-end space-x-2">
           <button
             onClick={onClose}
-            className={`bg-gray-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
+            className={`bg-slate-500 text-white px-4 py-2 rounded-md text-xs md:text-sm ${
               isSaving ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={isSaving}
@@ -200,13 +200,13 @@ export default function RnDConsultationModal({
           </button>
           <button
             onClick={onSave}
-            className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
+            className={`bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md text-xs md:text-sm flex items-center ${
               isSaving ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={isSaving}
           >
             저장
-            {isSaving && <CircularProgress size={18} className="ml-2" />}
+            {isSaving && <Loader2 className="h-4 w-4 ml-2 animate-spin" />}
           </button>
         </div>
       </div>

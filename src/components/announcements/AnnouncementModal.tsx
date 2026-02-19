@@ -19,7 +19,7 @@ import { useLoginUser } from "@/context/login";
 const priorityLabels = {
   urgent: { label: "긴급", color: "bg-red-100 text-red-700 border-red-200", icon: AlertTriangle },
   high: { label: "높음", color: "bg-orange-100 text-orange-700 border-orange-200", icon: ArrowUp },
-  normal: { label: "보통", color: "bg-blue-100 text-blue-700 border-blue-200", icon: Minus },
+  normal: { label: "보통", color: "bg-sky-100 text-sky-700 border-sky-200", icon: Minus },
   low: { label: "낮음", color: "bg-slate-100 text-slate-600 border-slate-200", icon: ArrowDown },
 };
 
@@ -105,7 +105,7 @@ export default function AnnouncementModal() {
           <div className={`h-1.5 ${
             currentAnnouncement.priority === "urgent" ? "bg-red-500" :
             currentAnnouncement.priority === "high" ? "bg-orange-500" :
-            currentAnnouncement.priority === "normal" ? "bg-blue-500" : "bg-slate-400"
+            currentAnnouncement.priority === "normal" ? "bg-sky-500" : "bg-slate-400"
           }`} />
 
           {/* Header */}

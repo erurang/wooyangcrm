@@ -16,15 +16,15 @@ export default function TypingIndicator({ users }: TypingIndicatorProps) {
 
   return (
     <div className="flex items-center gap-2 ml-10 mb-2">
-      <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-2xl rounded-bl-md">
+      <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-2xl rounded-bl-md">
         {/* 애니메이션 점 */}
         <div className="flex gap-1">
-          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+          <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+          <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+          <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
         </div>
       </div>
-      <span className="text-xs text-gray-500">{text}</span>
+      <span className="text-xs text-slate-400">{text}</span>
     </div>
   );
 }

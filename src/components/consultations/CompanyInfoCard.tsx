@@ -59,7 +59,7 @@ function CopyableField({
           {value && (
             <button
               onClick={handleCopy}
-              className="p-0.5 rounded text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 transition-all shrink-0"
+              className="p-0.5 rounded text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition-all shrink-0"
               title="복사"
             >
               {copied ? (
@@ -165,7 +165,7 @@ export default function CompanyInfoCard({
             {onEditCompany && (
               <button
                 onClick={onEditCompany}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+                className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
               >
                 <Edit3 size={12} />
                 수정
@@ -215,7 +215,7 @@ export default function CompanyInfoCard({
             </div>
             <button
               onClick={onEditNotes}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
             >
               <Edit3 size={12} />
               수정
@@ -247,7 +247,7 @@ export default function CompanyInfoCard({
             </div>
             <button
               onClick={onEditContacts}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
             >
               <Settings size={12} />
               관리
@@ -268,7 +268,7 @@ export default function CompanyInfoCard({
                         router.push(`/manage/contacts/${contact.id}`)
                       }
                     >
-                      <div className="text-sm font-medium text-slate-800 group-hover:text-cyan-600 truncate">
+                      <div className="text-sm font-medium text-slate-800 group-hover:text-sky-600 truncate">
                         {contact.contact_name}
                         {contact.level && (
                           <span className="text-slate-500 font-normal ml-1 text-xs">
@@ -283,7 +283,7 @@ export default function CompanyInfoCard({
                     {contact.email && (
                       <a
                         href={`mailto:${contact.email}`}
-                        className="p-1 text-slate-400 hover:text-cyan-600 shrink-0"
+                        className="p-1 text-slate-400 hover:text-sky-600 shrink-0"
                         title="이메일 보내기"
                       >
                         <Mail size={14} />
@@ -294,7 +294,7 @@ export default function CompanyInfoCard({
                 {activeContacts.length > 4 && (
                   <button
                     onClick={onEditContacts}
-                    className="col-span-2 text-xs text-slate-500 hover:text-cyan-600 text-center py-1"
+                    className="col-span-2 text-xs text-slate-500 hover:text-sky-600 text-center py-1"
                   >
                     +{activeContacts.length - 4}명 더보기
                   </button>

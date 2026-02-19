@@ -70,7 +70,7 @@ export default function EstimateModal({
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold">견적서 보기</h3>
           <button
-            className="px-3 py-1 bg-gray-300 rounded"
+            className="px-3 py-1 bg-slate-300 rounded"
             onClick={onClose}
           >
             닫기
@@ -85,7 +85,7 @@ export default function EstimateModal({
               type="text"
               value={document.company_name}
               readOnly
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
             />
           </div>
           <div>
@@ -94,7 +94,7 @@ export default function EstimateModal({
               type="text"
               value={document.date}
               readOnly
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
             />
           </div>
           <div>
@@ -103,7 +103,7 @@ export default function EstimateModal({
               type="text"
               value={document.delivery_date}
               readOnly
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
             />
           </div>
           <div>
@@ -112,7 +112,7 @@ export default function EstimateModal({
               type="text"
               value={document.payment_method}
               readOnly
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
             />
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function EstimateModal({
             <select
               value={selectedContactId}
               onChange={(e) => onContactChange(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
             >
               <option value="">선택</option>
               {contacts.map((contact) => (
@@ -139,7 +139,7 @@ export default function EstimateModal({
             <select
               value={selectedUserId}
               onChange={(e) => onUserChange(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md text-sm"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm"
             >
               <option value="">선택</option>
               {users.map((u) => (
@@ -157,7 +157,7 @@ export default function EstimateModal({
           <textarea
             value={document.notes}
             readOnly
-            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+            className="w-full p-2 border border-slate-300 rounded-md text-sm"
             rows={3}
           />
         </div>
@@ -172,31 +172,31 @@ export default function EstimateModal({
                   type="text"
                   value={item.name}
                   readOnly
-                  className="col-span-4 px-1 border border-gray-300 rounded-md text-sm"
+                  className="col-span-4 px-1 border border-slate-300 rounded-md text-sm"
                 />
                 <input
                   type="text"
                   value={item.spec}
                   readOnly
-                  className="col-span-3 px-1 border border-gray-300 rounded-md text-sm"
+                  className="col-span-3 px-1 border border-slate-300 rounded-md text-sm"
                 />
                 <input
                   type="text"
                   value={item.quantity}
                   readOnly
-                  className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
+                  className="col-span-2 px-1 border border-slate-300 rounded-md text-sm"
                 />
                 <input
                   type="text"
                   value={item.unit_price.toLocaleString()}
                   readOnly
-                  className="col-span-2 px-1 border border-gray-300 rounded-md text-sm"
+                  className="col-span-2 px-1 border border-slate-300 rounded-md text-sm"
                 />
                 <input
                   type="text"
                   value={item.amount.toLocaleString()}
                   readOnly
-                  className="col-span-1 px-1 border border-gray-300 rounded-md text-sm bg-gray-100"
+                  className="col-span-1 px-1 border border-slate-300 rounded-md text-sm bg-slate-100"
                 />
               </div>
             ))}
@@ -210,7 +210,7 @@ export default function EstimateModal({
             type="text"
             value={document.total_amount.toLocaleString()}
             readOnly
-            className="w-full p-2 border border-gray-300 rounded-md text-sm bg-gray-100"
+            className="w-full p-2 border border-slate-300 rounded-md text-sm bg-slate-100"
           />
         </div>
 
@@ -218,14 +218,14 @@ export default function EstimateModal({
         <div className="flex justify-end space-x-4">
           <button
             onClick={onClose}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm"
+            className="bg-slate-500 text-white px-4 py-2 rounded-md text-sm"
           >
             닫기
           </button>
           <button
             onClick={onUpload}
             disabled={isUploading}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50"
+            className="bg-sky-500 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50"
           >
             {isUploading ? "업로드 중..." : "업로드"}
           </button>

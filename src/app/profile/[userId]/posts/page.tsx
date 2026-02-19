@@ -69,7 +69,7 @@ export default function UserPostsPage() {
   if (!targetUserId) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">유저를 찾을 수 없습니다.</p>
+        <p className="text-slate-400">유저를 찾을 수 없습니다.</p>
       </div>
     );
   }
@@ -85,14 +85,14 @@ export default function UserPostsPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="flex border-b border-gray-200 mb-6"
+        className="flex border-b border-slate-200 mb-6"
       >
         <button
           onClick={() => setActiveTab("posts")}
           className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
             activeTab === "posts"
-              ? "border-indigo-600 text-indigo-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
+              ? "border-sky-600 text-sky-600"
+              : "border-transparent text-slate-400 hover:text-slate-600"
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -102,8 +102,8 @@ export default function UserPostsPage() {
           onClick={() => setActiveTab("comments")}
           className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
             activeTab === "comments"
-              ? "border-indigo-600 text-indigo-600"
-              : "border-transparent text-gray-500 hover:text-gray-700"
+              ? "border-sky-600 text-sky-600"
+              : "border-transparent text-slate-400 hover:text-slate-600"
           }`}
         >
           <MessageSquare className="w-4 h-4" />
@@ -116,7 +116,7 @@ export default function UserPostsPage() {
         <div>
           {postsLoading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500" />
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-sky-500" />
             </div>
           ) : posts.length > 0 ? (
             <>
@@ -137,8 +137,8 @@ export default function UserPostsPage() {
               )}
             </>
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-12 text-slate-400">
+              <FileText className="w-12 h-12 mx-auto mb-4 text-slate-300" />
               <p>작성한 게시글이 없습니다.</p>
             </div>
           )}
@@ -150,7 +150,7 @@ export default function UserPostsPage() {
         <div>
           {commentsLoading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500" />
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-sky-500" />
             </div>
           ) : comments.length > 0 ? (
             <>
@@ -161,24 +161,24 @@ export default function UserPostsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + index * 0.05 }}
-                    className="bg-white rounded-lg border border-gray-200 p-4"
+                    className="bg-white rounded-lg border border-slate-200 p-4"
                   >
                     {/* 게시글 링크 */}
                     {comment.post && (
                       <Link
                         href={`/board/${comment.post.id}`}
-                        className="flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600 mb-2"
+                        className="flex items-center gap-1 text-xs text-slate-400 hover:text-sky-600 mb-2"
                       >
                         <FileText className="w-3 h-3" />
                         <span className="truncate">{comment.post.title}</span>
                       </Link>
                     )}
                     {/* 댓글 내용 */}
-                    <p className="text-gray-700 whitespace-pre-wrap line-clamp-3">
+                    <p className="text-slate-600 whitespace-pre-wrap line-clamp-3">
                       {comment.content}
                     </p>
                     {/* 날짜 */}
-                    <div className="mt-2 text-xs text-gray-400">
+                    <div className="mt-2 text-xs text-slate-400">
                       {dayjs(comment.created_at).format("YYYY-MM-DD HH:mm")}
                       {comment.updated_at && comment.updated_at !== comment.created_at && (
                         <span className="ml-2">(수정됨)</span>
@@ -198,8 +198,8 @@ export default function UserPostsPage() {
               )}
             </>
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-12 text-slate-400">
+              <MessageSquare className="w-12 h-12 mx-auto mb-4 text-slate-300" />
               <p>작성한 댓글이 없습니다.</p>
             </div>
           )}

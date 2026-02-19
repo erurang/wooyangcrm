@@ -117,7 +117,7 @@ function ComparisonCard({
   color: "blue" | "green" | "purple" | "orange";
 }) {
   const colorClasses = {
-    blue: "bg-blue-50 text-blue-600 border-blue-200",
+    blue: "bg-sky-50 text-sky-600 border-sky-200",
     green: "bg-green-50 text-green-600 border-green-200",
     purple: "bg-purple-50 text-purple-600 border-purple-200",
     orange: "bg-orange-50 text-orange-600 border-orange-200",
@@ -269,7 +269,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-cyan-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
         <p className="text-sm text-slate-500 mt-3">통계를 불러오는 중...</p>
       </div>
     );
@@ -297,7 +297,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
             <CalendarDays size={16} />
             <span>
               거래 기간: {dayjs(summary.firstTransactionDate).format("YYYY.MM.DD")} ~ {dayjs(summary.lastTransactionDate).format("YYYY.MM.DD")}
-              <span className="ml-2 text-cyan-600">({summary.tradingDays}일)</span>
+              <span className="ml-2 text-sky-600">({summary.tradingDays}일)</span>
             </span>
           </div>
         )}
@@ -306,7 +306,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
       {/* 요약 카드 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* 총 매출 */}
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+        <div className="bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl p-4 text-white">
           <div className="flex items-center justify-between mb-2">
             <div className="p-2 bg-white/20 rounded-lg">
               <TrendingUp size={20} />
@@ -344,7 +344,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
         </div>
 
         {/* 전환율 */}
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+        <div className="bg-gradient-to-br from-purple-500 to-sky-700 rounded-xl p-4 text-white">
           <div className="flex items-center justify-between mb-2">
             <div className="p-2 bg-white/20 rounded-lg">
               <Target size={20} />
@@ -689,7 +689,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
                 >
                   <div className="flex items-center gap-3">
                     <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
-                      index < 3 ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-600"
+                      index < 3 ? "bg-sky-500 text-white" : "bg-slate-200 text-slate-600"
                     }`}>
                       {index + 1}
                     </span>
@@ -745,7 +745,7 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-semibold text-blue-600">
+                    <div className="text-sm font-semibold text-sky-600">
                       {formatAmount(user.totalAmount)}원
                     </div>
                   </div>
@@ -937,11 +937,11 @@ export default function CompanyStatsTab({ companyId }: CompanyStatsTabProps) {
               >
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${
-                    doc.type === "estimate" ? "bg-blue-100" :
+                    doc.type === "estimate" ? "bg-sky-100" :
                     doc.type === "order" ? "bg-green-100" : "bg-purple-100"
                   }`}>
                     <FileText size={16} className={
-                      doc.type === "estimate" ? "text-blue-600" :
+                      doc.type === "estimate" ? "text-sky-600" :
                       doc.type === "order" ? "text-green-600" : "text-purple-600"
                     } />
                   </div>

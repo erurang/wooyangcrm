@@ -21,7 +21,7 @@ const refTypeIcons: Record<ReferenceType, React.ReactNode> = {
 };
 
 const refTypeColors: Record<ReferenceType, string> = {
-  company: "bg-blue-50 text-blue-600 border-blue-200",
+  company: "bg-sky-50 text-sky-600 border-sky-200",
   consultation: "bg-green-50 text-green-600 border-green-200",
   document: "bg-purple-50 text-purple-600 border-purple-200",
 };
@@ -101,13 +101,13 @@ export default function CommentItem({
   if (isDeleted) {
     return (
       <div className="py-3">
-        <div className="flex items-center gap-2 text-sm text-gray-400">
+        <div className="flex items-center gap-2 text-sm text-slate-400">
           <User className="w-4 h-4" />
           <span>{comment.user?.name}</span>
           <span>·</span>
           <span>{dayjs(comment.created_at).format("YYYY-MM-DD HH:mm")}</span>
         </div>
-        <div className="mt-2 px-3 py-2 bg-gray-100 rounded-md text-gray-500 text-sm">
+        <div className="mt-2 px-3 py-2 bg-slate-100 rounded-md text-slate-400 text-sm">
           삭제된 댓글입니다. ({dayjs(comment.deleted_at).format("YYYY-MM-DD HH:mm")})
         </div>
       </div>
@@ -121,17 +121,17 @@ export default function CommentItem({
         <div className="flex items-center gap-2 text-sm">
           <Link
             href={`/profile/${comment.user_id}`}
-            className="flex items-center gap-1 font-medium text-gray-700 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-1 font-medium text-slate-600 hover:text-sky-600 transition-colors"
           >
             <User className="w-4 h-4" />
             {comment.user?.name} {comment.user?.level && `${comment.user.level}`}
           </Link>
-          <span className="text-gray-400">·</span>
-          <span className="text-gray-500">
+          <span className="text-slate-400">·</span>
+          <span className="text-slate-400">
             {dayjs(comment.created_at).format("YYYY-MM-DD HH:mm")}
           </span>
           {comment.updated_at && comment.updated_at !== comment.created_at && (
-            <span className="text-gray-400 text-xs">(수정됨)</span>
+            <span className="text-slate-400 text-xs">(수정됨)</span>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ export default function CommentItem({
                   setEditContent(comment.content);
                   setIsEditing(true);
                 }}
-                className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 transition-colors"
+                className="flex items-center gap-1 text-xs text-slate-400 hover:text-sky-600 transition-colors"
               >
                 <Pencil className="w-3 h-3" />
                 수정
@@ -151,7 +151,7 @@ export default function CommentItem({
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-600 transition-colors disabled:opacity-50"
               >
                 <Trash2 className="w-3 h-3" />
                 {isDeleting ? "삭제중..." : "삭제"}
@@ -162,7 +162,7 @@ export default function CommentItem({
           {!isReply && !isEditing && (
             <button
               onClick={() => setIsReplying(!isReplying)}
-              className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 transition-colors"
+              className="flex items-center gap-1 text-xs text-slate-400 hover:text-sky-600 transition-colors"
             >
               <Reply className="w-3 h-3" />
               답글
@@ -178,7 +178,7 @@ export default function CommentItem({
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             rows={3}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
           />
           <div className="flex justify-end gap-2 mt-2">
             <button
@@ -186,7 +186,7 @@ export default function CommentItem({
                 setIsEditing(false);
                 setEditContent(comment.content);
               }}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+              className="flex items-center gap-1 px-3 py-1 text-sm text-slate-500 hover:text-slate-700 transition-colors"
             >
               <X className="w-3 h-3" />
               취소
@@ -194,7 +194,7 @@ export default function CommentItem({
             <button
               onClick={handleEditSubmit}
               disabled={!editContent.trim() || isSaving}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 px-3 py-1 text-sm text-white bg-sky-600 hover:bg-sky-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check className="w-3 h-3" />
               {isSaving ? "저장중..." : "저장"}
@@ -203,7 +203,7 @@ export default function CommentItem({
         </div>
       ) : (
         /* 댓글 내용 (일반 모드) - @멘션 파란색 하이라이트 */
-        <p className="text-gray-700 whitespace-pre-wrap">{highlightMentions(comment.content)}</p>
+        <p className="text-slate-600 whitespace-pre-wrap">{highlightMentions(comment.content)}</p>
       )}
 
       {/* 첨부파일 */}
@@ -216,11 +216,11 @@ export default function CommentItem({
               download={file.name}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-2 py-1 bg-gray-50 hover:bg-blue-50 rounded text-sm cursor-pointer transition-colors group"
+              className="flex items-center gap-2 px-2 py-1 bg-slate-50 hover:bg-sky-50 rounded text-sm cursor-pointer transition-colors group"
             >
-              <FileText className="w-3 h-3 text-gray-400 group-hover:text-blue-500" />
-              <span className="truncate flex-1 text-gray-600 group-hover:text-blue-600">{file.name}</span>
-              <Download className="w-3 h-3 text-gray-400 group-hover:text-blue-600" />
+              <FileText className="w-3 h-3 text-slate-400 group-hover:text-sky-500" />
+              <span className="truncate flex-1 text-slate-500 group-hover:text-sky-600">{file.name}</span>
+              <Download className="w-3 h-3 text-slate-400 group-hover:text-sky-600" />
             </a>
           ))}
         </div>
@@ -245,7 +245,7 @@ export default function CommentItem({
 
       {/* 답글 작성 폼 */}
       {isReplying && (
-        <div className="mt-3 pl-4 border-l-2 border-blue-200">
+        <div className="mt-3 pl-4 border-l-2 border-sky-200">
           <ReplyForm
             onSubmit={handleReplySubmit}
             onCancel={() => setIsReplying(false)}

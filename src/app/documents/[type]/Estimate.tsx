@@ -121,27 +121,27 @@ export default function Estimate({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="bg-white rounded-lg shadow-sm border border-slate-200">
       {/* 헤더 섹션 */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-slate-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h2 className="text-xl font-bold text-gray-800">
+          <h2 className="text-xl font-bold text-slate-700">
             {getDocumentTypeText()} 목록
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
               <input
                 type="text"
                 placeholder="검색..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent w-full"
               />
             </div>
 
             <button
               onClick={() => setOpenAddModal(true)}
-              className="flex items-center justify-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              className="flex items-center justify-center gap-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors text-sm font-medium"
             >
               <Plus className="h-4 w-4" />
               <span>추가</span>

@@ -56,7 +56,7 @@ export default function DocumentsPagination({
             }}
             className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
               currentPage === page
-                ? "bg-indigo-600 text-white"
+                ? "bg-sky-600 text-white"
                 : page === "..."
                 ? "text-slate-400 cursor-default"
                 : "text-slate-600 hover:bg-slate-100"

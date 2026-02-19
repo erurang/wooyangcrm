@@ -56,7 +56,7 @@ export default function DocumentFormHeader({
         </div>
         <button
           onClick={onClose}
-          className="text-white hover:text-gray-200 bg-white bg-opacity-20 rounded-full p-1.5 transition-colors"
+          className="text-white hover:text-slate-200 bg-white bg-opacity-20 rounded-full p-1.5 transition-colors"
         >
           <X className="h-5 w-5" />
         </button>

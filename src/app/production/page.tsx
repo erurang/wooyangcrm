@@ -83,9 +83,9 @@ export default function ProductionDashboardPage() {
       title: "생산 일정",
       description: "캘린더로 일정 확인",
       icon: Calendar,
-      color: "bg-blue-500",
-      lightColor: "bg-blue-100",
-      textColor: "text-blue-600",
+      color: "bg-sky-500",
+      lightColor: "bg-sky-100",
+      textColor: "text-sky-600",
       path: "/production/calendar",
       stat: "일정 보기",
     },
@@ -93,9 +93,9 @@ export default function ProductionDashboardPage() {
       title: "원자재 재고",
       description: "재고 현황 관리",
       icon: Package,
-      color: "bg-indigo-500",
-      lightColor: "bg-indigo-100",
-      textColor: "text-indigo-600",
+      color: "bg-sky-500",
+      lightColor: "bg-sky-100",
+      textColor: "text-sky-600",
       path: "/production/inventory",
       stat: lowStockProducts.length > 0 ? `${lowStockProducts.length}건 저재고` : "정상",
     },
@@ -144,7 +144,7 @@ export default function ProductionDashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-lg"
+            className="bg-gradient-to-r from-purple-500 to-sky-700 rounded-xl p-4 text-white shadow-lg"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -189,11 +189,11 @@ export default function ProductionDashboardPage() {
             transition={{ delay: 0.1 }}
             className="bg-white rounded-xl p-4 border border-slate-200"
           >
-            <div className="flex items-center gap-2 text-blue-500 mb-2">
+            <div className="flex items-center gap-2 text-sky-500 mb-2">
               <ClipboardList className="h-4 w-4" />
               <span className="text-sm">진행중</span>
             </div>
-            <p className="text-3xl font-bold text-blue-600">{inProgressWorkOrders}</p>
+            <p className="text-3xl font-bold text-sky-600">{inProgressWorkOrders}</p>
           </motion.div>
 
           <motion.div
@@ -202,11 +202,11 @@ export default function ProductionDashboardPage() {
             transition={{ delay: 0.2 }}
             className="bg-white rounded-xl p-4 border border-slate-200"
           >
-            <div className="flex items-center gap-2 text-indigo-500 mb-2">
+            <div className="flex items-center gap-2 text-sky-500 mb-2">
               <Package className="h-4 w-4" />
               <span className="text-sm">원자재 품목</span>
             </div>
-            <p className="text-3xl font-bold text-indigo-600">{rawMaterials.length}</p>
+            <p className="text-3xl font-bold text-sky-600">{rawMaterials.length}</p>
           </motion.div>
 
           <motion.div
@@ -341,7 +341,7 @@ export default function ProductionDashboardPage() {
                           wo.status === "completed"
                             ? "bg-green-100 text-green-700"
                             : wo.status === "in_progress"
-                            ? "bg-blue-100 text-blue-700"
+                            ? "bg-sky-100 text-sky-700"
                             : wo.status === "canceled"
                             ? "bg-red-100 text-red-700"
                             : "bg-slate-100 text-slate-600"

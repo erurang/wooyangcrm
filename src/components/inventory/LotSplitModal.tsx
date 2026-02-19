@@ -74,8 +74,8 @@ export default function LotSplitModal({
               <Scissors className="h-5 w-5 text-orange-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-gray-900">LOT 분할</h3>
-              <p className="text-sm text-gray-500">{lot.lot_number}</p>
+              <h3 className="font-semibold text-lg text-slate-800">LOT 분할</h3>
+              <p className="text-sm text-slate-400">{lot.lot_number}</p>
             </div>
           </div>
           <button
@@ -83,26 +83,26 @@ export default function LotSplitModal({
             disabled={isSplitting}
             className="p-2 hover:bg-orange-100 rounded-lg transition-colors disabled:opacity-50"
           >
-            <X className="h-5 w-5 text-gray-500" />
+            <X className="h-5 w-5 text-slate-400" />
           </button>
         </div>
 
         {/* 본문 */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-auto p-6 space-y-6">
           {/* 현재 LOT 정보 */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-500 mb-2">원본 LOT</div>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <div className="text-sm text-slate-400 mb-2">원본 LOT</div>
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-medium text-gray-900">
+                <div className="font-medium text-slate-800">
                   {lot.product?.internal_name || "-"}
                 </div>
-                <div className="text-sm text-gray-500">{lot.spec_value || "-"}</div>
+                <div className="text-sm text-slate-400">{lot.spec_value || "-"}</div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-2xl font-bold text-slate-800">
                   {currentQty}
-                  <span className="text-sm font-normal text-gray-500 ml-1">
+                  <span className="text-sm font-normal text-slate-400 ml-1">
                     {unit}
                   </span>
                 </div>
@@ -112,7 +112,7 @@ export default function LotSplitModal({
 
           {/* 분할 수량 입력 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-600 mb-2">
               분할(사용) 수량
             </label>
             <div className="flex items-center gap-2">
@@ -124,25 +124,25 @@ export default function LotSplitModal({
                 min="0"
                 max={currentQty - 0.0001}
                 placeholder="0"
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-lg"
+                className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-lg"
                 disabled={isSplitting}
               />
-              <span className="text-gray-500 font-medium">{unit}</span>
+              <span className="text-slate-400 font-medium">{unit}</span>
             </div>
-            <div className="mt-2 text-sm text-gray-500">
+            <div className="mt-2 text-sm text-slate-400">
               최대 {(currentQty - 0.0001).toFixed(4)} {unit} 까지 가능
             </div>
           </div>
 
           {/* 분할 사유 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-600 mb-2">
               분할 사유
             </label>
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               disabled={isSplitting}
             >
               <option value="order">주문 처리</option>
@@ -155,7 +155,7 @@ export default function LotSplitModal({
 
           {/* 메모 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-600 mb-2">
               메모 (선택)
             </label>
             <textarea
@@ -163,7 +163,7 @@ export default function LotSplitModal({
               onChange={(e) => setNotes(e.target.value)}
               placeholder="분할 관련 메모..."
               rows={2}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
               disabled={isSplitting}
             />
           </div>
@@ -176,10 +176,10 @@ export default function LotSplitModal({
               </div>
               <div className="flex items-center justify-between gap-4">
                 {/* 원본 */}
-                <div className="flex-1 bg-gray-100 rounded-lg p-3 text-center opacity-50">
-                  <Package className="h-5 w-5 text-gray-400 mx-auto mb-1" />
-                  <div className="text-xs text-gray-500">원본 (소멸)</div>
-                  <div className="font-medium text-gray-400 line-through">
+                <div className="flex-1 bg-slate-100 rounded-lg p-3 text-center opacity-50">
+                  <Package className="h-5 w-5 text-slate-400 mx-auto mb-1" />
+                  <div className="text-xs text-slate-400">원본 (소멸)</div>
+                  <div className="font-medium text-slate-400 line-through">
                     {currentQty} {unit}
                   </div>
                 </div>
@@ -217,12 +217,12 @@ export default function LotSplitModal({
         </form>
 
         {/* 푸터 */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-gray-50">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-slate-50">
           <button
             type="button"
             onClick={onClose}
             disabled={isSplitting}
-            className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50"
           >
             취소
           </button>

@@ -1,8 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { CircularProgress } from "@mui/material";
-import { X, AlertCircle, Plus, Trash2, Paperclip, Upload, FileText, Download, Users, UserCheck, RefreshCw } from "lucide-react";
+import { X, AlertCircle, Plus, Trash2, Paperclip, Upload, FileText, Download, Users, UserCheck, RefreshCw, Loader2 } from "lucide-react";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { useUsersList } from "@/hooks/useUserList";
@@ -540,9 +539,9 @@ export default function OverseasOrderFormModal({
   const getInputClass = (hasError: boolean, isDisabled = false) => {
     const base =
       "w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-colors";
-    if (isDisabled) return `${base} bg-gray-100 border-gray-300`;
+    if (isDisabled) return `${base} bg-slate-100 border-slate-300`;
     if (hasError) return `${base} border-red-500 focus:ring-red-500 bg-red-50`;
-    return `${base} border-gray-300 focus:ring-blue-500`;
+    return `${base} border-slate-300 focus:ring-sky-500`;
   };
 
   const currencySymbol = CURRENCY_SYMBOLS[formData.currency] || "$";
@@ -564,12 +563,12 @@ export default function OverseasOrderFormModal({
           >
             {/* 헤더 */}
             <div className="flex items-center justify-between p-5 border-b shrink-0">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-slate-800">
                 {modalTitle}
               </h3>
               <button
                 onClick={handleClose}
-                className="text-gray-400 hover:text-gray-500"
+                className="text-slate-400 hover:text-slate-400"
               >
                 <X size={20} />
               </button>
@@ -581,17 +580,17 @@ export default function OverseasOrderFormModal({
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 {/* 구분 (수입/수출) */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     구분
                   </label>
-                  <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                  <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
                     <button
                       type="button"
                       onClick={() => handleFieldChange("order_type", "import")}
                       className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
                         formData.order_type === "import"
-                          ? "bg-white text-blue-600 shadow-sm font-medium"
-                          : "text-gray-600 hover:text-gray-800"
+                          ? "bg-white text-sky-600 shadow-sm font-medium"
+                          : "text-slate-500 hover:text-slate-700"
                       }`}
                     >
                       수입
@@ -601,8 +600,8 @@ export default function OverseasOrderFormModal({
                       onClick={() => handleFieldChange("order_type", "export")}
                       className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
                         formData.order_type === "export"
-                          ? "bg-white text-blue-600 shadow-sm font-medium"
-                          : "text-gray-600 hover:text-gray-800"
+                          ? "bg-white text-sky-600 shadow-sm font-medium"
+                          : "text-slate-500 hover:text-slate-700"
                       }`}
                     >
                       수출
@@ -612,7 +611,7 @@ export default function OverseasOrderFormModal({
 
                 {/* Invoice No. */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     Invoice No. <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -634,7 +633,7 @@ export default function OverseasOrderFormModal({
 
                 {/* 발주일 */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     발주일 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -655,7 +654,7 @@ export default function OverseasOrderFormModal({
 
                 {/* 통화 */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     통화
                   </label>
                   <HeadlessSelect
@@ -673,7 +672,7 @@ export default function OverseasOrderFormModal({
               {/* 날짜 정보 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     출고일 (해외)
                   </label>
                   <input
@@ -686,7 +685,7 @@ export default function OverseasOrderFormModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     입고일 (국내)
                   </label>
                   <input
@@ -704,7 +703,7 @@ export default function OverseasOrderFormModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {/* 상대 담당자 (거래처) */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     상대 담당자 (거래처)
                   </label>
                   {contacts.length > 0 ? (
@@ -737,7 +736,7 @@ export default function OverseasOrderFormModal({
 
                 {/* 오더 담당자 */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     오더 담당자
                   </label>
                   <HeadlessSelect
@@ -759,13 +758,13 @@ export default function OverseasOrderFormModal({
               {/* 품목 리스트 */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-slate-600">
                     품목 <span className="text-red-500">*</span>
                   </label>
                   <button
                     type="button"
                     onClick={handleAddItem}
-                    className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 text-xs text-sky-600 hover:bg-sky-50 rounded transition-colors"
                   >
                     <Plus size={14} />
                     품목 추가
@@ -773,28 +772,28 @@ export default function OverseasOrderFormModal({
                 </div>
 
                 <div className="border rounded-lg overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
                       <tr>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 w-1/4">
+                        <th className="px-3 py-2 text-left text-xs font-medium text-slate-400 w-1/4">
                           품명
                         </th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 w-1/4">
+                        <th className="px-3 py-2 text-left text-xs font-medium text-slate-400 w-1/4">
                           규격
                         </th>
-                        <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 w-20">
+                        <th className="px-3 py-2 text-right text-xs font-medium text-slate-400 w-20">
                           수량
                         </th>
-                        <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 w-28">
+                        <th className="px-3 py-2 text-right text-xs font-medium text-slate-400 w-28">
                           단가 ({currencySymbol})
                         </th>
-                        <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 w-28">
+                        <th className="px-3 py-2 text-right text-xs font-medium text-slate-400 w-28">
                           금액 ({currencySymbol})
                         </th>
                         <th className="px-3 py-2 w-10"></th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-slate-200">
                       {formData.items.map((item, index) => (
                         <tr key={index}>
                           <td className="px-2 py-1">
@@ -805,7 +804,7 @@ export default function OverseasOrderFormModal({
                               onChange={(e) =>
                                 handleItemChange(index, "name", e.target.value)
                               }
-                              className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
                             />
                           </td>
                           <td className="px-2 py-1">
@@ -816,7 +815,7 @@ export default function OverseasOrderFormModal({
                               onChange={(e) =>
                                 handleItemChange(index, "spec", e.target.value)
                               }
-                              className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
                             />
                           </td>
                           <td className="px-2 py-1">
@@ -827,7 +826,7 @@ export default function OverseasOrderFormModal({
                               onChange={(e) =>
                                 handleItemChange(index, "quantity", e.target.value)
                               }
-                              className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
                             />
                           </td>
                           <td className="px-2 py-1">
@@ -843,10 +842,10 @@ export default function OverseasOrderFormModal({
                                   Number(e.target.value) || 0
                                 )
                               }
-                              className="w-full px-2 py-1.5 text-sm text-right border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              className="w-full px-2 py-1.5 text-sm text-right border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
                             />
                           </td>
-                          <td className="px-2 py-1 text-right text-sm font-medium text-gray-900">
+                          <td className="px-2 py-1 text-right text-sm font-medium text-slate-800">
                             {item.amount.toLocaleString()}
                           </td>
                           <td className="px-2 py-1">
@@ -854,7 +853,7 @@ export default function OverseasOrderFormModal({
                               type="button"
                               onClick={() => handleRemoveItem(index)}
                               disabled={formData.items.length <= 1}
-                              className="p-1 text-gray-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed"
+                              className="p-1 text-slate-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -862,15 +861,15 @@ export default function OverseasOrderFormModal({
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot className="bg-gray-50">
+                    <tfoot className="bg-slate-50">
                       <tr>
                         <td
                           colSpan={4}
-                          className="px-3 py-2 text-right text-sm font-medium text-gray-700"
+                          className="px-3 py-2 text-right text-sm font-medium text-slate-600"
                         >
                           총금액
                         </td>
-                        <td className="px-3 py-2 text-right text-sm font-bold text-blue-600">
+                        <td className="px-3 py-2 text-right text-sm font-bold text-sky-600">
                           {currencySymbol}
                           {totalAmount.toLocaleString()}
                         </td>
@@ -890,7 +889,7 @@ export default function OverseasOrderFormModal({
               {/* 송금 정보 */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     총송금액 ({currencySymbol})
                   </label>
                   <input
@@ -910,7 +909,7 @@ export default function OverseasOrderFormModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     송금일
                   </label>
                   <input
@@ -923,7 +922,7 @@ export default function OverseasOrderFormModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     환율 (₩)
                   </label>
                   <div className="flex gap-1">
@@ -955,7 +954,7 @@ export default function OverseasOrderFormModal({
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     원화환산액
                   </label>
                   <input
@@ -970,7 +969,7 @@ export default function OverseasOrderFormModal({
               {/* 운송 정보 */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     운송방법
                   </label>
                   <HeadlessSelect
@@ -984,7 +983,7 @@ export default function OverseasOrderFormModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     운송업체/관세사
                   </label>
                   <input
@@ -998,7 +997,7 @@ export default function OverseasOrderFormModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     H.S.code
                   </label>
                   <input
@@ -1012,7 +1011,7 @@ export default function OverseasOrderFormModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     관세율 (%)
                   </label>
                   <input
@@ -1037,10 +1036,10 @@ export default function OverseasOrderFormModal({
               {/* 첨부파일 */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-slate-600">
                     첨부파일
                     {files.length > 0 && (
-                      <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-blue-100 text-blue-600 rounded">
+                      <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-sky-100 text-sky-600 rounded">
                         {files.length}
                       </span>
                     )}
@@ -1060,8 +1059,8 @@ export default function OverseasOrderFormModal({
                         onClick={() => fileInputRef.current?.click()}
                         className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all ${
                           dragging
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                            ? "border-sky-500 bg-sky-50"
+                            : "border-slate-300 hover:border-sky-400 hover:bg-slate-50"
                         }`}
                       >
                         <input
@@ -1072,18 +1071,18 @@ export default function OverseasOrderFormModal({
                           onChange={(e) => handleFileSelect(e.target.files)}
                         />
                         {dragging ? (
-                          <div className="flex flex-col items-center gap-2 text-blue-600">
+                          <div className="flex flex-col items-center gap-2 text-sky-600">
                             <Upload className="h-8 w-8" />
                             <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
                           </div>
                         ) : (
-                          <div className="flex flex-col items-center gap-1 text-gray-500">
+                          <div className="flex flex-col items-center gap-1 text-slate-400">
                             <FileText className="h-6 w-6" />
                             <p className="text-sm">
-                              <span className="font-medium text-blue-600">파일 선택</span>
+                              <span className="font-medium text-sky-600">파일 선택</span>
                               <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
                             </p>
-                            <p className="text-[10px] text-gray-400 mt-1">
+                            <p className="text-[10px] text-slate-400 mt-1">
                               PI, OC, B/L, CI, PL, 송금증빙 등
                             </p>
                           </div>
@@ -1093,10 +1092,10 @@ export default function OverseasOrderFormModal({
 
                     {/* 업로드 폼 */}
                     {showUploadForm && (
-                      <div className="p-4 bg-blue-50 border-b">
+                      <div className="p-4 bg-sky-50 border-b">
                         <div className="flex items-center gap-3">
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm text-gray-700 truncate">
+                            <div className="text-sm text-slate-600 truncate">
                               {pendingFiles.map((f) => f.name).join(", ")}
                             </div>
                           </div>
@@ -1112,7 +1111,7 @@ export default function OverseasOrderFormModal({
                           <button
                             type="button"
                             onClick={cancelUpload}
-                            className="px-2 py-1 text-xs text-gray-500 hover:text-gray-700"
+                            className="px-2 py-1 text-xs text-slate-400 hover:text-slate-600"
                           >
                             취소
                           </button>
@@ -1120,9 +1119,9 @@ export default function OverseasOrderFormModal({
                             type="button"
                             onClick={handleFileUpload}
                             disabled={uploading}
-                            className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1"
+                            className="px-3 py-1 text-xs bg-sky-600 text-white rounded hover:bg-sky-700 disabled:opacity-50 flex items-center gap-1"
                           >
-                            {uploading && <CircularProgress size={12} color="inherit" />}
+                            {uploading && <Loader2 className="h-3 w-3 animate-spin" />}
                             업로드
                           </button>
                         </div>
@@ -1132,21 +1131,21 @@ export default function OverseasOrderFormModal({
                     {/* 파일 목록 */}
                     {filesLoading ? (
                       <div className="p-4 text-center">
-                        <CircularProgress size={20} />
+                        <Loader2 className="h-5 w-5 animate-spin text-sky-600" />
                       </div>
                     ) : files.length > 0 ? (
                       <div className="divide-y max-h-40 overflow-y-auto">
                         {files.map((file) => (
                           <div
                             key={file.id}
-                            className="flex items-center justify-between px-3 py-2 hover:bg-gray-50"
+                            className="flex items-center justify-between px-3 py-2 hover:bg-slate-50"
                           >
                             <div className="flex items-center gap-2 min-w-0 flex-1">
-                              <FileText size={14} className="text-gray-400 shrink-0" />
-                              <span className="text-sm text-gray-700 truncate">
+                              <FileText size={14} className="text-slate-400 shrink-0" />
+                              <span className="text-sm text-slate-600 truncate">
                                 {file.file_name}
                               </span>
-                              <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded shrink-0">
+                              <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-400 rounded shrink-0">
                                 {getFileTypeLabel(file.file_type)}
                               </span>
                             </div>
@@ -1154,7 +1153,7 @@ export default function OverseasOrderFormModal({
                               <button
                                 type="button"
                                 onClick={() => handleFileDownload(file)}
-                                className="p-1 text-gray-400 hover:text-blue-600"
+                                className="p-1 text-slate-400 hover:text-sky-600"
                                 title="다운로드"
                               >
                                 <Download size={14} />
@@ -1163,7 +1162,7 @@ export default function OverseasOrderFormModal({
                                 <button
                                   type="button"
                                   onClick={() => handleFileDelete(file.id, file.file_url)}
-                                  className="p-1 text-gray-400 hover:text-red-600"
+                                  className="p-1 text-slate-400 hover:text-red-600"
                                   title="삭제"
                                 >
                                   <Trash2 size={14} />
@@ -1174,16 +1173,16 @@ export default function OverseasOrderFormModal({
                         ))}
                       </div>
                     ) : (
-                      <div className="p-3 text-center text-xs text-gray-400">
+                      <div className="p-3 text-center text-xs text-slate-400">
                         첨부된 파일이 없습니다
                       </div>
                     )}
                   </div>
                 ) : (
                   /* 추가 모드: 저장 후 파일 첨부 안내 */
-                  <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center bg-gray-50">
-                    <Paperclip className="mx-auto h-6 w-6 text-gray-300 mb-1" />
-                    <p className="text-xs text-gray-400">
+                  <div className="border-2 border-dashed border-slate-200 rounded-lg p-4 text-center bg-slate-50">
+                    <Paperclip className="mx-auto h-6 w-6 text-slate-300 mb-1" />
+                    <p className="text-xs text-slate-400">
                       발주 저장 후 파일을 첨부할 수 있습니다
                     </p>
                   </div>
@@ -1192,7 +1191,7 @@ export default function OverseasOrderFormModal({
 
               {/* 비고 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-600 mb-1">
                   비고
                 </label>
                 <textarea
@@ -1206,7 +1205,7 @@ export default function OverseasOrderFormModal({
             </div>
 
             {/* 푸터 */}
-            <div className="flex justify-between items-center px-5 py-4 bg-gray-50 border-t shrink-0">
+            <div className="flex justify-between items-center px-5 py-4 bg-slate-50 border-t shrink-0">
               {/* 왼쪽: 삭제 버튼 (수정 모드에서만) */}
               <div>
                 {!isAddMode && onDelete && (
@@ -1217,7 +1216,7 @@ export default function OverseasOrderFormModal({
                   >
                     {deleting ? (
                       <>
-                        <CircularProgress size={16} className="mr-2" color="inherit" />
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         삭제 중...
                       </>
                     ) : (
@@ -1234,19 +1233,19 @@ export default function OverseasOrderFormModal({
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleClose}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50"
                   disabled={saving || deleting}
                 >
                   취소
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-md hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                   disabled={saving || deleting}
                 >
                   {saving ? (
                     <>
-                      <CircularProgress size={16} className="mr-2" />
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       저장 중...
                     </>
                   ) : (

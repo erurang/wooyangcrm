@@ -14,7 +14,7 @@ const tagTypeLabels: Record<"reference" | "coauthor", string> = {
 };
 
 const tagTypeColors: Record<"reference" | "coauthor", string> = {
-  reference: "bg-blue-50 text-blue-600 border-blue-200",
+  reference: "bg-sky-50 text-sky-600 border-sky-200",
   coauthor: "bg-green-50 text-green-600 border-green-200",
 };
 
@@ -32,7 +32,7 @@ export default function UserTagsDisplay({ tags }: UserTagsDisplayProps) {
 
   return (
     <div className="mt-4">
-      <div className="flex items-center gap-2 mb-2 text-sm font-medium text-gray-700">
+      <div className="flex items-center gap-2 mb-2 text-sm font-medium text-slate-600">
         <Users className="w-4 h-4" />
         태그된 유저
       </div>

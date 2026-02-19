@@ -27,27 +27,25 @@ export default function BoardDropdown({ isExpanded }: BoardDropdownProps) {
 
   if (isLoading) {
     return (
-      <div className="ml-5 mt-1 border-l border-gray-200 pl-3">
-        <div className="py-2 text-sm text-gray-500">로딩 중...</div>
+      <div className="ml-5 mt-1 border-l border-white/10 pl-3">
+        <div className="py-2 text-[13px] text-sidebar-text">로딩 중...</div>
       </div>
     );
   }
 
   return (
-    <div className="ml-5 mt-1 space-y-0.5 border-l border-gray-200 pl-3">
-      {/* 전체 게시판 링크 */}
+    <div className="ml-5 mt-1 space-y-0.5 border-l border-white/10 pl-3">
       <Link
         href="/board"
-        className="block px-2 py-1.5 text-sm rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors font-medium"
+        className="block px-2 py-1.5 text-[13px] rounded-md text-sidebar-text hover:bg-sidebar-hover hover:text-white transition-colors duration-150 font-medium cursor-pointer"
       >
         전체
       </Link>
-      {/* 카테고리별 링크 */}
       {categories.map((category) => (
         <Link
           key={category.id}
           href={`/board?category=${encodeURIComponent(category.name)}`}
-          className="block px-2 py-1.5 text-sm rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+          className="block px-2 py-1.5 text-[13px] rounded-md text-sidebar-text hover:bg-sidebar-hover hover:text-white transition-colors duration-150 cursor-pointer"
         >
           {category.name}
         </Link>

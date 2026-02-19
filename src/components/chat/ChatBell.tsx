@@ -18,7 +18,7 @@ export default function ChatBell({ userId }: ChatBellProps) {
   return (
     <button
       onClick={handleClick}
-      className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+      className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
       title="메신저"
     >
       <svg

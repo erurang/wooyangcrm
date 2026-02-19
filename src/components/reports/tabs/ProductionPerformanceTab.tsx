@@ -216,10 +216,10 @@ export default function ProductionPerformanceTab({
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
           <div className="flex items-center text-slate-500 text-xs mb-1">
-            <CheckCircle className="h-3.5 w-3.5 mr-1 text-blue-500" />
+            <CheckCircle className="h-3.5 w-3.5 mr-1 text-sky-500" />
             작업 완료
           </div>
-          <p className="text-2xl font-bold text-blue-600">
+          <p className="text-2xl font-bold text-sky-600">
             {summary?.total_completed?.toLocaleString() || 0}건
           </p>
         </div>
@@ -243,10 +243,10 @@ export default function ProductionPerformanceTab({
         </div>
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
           <div className="flex items-center text-slate-500 text-xs mb-1">
-            <Package className="h-3.5 w-3.5 mr-1 text-indigo-500" />
+            <Package className="h-3.5 w-3.5 mr-1 text-sky-500" />
             입출고 처리
           </div>
-          <p className="text-2xl font-bold text-indigo-600">
+          <p className="text-2xl font-bold text-sky-600">
             {summary?.inventory_tasks_completed?.toLocaleString() || 0}건
           </p>
         </div>
@@ -305,7 +305,7 @@ export default function ProductionPerformanceTab({
                 placeholder="담당자 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -414,7 +414,7 @@ export default function ProductionPerformanceTab({
                       {user.position || "-"}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="inline-flex items-center gap-1 text-blue-600 font-medium">
+                      <span className="inline-flex items-center gap-1 text-sky-600 font-medium">
                         <CheckCircle className="h-3 w-3" />
                         {user.completed_count}
                       </span>
@@ -447,7 +447,7 @@ export default function ProductionPerformanceTab({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="inline-flex items-center gap-1 text-indigo-600">
+                      <span className="inline-flex items-center gap-1 text-sky-600">
                         <Package className="h-3 w-3" />
                         {user.inventory_completed}
                       </span>

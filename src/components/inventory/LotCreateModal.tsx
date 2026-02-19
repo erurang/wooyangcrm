@@ -136,22 +136,22 @@ export default function LotCreateModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
         {/* 헤더 */}
-        <div className="flex items-center justify-between px-6 py-4 border-b bg-blue-50">
+        <div className="flex items-center justify-between px-6 py-4 border-b bg-sky-50">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-100">
-              <Plus className="h-5 w-5 text-blue-600" />
+            <div className="p-2 rounded-lg bg-sky-100">
+              <Plus className="h-5 w-5 text-sky-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-gray-900">새 LOT 등록</h3>
-              <p className="text-sm text-gray-500">수동 입고 LOT 생성</p>
+              <h3 className="font-semibold text-lg text-slate-800">새 LOT 등록</h3>
+              <p className="text-sm text-slate-400">수동 입고 LOT 생성</p>
             </div>
           </div>
           <button
             onClick={onClose}
             disabled={isCreating}
-            className="p-2 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50"
+            className="p-2 hover:bg-sky-100 rounded-lg transition-colors disabled:opacity-50"
           >
-            <X className="h-5 w-5 text-gray-500" />
+            <X className="h-5 w-5 text-slate-400" />
           </button>
         </div>
 
@@ -159,11 +159,11 @@ export default function LotCreateModal({
         <form onSubmit={handleSubmit} className="flex-1 overflow-auto p-6 space-y-4">
           {/* 제품 검색 */}
           <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               제품 <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
                 value={productSearch}
@@ -173,32 +173,32 @@ export default function LotCreateModal({
                 }}
                 onFocus={() => products.length > 0 && setShowProductDropdown(true)}
                 placeholder="제품명 또는 코드로 검색..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 disabled={isCreating}
               />
               {isSearching && (
-                <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 animate-spin" />
+                <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 animate-spin" />
               )}
             </div>
 
             {/* 제품 드롭다운 */}
             {showProductDropdown && products.length > 0 && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+              <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-auto">
                 {products.map((product) => (
                   <button
                     key={product.id}
                     type="button"
                     onClick={() => handleSelectProduct(product)}
-                    className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-b-0"
+                    className="w-full text-left px-4 py-3 hover:bg-sky-50 border-b border-slate-100 last:border-b-0"
                   >
                     <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-gray-400" />
-                      <span className="font-medium text-gray-900">
+                      <Package className="h-4 w-4 text-slate-400" />
+                      <span className="font-medium text-slate-800">
                         {product.internal_name}
                       </span>
                     </div>
                     {product.internal_code && (
-                      <div className="text-sm text-gray-500 ml-6">
+                      <div className="text-sm text-slate-400 ml-6">
                         {product.internal_code}
                       </div>
                     )}
@@ -209,13 +209,13 @@ export default function LotCreateModal({
 
             {/* 선택된 제품 표시 */}
             {selectedProduct && (
-              <div className="mt-2 p-2 bg-blue-50 rounded-lg flex items-center gap-2">
-                <Package className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">
+              <div className="mt-2 p-2 bg-sky-50 rounded-lg flex items-center gap-2">
+                <Package className="h-4 w-4 text-sky-600" />
+                <span className="text-sm font-medium text-sky-800">
                   {selectedProduct.internal_name}
                 </span>
                 {selectedProduct.internal_code && (
-                  <span className="text-sm text-blue-600">
+                  <span className="text-sm text-sky-600">
                     ({selectedProduct.internal_code})
                   </span>
                 )}
@@ -225,7 +225,7 @@ export default function LotCreateModal({
                     setSelectedProduct(null);
                     setProductSearch("");
                   }}
-                  className="ml-auto text-blue-600 hover:text-blue-800"
+                  className="ml-auto text-sky-600 hover:text-sky-800"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -236,7 +236,7 @@ export default function LotCreateModal({
           {/* 수량 & 단위 */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-600 mb-1">
                 수량 <span className="text-red-500">*</span>
               </label>
               <input
@@ -246,12 +246,12 @@ export default function LotCreateModal({
                 step="any"
                 min="0"
                 placeholder="0"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 disabled={isCreating}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-600 mb-1">
                 단위
               </label>
               <input
@@ -259,7 +259,7 @@ export default function LotCreateModal({
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
                 placeholder="m, 개, 롤..."
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 disabled={isCreating}
               />
             </div>
@@ -267,7 +267,7 @@ export default function LotCreateModal({
 
           {/* 규격 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               규격
             </label>
             <input
@@ -275,14 +275,14 @@ export default function LotCreateModal({
               value={specValue}
               onChange={(e) => setSpecValue(e.target.value)}
               placeholder="10m, 1000x1000mm..."
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               disabled={isCreating}
             />
           </div>
 
           {/* 위치 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               보관 위치
             </label>
             <input
@@ -290,7 +290,7 @@ export default function LotCreateModal({
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="창고A-선반1..."
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               disabled={isCreating}
             />
           </div>
@@ -298,7 +298,7 @@ export default function LotCreateModal({
           {/* 단가 & 입고일 */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-600 mb-1">
                 단가 (원)
               </label>
               <input
@@ -308,19 +308,19 @@ export default function LotCreateModal({
                 step="any"
                 min="0"
                 placeholder="0"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 disabled={isCreating}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-600 mb-1">
                 입고일
               </label>
               <input
                 type="date"
                 value={receivedAt}
                 onChange={(e) => setReceivedAt(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 disabled={isCreating}
               />
             </div>
@@ -328,7 +328,7 @@ export default function LotCreateModal({
 
           {/* 메모 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               메모
             </label>
             <textarea
@@ -336,7 +336,7 @@ export default function LotCreateModal({
               onChange={(e) => setNotes(e.target.value)}
               placeholder="메모..."
               rows={2}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-none"
               disabled={isCreating}
             />
           </div>
@@ -351,12 +351,12 @@ export default function LotCreateModal({
         </form>
 
         {/* 푸터 */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-gray-50">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-slate-50">
           <button
             type="button"
             onClick={onClose}
             disabled={isCreating}
-            className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50"
           >
             취소
           </button>
@@ -364,7 +364,7 @@ export default function LotCreateModal({
             type="submit"
             onClick={handleSubmit}
             disabled={!selectedProduct || !quantity || isCreating}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isCreating ? (
               <>

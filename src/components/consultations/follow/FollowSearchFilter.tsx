@@ -37,48 +37,48 @@ export default function FollowSearchFilter({
   const hasFilters = searchTerm || selectedUser;
 
   return (
-    <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
-      <div className="px-4 py-3">
+    <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-10">
+      <div className="px-4 py-3.5">
         {/* 타이틀 */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-orange-50 rounded-lg">
+          <div className="p-2 bg-orange-50 rounded-xl">
             <CalendarClock className="h-5 w-5 text-orange-600" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-slate-800">후속상담</h1>
-            <p className="text-xs text-slate-500">예정된 후속상담 일정을 관리합니다</p>
+            <p className="text-xs text-slate-400">예정된 후속상담 일정을 관리합니다</p>
           </div>
         </div>
 
         {/* 검색 필터 */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           {/* 거래처 검색 */}
           <div className="relative flex-1 min-w-[140px] max-w-[180px]">
-            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => onSearchTermChange(e.target.value)}
               placeholder="거래처..."
-              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
 
           {/* 후속상담 기간 */}
           <div className="flex items-center gap-1.5">
-            <Calendar className="h-4 w-4 text-slate-400" />
+            <Calendar className="h-4 w-4 text-slate-300" />
             <input
               type="date"
               value={startDate}
               onChange={(e) => onStartDateChange(e.target.value)}
-              className="px-2.5 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+              className="px-2.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 bg-slate-50/50 hover:bg-white transition-all duration-200"
             />
-            <span className="text-slate-400">~</span>
+            <span className="text-slate-300 text-xs font-medium">~</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => onEndDateChange(e.target.value)}
-              className="px-2.5 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+              className="px-2.5 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 bg-slate-50/50 hover:bg-white transition-all duration-200"
             />
           </div>
 
@@ -107,9 +107,9 @@ export default function FollowSearchFilter({
           {hasFilters && (
             <button
               onClick={onReset}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all duration-200"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-3.5 h-3.5" />
               초기화
             </button>
           )}

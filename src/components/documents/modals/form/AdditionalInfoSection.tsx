@@ -90,34 +90,34 @@ export default function AdditionalInfoSection({
     : (newDocument.delivery_date_note || "");
 
   return (
-    <div className="bg-gray-50 p-4 sm:p-5 rounded-xl">
-      <div className="flex items-center gap-2 mb-3 sm:mb-4 text-gray-800">
+    <div className="bg-slate-50 p-4 sm:p-5 rounded-xl">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4 text-slate-700">
         <Info className={`h-5 w-5 ${iconColor}`} />
         <h4 className="text-base sm:text-lg font-semibold">추가 정보</h4>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
         {/* 납품일 (내부) */}
         <div>
-          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
-            납품일 <span className="text-gray-400 text-xs">(내부)</span>
+          <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
+            납품일 <span className="text-slate-400 text-xs">(내부)</span>
           </label>
           <div className="relative">
-            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
             <input
               type="date"
               value={newDocument.delivery_date}
               onChange={(e) =>
                 setNewDocument({ ...newDocument, delivery_date: e.target.value })
               }
-              className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+              className={`w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
             />
           </div>
         </div>
 
         {/* 납기 표시 (문서) */}
         <div>
-          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
-            납기 표시 <span className="text-gray-400 text-xs">(문서)</span>
+          <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
+            납기 표시 <span className="text-slate-400 text-xs">(문서)</span>
           </label>
           <HeadlessSelect
             value={getCurrentNotePreset()}
@@ -135,11 +135,11 @@ export default function AdditionalInfoSection({
         {/* 직접 입력 선택 시 텍스트 입력 필드 표시 */}
         {isCustomNote && (
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-1.5">
+            <label className="block text-xs sm:text-sm font-medium text-slate-600 mb-1 sm:mb-1.5">
               직접 입력
             </label>
             <div className="relative">
-              <MessageSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <MessageSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
               <input
                 type="text"
                 placeholder="예: 2월 중순경"
@@ -147,7 +147,7 @@ export default function AdditionalInfoSection({
                 onChange={(e) =>
                   setNewDocument({ ...newDocument, delivery_date_note: e.target.value || "__직접입력__" })
                 }
-                className={`w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+                className={`w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
               />
             </div>
           </div>

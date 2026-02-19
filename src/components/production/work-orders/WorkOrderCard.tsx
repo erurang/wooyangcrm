@@ -21,7 +21,7 @@ interface WorkOrderCardProps {
 
 const statusConfig = {
   pending: { label: "대기", color: "bg-slate-100 text-slate-600", icon: Clock },
-  in_progress: { label: "진행중", color: "bg-blue-100 text-blue-600", icon: AlertCircle },
+  in_progress: { label: "진행중", color: "bg-sky-100 text-sky-600", icon: AlertCircle },
   completed: { label: "완료", color: "bg-green-100 text-green-600", icon: CheckCircle2 },
   canceled: { label: "취소됨", color: "bg-red-100 text-red-600", icon: XCircle },
 };

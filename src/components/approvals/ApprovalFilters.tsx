@@ -52,7 +52,7 @@ export default function ApprovalFilters({
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="제목, 내용 검색..."
-            className="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-9 pr-3 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-transparent"
           />
         </div>
         <button
@@ -65,7 +65,7 @@ export default function ApprovalFilters({
           onClick={() => setShowFilters(!showFilters)}
           className={`p-1.5 border rounded transition-colors ${
             showFilters || hasFilters
-              ? "border-blue-500 text-blue-600 bg-blue-50"
+              ? "border-sky-500 text-sky-600 bg-sky-50"
               : "border-slate-200 text-slate-500 hover:bg-slate-50"
           }`}
         >
@@ -115,25 +115,25 @@ export default function ApprovalFilters({
       {hasFilters && !showFilters && (
         <div className="mt-2 flex items-center gap-2 flex-wrap">
           {filters.category_id && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-50 text-sky-700 rounded text-xs">
               {categories.find((c) => c.id === filters.category_id)?.name}
               <button
                 onClick={() => handleCategoryChange("")}
-                className="hover:text-blue-900"
+                className="hover:text-sky-900"
               >
                 <X className="w-3 h-3" />
               </button>
             </span>
           )}
           {filters.keyword && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-50 text-sky-700 rounded text-xs">
               &quot;{filters.keyword}&quot;
               <button
                 onClick={() => {
                   setKeyword("");
                   onChange({ ...filters, keyword: undefined });
                 }}
-                className="hover:text-blue-900"
+                className="hover:text-sky-900"
               >
                 <X className="w-3 h-3" />
               </button>

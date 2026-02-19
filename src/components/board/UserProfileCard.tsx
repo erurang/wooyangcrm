@@ -27,12 +27,12 @@ interface UserProfileCardProps {
 // 이름 첫 글자로 아바타 색상 결정
 const getAvatarColor = (name: string): string => {
   const colors = [
-    "bg-blue-500",
+    "bg-sky-500",
     "bg-green-500",
     "bg-purple-500",
     "bg-orange-500",
     "bg-pink-500",
-    "bg-indigo-500",
+    "bg-sky-500",
     "bg-teal-500",
     "bg-red-500",
   ];
@@ -47,19 +47,19 @@ export default function UserProfileCard({
 }: UserProfileCardProps) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 animate-pulse">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-gray-200 rounded-full" />
+          <div className="w-16 h-16 bg-slate-200 rounded-full" />
           <div className="flex-1">
-            <div className="h-6 bg-gray-200 rounded w-32 mb-2" />
-            <div className="h-4 bg-gray-200 rounded w-24" />
+            <div className="h-6 bg-slate-200 rounded w-32 mb-2" />
+            <div className="h-4 bg-slate-200 rounded w-24" />
           </div>
         </div>
         <div className="grid grid-cols-4 gap-4 mt-6">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="text-center">
-              <div className="h-8 bg-gray-200 rounded mb-1" />
-              <div className="h-4 bg-gray-200 rounded w-12 mx-auto" />
+              <div className="h-8 bg-slate-200 rounded mb-1" />
+              <div className="h-4 bg-slate-200 rounded w-12 mx-auto" />
             </div>
           ))}
         </div>
@@ -68,7 +68,7 @@ export default function UserProfileCard({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
       {/* 프로필 헤더 */}
       <div className="flex items-center gap-4">
         {/* 아바타 */}
@@ -80,19 +80,19 @@ export default function UserProfileCard({
 
         {/* 유저 정보 */}
         <div className="flex-1">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
             {user.name}
             {user.level && (
-              <span className="text-sm font-normal text-gray-500">
+              <span className="text-sm font-normal text-slate-400">
                 {user.level}
               </span>
             )}
           </h2>
           {user.position && (
-            <p className="text-sm text-gray-600 mt-0.5">{user.position}</p>
+            <p className="text-sm text-slate-500 mt-0.5">{user.position}</p>
           )}
           {user.joined_at && (
-            <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+            <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
               <Calendar className="w-3 h-3" />
               가입일: {dayjs(user.joined_at).format("YYYY-MM-DD")}
             </p>
@@ -101,47 +101,47 @@ export default function UserProfileCard({
       </div>
 
       {/* 통계 */}
-      <div className="grid grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-100">
+      <div className="grid grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
         <div className="text-center">
-          <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
+          <div className="flex items-center justify-center gap-1 text-slate-400 mb-1">
             <FileText className="w-4 h-4" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-2xl font-bold text-slate-800">
             {stats.posts_count}
           </div>
-          <div className="text-xs text-gray-500">게시글</div>
+          <div className="text-xs text-slate-400">게시글</div>
         </div>
 
         <div className="text-center">
-          <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
+          <div className="flex items-center justify-center gap-1 text-slate-400 mb-1">
             <MessageSquare className="w-4 h-4" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-2xl font-bold text-slate-800">
             {stats.comments_count}
           </div>
-          <div className="text-xs text-gray-500">댓글</div>
+          <div className="text-xs text-slate-400">댓글</div>
         </div>
 
         <div className="text-center">
-          <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
+          <div className="flex items-center justify-center gap-1 text-slate-400 mb-1">
             <Eye className="w-4 h-4" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-2xl font-bold text-slate-800">
             {stats.total_views.toLocaleString()}
           </div>
-          <div className="text-xs text-gray-500">조회수</div>
+          <div className="text-xs text-slate-400">조회수</div>
         </div>
 
         <div className="text-center">
-          <div className="flex items-center justify-center gap-1 text-gray-400 mb-1">
+          <div className="flex items-center justify-center gap-1 text-slate-400 mb-1">
             <Clock className="w-4 h-4" />
           </div>
-          <div className="text-sm font-medium text-gray-900">
+          <div className="text-sm font-medium text-slate-800">
             {stats.last_activity_at
               ? dayjs(stats.last_activity_at).format("MM/DD HH:mm")
               : "-"}
           </div>
-          <div className="text-xs text-gray-500">최근 활동</div>
+          <div className="text-xs text-slate-400">최근 활동</div>
         </div>
       </div>
     </div>

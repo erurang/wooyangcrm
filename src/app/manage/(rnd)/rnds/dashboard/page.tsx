@@ -139,7 +139,7 @@ export default function RnDDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
+        <RefreshCw className="w-8 h-8 animate-spin text-slate-400" />
       </div>
     );
   }
@@ -148,10 +148,10 @@ export default function RnDDashboardPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <p className="text-gray-600">{error}</p>
+        <p className="text-slate-500">{error}</p>
         <button
           onClick={fetchDashboardStats}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="mt-4 px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600"
         >
           다시 시도
         </button>
@@ -164,14 +164,14 @@ export default function RnDDashboardPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">국가과제 R&D 현황</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-slate-800">국가과제 R&D 현황</h1>
+          <p className="text-sm text-slate-400 mt-1">
             기업부설연구소 국가과제 관리 대시보드
           </p>
         </div>
         <button
           onClick={fetchDashboardStats}
-          className="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg hover:bg-gray-50"
+          className="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg hover:bg-slate-50"
         >
           <RefreshCw className="w-4 h-4" />
           새로고침
@@ -183,21 +183,21 @@ export default function RnDDashboardPage() {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">전체 과제</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
+              <p className="text-sm text-slate-400">전체 과제</p>
+              <p className="text-3xl font-bold text-slate-800 mt-1">
                 {stats?.total_projects || 0}
               </p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FolderKanban className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-sky-100 rounded-lg flex items-center justify-center">
+              <FolderKanban className="w-6 h-6 text-sky-600" />
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
             <span className="text-emerald-600">
               {stats?.by_status?.ongoing || 0} 수행중
             </span>
-            <span className="mx-2 text-gray-300">|</span>
-            <span className="text-gray-500">
+            <span className="mx-2 text-slate-300">|</span>
+            <span className="text-slate-400">
               {stats?.by_status?.completed || 0} 완료
             </span>
           </div>
@@ -206,8 +206,8 @@ export default function RnDDashboardPage() {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">총 연구비</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">
+              <p className="text-sm text-slate-400">총 연구비</p>
+              <p className="text-2xl font-bold text-slate-800 mt-1">
                 {formatCurrency(stats?.total_budget || 0)}
               </p>
             </div>
@@ -216,7 +216,7 @@ export default function RnDDashboardPage() {
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <span className="text-gray-500">
+            <span className="text-slate-400">
               집행률: {(stats?.budget_execution_rate || 0).toFixed(1)}%
             </span>
           </div>
@@ -225,8 +225,8 @@ export default function RnDDashboardPage() {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">연구성과</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
+              <p className="text-sm text-slate-400">연구성과</p>
+              <p className="text-3xl font-bold text-slate-800 mt-1">
                 {stats?.outcome_count || 0}
               </p>
             </div>
@@ -235,15 +235,15 @@ export default function RnDDashboardPage() {
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <span className="text-gray-500">특허, 논문, 기술이전 등</span>
+            <span className="text-slate-400">특허, 논문, 기술이전 등</span>
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">참여연구원</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
+              <p className="text-sm text-slate-400">참여연구원</p>
+              <p className="text-3xl font-bold text-slate-800 mt-1">
                 {stats?.researcher_count || 0}
               </p>
             </div>
@@ -252,14 +252,14 @@ export default function RnDDashboardPage() {
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <span className="text-gray-500">현재 활동 중</span>
+            <span className="text-slate-400">현재 활동 중</span>
           </div>
         </div>
       </div>
 
       {/* 상태별 과제 현황 */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-slate-800 mb-4">
           상태별 과제 현황
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-3">
@@ -287,7 +287,7 @@ export default function RnDDashboardPage() {
         {/* 마감 임박 */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-red-500" />
               마감 임박
             </h2>
@@ -298,13 +298,13 @@ export default function RnDDashboardPage() {
                 <button
                   key={deadline.id}
                   onClick={() => router.push(`/manage/rnds/${deadline.id}`)}
-                  className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left"
+                  className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors text-left"
                 >
                   <div>
-                    <p className="font-medium text-gray-900 line-clamp-1">
+                    <p className="font-medium text-slate-800 line-clamp-1">
                       {deadline.name}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-400">
                       {deadline.deadline_type}: {deadline.deadline_date}
                     </p>
                   </div>
@@ -315,18 +315,18 @@ export default function RnDDashboardPage() {
                           ? "text-red-600"
                           : deadline.days_until <= 30
                           ? "text-orange-600"
-                          : "text-gray-600"
+                          : "text-slate-500"
                       }`}
                     >
                       D-{deadline.days_until}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
                   </div>
                 </button>
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-500 py-8">
+            <p className="text-center text-slate-400 py-8">
               마감 임박 과제가 없습니다.
             </p>
           )}
@@ -335,13 +335,13 @@ export default function RnDDashboardPage() {
         {/* 최근 과제 */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-blue-500" />
+            <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-sky-500" />
               최근 과제
             </h2>
             <button
               onClick={() => router.push("/manage/rnds")}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-sky-600 hover:underline"
             >
               전체보기
             </button>
@@ -354,13 +354,13 @@ export default function RnDDashboardPage() {
                   <button
                     key={project.id}
                     onClick={() => router.push(`/manage/rnds/${project.id}`)}
-                    className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left"
+                    className="w-full flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors text-left"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 line-clamp-1">
+                      <p className="font-medium text-slate-800 line-clamp-1">
                         {project.name}
                       </p>
-                      <p className="text-sm text-gray-500 truncate">
+                      <p className="text-sm text-slate-400 truncate">
                         {project.org_name || "지원기관 미지정"}
                       </p>
                     </div>
@@ -374,7 +374,7 @@ export default function RnDDashboardPage() {
               })}
             </div>
           ) : (
-            <p className="text-center text-gray-500 py-8">
+            <p className="text-center text-slate-400 py-8">
               등록된 과제가 없습니다.
             </p>
           )}

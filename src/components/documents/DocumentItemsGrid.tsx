@@ -89,27 +89,27 @@ export default function DocumentItemsGrid({
 
   const colorClasses = {
     blue: {
-      headerBg: "bg-blue-50",
-      button: "bg-blue-600 hover:bg-blue-700",
-      focus: "focus:ring-blue-500",
-      text: "text-blue-600 hover:text-blue-800",
-      icon: "text-blue-600",
+      headerBg: "bg-sky-50",
+      button: "bg-sky-600 hover:bg-sky-700",
+      focus: "focus:ring-sky-500",
+      text: "text-sky-600 hover:text-sky-800",
+      icon: "text-sky-600",
     },
     indigo: {
-      headerBg: "bg-indigo-50",
-      button: "bg-indigo-600 hover:bg-indigo-700",
-      focus: "focus:ring-indigo-500",
-      text: "text-indigo-600 hover:text-indigo-800",
-      icon: "text-indigo-600",
+      headerBg: "bg-sky-50",
+      button: "bg-sky-600 hover:bg-sky-700",
+      focus: "focus:ring-sky-500",
+      text: "text-sky-600 hover:text-sky-800",
+      icon: "text-sky-600",
     },
   };
 
   const colors = colorClasses[accentColor];
 
   return (
-    <div className="bg-gray-50 p-4 sm:p-5 rounded-xl">
+    <div className="bg-slate-50 p-4 sm:p-5 rounded-xl">
       <div className="flex justify-between items-center mb-3 sm:mb-4">
-        <div className="flex items-center gap-2 text-gray-800">
+        <div className="flex items-center gap-2 text-slate-700">
           <Package className={`h-5 w-5 ${colors.icon}`} />
           <h4 className="text-base sm:text-lg font-semibold">항목</h4>
         </div>
@@ -122,11 +122,11 @@ export default function DocumentItemsGrid({
         </button>
       </div>
 
-      <div className="space-y-2 sm:space-y-0 sm:border sm:border-gray-200 sm:rounded-lg sm:overflow-hidden sm:bg-white sm:shadow-sm">
-        <div className="max-h-80 sm:max-h-[400px] overflow-y-auto sm:divide-y sm:divide-gray-200">
+      <div className="space-y-2 sm:space-y-0 sm:border sm:border-slate-200 sm:rounded-lg sm:overflow-hidden sm:bg-white sm:shadow-sm">
+        <div className="max-h-80 sm:max-h-[400px] overflow-y-auto sm:divide-y sm:divide-slate-200">
           {items.length === 0 ? (
-            <div className="p-6 sm:p-8 text-center text-gray-500">
-              <Package className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 text-gray-300" />
+            <div className="p-6 sm:p-8 text-center text-slate-400">
+              <Package className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 text-slate-300" />
               <p className="mb-2 text-sm">등록된 항목이 없습니다.</p>
               <button
                 onClick={handleAddClick}
@@ -140,10 +140,10 @@ export default function DocumentItemsGrid({
             items.map((item, index) => (
               <div key={index}>
                 {/* 모바일: 카드 레이아웃 */}
-                <div className="sm:hidden p-3 border-b last:border-b-0 border-gray-200 space-y-3">
+                <div className="sm:hidden p-3 border-b last:border-b-0 border-slate-200 space-y-3">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                      <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
                         #{index + 1}
                       </span>
                       {item.product_id && (
@@ -162,7 +162,7 @@ export default function DocumentItemsGrid({
                     </button>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">제품명 / 규격</label>
+                    <label className="block text-xs text-slate-400 mb-1">제품명 / 규격</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -175,7 +175,7 @@ export default function DocumentItemsGrid({
                             )
                           )
                         }
-                        className={`flex-1 p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
+                        className={`flex-1 p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
                       />
                       <input
                         type="text"
@@ -188,7 +188,7 @@ export default function DocumentItemsGrid({
                             )
                           )
                         }
-                        className={`w-24 p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
+                        className={`w-24 p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
                       />
                     </div>
                     {/* 연동된 제품 정보 + 단가 변동 표시 (한 줄) */}
@@ -198,7 +198,7 @@ export default function DocumentItemsGrid({
                         <span className="text-green-600">연결제품: {item.internal_name}</span>
                         {item.internal_spec && <span className="text-green-600">| 규격: {item.internal_spec}</span>}
                         {item.original_unit_price !== undefined && item.unit_price !== item.original_unit_price && (
-                          <span className={item.unit_price > item.original_unit_price ? "text-red-500" : "text-blue-500"}>
+                          <span className={item.unit_price > item.original_unit_price ? "text-red-500" : "text-sky-500"}>
                             | 단가: {item.original_unit_price.toLocaleString()}→{item.unit_price.toLocaleString()} ({item.unit_price > item.original_unit_price ? "+" : ""}{((item.unit_price - item.original_unit_price) / item.original_unit_price * 100).toFixed(1)}%)
                           </span>
                         )}
@@ -207,30 +207,30 @@ export default function DocumentItemsGrid({
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">수량</label>
+                      <label className="block text-xs text-slate-400 mb-1">수량</label>
                       <input
                         type="text"
                         placeholder="수량"
                         value={item.quantity}
                         onChange={(e) => handleQuantityChange(index, e.target.value)}
-                        className={`w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent text-center`}
+                        className={`w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent text-center`}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">단가</label>
+                      <label className="block text-xs text-slate-400 mb-1">단가</label>
                       <div className="flex items-center gap-1">
                         <input
                           type="text"
                           placeholder="단가"
                           value={item.unit_price?.toLocaleString()}
                           onChange={(e) => handleUnitPriceChange(index, e.target.value)}
-                          className={`flex-1 p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent text-right`}
+                          className={`flex-1 p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent text-right`}
                         />
                         {useProductSearch && item.product_id && (
                           <button
                             type="button"
                             onClick={() => openPriceHistory(item)}
-                            className="p-1.5 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition-colors shrink-0"
+                            className="p-1.5 text-sky-500 hover:text-sky-700 hover:bg-sky-100 rounded-lg transition-colors shrink-0"
                             title="단가 추이 보기"
                           >
                             <TrendingUp className="h-4 w-4" />
@@ -239,24 +239,24 @@ export default function DocumentItemsGrid({
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">금액</label>
+                      <label className="block text-xs text-slate-400 mb-1">금액</label>
                       <input
                         type="text"
                         placeholder="금액"
                         value={item.amount?.toLocaleString()}
                         readOnly
-                        className="w-full p-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm text-right font-medium"
+                        className="w-full p-2.5 bg-slate-100 border border-slate-300 rounded-lg text-sm text-right font-medium"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* 데스크탑: 카드 레이아웃 */}
-                <div className="hidden sm:block p-3 hover:bg-gray-50 transition-colors">
+                <div className="hidden sm:block p-3 hover:bg-slate-50 transition-colors">
                   {/* 상단: 번호 + 연동정보 + 삭제 버튼 */}
                   <div className="flex justify-between items-center mb-2">
                     <div className="flex items-center gap-2 text-[11px]">
-                      <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                      <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
                         #{index + 1}
                       </span>
                       {item.product_id && item.internal_name && (
@@ -272,11 +272,11 @@ export default function DocumentItemsGrid({
                           )}
                           {item.original_unit_price !== undefined && (
                             item.unit_price !== item.original_unit_price ? (
-                              <span className={`px-2 py-0.5 rounded ${item.unit_price > item.original_unit_price ? "text-red-600 bg-red-50" : "text-blue-600 bg-blue-50"}`}>
+                              <span className={`px-2 py-0.5 rounded ${item.unit_price > item.original_unit_price ? "text-red-600 bg-red-50" : "text-sky-600 bg-sky-50"}`}>
                                 단가: {item.original_unit_price.toLocaleString()}→{item.unit_price.toLocaleString()} ({item.unit_price > item.original_unit_price ? "+" : ""}{((item.unit_price - item.original_unit_price) / item.original_unit_price * 100).toFixed(1)}%)
                               </span>
                             ) : (
-                              <span className="px-2 py-0.5 rounded text-gray-500 bg-gray-100">
+                              <span className="px-2 py-0.5 rounded text-slate-400 bg-slate-100">
                                 단가 변동없음
                               </span>
                             )
@@ -296,7 +296,7 @@ export default function DocumentItemsGrid({
                   {/* 1행: 품명 (60%) | 규격 (40%) */}
                   <div className="grid grid-cols-10 gap-2 mb-2">
                     <div className="col-span-6">
-                      <label className="block text-xs text-gray-500 mb-1">품명</label>
+                      <label className="block text-xs text-slate-400 mb-1">품명</label>
                       <input
                         type="text"
                         placeholder="제품명"
@@ -308,11 +308,11 @@ export default function DocumentItemsGrid({
                             )
                           )
                         }
-                        className={`w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
+                        className={`w-full p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
                       />
                     </div>
                     <div className="col-span-4">
-                      <label className="block text-xs text-gray-500 mb-1">규격</label>
+                      <label className="block text-xs text-slate-400 mb-1">규격</label>
                       <input
                         type="text"
                         placeholder="규격"
@@ -324,7 +324,7 @@ export default function DocumentItemsGrid({
                             )
                           )
                         }
-                        className={`w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
+                        className={`w-full p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent`}
                       />
                     </div>
                   </div>
@@ -332,30 +332,30 @@ export default function DocumentItemsGrid({
                   {/* 2행: 수량 (30%) | 단가 (30%) | 금액 (40%) */}
                   <div className="grid grid-cols-10 gap-2">
                     <div className="col-span-3">
-                      <label className="block text-xs text-gray-500 mb-1">수량</label>
+                      <label className="block text-xs text-slate-400 mb-1">수량</label>
                       <input
                         type="text"
                         placeholder="수량"
                         value={item.quantity}
                         onChange={(e) => handleQuantityChange(index, e.target.value)}
-                        className={`w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent text-center`}
+                        className={`w-full p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent text-center`}
                       />
                     </div>
                     <div className="col-span-3">
-                      <label className="block text-xs text-gray-500 mb-1">단가</label>
+                      <label className="block text-xs text-slate-400 mb-1">단가</label>
                       <div className="flex items-center gap-1">
                         <input
                           type="text"
                           placeholder="단가"
                           value={item.unit_price?.toLocaleString()}
                           onChange={(e) => handleUnitPriceChange(index, e.target.value)}
-                          className={`flex-1 p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent text-right`}
+                          className={`flex-1 p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 ${colors.focus} focus:border-transparent text-right`}
                         />
                         {useProductSearch && item.product_id && (
                           <button
                             type="button"
                             onClick={() => openPriceHistory(item)}
-                            className="p-1.5 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-100 rounded transition-colors shrink-0"
+                            className="p-1.5 text-sky-500 hover:text-sky-700 hover:bg-sky-100 rounded transition-colors shrink-0"
                             title="단가 추이 보기"
                           >
                             <TrendingUp className="h-4 w-4" />
@@ -364,13 +364,13 @@ export default function DocumentItemsGrid({
                       </div>
                     </div>
                     <div className="col-span-4">
-                      <label className="block text-xs text-gray-500 mb-1">금액</label>
+                      <label className="block text-xs text-slate-400 mb-1">금액</label>
                       <input
                         type="text"
                         placeholder="금액"
                         value={item.amount?.toLocaleString()}
                         readOnly
-                        className="w-full p-2 bg-gray-100 border border-gray-300 rounded-lg text-sm text-right font-medium"
+                        className="w-full p-2 bg-slate-100 border border-slate-300 rounded-lg text-sm text-right font-medium"
                       />
                     </div>
                   </div>

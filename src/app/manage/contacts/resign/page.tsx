@@ -182,7 +182,7 @@ export default function ContactsResignPage() {
   };
 
   return (
-    <div className="text-sm text-gray-800">
+    <div className="text-sm text-slate-700">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -215,19 +215,19 @@ export default function ContactsResignPage() {
 
       {/* 테이블 컨트롤 */}
       <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
-          총 <span className="font-semibold text-blue-600">{total}</span>명의
+        <div className="text-sm text-slate-500">
+          총 <span className="font-semibold text-sky-600">{total}</span>명의
           퇴사자
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-600">표시 개수:</label>
+          <label className="text-sm text-slate-500">표시 개수:</label>
           <select
             value={contactsPerPage}
             onChange={(e) => {
               setContactsPerPage(Number(e.target.value));
               setCurrentPage(1);
             }}
-            className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="border border-slate-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
           >
             <option value="10">10개</option>
             <option value="20">20개</option>

@@ -31,7 +31,7 @@ export default function NotesEditModal({
     >
       <textarea
         placeholder="해당 거래처의 유의사항 또는 담당자별 유의사항을 작성해주세요."
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+        className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 resize-none placeholder:text-slate-300 leading-relaxed"
         rows={16}
         value={notes}
         onChange={(e) => setNotes(e.target.value)}

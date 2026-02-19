@@ -152,7 +152,7 @@ export default function DynamicApprovalForm({
             placeholder="기안 내용을 입력하세요"
             rows={8}
             disabled={disabled}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:bg-slate-100"
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none disabled:bg-slate-100"
           />
         </div>
       </div>
@@ -172,7 +172,7 @@ export default function DynamicApprovalForm({
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
             placeholder={field.label}
             disabled={disabled || field.readonly}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-slate-100"
           />
         );
 
@@ -185,7 +185,7 @@ export default function DynamicApprovalForm({
             placeholder={field.label}
             rows={field.type === "richtext" ? 8 : 4}
             disabled={disabled || field.readonly}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:bg-slate-100"
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none disabled:bg-slate-100"
           />
         );
 
@@ -195,7 +195,7 @@ export default function DynamicApprovalForm({
             value={(value as string) || ""}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
             disabled={disabled || field.readonly}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-slate-100"
           >
             <option value="">선택하세요</option>
             {field.options?.map((option) => (
@@ -214,7 +214,7 @@ export default function DynamicApprovalForm({
               value={(value as string) || ""}
               onChange={(e) => handleFieldChange(field.name, e.target.value)}
               disabled={disabled || field.readonly}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-slate-100"
             />
             <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
@@ -228,7 +228,7 @@ export default function DynamicApprovalForm({
             onChange={(e) => handleFieldChange(field.name, e.target.value ? Number(e.target.value) : "")}
             placeholder={field.label}
             disabled={disabled || field.readonly}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-slate-100"
           />
         );
 
@@ -244,7 +244,7 @@ export default function DynamicApprovalForm({
               }}
               placeholder="0"
               disabled={disabled || field.readonly}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 text-right pr-10"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-slate-100 text-right pr-10"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">원</span>
           </div>
@@ -257,7 +257,7 @@ export default function DynamicApprovalForm({
             accept={field.accept}
             onChange={(e) => handleFieldChange(field.name, e.target.files)}
             disabled={disabled}
-            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700"
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-slate-100 file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sky-50 file:text-sky-700"
           />
         );
 
@@ -300,7 +300,7 @@ export default function DynamicApprovalForm({
                               );
                             }}
                             disabled={disabled}
-                            className="w-full px-3 py-1 border border-slate-200 rounded text-right focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full px-3 py-1 border border-slate-200 rounded text-right focus:outline-none focus:ring-1 focus:ring-sky-500"
                           />
                         ) : (
                           <input
@@ -310,7 +310,7 @@ export default function DynamicApprovalForm({
                               handleTableCellChange(field.name, rowIndex, col.name, e.target.value, field.columns)
                             }
                             disabled={disabled}
-                            className="w-full px-3 py-1 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            className="w-full px-3 py-1 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-sky-500"
                           />
                         )}
                       </td>
@@ -336,7 +336,7 @@ export default function DynamicApprovalForm({
                 type="button"
                 onClick={() => handleAddTableRow(field.name)}
                 disabled={disabled}
-                className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded disabled:opacity-50"
+                className="flex items-center gap-1 px-3 py-1 text-sm text-sky-600 hover:bg-sky-50 rounded disabled:opacity-50"
               >
                 <Plus className="w-4 h-4" />
                 행 추가

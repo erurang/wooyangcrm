@@ -210,12 +210,12 @@ export default function ChatRoom({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* 헤더 */}
-      <div className="flex items-center gap-3 p-4 border-b border-gray-200">
+      <div className="flex items-center gap-3 p-4 border-b border-slate-200">
         {/* 뒤로가기 (모바일) */}
         {onBack && (
           <button
             onClick={onBack}
-            className="p-1 -ml-1 text-gray-500 hover:text-gray-700 md:hidden"
+            className="p-1 -ml-1 text-slate-400 hover:text-slate-600 md:hidden"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -236,7 +236,7 @@ export default function ChatRoom({
               className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold ${
                 room.type === "group"
                   ? "bg-gradient-to-br from-purple-500 to-pink-500"
-                  : "bg-gradient-to-br from-blue-500 to-cyan-500"
+                  : "bg-gradient-to-br from-sky-500 to-sky-500"
               }`}
             >
               {room.type === "group" ? (
@@ -252,9 +252,9 @@ export default function ChatRoom({
 
         {/* 대화방 정보 */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 truncate">{displayName}</h3>
+          <h3 className="font-semibold text-slate-800 truncate">{displayName}</h3>
           {room.type === "group" && (
-            <p className="text-xs text-gray-500">참여자 {participantCount}명</p>
+            <p className="text-xs text-slate-400">참여자 {participantCount}명</p>
           )}
         </div>
 
@@ -262,7 +262,7 @@ export default function ChatRoom({
         <div className="flex items-center gap-1">
           <button
             onClick={onOpenSearch}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
             title="대화 검색"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -271,7 +271,7 @@ export default function ChatRoom({
           </button>
           <button
             onClick={onOpenInfo}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
             title="대화방 정보"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -298,7 +298,7 @@ export default function ChatRoom({
         {/* 더 불러오기 로딩 */}
         {isLoading && (
           <div className="flex justify-center py-4">
-            <svg className="w-6 h-6 animate-spin text-gray-400" fill="none" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 animate-spin text-slate-400" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
@@ -310,7 +310,7 @@ export default function ChatRoom({
           if (item.type === "date") {
             return (
               <div key={`date-${index}`} className="flex justify-center my-4">
-                <span className="text-xs text-gray-500 bg-gray-100 px-4 py-1.5 rounded-full">
+                <span className="text-xs text-slate-400 bg-slate-100 px-4 py-1.5 rounded-full">
                   {formatMessageDate(item.date)}
                 </span>
               </div>

@@ -200,12 +200,12 @@ export default function WorkOrdersPage() {
           </div>
 
           {/* 진행중 */}
-          <div className="bg-white rounded-lg p-3 border border-blue-200 shadow-sm">
+          <div className="bg-white rounded-lg p-3 border border-sky-200 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
-              <div className="h-4 w-4 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-xs text-blue-600">진행중</span>
+              <div className="h-4 w-4 rounded-full bg-sky-500 animate-pulse" />
+              <span className="text-xs text-sky-600">진행중</span>
             </div>
-            <p className="text-xl font-bold text-blue-600">{stats.inProgress}</p>
+            <p className="text-xl font-bold text-sky-600">{stats.inProgress}</p>
           </div>
 
           {/* 완료 */}

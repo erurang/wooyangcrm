@@ -83,7 +83,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
           <p className="text-slate-500 text-sm">결재 문서를 찾을 수 없습니다.</p>
           <button
             onClick={() => router.push("/approvals")}
-            className="mt-3 px-3 py-1.5 text-sm text-blue-600 hover:underline"
+            className="mt-3 px-3 py-1.5 text-sm text-sky-600 hover:underline"
           >
             목록으로 돌아가기
           </button>
@@ -225,7 +225,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
                 {approval.title}
               </h2>
               <div className="flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
-                <span className="text-blue-600">
+                <span className="text-sky-600">
                   {approval.requester?.name}
                   {approval.requester_department && ` · ${approval.requester_department}`}
                 </span>
@@ -306,10 +306,10 @@ export default function ApprovalDetailPage({ params }: PageProps) {
                     {relatedDocument && (
                       <a
                         href={`/consultations/${relatedDocument.consultation_id || ""}`}
-                        className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                        className="flex items-center justify-between p-3 bg-sky-50 border border-sky-200 rounded-lg hover:bg-sky-100 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-blue-600" />
+                          <FileText className="w-5 h-5 text-sky-600" />
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="font-medium text-sm text-slate-800">
@@ -318,7 +318,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
                               <span
                                 className={`text-[10px] px-1.5 py-0.5 rounded ${
                                   relatedDocument.type === "estimate"
-                                    ? "bg-blue-100 text-blue-700"
+                                    ? "bg-sky-100 text-sky-700"
                                     : relatedDocument.type === "order"
                                     ? "bg-emerald-100 text-emerald-700"
                                     : "bg-slate-100 text-slate-600"
@@ -397,7 +397,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
                   value={approvalComment}
                   onChange={(e) => setApprovalComment(e.target.value)}
                   placeholder="결재 의견을 입력하세요"
-                  className="w-full px-3 py-2 border border-slate-200 rounded text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-200 rounded text-sm resize-none focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-transparent"
                   rows={2}
                 />
               </div>
@@ -423,7 +423,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
                     <button
                       onClick={() => handleAction("approve", { comment: approvalComment })}
                       disabled={isActionLoading}
-                      className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-xs disabled:opacity-50"
+                      className="flex-1 px-3 py-2 bg-sky-600 text-white rounded hover:bg-sky-700 transition-colors text-xs disabled:opacity-50"
                     >
                       승인
                     </button>
@@ -461,7 +461,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
                   <span
                     className={`flex-1 text-center py-1.5 rounded text-xs ${
                       approval.share_setting?.share_scope === "all"
-                        ? "bg-blue-50 border border-blue-200 text-blue-700"
+                        ? "bg-sky-50 border border-sky-200 text-sky-700"
                         : "bg-slate-50 text-slate-500"
                     }`}
                   >
@@ -470,7 +470,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
                   <span
                     className={`flex-1 text-center py-1.5 rounded text-xs ${
                       approval.share_setting?.share_scope === "partial"
-                        ? "bg-blue-50 border border-blue-200 text-blue-700"
+                        ? "bg-sky-50 border border-sky-200 text-sky-700"
                         : "bg-slate-50 text-slate-500"
                     }`}
                   >
@@ -514,7 +514,7 @@ export default function ApprovalDetailPage({ params }: PageProps) {
 function StatusBadge({ status }: { status: string }) {
   const config = {
     draft: "bg-slate-50 text-slate-600",
-    pending: "bg-blue-50 text-blue-700",
+    pending: "bg-sky-50 text-sky-700",
     approved: "bg-green-50 text-green-700",
     rejected: "bg-red-50 text-red-700",
     withdrawn: "bg-amber-50 text-amber-700",
@@ -560,7 +560,7 @@ function ApprovalLinesSummary({
             {approvalLines.map((line) => (
               <td key={line.id} className="px-3 py-2 text-center">
                 {line.status === "approved" ? (
-                  <span className="text-blue-600 italic text-base font-serif">Sign</span>
+                  <span className="text-sky-600 italic text-base font-serif">Sign</span>
                 ) : line.status === "rejected" ? (
                   <span className="text-red-500">반려</span>
                 ) : (
@@ -581,7 +581,7 @@ function ApprovalLinesSummary({
                 <span
                   className={`${
                     line.line_order === currentLineOrder && line.status === "pending"
-                      ? "text-blue-600 font-medium"
+                      ? "text-sky-600 font-medium"
                       : "text-slate-700"
                   }`}
                 >
@@ -613,7 +613,7 @@ function ApproverCell({
   label?: string;
 }) {
   const statusStyles = {
-    pending: isCurrent ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-white",
+    pending: isCurrent ? "border-sky-400 bg-sky-50" : "border-slate-200 bg-white",
     approved: "border-green-400 bg-green-50",
     rejected: "border-red-400 bg-red-50",
     delegated: "border-amber-400 bg-amber-50",
@@ -621,7 +621,7 @@ function ApproverCell({
   };
 
   const textStyles = {
-    pending: isCurrent ? "text-blue-700" : "text-slate-600",
+    pending: isCurrent ? "text-sky-700" : "text-slate-600",
     approved: "text-green-700",
     rejected: "text-red-700",
     delegated: "text-amber-700",
@@ -657,7 +657,7 @@ function ApproverCell({
       ) : line.status === "rejected" ? (
         <XCircle className="w-6 h-6 text-red-500 mb-1" />
       ) : (
-        <div className={`w-8 h-8 rounded-full ${isCurrent && line.status === "pending" ? "bg-blue-100" : "bg-slate-100"} flex items-center justify-center mb-1`}>
+        <div className={`w-8 h-8 rounded-full ${isCurrent && line.status === "pending" ? "bg-sky-100" : "bg-slate-100"} flex items-center justify-center mb-1`}>
           <span className={`text-xs font-medium ${textStyles[line.status] || textStyles.pending}`}>
             {line.approver?.name?.charAt(0) || "?"}
           </span>
@@ -688,11 +688,11 @@ function ApprovalLineItem({
   isCurrent: boolean;
 }) {
   const typeConfig = {
-    approval: { label: "결재", bgColor: "bg-blue-500", textColor: "text-white" },
-    review: { label: "검토", bgColor: "bg-indigo-500", textColor: "text-white" },
+    approval: { label: "결재", bgColor: "bg-sky-500", textColor: "text-white" },
+    review: { label: "검토", bgColor: "bg-sky-500", textColor: "text-white" },
     reference: { label: "참조", bgColor: "bg-slate-400", textColor: "text-white" },
     agreement: { label: "합의", bgColor: "bg-purple-500", textColor: "text-white" },
-  }[line.line_type] || { label: "결재", bgColor: "bg-blue-500", textColor: "text-white" };
+  }[line.line_type] || { label: "결재", bgColor: "bg-sky-500", textColor: "text-white" };
 
   const statusText = {
     pending: isCurrent ? "대기중" : "대기",
@@ -706,7 +706,7 @@ function ApprovalLineItem({
     pending: "text-slate-500",
     approved: "text-green-600",
     rejected: "text-red-600",
-    delegated: "text-blue-600",
+    delegated: "text-sky-600",
     skipped: "text-slate-400",
   }[line.status] || "text-slate-500";
 
@@ -720,7 +720,7 @@ function ApprovalLineItem({
       {/* 결재자 정보 */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className={`font-medium text-sm ${isCurrent && line.status === "pending" ? "text-blue-600" : "text-slate-800"}`}>
+          <span className={`font-medium text-sm ${isCurrent && line.status === "pending" ? "text-sky-600" : "text-slate-800"}`}>
             {line.approver?.name}
           </span>
           {line.approver?.position && (

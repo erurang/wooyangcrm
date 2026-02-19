@@ -247,12 +247,12 @@ export default function ShippingPage() {
       {/* 헤더 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-            <Package className="w-5 h-5 text-indigo-600" />
+          <div className="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center">
+            <Package className="w-5 h-5 text-sky-600" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">FedEx 배송현황</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-xl font-bold text-slate-800">FedEx 배송현황</h1>
+            <p className="text-sm text-slate-400">
               FedEx 국제배송 추적 관리
             </p>
           </div>
@@ -273,7 +273,7 @@ export default function ShippingPage() {
               }
             }}
             disabled={isRefreshing || trackingsLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50"
           >
             <RefreshCw
               className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
@@ -292,7 +292,7 @@ export default function ShippingPage() {
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
               activeTab === tab.id
                 ? `bg-${tab.color}-100 text-${tab.color}-700 shadow-sm`
-                : "text-gray-500 hover:bg-gray-100"
+                : "text-slate-400 hover:bg-slate-100"
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -301,7 +301,7 @@ export default function ShippingPage() {
               className={`text-xs px-1.5 py-0.5 rounded-full ${
                 activeTab === tab.id
                   ? `bg-${tab.color}-200 text-${tab.color}-800`
-                  : "bg-gray-200 text-gray-600"
+                  : "bg-slate-200 text-slate-500"
               }`}
             >
               {tab.count}
@@ -313,13 +313,13 @@ export default function ShippingPage() {
       {/* 검색 */}
       <div className="mb-6">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="송장번호, 메모, 도시명으로 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
           />
         </div>
       </div>
@@ -330,26 +330,26 @@ export default function ShippingPage() {
           {/* 통계 카드 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white rounded-xl border p-4">
-              <div className="text-sm text-gray-500 mb-1">전체</div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-sm text-slate-400 mb-1">전체</div>
+              <div className="text-2xl font-bold text-slate-800">
                 {fedexTrackings.length}
               </div>
             </div>
             <div className="bg-white rounded-xl border p-4">
-              <div className="text-sm text-gray-500 mb-1">운송 중</div>
-              <div className="text-2xl font-bold text-indigo-600">
+              <div className="text-sm text-slate-400 mb-1">운송 중</div>
+              <div className="text-2xl font-bold text-sky-600">
                 {inTransit.length}
               </div>
             </div>
             <div className="bg-white rounded-xl border p-4">
-              <div className="text-sm text-gray-500 mb-1">배송 완료</div>
+              <div className="text-sm text-slate-400 mb-1">배송 완료</div>
               <div className="text-2xl font-bold text-green-600">
                 {delivered.length}
               </div>
             </div>
             <div className="bg-white rounded-xl border p-4">
-              <div className="text-sm text-gray-500 mb-1">조회 중/기타</div>
-              <div className="text-2xl font-bold text-gray-600">
+              <div className="text-sm text-slate-400 mb-1">조회 중/기타</div>
+              <div className="text-2xl font-bold text-slate-500">
                 {pending.length}
               </div>
             </div>
@@ -372,7 +372,7 @@ export default function ShippingPage() {
           {(trackingsLoading || isRefreshing) && (
             <div className="flex items-center justify-center py-8">
               <RefreshCw className="w-6 h-6 text-purple-600 animate-spin" />
-              <span className="ml-3 text-gray-500">배송 정보 조회 중...</span>
+              <span className="ml-3 text-slate-400">배송 정보 조회 중...</span>
             </div>
           )}
 
@@ -381,36 +381,36 @@ export default function ShippingPage() {
             <div className="bg-white rounded-xl border overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-slate-50 border-b">
                     <tr>
-                      <th className="text-center py-3 px-3 text-xs font-semibold text-gray-600 w-12">
+                      <th className="text-center py-3 px-3 text-xs font-semibold text-slate-500 w-12">
                         #
                       </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                         송장번호
                       </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                         상태
                       </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                         출발지
                       </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                         도착지
                       </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                         발송일
                       </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                         예상 도착
                       </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                         거래처
                       </th>
-                      <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600">
+                      <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500">
                         메모
                       </th>
-                      <th className="text-center py-3 px-4 text-xs font-semibold text-gray-600">
+                      <th className="text-center py-3 px-4 text-xs font-semibold text-slate-500">
                         액션
                       </th>
                     </tr>
@@ -420,9 +420,9 @@ export default function ShippingPage() {
                       <tr>
                         <td
                           colSpan={10}
-                          className="py-12 text-center text-gray-500"
+                          className="py-12 text-center text-slate-400"
                         >
-                          <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                          <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                           <p>
                             {searchTerm
                               ? "검색 결과가 없습니다."
@@ -442,7 +442,7 @@ export default function ShippingPage() {
                       filteredShipments.map((shipment, index) => {
                         const statusColor = shipment.apiResult
                           ? getFedExStatusColor(shipment.apiResult.status)
-                          : { bg: "bg-gray-100", text: "text-gray-600" };
+                          : { bg: "bg-slate-100", text: "text-slate-500" };
                         const statusText = shipment.apiResult
                           ? shipment.apiResult.statusDescription ||
                             getFedExStatusText(shipment.apiResult.status)
@@ -455,9 +455,9 @@ export default function ShippingPage() {
                               onClick={() =>
                                 setSelectedTracking(isExpanded ? null : shipment.tracking_number)
                               }
-                              className={`hover:bg-gray-50 transition-colors cursor-pointer border-b ${isExpanded ? "bg-indigo-50" : ""}`}
+                              className={`hover:bg-slate-50 transition-colors cursor-pointer border-b ${isExpanded ? "bg-sky-50" : ""}`}
                             >
-                              <td className="py-3 px-3 text-center text-sm text-gray-500 font-medium">
+                              <td className="py-3 px-3 text-center text-sm text-slate-400 font-medium">
                                 {index + 1}
                               </td>
                               <td className="py-3 px-4">
@@ -465,14 +465,14 @@ export default function ShippingPage() {
                                   <div
                                     className={`transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
                                   >
-                                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                                    <ChevronRight className="w-4 h-4 text-slate-400" />
                                   </div>
                                   <div>
-                                    <div className="font-mono font-semibold text-gray-900">
+                                    <div className="font-mono font-semibold text-slate-800">
                                       {shipment.tracking_number}
                                     </div>
                                     {shipment.apiResult?.service && (
-                                      <div className="text-xs text-gray-500">
+                                      <div className="text-xs text-slate-400">
                                         {shipment.apiResult.service}
                                       </div>
                                     )}
@@ -491,10 +491,10 @@ export default function ShippingPage() {
                                   {statusText}
                                 </span>
                               </td>
-                              <td className="py-3 px-4 text-sm text-gray-700">
+                              <td className="py-3 px-4 text-sm text-slate-600">
                                 {shipment.apiResult ? (
                                   <div className="flex items-center gap-1">
-                                    <MapPin className="w-3 h-3 text-gray-400" />
+                                    <MapPin className="w-3 h-3 text-slate-400" />
                                     {shipment.apiResult.origin.city},{" "}
                                     {shipment.apiResult.origin.country}
                                   </div>
@@ -502,10 +502,10 @@ export default function ShippingPage() {
                                   shipment.origin || "-"
                                 )}
                               </td>
-                              <td className="py-3 px-4 text-sm text-gray-700">
+                              <td className="py-3 px-4 text-sm text-slate-600">
                                 {shipment.apiResult ? (
                                   <div className="flex items-center gap-1 font-medium">
-                                    <MapPin className="w-3 h-3 text-gray-400" />
+                                    <MapPin className="w-3 h-3 text-slate-400" />
                                     {shipment.apiResult.destination.city},{" "}
                                     {shipment.apiResult.destination.country}
                                   </div>
@@ -513,7 +513,7 @@ export default function ShippingPage() {
                                   shipment.destination || "-"
                                 )}
                               </td>
-                              <td className="py-3 px-4 text-sm text-gray-600">
+                              <td className="py-3 px-4 text-sm text-slate-500">
                                 {shipment.apiResult?.shipDate || "-"}
                               </td>
                               <td className="py-3 px-4 text-sm">
@@ -530,7 +530,7 @@ export default function ShippingPage() {
                                 )}
                               </td>
                               <td
-                                className="py-3 px-4 text-sm text-gray-700 max-w-[120px] truncate cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                className="py-3 px-4 text-sm text-slate-600 max-w-[120px] truncate cursor-pointer hover:bg-sky-50 hover:text-sky-600 transition-colors"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setEditingMemo({
@@ -542,10 +542,10 @@ export default function ShippingPage() {
                                 }}
                                 title="클릭하여 메모/거래처 수정"
                               >
-                                {shipment.company?.name || <span className="text-gray-300">거래처 선택</span>}
+                                {shipment.company?.name || <span className="text-slate-300">거래처 선택</span>}
                               </td>
                               <td
-                                className="py-3 px-4 text-sm text-gray-500 max-w-[150px] truncate cursor-pointer hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                className="py-3 px-4 text-sm text-slate-400 max-w-[150px] truncate cursor-pointer hover:bg-sky-50 hover:text-sky-600 transition-colors"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setEditingMemo({
@@ -557,7 +557,7 @@ export default function ShippingPage() {
                                 }}
                                 title="클릭하여 메모/거래처 수정"
                               >
-                                {shipment.memo || <span className="text-gray-300">메모 추가</span>}
+                                {shipment.memo || <span className="text-slate-300">메모 추가</span>}
                               </td>
                               <td className="py-3 px-4">
                                 <div className="flex items-center justify-center gap-1">
@@ -566,14 +566,14 @@ export default function ShippingPage() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={(e) => e.stopPropagation()}
-                                    className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                                    className="p-1.5 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
                                     title="FedEx에서 보기"
                                   >
                                     <ExternalLink className="w-4 h-4" />
                                   </a>
                                   <button
                                     onClick={(e) => handleDelete(shipment.id, e)}
-                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                                     title="삭제"
                                   >
                                     <Trash2 className="w-4 h-4" />
@@ -584,7 +584,7 @@ export default function ShippingPage() {
                             {/* 확장된 상세 정보 영역 */}
                             {isExpanded && (
                               <tr>
-                                <td colSpan={10} className="p-0 bg-gray-50 border-b">
+                                <td colSpan={10} className="p-0 bg-slate-50 border-b">
                                   <TrackingDetailDropdown
                                     trackingNumber={shipment.tracking_number}
                                   />
@@ -710,12 +710,12 @@ function AddTrackingModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-slate-800">
             FedEx 송장 등록
           </h2>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600 rounded"
+            className="p-1 text-slate-400 hover:text-slate-500 rounded"
           >
             <X className="w-5 h-5" />
           </button>
@@ -730,7 +730,7 @@ function AddTrackingModal({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               송장번호 <span className="text-red-500">*</span>
             </label>
             <input
@@ -738,19 +738,19 @@ function AddTrackingModal({
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
               placeholder="예: 888143594286"
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono"
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent font-mono"
               autoFocus
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               해외거래처
             </label>
             <select
               value={companyId}
               onChange={(e) => setCompanyId(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               disabled={companiesLoading}
             >
               <option value="">선택 안함</option>
@@ -760,13 +760,13 @@ function AddTrackingModal({
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-slate-400">
               연결할 해외거래처를 선택하세요 (선택사항)
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               메모
             </label>
             <textarea
@@ -774,7 +774,7 @@ function AddTrackingModal({
               onChange={(e) => setMemo(e.target.value)}
               placeholder="품명, 거래 내용 등 메모"
               rows={2}
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-none"
             />
           </div>
 
@@ -782,7 +782,7 @@ function AddTrackingModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
             >
               취소
             </button>
@@ -878,10 +878,10 @@ function EditMemoModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">메모/거래처 수정</h2>
+          <h2 className="text-lg font-semibold text-slate-800">메모/거래처 수정</h2>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600 rounded"
+            className="p-1 text-slate-400 hover:text-slate-500 rounded"
           >
             <X className="w-5 h-5" />
           </button>
@@ -896,13 +896,13 @@ function EditMemoModal({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               해외거래처
             </label>
             <select
               value={companyId}
               onChange={(e) => setCompanyId(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               disabled={companiesLoading}
             >
               <option value="">선택 안함</option>
@@ -920,7 +920,7 @@ function EditMemoModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               메모
             </label>
             <textarea
@@ -928,7 +928,7 @@ function EditMemoModal({
               onChange={(e) => setMemo(e.target.value)}
               placeholder="품명, 거래 내용 등 메모"
               rows={9}
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
+              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-y"
               autoFocus
             />
           </div>
@@ -937,14 +937,14 @@ function EditMemoModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
             >
               취소
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50"
             >
               {isSubmitting ? "저장 중..." : "저장"}
             </button>
@@ -1017,22 +1017,22 @@ function TrackingDetailModal({
         {/* 헤더 */}
         <div className="flex items-center justify-between p-4 border-b shrink-0">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">배송 상세</h2>
-            <p className="text-sm text-gray-500 font-mono">{trackingNumber}</p>
+            <h2 className="text-lg font-semibold text-slate-800">배송 상세</h2>
+            <p className="text-sm text-slate-400 font-mono">{trackingNumber}</p>
           </div>
           <div className="flex items-center gap-2">
             <a
               href={`https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+              className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
               title="FedEx에서 보기"
             >
               <ExternalLink className="w-5 h-5" />
             </a>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+              className="p-2 text-slate-400 hover:text-slate-500 rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1043,7 +1043,7 @@ function TrackingDetailModal({
           {isLoading && (
             <div className="flex items-center justify-center py-12">
               <RefreshCw className="w-6 h-6 text-purple-600 animate-spin" />
-              <span className="ml-3 text-gray-500">조회 중...</span>
+              <span className="ml-3 text-slate-400">조회 중...</span>
             </div>
           )}
 
@@ -1057,13 +1057,13 @@ function TrackingDetailModal({
           {detail && !isLoading && (
             <div>
               {/* 배송 진행 프로그레스 바 */}
-              <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50">
+              <div className="p-4 bg-gradient-to-r from-purple-50 to-sky-50">
                 <div className="relative">
                   {/* 배경 라인 */}
-                  <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 rounded-full mx-6" />
+                  <div className="absolute top-4 left-0 right-0 h-1 bg-slate-200 rounded-full mx-6" />
                   {/* 진행 라인 */}
                   <div
-                    className="absolute top-4 left-0 h-1 bg-indigo-500 rounded-full mx-6 transition-all duration-500"
+                    className="absolute top-4 left-0 h-1 bg-sky-500 rounded-full mx-6 transition-all duration-500"
                     style={{
                       width: `calc(${(currentStageIndex / (deliveryStages.length - 1)) * 100}% - 48px)`,
                     }}
@@ -1082,16 +1082,16 @@ function TrackingDetailModal({
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
                               isCompleted
                                 ? isCurrent
-                                  ? "bg-indigo-600 text-white ring-4 ring-indigo-200"
-                                  : "bg-indigo-500 text-white"
-                                : "bg-gray-200 text-gray-400"
+                                  ? "bg-sky-600 text-white ring-4 ring-sky-200"
+                                  : "bg-sky-500 text-white"
+                                : "bg-slate-200 text-slate-400"
                             }`}
                           >
                             <StageIcon className="w-4 h-4" />
                           </div>
                           <span
                             className={`text-xs mt-2 font-medium ${
-                              isCompleted ? "text-indigo-600" : "text-gray-400"
+                              isCompleted ? "text-sky-600" : "text-slate-400"
                             }`}
                           >
                             {stage.label}
@@ -1103,12 +1103,12 @@ function TrackingDetailModal({
                 </div>
 
                 {/* 현재 상태 + 서비스 */}
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-indigo-100">
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-sky-100">
                   <span
                     className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-full ${
                       detail.status === "delivered"
                         ? "bg-green-100 text-green-700"
-                        : "bg-indigo-100 text-indigo-700"
+                        : "bg-sky-100 text-sky-700"
                     }`}
                   >
                     {detail.status === "delivered" ? (
@@ -1119,7 +1119,7 @@ function TrackingDetailModal({
                     {detail.statusText}
                   </span>
                   {detail.serviceInfo?.description && (
-                    <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded">
+                    <span className="text-sm text-slate-500 bg-white px-2 py-1 rounded">
                       {detail.serviceInfo.description}
                     </span>
                   )}
@@ -1129,32 +1129,32 @@ function TrackingDetailModal({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm mt-3">
                   {detail.dateInfo?.shipDate && (
                     <div>
-                      <span className="text-gray-500 text-xs block">발송일</span>
-                      <span className="font-medium text-gray-800">{detail.dateInfo.shipDate}</span>
+                      <span className="text-slate-400 text-xs block">발송일</span>
+                      <span className="font-medium text-slate-700">{detail.dateInfo.shipDate}</span>
                     </div>
                   )}
                   {detail.status === "delivered" && detail.dateInfo?.actualDelivery && (
                     <div>
-                      <span className="text-gray-500 text-xs block">배송 완료</span>
+                      <span className="text-slate-400 text-xs block">배송 완료</span>
                       <span className="font-medium text-green-600">{detail.dateInfo.actualDelivery}</span>
                     </div>
                   )}
                   {detail.status !== "delivered" && detail.eta && (
                     <div>
-                      <span className="text-gray-500 text-xs block">예상 도착</span>
+                      <span className="text-slate-400 text-xs block">예상 도착</span>
                       <span className="font-medium text-orange-600">{detail.eta}</span>
                     </div>
                   )}
                   {detail.status !== "delivered" && detail.dateInfo?.estimatedDeliveryTime && (
                     <div>
-                      <span className="text-gray-500 text-xs block">배송 예상 시간</span>
+                      <span className="text-slate-400 text-xs block">배송 예상 시간</span>
                       <span className="font-medium text-orange-600">{detail.dateInfo.estimatedDeliveryTime}</span>
                     </div>
                   )}
                   {detail.signedBy && (
                     <div className="col-span-2">
-                      <span className="text-gray-500 text-xs block">수령인</span>
-                      <span className="font-medium text-gray-800 flex items-center gap-1">
+                      <span className="text-slate-400 text-xs block">수령인</span>
+                      <span className="font-medium text-slate-700 flex items-center gap-1">
                         <Signature className="w-3 h-3" />
                         {detail.signedBy}
                       </span>
@@ -1184,17 +1184,17 @@ function TrackingDetailModal({
                     <div className="bg-white/50 rounded-lg p-3">
                       <div className="text-xs text-orange-600 font-medium mb-2">도착지</div>
                       {detail.recipient.contact?.personName && (
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-slate-800">
                           {detail.recipient.contact.personName}
                         </div>
                       )}
                       {detail.recipient.contact?.companyName && (
-                        <div className="text-gray-700">
+                        <div className="text-slate-600">
                           {detail.recipient.contact.companyName}
                         </div>
                       )}
                       {detail.recipient.address && (
-                        <div className="text-gray-600 text-xs mt-1">
+                        <div className="text-slate-500 text-xs mt-1">
                           {[
                             detail.recipient.address.streetLines?.join(", "),
                             detail.recipient.address.city,
@@ -1205,7 +1205,7 @@ function TrackingDetailModal({
                         </div>
                       )}
                       {detail.recipient.contact?.phoneNumber && (
-                        <div className="text-gray-500 text-xs mt-1 flex items-center gap-1">
+                        <div className="text-slate-400 text-xs mt-1 flex items-center gap-1">
                           <Phone className="w-3 h-3" />
                           {detail.recipient.contact.phoneNumber}
                         </div>
@@ -1218,17 +1218,17 @@ function TrackingDetailModal({
                       {detail.eta && (
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium text-gray-900">{detail.eta}</span>
+                          <span className="font-medium text-slate-800">{detail.eta}</span>
                         </div>
                       )}
                       {detail.dateInfo?.estimatedDeliveryTime && (
                         <div className="flex items-center gap-2 mt-1">
                           <Clock className="w-4 h-4 text-orange-500" />
-                          <span className="text-gray-700">{detail.dateInfo.estimatedDeliveryTime}</span>
+                          <span className="text-slate-600">{detail.dateInfo.estimatedDeliveryTime}</span>
                         </div>
                       )}
                       {!detail.eta && !detail.dateInfo?.estimatedDeliveryTime && (
-                        <span className="text-gray-500">예정 정보 없음</span>
+                        <span className="text-slate-400">예정 정보 없음</span>
                       )}
                     </div>
                   </div>
@@ -1241,8 +1241,8 @@ function TrackingDetailModal({
                   onClick={() => setActiveSection("timeline")}
                   className={`flex-1 py-3 text-sm font-medium text-center transition-colors ${
                     activeSection === "timeline"
-                      ? "text-indigo-600 border-b-2 border-indigo-600"
-                      : "text-gray-500 hover:text-gray-700"
+                      ? "text-sky-600 border-b-2 border-sky-600"
+                      : "text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   <Clock className="w-4 h-4 inline mr-1" />
@@ -1252,8 +1252,8 @@ function TrackingDetailModal({
                   onClick={() => setActiveSection("info")}
                   className={`flex-1 py-3 text-sm font-medium text-center transition-colors ${
                     activeSection === "info"
-                      ? "text-indigo-600 border-b-2 border-indigo-600"
-                      : "text-gray-500 hover:text-gray-700"
+                      ? "text-sky-600 border-b-2 border-sky-600"
+                      : "text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   <FileText className="w-4 h-4 inline mr-1" />
@@ -1269,9 +1269,9 @@ function TrackingDetailModal({
                     {detail.timeline && detail.timeline.length > 0 ? (
                       <div className="relative">
                         {/* 배경 라인 (회색) */}
-                        <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-gray-200 rounded-full"></div>
+                        <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-slate-200 rounded-full"></div>
                         {/* 진행 라인 (파란색) - 모든 이벤트는 이미 완료된 것 */}
-                        <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-indigo-500 rounded-full"></div>
+                        <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-sky-500 rounded-full"></div>
 
                         <div className="space-y-4">
                           {[...detail.timeline].reverse().map((event, idx, arr) => {
@@ -1288,8 +1288,8 @@ function TrackingDetailModal({
                                     isLatest
                                       ? isDelivered
                                         ? "bg-green-500 ring-4 ring-green-100"
-                                        : "bg-indigo-600 ring-4 ring-indigo-100"
-                                      : "bg-indigo-400"
+                                        : "bg-sky-600 ring-4 ring-sky-100"
+                                      : "bg-sky-400"
                                   }`}
                                 >
                                   {isLatest && (
@@ -1300,17 +1300,17 @@ function TrackingDetailModal({
                                 {/* 내용 */}
                                 <div className="flex-1 pb-2">
                                   <div className={`text-sm font-medium ${
-                                    isLatest ? "text-gray-900" : "text-gray-700"
+                                    isLatest ? "text-slate-800" : "text-slate-600"
                                   }`}>
                                     {event.description}
                                   </div>
                                   {event.location && (
-                                    <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                                    <div className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                                       <MapPin className="w-3 h-3" />
                                       {event.location}
                                     </div>
                                   )}
-                                  <div className="text-xs text-gray-400 mt-0.5">
+                                  <div className="text-xs text-slate-400 mt-0.5">
                                     {event.date} {event.time}
                                   </div>
                                 </div>
@@ -1320,8 +1320,8 @@ function TrackingDetailModal({
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <Info className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                      <div className="text-center py-8 text-slate-400">
+                        <Info className="w-8 h-8 mx-auto mb-2 text-slate-300" />
                         <p className="text-sm">배송 이력이 없습니다.</p>
                       </div>
                     )}
@@ -1334,32 +1334,32 @@ function TrackingDetailModal({
                     {/* 발송자/수취인 정보 */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* 발송자 */}
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                          <Building className="w-4 h-4 text-blue-500" />
+                      <div className="bg-slate-50 rounded-lg p-4">
+                        <h4 className="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
+                          <Building className="w-4 h-4 text-sky-500" />
                           발송자 (Shipper)
                         </h4>
                         {detail.shipper ? (
                           <div className="space-y-2 text-sm">
                             {detail.shipper.contact?.companyName && (
-                              <div className="font-medium text-gray-900">
+                              <div className="font-medium text-slate-800">
                                 {detail.shipper.contact.companyName}
                               </div>
                             )}
                             {detail.shipper.contact?.personName && (
-                              <div className="flex items-center gap-1 text-gray-600">
+                              <div className="flex items-center gap-1 text-slate-500">
                                 <User className="w-3 h-3" />
                                 {detail.shipper.contact.personName}
                               </div>
                             )}
                             {detail.shipper.contact?.phoneNumber && (
-                              <div className="flex items-center gap-1 text-gray-600">
+                              <div className="flex items-center gap-1 text-slate-500">
                                 <Phone className="w-3 h-3" />
                                 {detail.shipper.contact.phoneNumber}
                               </div>
                             )}
                             {formatAddress(detail.shipper.address) && (
-                              <div className="flex items-start gap-1 text-gray-600 mt-2">
+                              <div className="flex items-start gap-1 text-slate-500 mt-2">
                                 <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
                                 <div>
                                   {formatAddress(detail.shipper.address)?.map((line, i) => (
@@ -1370,37 +1370,37 @@ function TrackingDetailModal({
                             )}
                           </div>
                         ) : (
-                          <p className="text-sm text-gray-400">정보 없음</p>
+                          <p className="text-sm text-slate-400">정보 없음</p>
                         )}
                       </div>
 
                       {/* 수취인 */}
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      <div className="bg-slate-50 rounded-lg p-4">
+                        <h4 className="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
                           <User className="w-4 h-4 text-green-500" />
                           수취인 (Recipient)
                         </h4>
                         {detail.recipient ? (
                           <div className="space-y-2 text-sm">
                             {detail.recipient.contact?.companyName && (
-                              <div className="font-medium text-gray-900">
+                              <div className="font-medium text-slate-800">
                                 {detail.recipient.contact.companyName}
                               </div>
                             )}
                             {detail.recipient.contact?.personName && (
-                              <div className="flex items-center gap-1 text-gray-600">
+                              <div className="flex items-center gap-1 text-slate-500">
                                 <User className="w-3 h-3" />
                                 {detail.recipient.contact.personName}
                               </div>
                             )}
                             {detail.recipient.contact?.phoneNumber && (
-                              <div className="flex items-center gap-1 text-gray-600">
+                              <div className="flex items-center gap-1 text-slate-500">
                                 <Phone className="w-3 h-3" />
                                 {detail.recipient.contact.phoneNumber}
                               </div>
                             )}
                             {formatAddress(detail.recipient.address) && (
-                              <div className="flex items-start gap-1 text-gray-600 mt-2">
+                              <div className="flex items-start gap-1 text-slate-500 mt-2">
                                 <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
                                 <div>
                                   {formatAddress(detail.recipient.address)?.map((line, i) => (
@@ -1411,14 +1411,14 @@ function TrackingDetailModal({
                             )}
                           </div>
                         ) : (
-                          <p className="text-sm text-gray-400">정보 없음</p>
+                          <p className="text-sm text-slate-400">정보 없음</p>
                         )}
                       </div>
                     </div>
 
                     {/* 패키지 정보 */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <div className="bg-slate-50 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
                         <Box className="w-4 h-4 text-orange-500" />
                         패키지 정보
                       </h4>
@@ -1426,68 +1426,68 @@ function TrackingDetailModal({
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                           {detail.packageInfo.count && (
                             <div>
-                              <span className="text-xs text-gray-500 block">수량</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-slate-400 block">수량</span>
+                              <span className="text-sm font-medium text-slate-700">
                                 {detail.packageInfo.count}개
                               </span>
                             </div>
                           )}
                           {detail.packageInfo.weight && (
                             <div>
-                              <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <span className="text-xs text-slate-400 flex items-center gap-1">
                                 <Scale className="w-3 h-3" />
                                 무게
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-medium text-slate-700">
                                 {detail.packageInfo.weight}
                               </span>
                             </div>
                           )}
                           {detail.packageInfo.dimensions && (
                             <div>
-                              <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <span className="text-xs text-slate-400 flex items-center gap-1">
                                 <Ruler className="w-3 h-3" />
                                 크기
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-medium text-slate-700">
                                 {detail.packageInfo.dimensions}
                               </span>
                             </div>
                           )}
                           {detail.packageInfo.packagingDescription && (
                             <div>
-                              <span className="text-xs text-gray-500 block">포장 유형</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-slate-400 block">포장 유형</span>
+                              <span className="text-sm font-medium text-slate-700">
                                 {detail.packageInfo.packagingDescription}
                               </span>
                             </div>
                           )}
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-400">패키지 정보가 없습니다.</p>
+                        <p className="text-sm text-slate-400">패키지 정보가 없습니다.</p>
                       )}
                     </div>
 
                     {/* 서비스 정보 */}
                     {detail.serviceInfo && (
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      <div className="bg-slate-50 rounded-lg p-4">
+                        <h4 className="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
                           <Plane className="w-4 h-4 text-purple-500" />
                           서비스 정보
                         </h4>
                         <div className="grid grid-cols-2 gap-4">
                           {detail.serviceInfo.type && (
                             <div>
-                              <span className="text-xs text-gray-500 block">서비스 코드</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-slate-400 block">서비스 코드</span>
+                              <span className="text-sm font-medium text-slate-700">
                                 {detail.serviceInfo.type}
                               </span>
                             </div>
                           )}
                           {detail.serviceInfo.description && (
                             <div>
-                              <span className="text-xs text-gray-500 block">서비스명</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-slate-400 block">서비스명</span>
+                              <span className="text-sm font-medium text-slate-700">
                                 {detail.serviceInfo.description}
                               </span>
                             </div>
@@ -1575,7 +1575,7 @@ function TrackingDetailDropdown({
     return (
       <div className="flex items-center justify-center py-8">
         <RefreshCw className="w-5 h-5 text-purple-600 animate-spin" />
-        <span className="ml-2 text-gray-500 text-sm">조회 중...</span>
+        <span className="ml-2 text-slate-400 text-sm">조회 중...</span>
       </div>
     );
   }
@@ -1596,9 +1596,9 @@ function TrackingDetailDropdown({
       {/* 진행 상태 바 */}
       <div className="mb-4 pb-4 border-b">
         <div className="relative">
-          <div className="absolute top-3 left-0 right-0 h-0.5 bg-gray-200 rounded-full mx-4" />
+          <div className="absolute top-3 left-0 right-0 h-0.5 bg-slate-200 rounded-full mx-4" />
           <div
-            className="absolute top-3 left-0 h-0.5 bg-indigo-500 rounded-full mx-4 transition-all duration-500"
+            className="absolute top-3 left-0 h-0.5 bg-sky-500 rounded-full mx-4 transition-all duration-500"
             style={{
               width: `calc(${(currentStageIndex / (deliveryStages.length - 1)) * 100}% - 32px)`,
             }}
@@ -1614,14 +1614,14 @@ function TrackingDetailDropdown({
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
                       isCompleted
                         ? isCurrent
-                          ? "bg-indigo-600 text-white ring-2 ring-indigo-200"
-                          : "bg-indigo-500 text-white"
-                        : "bg-gray-200 text-gray-400"
+                          ? "bg-sky-600 text-white ring-2 ring-sky-200"
+                          : "bg-sky-500 text-white"
+                        : "bg-slate-200 text-slate-400"
                     }`}
                   >
                     <StageIcon className="w-3 h-3" />
                   </div>
-                  <span className={`text-xs mt-1 ${isCompleted ? "text-indigo-600" : "text-gray-400"}`}>
+                  <span className={`text-xs mt-1 ${isCompleted ? "text-sky-600" : "text-slate-400"}`}>
                     {stage.label}
                   </span>
                 </div>
@@ -1636,30 +1636,30 @@ function TrackingDetailDropdown({
             className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${
               detail.status === "delivered"
                 ? "bg-green-100 text-green-700"
-                : "bg-indigo-100 text-indigo-700"
+                : "bg-sky-100 text-sky-700"
             }`}
           >
             {detail.status === "delivered" ? <Check className="w-3 h-3" /> : <Truck className="w-3 h-3" />}
             {detail.statusText}
           </span>
           {detail.dateInfo?.shipDate && (
-            <span className="text-gray-600">
-              <span className="text-gray-400">발송:</span> {detail.dateInfo.shipDate}
+            <span className="text-slate-500">
+              <span className="text-slate-400">발송:</span> {detail.dateInfo.shipDate}
             </span>
           )}
           {detail.status === "delivered" && detail.dateInfo?.actualDelivery && (
             <span className="text-green-600">
-              <span className="text-gray-400">완료:</span> {detail.dateInfo.actualDelivery}
+              <span className="text-slate-400">완료:</span> {detail.dateInfo.actualDelivery}
             </span>
           )}
           {detail.status !== "delivered" && detail.eta && (
             <span className="text-orange-600">
-              <span className="text-gray-400">예상:</span> {detail.eta}
+              <span className="text-slate-400">예상:</span> {detail.eta}
               {detail.dateInfo?.estimatedDeliveryTime && ` (${detail.dateInfo.estimatedDeliveryTime})`}
             </span>
           )}
           {detail.signedBy && (
-            <span className="text-gray-600 flex items-center gap-1">
+            <span className="text-slate-500 flex items-center gap-1">
               <Signature className="w-3 h-3" />
               {detail.signedBy}
             </span>
@@ -1673,8 +1673,8 @@ function TrackingDetailDropdown({
           onClick={() => setActiveTab("timeline")}
           className={`text-sm font-medium pb-1 border-b-2 transition-colors ${
             activeTab === "timeline"
-              ? "text-indigo-600 border-indigo-600"
-              : "text-gray-500 border-transparent hover:text-gray-700"
+              ? "text-sky-600 border-sky-600"
+              : "text-slate-400 border-transparent hover:text-slate-600"
           }`}
         >
           <Clock className="w-3 h-3 inline mr-1" />
@@ -1684,8 +1684,8 @@ function TrackingDetailDropdown({
           onClick={() => setActiveTab("info")}
           className={`text-sm font-medium pb-1 border-b-2 transition-colors ${
             activeTab === "info"
-              ? "text-indigo-600 border-indigo-600"
-              : "text-gray-500 border-transparent hover:text-gray-700"
+              ? "text-sky-600 border-sky-600"
+              : "text-slate-400 border-transparent hover:text-slate-600"
           }`}
         >
           <FileText className="w-3 h-3 inline mr-1" />
@@ -1698,7 +1698,7 @@ function TrackingDetailDropdown({
         <div className="max-h-64 overflow-y-auto">
           {detail.timeline && detail.timeline.length > 0 ? (
             <div className="relative pl-4">
-              <div className="absolute left-[23px] top-1 bottom-1 w-0.5 bg-indigo-400 rounded-full" />
+              <div className="absolute left-[23px] top-1 bottom-1 w-0.5 bg-sky-400 rounded-full" />
               <div className="space-y-3">
                 {[...detail.timeline].reverse().map((event, idx, arr) => {
                   const isLatest = idx === arr.length - 1;
@@ -1706,14 +1706,14 @@ function TrackingDetailDropdown({
                     <div key={idx} className="flex gap-3 relative">
                       <div
                         className={`w-4 h-4 rounded-full shrink-0 z-10 ${
-                          isLatest ? "bg-indigo-600 ring-2 ring-indigo-200" : "bg-indigo-400"
+                          isLatest ? "bg-sky-600 ring-2 ring-sky-200" : "bg-sky-400"
                         }`}
                       />
                       <div className="flex-1 min-w-0">
-                        <div className={`text-sm ${isLatest ? "font-medium text-gray-900" : "text-gray-700"}`}>
+                        <div className={`text-sm ${isLatest ? "font-medium text-slate-800" : "text-slate-600"}`}>
                           {event.description}
                         </div>
-                        <div className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
+                        <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
                           {event.location && (
                             <span className="flex items-center gap-1">
                               <MapPin className="w-3 h-3" />
@@ -1729,7 +1729,7 @@ function TrackingDetailDropdown({
               </div>
             </div>
           ) : (
-            <div className="text-center py-4 text-gray-400 text-sm">
+            <div className="text-center py-4 text-slate-400 text-sm">
               <Info className="w-5 h-5 mx-auto mb-1" />
               배송 이력이 없습니다.
             </div>
@@ -1741,75 +1741,75 @@ function TrackingDetailDropdown({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm max-h-64 overflow-y-auto">
           {/* 발송자 */}
           <div className="bg-white rounded-lg p-3 border">
-            <div className="font-medium text-gray-700 mb-2 flex items-center gap-1">
-              <Building className="w-3 h-3 text-blue-500" />
+            <div className="font-medium text-slate-600 mb-2 flex items-center gap-1">
+              <Building className="w-3 h-3 text-sky-500" />
               발송자
             </div>
             {detail.shipper ? (
-              <div className="text-xs text-gray-600 space-y-1">
+              <div className="text-xs text-slate-500 space-y-1">
                 {detail.shipper.contact?.companyName && <div className="font-medium">{detail.shipper.contact.companyName}</div>}
                 {detail.shipper.contact?.personName && <div>{detail.shipper.contact.personName}</div>}
                 {detail.shipper.address && (
-                  <div className="text-gray-500">
+                  <div className="text-slate-400">
                     {[detail.shipper.address.city, detail.shipper.address.stateOrProvince, detail.shipper.address.countryCode].filter(Boolean).join(", ")}
                   </div>
                 )}
               </div>
             ) : (
-              <span className="text-xs text-gray-400">정보 없음</span>
+              <span className="text-xs text-slate-400">정보 없음</span>
             )}
           </div>
 
           {/* 수취인 */}
           <div className="bg-white rounded-lg p-3 border">
-            <div className="font-medium text-gray-700 mb-2 flex items-center gap-1">
+            <div className="font-medium text-slate-600 mb-2 flex items-center gap-1">
               <User className="w-3 h-3 text-green-500" />
               수취인
             </div>
             {detail.recipient ? (
-              <div className="text-xs text-gray-600 space-y-1">
+              <div className="text-xs text-slate-500 space-y-1">
                 {detail.recipient.contact?.companyName && <div className="font-medium">{detail.recipient.contact.companyName}</div>}
                 {detail.recipient.contact?.personName && <div>{detail.recipient.contact.personName}</div>}
                 {detail.recipient.address && (
-                  <div className="text-gray-500">
+                  <div className="text-slate-400">
                     {[detail.recipient.address.city, detail.recipient.address.stateOrProvince, detail.recipient.address.countryCode].filter(Boolean).join(", ")}
                   </div>
                 )}
               </div>
             ) : (
-              <span className="text-xs text-gray-400">정보 없음</span>
+              <span className="text-xs text-slate-400">정보 없음</span>
             )}
           </div>
 
           {/* 패키지 정보 */}
           <div className="bg-white rounded-lg p-3 border">
-            <div className="font-medium text-gray-700 mb-2 flex items-center gap-1">
+            <div className="font-medium text-slate-600 mb-2 flex items-center gap-1">
               <Box className="w-3 h-3 text-orange-500" />
               패키지
             </div>
             {detail.packageInfo ? (
-              <div className="text-xs text-gray-600 space-y-1">
+              <div className="text-xs text-slate-500 space-y-1">
                 {detail.packageInfo.weight && (
                   <div className="flex items-center gap-1">
-                    <Scale className="w-3 h-3 text-gray-400" />
+                    <Scale className="w-3 h-3 text-slate-400" />
                     {detail.packageInfo.weight}
                   </div>
                 )}
                 {detail.packageInfo.dimensions && (
                   <div className="flex items-center gap-1">
-                    <Ruler className="w-3 h-3 text-gray-400" />
+                    <Ruler className="w-3 h-3 text-slate-400" />
                     {detail.packageInfo.dimensions}
                   </div>
                 )}
                 {detail.packageInfo.packagingDescription && (
-                  <div className="text-gray-500">{detail.packageInfo.packagingDescription}</div>
+                  <div className="text-slate-400">{detail.packageInfo.packagingDescription}</div>
                 )}
                 {!detail.packageInfo.weight && !detail.packageInfo.dimensions && !detail.packageInfo.packagingDescription && (
-                  <span className="text-gray-400">상세 정보 없음</span>
+                  <span className="text-slate-400">상세 정보 없음</span>
                 )}
               </div>
             ) : (
-              <span className="text-xs text-gray-400">정보 없음</span>
+              <span className="text-xs text-slate-400">정보 없음</span>
             )}
           </div>
         </div>

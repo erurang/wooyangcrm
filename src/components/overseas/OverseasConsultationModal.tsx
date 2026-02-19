@@ -374,7 +374,7 @@ export default function OverseasConsultationModal({
               {formData.order_type && (
                 <span className={`ml-2 text-xs font-normal px-2 py-0.5 rounded ${
                   formData.order_type === "import"
-                    ? "bg-blue-50 text-blue-600"
+                    ? "bg-sky-50 text-sky-600"
                     : "bg-emerald-50 text-emerald-600"
                 }`}>
                   {formData.order_type === "import" ? "수입" : "수출"}
@@ -414,12 +414,12 @@ export default function OverseasConsultationModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-blue-600 mb-1">입고예정일 ★</label>
+                  <label className="block text-xs font-medium text-sky-600 mb-1">입고예정일 ★</label>
                   <input
                     type="date"
                     value={formData.arrival_date}
                     onChange={(e) => setFormData((prev) => ({ ...prev, arrival_date: e.target.value }))}
-                    className="w-full px-2 py-2 text-sm border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50/30"
+                    className="w-full px-2 py-2 text-sm border border-sky-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-sky-50/30"
                   />
                 </div>
               </div>
@@ -740,10 +740,10 @@ export default function OverseasConsultationModal({
                           {pendingFilesOfType.map((pf) => (
                             <div
                               key={pf.id}
-                              className="flex items-center justify-between p-1.5 bg-blue-50 rounded"
+                              className="flex items-center justify-between p-1.5 bg-sky-50 rounded"
                             >
                               <div className="flex items-center gap-2 min-w-0">
-                                <FileText size={14} className="text-blue-400 shrink-0" />
+                                <FileText size={14} className="text-sky-400 shrink-0" />
                                 <span className="text-sm text-slate-700 truncate">
                                   {pf.file.name}
                                 </span>

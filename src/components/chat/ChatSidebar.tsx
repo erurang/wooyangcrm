@@ -32,14 +32,14 @@ export default function ChatSidebar({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white border-r border-gray-200">
+    <div className="flex flex-col h-full bg-white border-r border-slate-200">
       {/* 헤더 */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-slate-200">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">메신저</h2>
+          <h2 className="text-lg font-semibold text-slate-800">메신저</h2>
           <button
             onClick={onNewChat}
-            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            className="p-2 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
             title="새 대화"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@ export default function ChatSidebar({
         {/* 검색 */}
         <div className="relative">
           <svg
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -68,7 +68,7 @@ export default function ChatSidebar({
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder="대화방 검색..."
-            className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-colors"
+            className="w-full pl-10 pr-4 py-2 bg-slate-100 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:border-sky-500 transition-colors"
           />
         </div>
       </div>
@@ -79,10 +79,10 @@ export default function ChatSidebar({
           <div className="p-4 space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="animate-pulse flex items-center gap-3 p-3">
-                <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                <div className="w-12 h-12 bg-slate-200 rounded-full" />
                 <div className="flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                  <div className="h-3 bg-gray-200 rounded w-1/2" />
+                  <div className="h-4 bg-slate-200 rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-slate-200 rounded w-1/2" />
                 </div>
               </div>
             ))}
@@ -90,7 +90,7 @@ export default function ChatSidebar({
         ) : rooms.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-4 text-center">
             <svg
-              className="w-16 h-16 text-gray-300 mb-4"
+              className="w-16 h-16 text-slate-300 mb-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -102,10 +102,10 @@ export default function ChatSidebar({
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            <p className="text-gray-500 text-sm">대화가 없습니다</p>
+            <p className="text-slate-400 text-sm">대화가 없습니다</p>
             <button
               onClick={onNewChat}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+              className="mt-4 px-4 py-2 bg-sky-600 text-white rounded-lg text-sm hover:bg-sky-700 transition-colors"
             >
               새 대화 시작하기
             </button>
@@ -154,8 +154,8 @@ function ChatRoomItem({ room, currentUserId, isActive, onClick }: ChatRoomItemPr
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       onClick={onClick}
-      className={`w-full flex items-center gap-3 p-4 text-left hover:bg-gray-50 transition-colors ${
-        isActive ? "bg-blue-50 border-r-2 border-blue-600" : ""
+      className={`w-full flex items-center gap-3 p-4 text-left hover:bg-slate-50 transition-colors ${
+        isActive ? "bg-sky-50 border-r-2 border-sky-600" : ""
       }`}
     >
       {/* 프로필 이미지 */}
@@ -169,7 +169,7 @@ function ChatRoomItem({ room, currentUserId, isActive, onClick }: ChatRoomItemPr
         ) : (
           <div
             className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-sm ${
-              room.type === "group" ? "bg-gradient-to-br from-purple-500 to-pink-500" : "bg-gradient-to-br from-blue-500 to-cyan-500"
+              room.type === "group" ? "bg-gradient-to-br from-purple-500 to-pink-500" : "bg-gradient-to-br from-sky-500 to-sky-500"
             }`}
           >
             {room.type === "group" ? (
@@ -195,21 +195,21 @@ function ChatRoomItem({ room, currentUserId, isActive, onClick }: ChatRoomItemPr
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-1 min-w-0">
             {isPinned && (
-              <svg className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 text-sky-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
             )}
-            <span className={`font-medium truncate ${isActive ? "text-blue-600" : "text-gray-900"}`}>
+            <span className={`font-medium truncate ${isActive ? "text-sky-600" : "text-slate-800"}`}>
               {displayName}
             </span>
           </div>
           {room.last_message_at && (
-            <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+            <span className="text-xs text-slate-400 flex-shrink-0 ml-2">
               {formatMessageTime(room.last_message_at)}
             </span>
           )}
         </div>
-        <p className="text-sm text-gray-500 truncate">
+        <p className="text-sm text-slate-400 truncate">
           {room.last_message_preview || "대화를 시작하세요"}
         </p>
       </div>

@@ -64,14 +64,14 @@ export default function MyPageHeader({ targetUserId }: MyPageHeaderProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         {/* 프로필 정보 */}
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-semibold shadow-md">
+          <div className="w-16 h-16 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center text-white text-2xl font-semibold shadow-md">
             {initials}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold text-slate-900">{user.name}</h1>
               {user.level && (
-                <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                <span className="px-2 py-0.5 text-xs font-medium bg-sky-100 text-sky-700 rounded-full">
                   {user.level}
                 </span>
               )}
@@ -99,7 +99,7 @@ export default function MyPageHeader({ targetUserId }: MyPageHeaderProps) {
         {/* 통계 카드 */}
         <div className="flex gap-3">
           <StatCard
-            icon={<FileText className="w-5 h-5 text-blue-500" />}
+            icon={<FileText className="w-5 h-5 text-sky-500" />}
             label="게시글"
             value={stats?.postsCount ?? "-"}
             color="blue"
@@ -134,7 +134,7 @@ function StatCard({
   color: "blue" | "emerald" | "purple";
 }) {
   const bgColors = {
-    blue: "bg-blue-50 border-blue-100",
+    blue: "bg-sky-50 border-sky-100",
     emerald: "bg-emerald-50 border-emerald-100",
     purple: "bg-purple-50 border-purple-100",
   };

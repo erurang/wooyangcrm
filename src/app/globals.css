@@ -3,8 +3,46 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff; /* 항상 화이트 유지 */
-  --foreground: #171717;
+  /* === WooyangCRM Design System === */
+  --background: #F8FAFC;
+  --foreground: #020617;
+
+  /* Primary palette */
+  --color-primary: #0F172A;
+  --color-secondary: #334155;
+  --color-accent: #0369A1;
+  --color-accent-light: #0EA5E9;
+  --color-accent-hover: #075985;
+
+  /* Semantic */
+  --color-success: #059669;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-info: #0284C7;
+
+  /* Surface */
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #F1F5F9;
+  --color-border: #E2E8F0;
+  --color-border-hover: #CBD5E1;
+
+  /* Text */
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+
+  /* Sidebar */
+  --color-sidebar-bg: #0F172A;
+  --color-sidebar-hover: #1E293B;
+  --color-sidebar-active: #0369A1;
+  --color-sidebar-text: #94A3B8;
+  --color-sidebar-text-active: #FFFFFF;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
 }
 
 /* Tailwind base 레이어 내에서 폰트 크기 설정 */

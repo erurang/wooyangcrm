@@ -51,9 +51,9 @@ export default function CustomsCostStats({
       value: stats.total_air_freight + stats.total_sea_freight,
       subLabel: `항공 ${formatCurrency(stats.total_air_freight)} / 해상 ${formatCurrency(stats.total_sea_freight)}`,
       icon: stats.total_air_freight > stats.total_sea_freight ? Plane : Ship,
-      bgColor: "bg-indigo-50",
-      iconColor: "text-indigo-600",
-      textColor: "text-indigo-600",
+      bgColor: "bg-sky-50",
+      iconColor: "text-sky-600",
+      textColor: "text-sky-600",
     },
     {
       label: "관세",

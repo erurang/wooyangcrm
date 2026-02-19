@@ -294,7 +294,7 @@ export default function ProductPage() {
       {/* 테이블 컨트롤 */}
       <div className="flex justify-between items-center mb-4">
         <div className="text-sm text-slate-600">
-          총 <span className="font-semibold text-blue-600">{viewMode === "list" ? total : groupedTotal}</span>
+          총 <span className="font-semibold text-sky-600">{viewMode === "list" ? total : groupedTotal}</span>
           {viewMode === "list" ? "개의 물품" : "개의 품목 그룹"}
         </div>
         <div className="flex items-center space-x-3">
@@ -321,7 +321,7 @@ export default function ProductPage() {
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 viewMode === "grouped"
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? "bg-sky-600 text-white shadow-sm"
                   : "text-slate-500 hover:text-slate-700"
               }`}
               title="동일 품목별 단가 비교 및 추이 분석"
@@ -344,7 +344,7 @@ export default function ProductPage() {
               <select
                 value={productsPerPage}
                 onChange={handlePerPageChange}
-                className="border border-slate-200 p-1.5 rounded-lg text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="border border-slate-200 p-1.5 rounded-lg text-sm focus:ring-1 focus:ring-sky-500 focus:border-sky-500"
               >
                 <option value="10">10개</option>
                 <option value="20">20개</option>

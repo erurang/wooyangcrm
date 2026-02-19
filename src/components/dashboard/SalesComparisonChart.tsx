@@ -1,13 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
   loading: () => (
     <div className="h-[250px] flex items-center justify-center">
-      <div className="animate-pulse text-slate-400">차트 로딩중...</div>
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-6 h-6 border-2 border-slate-200 border-t-sky-500 rounded-full animate-spin" />
+        <span className="text-xs text-slate-400">차트 로딩중</span>
+      </div>
     </div>
   ),
 });
@@ -33,23 +36,26 @@ export default function SalesComparisonChart({
 }: SalesComparisonChartProps) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
+      <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-4">
         <div className="flex items-center mb-3">
-          <TrendingUp className="h-4 w-4 text-emerald-600 mr-2" />
-          <h2 className="text-sm font-semibold text-slate-800">매출/매입 추이</h2>
+          <div className="p-1.5 bg-emerald-50 rounded-lg mr-2">
+            <TrendingUp className="h-4 w-4 text-emerald-600" />
+          </div>
+          <h2 className="text-sm font-bold text-slate-800">매출/매입 추이</h2>
         </div>
-        <div className="h-[250px] animate-pulse bg-slate-100 rounded"></div>
+        <div className="h-[250px] animate-pulse bg-slate-50 rounded-xl" />
       </div>
     );
   }
 
-  // 데이터 유효성 검사
   if (!currentYear?.year || !previousYear?.year) {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
+      <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-4">
         <div className="flex items-center mb-3">
-          <TrendingUp className="h-4 w-4 text-emerald-600 mr-2" />
-          <h2 className="text-sm font-semibold text-slate-800">매출/매입 추이</h2>
+          <div className="p-1.5 bg-emerald-50 rounded-lg mr-2">
+            <TrendingUp className="h-4 w-4 text-emerald-600" />
+          </div>
+          <h2 className="text-sm font-bold text-slate-800">매출/매입 추이</h2>
         </div>
         <div className="h-[250px] flex items-center justify-center text-slate-400 text-sm">
           데이터를 불러올 수 없습니다
@@ -86,22 +92,29 @@ export default function SalesComparisonChart({
       type: "line",
       toolbar: { show: false },
       zoom: { enabled: false },
+      fontFamily: "inherit",
     },
     stroke: {
-      width: [3, 2, 3, 2],
+      width: [3, 1.5, 3, 1.5],
       curve: "smooth",
-      dashArray: [0, 5, 0, 5],
+      dashArray: [0, 6, 0, 6],
     },
-    colors: ["#3b82f6", "#93c5fd", "#10b981", "#6ee7b7"],
+    colors: ["#0284c7", "#7dd3fc", "#059669", "#6ee7b7"],
+    fill: {
+      type: ["solid", "solid", "solid", "solid"],
+      opacity: [1, 0.6, 1, 0.6],
+    },
     xaxis: {
       categories: months,
       labels: {
-        style: { fontSize: "11px", colors: "#64748b" },
+        style: { fontSize: "11px", colors: "#94a3b8", fontWeight: 500 },
       },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
     },
     yaxis: {
       labels: {
-        style: { fontSize: "11px", colors: "#64748b" },
+        style: { fontSize: "11px", colors: "#94a3b8" },
         formatter: (val: number) => {
           if (val >= 100000000) return `${(val / 100000000).toFixed(1)}억`;
           if (val >= 10000) return `${(val / 10000).toFixed(0)}만`;
@@ -113,7 +126,9 @@ export default function SalesComparisonChart({
       position: "top",
       horizontalAlign: "right",
       fontSize: "11px",
-      markers: { size: 6 },
+      fontWeight: 600,
+      markers: { size: 5, offsetX: -3 },
+      itemMargin: { horizontal: 8 },
     },
     tooltip: {
       y: {
@@ -121,42 +136,56 @@ export default function SalesComparisonChart({
       },
     },
     grid: {
-      borderColor: "#e2e8f0",
-      strokeDashArray: 3,
+      borderColor: "#f1f5f9",
+      strokeDashArray: 4,
+      padding: { left: 8, right: 8 },
     },
     markers: {
-      size: 4,
-      hover: { size: 6 },
+      size: 0,
+      hover: { size: 5, sizeOffset: 2 },
     },
   };
 
-  // Calculate totals for summary
   const currentYearTotalSales = currentYear.sales.reduce((a, b) => a + b, 0);
   const previousYearTotalSales = previousYear.sales.reduce((a, b) => a + b, 0);
   const salesGrowth = previousYearTotalSales > 0
     ? ((currentYearTotalSales - previousYearTotalSales) / previousYearTotalSales) * 100
     : 0;
 
+  const formatTotal = (val: number) => {
+    if (val >= 100000000) return `${(val / 100000000).toFixed(1)}억`;
+    if (val >= 10000) return `${(val / 10000).toFixed(0)}만`;
+    return val.toLocaleString();
+  };
+
   return (
-    <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4">
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm p-4">
+      <div className="flex items-center justify-between mb-1">
         <div className="flex items-center">
-          <TrendingUp className="h-4 w-4 text-emerald-600 mr-2" />
-          <h2 className="text-sm font-semibold text-slate-800">매출/매입 추이</h2>
-        </div>
-        <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1">
-            <span className="text-slate-500">올해 매출:</span>
-            <span className="font-semibold text-blue-600">
-              {currentYearTotalSales >= 100000000
-                ? `${(currentYearTotalSales / 100000000).toFixed(1)}억`
-                : `${(currentYearTotalSales / 10000).toFixed(0)}만`}
-            </span>
+          <div className="p-1.5 bg-emerald-50 rounded-lg mr-2">
+            <TrendingUp className="h-4 w-4 text-emerald-600" />
           </div>
-          <div className={`px-1.5 py-0.5 rounded ${
-            salesGrowth >= 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-          }`}>
-            {salesGrowth >= 0 ? "+" : ""}{salesGrowth.toFixed(1)}% YoY
+          <h2 className="text-sm font-bold text-slate-800">매출/매입 추이</h2>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">올해 매출</p>
+            <p className="text-sm font-bold text-sky-700 tabular-nums">
+              {formatTotal(currentYearTotalSales)}
+            </p>
+          </div>
+          <div className={`
+            flex items-center gap-0.5 px-2 py-1 rounded-lg text-xs font-bold tabular-nums
+            ${salesGrowth >= 0
+              ? "bg-emerald-50 text-emerald-700"
+              : "bg-red-50 text-red-700"
+            }
+          `}>
+            {salesGrowth >= 0
+              ? <ArrowUpRight className="h-3.5 w-3.5" />
+              : <ArrowDownRight className="h-3.5 w-3.5" />
+            }
+            {salesGrowth >= 0 ? "+" : ""}{salesGrowth.toFixed(1)}%
           </div>
         </div>
       </div>

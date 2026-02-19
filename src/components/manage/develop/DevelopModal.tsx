@@ -77,7 +77,7 @@ export default function DevelopModal({
             type="text"
             value={developData.name || ""}
             onChange={(e) => onDevelopDataChange({ name: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -90,7 +90,7 @@ export default function DevelopModal({
             type="text"
             value={formatNumber(developData.total_cost || "")}
             onChange={(e) => handleNumberChange("total_cost", e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -105,7 +105,7 @@ export default function DevelopModal({
             onChange={(e) =>
               onDevelopDataChange({ start_date: e.target.value })
             }
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -118,7 +118,7 @@ export default function DevelopModal({
             type="date"
             value={developData.end_date || ""}
             onChange={(e) => onDevelopDataChange({ end_date: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -133,7 +133,7 @@ export default function DevelopModal({
             onChange={(e) =>
               handleNumberChange("gov_contribution", e.target.value)
             }
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className="w-full p-2 border border-slate-300 rounded-md"
           />
         </div>
         <div className="mb-2">
@@ -164,7 +164,7 @@ export default function DevelopModal({
           }
           value={developData.notes || ""}
           onChange={(e) => onDevelopDataChange({ notes: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded-md min-h-52"
+          className="w-full p-2 border border-slate-300 rounded-md min-h-52"
         />
       </div>
     </FormModal>

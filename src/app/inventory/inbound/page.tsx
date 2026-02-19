@@ -78,7 +78,6 @@ function getCompanyName(task: InventoryTaskWithDetails): string {
   return task.company?.name || "거래처";
 }
 import { AlertTriangle } from "lucide-react";
-import { CircularProgress } from "@mui/material";
 import DocumentDetailModal from "@/components/inventory/DocumentDetailModal";
 import ErrorState from "@/components/ui/ErrorState";
 
@@ -672,7 +671,7 @@ export default function InboundPage() {
         );
       case "assigned":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-sky-100 text-sky-800">
             <UserCheck className="h-3 w-3" />
             배정됨
           </span>
@@ -685,7 +684,7 @@ export default function InboundPage() {
               입고됨
             </span>
             {task.completed_at && (
-              <div className="text-[10px] text-gray-400 mt-1">
+              <div className="text-[10px] text-slate-400 mt-1">
                 {dayjs(task.completed_at).format("MM-DD HH:mm")}
               </div>
             )}
@@ -706,9 +705,9 @@ export default function InboundPage() {
   // 초기 로딩 상태 (데이터가 아예 없을 때만)
   if (isLoading && rawTasks.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+      <div className="min-h-screen bg-slate-50 p-4 md:p-6">
         <div className="flex items-center justify-center h-64">
-          <CircularProgress size={40} />
+          <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
         </div>
       </div>
     );
@@ -764,15 +763,15 @@ export default function InboundPage() {
               onClick={() => setFilter("assigned")}
               className={`p-3 rounded-lg border transition-all text-left ${
                 filter === "assigned"
-                  ? "bg-blue-50 border-blue-300 ring-2 ring-blue-400"
-                  : "bg-blue-50/50 border-blue-100 hover:bg-blue-50"
+                  ? "bg-sky-50 border-sky-300 ring-2 ring-sky-400"
+                  : "bg-sky-50/50 border-sky-100 hover:bg-sky-50"
               }`}
             >
-              <div className="flex items-center gap-1 text-xs text-blue-600 font-medium mb-1">
+              <div className="flex items-center gap-1 text-xs text-sky-600 font-medium mb-1">
                 <UserCheck className="h-3.5 w-3.5" />
                 배정
               </div>
-              <div className="text-2xl font-bold text-blue-600">{stats.assigned}</div>
+              <div className="text-2xl font-bold text-sky-600">{stats.assigned}</div>
             </button>
             <button
               onClick={() => setFilter("overdue")}
@@ -871,7 +870,7 @@ export default function InboundPage() {
             </button>
             <button
               onClick={() => setBulkAssignModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors"
             >
               <UserCheck className="h-4 w-4" />
               담당자 일괄 변경
@@ -949,7 +948,7 @@ export default function InboundPage() {
                   ? "border-yellow-200"
                   : task.status === "completed"
                   ? "border-green-200"
-                  : "border-gray-200"
+                  : "border-slate-200"
               }`}
             >
               {/* 카드 헤더 */}
@@ -960,10 +959,10 @@ export default function InboundPage() {
                     : task.status === "pending"
                     ? "bg-yellow-50"
                     : task.status === "assigned"
-                    ? "bg-blue-50"
+                    ? "bg-sky-50"
                     : task.status === "completed"
                     ? "bg-emerald-50"
-                    : "bg-gray-50"
+                    : "bg-slate-50"
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -974,7 +973,7 @@ export default function InboundPage() {
                     {selectedIds.has(task.id) ? (
                       <CheckSquare className="h-5 w-5 text-emerald-600" />
                     ) : (
-                      <Square className="h-5 w-5 text-gray-400" />
+                      <Square className="h-5 w-5 text-slate-400" />
                     )}
                   </button>
                   {getStatusDisplay(task)}
@@ -991,11 +990,11 @@ export default function InboundPage() {
               <div className="p-4 space-y-3">
                 {/* 거래처 & 입고예정일 */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-sm font-medium text-gray-900">
-                    <Building2 className="h-4 w-4 text-gray-400" />
+                  <div className="flex items-center gap-1 text-sm font-medium text-slate-800">
+                    <Building2 className="h-4 w-4 text-slate-400" />
                     {getCompanyName(task)}
                     {isOverseasTask(task) && (
-                      <span className="ml-1 text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">
+                      <span className="ml-1 text-xs px-1.5 py-0.5 bg-sky-50 text-sky-600 rounded">
                         해외
                       </span>
                     )}
@@ -1010,24 +1009,24 @@ export default function InboundPage() {
                     <span className="font-medium text-emerald-600">
                       {task.expected_date || "미정"}
                     </span>
-                    <Edit3 className="h-3 w-3 text-gray-400" />
+                    <Edit3 className="h-3 w-3 text-slate-400" />
                   </button>
                 </div>
 
                 {/* 물품 목록 또는 상담 내용 */}
-                <div className="bg-gray-50 rounded-md p-3">
+                <div className="bg-slate-50 rounded-md p-3">
                   {isOverseasTask(task) ? (
                     /* 해외 상담: 상담 내용 표시 */
                     <>
-                      <div className="text-xs text-gray-500 mb-2">상담 내용</div>
-                      <div className="text-sm text-gray-700 line-clamp-3">
+                      <div className="text-xs text-slate-400 mb-2">상담 내용</div>
+                      <div className="text-sm text-slate-600 line-clamp-3">
                         {task.consultation?.content || "-"}
                       </div>
                     </>
                   ) : (
                     /* 문서 기반: 물품 목록 */
                     <>
-                      <div className="text-xs text-gray-500 mb-2">물품</div>
+                      <div className="text-xs text-slate-400 mb-2">물품</div>
                       <div className="space-y-1">
                         {items.map((product, idx) => (
                           <div
@@ -1035,10 +1034,10 @@ export default function InboundPage() {
                             className="text-sm flex items-center justify-between"
                           >
                             <span>
-                              <span className="font-medium text-gray-900">
+                              <span className="font-medium text-slate-800">
                                 {product.name}
                               </span>
-                              <span className="text-gray-500 ml-1">
+                              <span className="text-slate-400 ml-1">
                                 {product.spec}
                               </span>
                             </span>
@@ -1055,20 +1054,20 @@ export default function InboundPage() {
 
                 {/* 담당자 정보 */}
                 <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-1 text-gray-600">
-                    <User className="h-4 w-4 text-gray-400" />
-                    <span className="text-xs text-gray-500">지정:</span>
+                  <div className="flex items-center gap-1 text-slate-500">
+                    <User className="h-4 w-4 text-slate-400" />
+                    <span className="text-xs text-slate-400">지정:</span>
                     {task.assigner?.name} {task.assigner?.level}
                   </div>
                   <button
                     onClick={() => handleOpenAssignModal(task.id)}
-                    className="flex items-center gap-1 text-gray-900 font-medium hover:text-emerald-600"
+                    className="flex items-center gap-1 text-slate-800 font-medium hover:text-emerald-600"
                   >
                     <UserCheck className="h-4 w-4 text-emerald-500" />
                     {task.assignee
                       ? `${task.assignee.name} ${task.assignee.level}`
                       : "미배정"}
-                    <Edit3 className="h-3 w-3 text-gray-400" />
+                    <Edit3 className="h-3 w-3 text-slate-400" />
                   </button>
                 </div>
 
@@ -1076,7 +1075,7 @@ export default function InboundPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleOpenSpecSheet(task)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
                   >
                     <Printer className="h-4 w-4" />
                     명세서
@@ -1115,7 +1114,7 @@ export default function InboundPage() {
                       tasks.every((task) => selectedIds.has(task.id)) ? (
                         <CheckSquare className="h-5 w-5 text-emerald-600" />
                       ) : (
-                        <Square className="h-5 w-5 text-gray-400" />
+                        <Square className="h-5 w-5 text-slate-400" />
                       )}
                     </button>
                   </th>
@@ -1172,7 +1171,7 @@ export default function InboundPage() {
                           {selectedIds.has(task.id) ? (
                             <CheckSquare className="h-5 w-5 text-emerald-600" />
                           ) : (
-                            <Square className="h-5 w-5 text-gray-400" />
+                            <Square className="h-5 w-5 text-slate-400" />
                           )}
                         </button>
                       </td>
@@ -1187,16 +1186,16 @@ export default function InboundPage() {
                           <FileText className="h-4 w-4" />
                           {task.document_number}
                         </button>
-                        <div className="text-xs text-gray-400 mt-0.5">
+                        <div className="text-xs text-slate-400 mt-0.5">
                           {task.document?.date}
                         </div>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1 text-sm text-gray-900">
-                          <Building2 className="h-4 w-4 text-gray-400" />
+                        <div className="flex items-center gap-1 text-sm text-slate-800">
+                          <Building2 className="h-4 w-4 text-slate-400" />
                           {getCompanyName(task)}
                           {isOverseasTask(task) && (
-                            <span className="ml-1 text-xs px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">
+                            <span className="ml-1 text-xs px-1.5 py-0.5 bg-sky-50 text-sky-600 rounded">
                               해외
                             </span>
                           )}
@@ -1205,7 +1204,7 @@ export default function InboundPage() {
                       <td className="px-4 py-4">
                         {isOverseasTask(task) ? (
                           /* 해외 상담: 상담 내용 표시 */
-                          <div className="text-sm text-gray-700 line-clamp-2">
+                          <div className="text-sm text-slate-600 line-clamp-2">
                             {task.consultation?.content || "-"}
                           </div>
                         ) : (
@@ -1213,10 +1212,10 @@ export default function InboundPage() {
                           <div className="space-y-1">
                             {items.slice(0, 3).map((product, idx) => (
                               <div key={idx} className="text-sm">
-                                <span className="font-medium text-gray-900">
+                                <span className="font-medium text-slate-800">
                                   {product.name}
                                 </span>
-                                <span className="text-gray-500 ml-2">
+                                <span className="text-slate-400 ml-2">
                                   {product.spec}
                                 </span>
                                 <span className="text-emerald-600 ml-2 font-medium">
@@ -1226,7 +1225,7 @@ export default function InboundPage() {
                               </div>
                             ))}
                             {items.length > 3 && (
-                              <div className="text-xs text-gray-400">
+                              <div className="text-xs text-slate-400">
                                 외 {items.length - 3}건
                               </div>
                             )}
@@ -1244,12 +1243,12 @@ export default function InboundPage() {
                           <span className="font-medium text-emerald-600">
                             {task.expected_date || "미정"}
                           </span>
-                          <Edit3 className="h-3 w-3 text-gray-400" />
+                          <Edit3 className="h-3 w-3 text-slate-400" />
                         </button>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
-                          <User className="h-4 w-4 text-gray-400" />
+                        <div className="flex items-center gap-1 text-sm text-slate-500">
+                          <User className="h-4 w-4 text-slate-400" />
                           {task.assigner
                             ? `${task.assigner.name} ${task.assigner.level}`
                             : "-"}
@@ -1258,20 +1257,20 @@ export default function InboundPage() {
                       <td className="px-4 py-4 whitespace-nowrap">
                         <button
                           onClick={() => handleOpenAssignModal(task.id)}
-                          className="flex items-center gap-1 text-sm text-gray-900 font-medium hover:text-emerald-600 transition-colors"
+                          className="flex items-center gap-1 text-sm text-slate-800 font-medium hover:text-emerald-600 transition-colors"
                         >
                           <UserCheck className="h-4 w-4 text-emerald-500" />
                           {task.assignee
                             ? `${task.assignee.name} ${task.assignee.level}`
                             : "미배정"}
-                          <Edit3 className="h-3 w-3 text-gray-400" />
+                          <Edit3 className="h-3 w-3 text-slate-400" />
                         </button>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleOpenSpecSheet(task)}
-                            className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-md border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
                           >
                             <Printer className="h-3.5 w-3.5" />
                             명세서
@@ -1301,7 +1300,7 @@ export default function InboundPage() {
                             </>
                           )}
                           {task.status === "completed" && (
-                            <span className="text-xs text-gray-400 px-2">
+                            <span className="text-xs text-slate-400 px-2">
                               {task.completer?.name} 확인
                             </span>
                           )}
@@ -1321,12 +1320,12 @@ export default function InboundPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
             <div className="flex items-center justify-between px-4 py-3 border-b">
-              <h3 className="font-semibold text-gray-900">입고 담당자 변경</h3>
+              <h3 className="font-semibold text-slate-800">입고 담당자 변경</h3>
               <button
                 onClick={() => setAssignModalOpen(false)}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-slate-100 rounded"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-slate-400" />
               </button>
             </div>
             <div className="p-4 space-y-2 max-h-80 overflow-y-auto">
@@ -1334,7 +1333,7 @@ export default function InboundPage() {
                 <button
                   key={user.id}
                   onClick={() => handleChangeAssignee(user.id)}
-                  className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 transition-colors"
+                  className="w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <UserCheck className="h-4 w-4 text-emerald-500" />
@@ -1354,12 +1353,12 @@ export default function InboundPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
             <div className="flex items-center justify-between px-4 py-3 border-b">
-              <h3 className="font-semibold text-gray-900">입고 예정일 수정</h3>
+              <h3 className="font-semibold text-slate-800">입고 예정일 수정</h3>
               <button
                 onClick={() => setDateModalOpen(false)}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-slate-100 rounded"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-slate-400" />
               </button>
             </div>
             <div className="p-4 space-y-4">
@@ -1367,12 +1366,12 @@ export default function InboundPage() {
                 type="date"
                 value={editingDate}
                 onChange={(e) => setEditingDate(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
               <div className="flex gap-2">
                 <button
                   onClick={() => setDateModalOpen(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50"
                 >
                   취소
                 </button>
@@ -1394,21 +1393,21 @@ export default function InboundPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
             <div className="flex items-center justify-between px-4 py-3 border-b">
-              <h3 className="font-semibold text-gray-900">
+              <h3 className="font-semibold text-slate-800">
                 담당자 일괄 변경 ({selectedIds.size}개)
               </h3>
               <button
                 onClick={() => setBulkAssignModalOpen(false)}
                 disabled={isBulkUpdating}
-                className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+                className="p-1 hover:bg-slate-100 rounded disabled:opacity-50"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-slate-400" />
               </button>
             </div>
             <div className="p-4 space-y-2 max-h-80 overflow-y-auto">
               {isBulkUpdating ? (
                 <div className="flex flex-col items-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <Loader2 className="h-8 w-8 animate-spin text-sky-600" />
                   <p className="mt-2 text-sm text-slate-600">변경 중...</p>
                 </div>
               ) : (
@@ -1416,10 +1415,10 @@ export default function InboundPage() {
                   <button
                     key={user.id}
                     onClick={() => handleBulkAssign(user.id)}
-                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                    className="w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:bg-sky-50 hover:border-sky-300 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <UserCheck className="h-4 w-4 text-blue-500" />
+                      <UserCheck className="h-4 w-4 text-sky-500" />
                       <span className="font-medium">
                         {user.name} {user.level}
                       </span>
@@ -1437,15 +1436,15 @@ export default function InboundPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
             <div className="flex items-center justify-between px-4 py-3 border-b">
-              <h3 className="font-semibold text-gray-900">
+              <h3 className="font-semibold text-slate-800">
                 상태 일괄 변경 ({selectedIds.size}개)
               </h3>
               <button
                 onClick={() => setBulkStatusModalOpen(false)}
                 disabled={isBulkUpdating}
-                className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+                className="p-1 hover:bg-slate-100 rounded disabled:opacity-50"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-slate-400" />
               </button>
             </div>
             <div className="p-4 space-y-2">
@@ -1458,7 +1457,7 @@ export default function InboundPage() {
                 <>
                   <button
                     onClick={() => handleBulkStatusChange("pending")}
-                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-yellow-50 hover:border-yellow-300 transition-colors"
+                    className="w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:bg-yellow-50 hover:border-yellow-300 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-yellow-500" />
@@ -1467,16 +1466,16 @@ export default function InboundPage() {
                   </button>
                   <button
                     onClick={() => handleBulkStatusChange("assigned")}
-                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                    className="w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:bg-sky-50 hover:border-sky-300 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <UserCheck className="h-4 w-4 text-blue-500" />
+                      <UserCheck className="h-4 w-4 text-sky-500" />
                       <span className="font-medium">배정됨</span>
                     </div>
                   </button>
                   <button
                     onClick={() => handleBulkStatusChange("completed")}
-                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-emerald-50 hover:border-emerald-300 transition-colors"
+                    className="w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-emerald-500" />
@@ -1485,7 +1484,7 @@ export default function InboundPage() {
                   </button>
                   <button
                     onClick={() => handleBulkStatusChange("canceled")}
-                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-red-50 hover:border-red-300 transition-colors"
+                    className="w-full text-left px-4 py-3 rounded-lg border border-slate-200 hover:bg-red-50 hover:border-red-300 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <XCircle className="h-4 w-4 text-red-500" />
@@ -1504,7 +1503,7 @@ export default function InboundPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
             <div className="flex items-center justify-between px-4 py-3 border-b">
-              <h3 className="font-semibold text-gray-900">
+              <h3 className="font-semibold text-slate-800">
                 예정일 일괄 변경 ({selectedIds.size}개)
               </h3>
               <button
@@ -1513,9 +1512,9 @@ export default function InboundPage() {
                   setBulkDate("");
                 }}
                 disabled={isBulkUpdating}
-                className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
+                className="p-1 hover:bg-slate-100 rounded disabled:opacity-50"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-slate-400" />
               </button>
             </div>
             <div className="p-4 space-y-4">
@@ -1530,7 +1529,7 @@ export default function InboundPage() {
                     type="date"
                     value={bulkDate}
                     onChange={(e) => setBulkDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                   <div className="flex gap-2">
                     <button
@@ -1538,7 +1537,7 @@ export default function InboundPage() {
                         setBulkDateModalOpen(false);
                         setBulkDate("");
                       }}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                      className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50"
                     >
                       취소
                     </button>
@@ -1562,13 +1561,13 @@ export default function InboundPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* 모달 헤더 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
+            <div className="flex items-center justify-between px-6 py-4 border-b bg-slate-50">
               <div className="flex items-center gap-4">
-                <h3 className="font-semibold text-lg text-gray-900">
+                <h3 className="font-semibold text-lg text-slate-800">
                   입고명세서
                 </h3>
                 {specSheetPages.length > 1 && (
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-slate-400">
                     ({specSheetPages.length}개 명세서)
                   </span>
                 )}
@@ -1576,7 +1575,7 @@ export default function InboundPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleAddPage}
-                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors"
+                  className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                   명세서 추가
@@ -1590,9 +1589,9 @@ export default function InboundPage() {
                 </button>
                 <button
                   onClick={() => setSpecSheetOpen(false)}
-                  className="p-2 hover:bg-gray-200 rounded-lg"
+                  className="p-2 hover:bg-slate-200 rounded-lg"
                 >
-                  <X className="h-5 w-5 text-gray-500" />
+                  <X className="h-5 w-5 text-slate-400" />
                 </button>
               </div>
             </div>
@@ -1607,7 +1606,7 @@ export default function InboundPage() {
                     className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
                       idx === currentPageIndex
                         ? "bg-emerald-100 text-green-700"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                     }`}
                   >
                     <span>명세서 {idx + 1}</span>
@@ -1625,7 +1624,7 @@ export default function InboundPage() {
                         className="p-0.5 hover:bg-emerald-200 rounded"
                         title="복사"
                       >
-                        <Copy className="h-3 w-3 text-gray-400 hover:text-emerald-600" />
+                        <Copy className="h-3 w-3 text-slate-400 hover:text-emerald-600" />
                       </button>
                       {specSheetPages.length > 1 && (
                         <button
@@ -1636,7 +1635,7 @@ export default function InboundPage() {
                           className="p-0.5 hover:bg-red-100 rounded"
                           title="삭제"
                         >
-                          <X className="h-3 w-3 text-gray-400 hover:text-red-500" />
+                          <X className="h-3 w-3 text-slate-400 hover:text-red-500" />
                         </button>
                       )}
                     </div>
@@ -1652,11 +1651,11 @@ export default function InboundPage() {
                   {/* 왼쪽: 편집 폼 */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                      <h4 className="font-medium text-slate-800 flex items-center gap-2">
                         <Edit3 className="h-4 w-4" />
                         편집
                         {specSheetPages.length > 1 && (
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-slate-400">
                             (명세서 {currentPageIndex + 1}/{specSheetPages.length})
                           </span>
                         )}
@@ -1666,7 +1665,7 @@ export default function InboundPage() {
                           onClick={() =>
                             handleDuplicatePage(specSheetPages[currentPageIndex].id)
                           }
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-100 transition-colors"
                         >
                           <Copy className="h-4 w-4" />
                           명세서 복사
@@ -1700,7 +1699,7 @@ export default function InboundPage() {
                                   )
                                 }
                                 disabled={fieldIndex === 0}
-                                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                                className="p-1 text-slate-400 hover:text-slate-500 hover:bg-slate-100 rounded disabled:opacity-30 disabled:cursor-not-allowed"
                                 title="위로 이동"
                               >
                                 <ArrowUp className="h-3.5 w-3.5" />
@@ -1717,7 +1716,7 @@ export default function InboundPage() {
                                   fieldIndex ===
                                   specSheetPages[currentPageIndex].fields.length - 1
                                 }
-                                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                                className="p-1 text-slate-400 hover:text-slate-500 hover:bg-slate-100 rounded disabled:opacity-30 disabled:cursor-not-allowed"
                                 title="아래로 이동"
                               >
                                 <ArrowDown className="h-3.5 w-3.5" />
@@ -1736,7 +1735,7 @@ export default function InboundPage() {
                                   )
                                 }
                                 placeholder="항목명"
-                                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-gray-50 font-medium"
+                                className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-slate-50 font-medium"
                               />
                               <input
                                 type="text"
@@ -1750,7 +1749,7 @@ export default function InboundPage() {
                                   )
                                 }
                                 placeholder="내용 입력"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                               />
                             </div>
                             <button
@@ -1778,12 +1777,12 @@ export default function InboundPage() {
                             setCurrentPageIndex(Math.max(0, currentPageIndex - 1))
                           }
                           disabled={currentPageIndex === 0}
-                          className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <ChevronLeft className="h-4 w-4" />
                           이전
                         </button>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-slate-400">
                           {currentPageIndex + 1} / {specSheetPages.length}
                         </span>
                         <button
@@ -1796,7 +1795,7 @@ export default function InboundPage() {
                             )
                           }
                           disabled={currentPageIndex === specSheetPages.length - 1}
-                          className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           다음
                           <ChevronRight className="h-4 w-4" />
@@ -1806,14 +1805,14 @@ export default function InboundPage() {
                   </div>
 
                   {/* 오른쪽: 미리보기 */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 flex items-center gap-2 mb-4">
+                  <div className="bg-slate-50 rounded-lg p-4">
+                    <h4 className="font-medium text-slate-800 flex items-center gap-2 mb-4">
                       <FileText className="h-4 w-4" />
                       미리보기
                     </h4>
                     <div
                       ref={printRef}
-                      className="bg-white border border-gray-300 p-6"
+                      className="bg-white border border-slate-300 p-6"
                     >
                       <div className="text-center text-xl font-bold mb-6">
                         입 고 명 세 서
@@ -1823,30 +1822,30 @@ export default function InboundPage() {
                           {specSheetPages[currentPageIndex].fields.map(
                             (field) => (
                               <tr key={field.id}>
-                                <th className="border border-gray-400 bg-gray-100 px-4 py-3 text-left w-28">
+                                <th className="border border-slate-400 bg-slate-100 px-4 py-3 text-left w-28">
                                   {field.label}
                                 </th>
-                                <td className="border border-gray-400 px-4 py-3">
+                                <td className="border border-slate-400 px-4 py-3">
                                   {field.value}
                                 </td>
                               </tr>
                             )
                           )}
                           <tr>
-                            <th className="border border-gray-400 bg-gray-100 px-4 py-3 text-left">
+                            <th className="border border-slate-400 bg-slate-100 px-4 py-3 text-left">
                               수령업체
                             </th>
-                            <td className="border border-gray-400 px-4 py-3">
+                            <td className="border border-slate-400 px-4 py-3">
                               <div className="flex items-center gap-4">
                                 <div className="font-bold text-emerald-800">
                                   <div className="text-lg">
                                     wooyang 우양신소재
                                   </div>
-                                  <div className="text-xs text-gray-500">
+                                  <div className="text-xs text-slate-400">
                                     Advanced material Co.
                                   </div>
                                 </div>
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm text-slate-500">
                                   경북 구미시 산동읍 첨단기업3로 81
                                 </div>
                               </div>

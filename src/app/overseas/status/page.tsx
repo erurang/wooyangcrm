@@ -50,7 +50,7 @@ function KanbanCard({
           <span
             className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
               consultation.order_type === "import"
-                ? "bg-blue-50 text-blue-600"
+                ? "bg-sky-50 text-sky-600"
                 : "bg-emerald-50 text-emerald-600"
             }`}
           >
@@ -303,8 +303,8 @@ export default function OverseasStatusPage() {
               onClick={() => setTypeFilter("import")}
               className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 typeFilter === "import"
-                  ? "bg-blue-600 text-white"
-                  : "text-blue-600 hover:bg-blue-50"
+                  ? "bg-sky-600 text-white"
+                  : "text-sky-600 hover:bg-sky-50"
               }`}
             >
               수입 ({importCount})

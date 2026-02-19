@@ -33,7 +33,7 @@ export default function ShippingTimeline({
 }: ShippingTimelineProps) {
   if (!timeline || timeline.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-slate-400">
         <Package size={32} className="mx-auto mb-2 opacity-50" />
         <p className="text-sm">배송 이력이 없습니다.</p>
       </div>
@@ -61,7 +61,7 @@ export default function ShippingTimeline({
       {/* 타임라인 */}
       <div className="relative pl-6">
         {/* 세로 선 */}
-        <div className="absolute left-[17px] top-2 bottom-2 w-0.5 bg-gray-200" />
+        <div className="absolute left-[17px] top-2 bottom-2 w-0.5 bg-slate-200" />
 
         {sortedTimeline.map((event, index, arr) => {
           const isLatest = index === arr.length - 1;
@@ -82,8 +82,8 @@ export default function ShippingTimeline({
                   isLatest
                     ? isDelivered
                       ? "bg-green-500 text-white"
-                      : "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-500"
+                      : "bg-sky-500 text-white"
+                    : "bg-slate-200 text-slate-400"
                 }`}
               >
                 <Icon size={12} />
@@ -91,20 +91,20 @@ export default function ShippingTimeline({
 
               {/* 내용 */}
               <div
-                className={`ml-4 ${isLatest ? "font-medium" : "text-gray-600"}`}
+                className={`ml-4 ${isLatest ? "font-medium" : "text-slate-500"}`}
               >
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-gray-400">
+                  <span className="text-slate-400">
                     {formatDate(event.date)}
                   </span>
                   {event.location && (
-                    <span className="text-gray-500 flex items-center gap-1">
+                    <span className="text-slate-400 flex items-center gap-1">
                       <MapPin size={12} />
                       {event.location}
                     </span>
                   )}
                 </div>
-                <p className={`mt-0.5 ${isLatest ? "text-gray-900" : "text-gray-700"}`}>
+                <p className={`mt-0.5 ${isLatest ? "text-slate-800" : "text-slate-600"}`}>
                   {event.description}
                 </p>
               </div>

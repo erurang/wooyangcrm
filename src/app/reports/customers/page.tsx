@@ -269,10 +269,10 @@ export default function CompanySalesReport() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center gap-1.5 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg"
+              className="flex items-center gap-1.5 bg-sky-50 border border-sky-100 px-3 py-1.5 rounded-lg"
             >
-              <FileText className="w-4 h-4 text-blue-500" />
-              <span className="text-xs text-blue-700">
+              <FileText className="w-4 h-4 text-sky-500" />
+              <span className="text-xs text-sky-700">
                 견적 <span className="font-bold">{totalStats.estimates.toLocaleString()}</span>건
               </span>
             </motion.div>
@@ -366,7 +366,7 @@ export default function CompanySalesReport() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                      <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full text-xs font-medium">
                         {company.completed_estimates}
                       </span>
                     </td>

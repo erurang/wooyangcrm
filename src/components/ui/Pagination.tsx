@@ -131,7 +131,7 @@ export default function Pagination({
                 className={cn(
                   "min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors",
                   currentPage === page
-                    ? "bg-teal-600 text-white"
+                    ? "bg-sky-600 text-white"
                     : "text-slate-600 hover:bg-slate-100"
                 )}
               >
@@ -202,7 +202,7 @@ export function PageSizeSelector({
       <select
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+        className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors cursor-pointer"
       >
         {options.map((option) => (
           <option key={option} value={option}>

@@ -335,7 +335,7 @@ export default function ApprovalFormModal({
                   }))}
                   placeholder="선택"
                   icon={<FileCheck className="h-4 w-4" />}
-                  focusClass="focus:ring-2 focus:ring-blue-500"
+                  focusClass="focus:ring-2 focus:ring-sky-500"
                 />
               </div>
               <div>
@@ -347,7 +347,7 @@ export default function ApprovalFormModal({
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="결재 제목"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -400,7 +400,7 @@ export default function ApprovalFormModal({
                                   value={item.amount || ""}
                                   onChange={(e) => handleExpenseItemChange(index, "amount", Number(e.target.value))}
                                   placeholder="0"
-                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
                                 />
                               </div>
                               <div>
@@ -409,7 +409,7 @@ export default function ApprovalFormModal({
                                   type="date"
                                   value={item.date}
                                   onChange={(e) => handleExpenseItemChange(index, "date", e.target.value)}
-                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
                                 />
                               </div>
                             </div>
@@ -421,7 +421,7 @@ export default function ApprovalFormModal({
                                   value={item.merchant}
                                   onChange={(e) => handleExpenseItemChange(index, "merchant", e.target.value)}
                                   placeholder="예: 스타벅스 강남점"
-                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
                                 />
                               </div>
                               <div>
@@ -456,7 +456,7 @@ export default function ApprovalFormModal({
                                     onClick={() => handleExpenseItemChange(index, "paymentMethod", method.value)}
                                     className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded text-xs transition-colors ${
                                       item.paymentMethod === method.value
-                                        ? "bg-blue-50 border border-blue-300 text-blue-700"
+                                        ? "bg-sky-50 border border-sky-300 text-sky-700"
                                         : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                                     }`}
                                   >
@@ -474,7 +474,7 @@ export default function ApprovalFormModal({
                                   value={item.externalAttendees || ""}
                                   onChange={(e) => handleExpenseItemChange(index, "externalAttendees", e.target.value)}
                                   placeholder="외부 참석자명"
-                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
                                 />
                               </div>
                               <div>
@@ -484,7 +484,7 @@ export default function ApprovalFormModal({
                                   value={item.internalAttendees || ""}
                                   onChange={(e) => handleExpenseItemChange(index, "internalAttendees", e.target.value)}
                                   placeholder="내부 참석자명"
-                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-sky-500"
                                 />
                               </div>
                             </div>
@@ -495,7 +495,7 @@ export default function ApprovalFormModal({
                                 onChange={(e) => handleExpenseItemChange(index, "description", e.target.value)}
                                 placeholder="상세 사용 내역 입력"
                                 rows={2}
-                                className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+                                className="w-full px-2.5 py-1.5 border border-slate-200 rounded text-sm focus:outline-none focus:ring-1 focus:ring-sky-500 resize-none"
                               />
                             </div>
                           </div>
@@ -515,9 +515,9 @@ export default function ApprovalFormModal({
                   </button>
 
                   {/* 합계 */}
-                  <div className="flex items-center justify-between px-3 py-2 bg-blue-50 rounded-lg">
+                  <div className="flex items-center justify-between px-3 py-2 bg-sky-50 rounded-lg">
                     <span className="text-sm font-medium text-slate-700">합계</span>
-                    <span className="text-base font-bold text-blue-600">
+                    <span className="text-base font-bold text-sky-600">
                       ₩{expenseTotal.toLocaleString("ko-KR")}
                     </span>
                   </div>
@@ -533,7 +533,7 @@ export default function ApprovalFormModal({
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="기안 내용을 입력하세요"
                   rows={5}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-none"
                 />
               </div>
             )}
@@ -553,7 +553,7 @@ export default function ApprovalFormModal({
                     className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg"
                   >
                     <GripVertical className="w-4 h-4 text-slate-300" />
-                    <span className="w-6 h-6 flex items-center justify-center bg-blue-500 text-white rounded-full text-xs font-medium">
+                    <span className="w-6 h-6 flex items-center justify-center bg-sky-500 text-white rounded-full text-xs font-medium">
                       {line.line_order}
                     </span>
                     <HeadlessSelect
@@ -598,7 +598,7 @@ export default function ApprovalFormModal({
                       onChange={(e) => setUserSearchTerm(e.target.value)}
                       placeholder="사원명 검색"
                       autoFocus
-                      className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                     />
                   </div>
                   <button
@@ -620,7 +620,7 @@ export default function ApprovalFormModal({
                         <div className="flex gap-1">
                           <button
                             onClick={() => handleAddApprover(u, "approval")}
-                            className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                            className="px-2 py-1 text-xs bg-sky-100 text-sky-700 rounded hover:bg-sky-200"
                           >
                             결재
                           </button>
@@ -703,7 +703,7 @@ export default function ApprovalFormModal({
                 onClick={() => setShareScope("partial")}
                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                   shareScope === "partial"
-                    ? "bg-blue-50 text-blue-700 ring-1 ring-blue-300"
+                    ? "bg-sky-50 text-sky-700 ring-1 ring-sky-300"
                     : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"
                 }`}
               >
@@ -718,10 +718,10 @@ export default function ApprovalFormModal({
                     {shareUsers.map((u) => (
                       <span
                         key={u.id}
-                        className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs"
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 text-sky-700 rounded text-xs"
                       >
                         {u.name}
-                        <button onClick={() => handleRemoveShareUser(u.id)} className="hover:text-blue-900">
+                        <button onClick={() => handleRemoveShareUser(u.id)} className="hover:text-sky-900">
                           <X className="w-3 h-3" />
                         </button>
                       </span>
@@ -740,7 +740,7 @@ export default function ApprovalFormModal({
                           onChange={(e) => setUserSearchTerm(e.target.value)}
                           placeholder="사원명 검색"
                           autoFocus
-                          className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                         />
                       </div>
                       <button
@@ -800,7 +800,7 @@ export default function ApprovalFormModal({
           <button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="flex items-center justify-center gap-2 flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm font-medium"
+            className="flex items-center justify-center gap-2 flex-1 px-4 py-2.5 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50 text-sm font-medium"
           >
             <Send className="w-4 h-4" />
             {isLoading ? "처리 중..." : "상신"}

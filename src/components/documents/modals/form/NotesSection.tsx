@@ -27,16 +27,16 @@ export default function NotesSection({
 
   return (
     <>
-      <div className="bg-gray-50 p-5 rounded-xl">
+      <div className="bg-slate-50 p-5 rounded-xl">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2 text-gray-800">
+          <div className="flex items-center gap-2 text-slate-700">
             <Info className={`h-5 w-5 ${iconColor}`} />
             <h4 className="text-lg font-semibold">특기사항</h4>
           </div>
           <button
             type="button"
             onClick={() => setIsTemplateModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <FolderOpen size={16} />
             템플릿 관리
@@ -45,7 +45,7 @@ export default function NotesSection({
         <textarea
           value={notes}
           onChange={(e) => onChange(e.target.value)}
-          className={`w-full p-3 border border-gray-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
+          className={`w-full p-3 border border-slate-300 rounded-lg text-sm ${focusClass} focus:border-transparent`}
           rows={3}
           placeholder="특기사항을 입력하세요..."
         />

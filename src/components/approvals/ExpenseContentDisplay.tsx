@@ -184,7 +184,7 @@ export default function ExpenseContentDisplay({ content }: ExpenseContentDisplay
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-base font-bold text-blue-600">
+          <span className="text-base font-bold text-sky-600">
             ₩{totalAmount.toLocaleString("ko-KR")}
           </span>
           <div className="flex gap-1.5">

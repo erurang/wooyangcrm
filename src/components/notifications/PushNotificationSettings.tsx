@@ -65,7 +65,7 @@ export default function PushNotificationSettings({
         disabled={isLoading || permission === "denied"}
         className={`p-2 rounded-lg transition-colors ${
           isSubscribed
-            ? "bg-blue-100 text-blue-600 hover:bg-blue-200"
+            ? "bg-sky-100 text-sky-600 hover:bg-sky-200"
             : "bg-slate-100 text-slate-500 hover:bg-slate-200"
         } ${permission === "denied" ? "opacity-50 cursor-not-allowed" : ""}`}
         title={
@@ -93,11 +93,11 @@ export default function PushNotificationSettings({
       <div className="flex items-center gap-3 mb-4">
         <div
           className={`p-2 rounded-lg ${
-            isSubscribed ? "bg-blue-100" : "bg-slate-100"
+            isSubscribed ? "bg-sky-100" : "bg-slate-100"
           }`}
         >
           {isSubscribed ? (
-            <Bell className="w-6 h-6 text-blue-600" />
+            <Bell className="w-6 h-6 text-sky-600" />
           ) : (
             <BellOff className="w-6 h-6 text-slate-500" />
           )}
@@ -169,7 +169,7 @@ export default function PushNotificationSettings({
           <button
             onClick={requestPermission}
             disabled={isLoading}
-            className="w-full py-2.5 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
@@ -191,7 +191,7 @@ export default function PushNotificationSettings({
               className={`w-full py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
                 isSubscribed
                   ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-sky-600 text-white hover:bg-sky-700"
               }`}
             >
               {isLoading ? (

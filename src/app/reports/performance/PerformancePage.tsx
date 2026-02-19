@@ -192,7 +192,7 @@ const PerformancePage = () => {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
         <div className="flex flex-col items-center justify-center">
-          <div className="w-10 h-10 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-500 mt-4">데이터를 불러오는 중입니다...</p>
         </div>
       </div>
@@ -205,7 +205,7 @@ const PerformancePage = () => {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+            <div className="w-14 h-14 bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl flex items-center justify-center text-white shadow-lg">
               {user?.name?.charAt(0) || "U"}
             </div>
             <div>
@@ -229,7 +229,7 @@ const PerformancePage = () => {
             <select
               value={year}
               onChange={handleYearChange}
-              className="border border-slate-200 rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700"
+              className="border border-slate-200 rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium text-slate-700"
             >
               {Array.from({ length: 10 }, (_, i) => currentYear - i).map((y) => (
                 <option key={y} value={y}>
@@ -265,12 +265,12 @@ const PerformancePage = () => {
               </p>
             </div>
 
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+            <div className="bg-sky-50 border border-sky-100 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <BarChart3 className="w-4 h-4 text-blue-600" />
-                <span className="text-xs font-medium text-blue-700">월평균 매출</span>
+                <BarChart3 className="w-4 h-4 text-sky-600" />
+                <span className="text-xs font-medium text-sky-700">월평균 매출</span>
               </div>
-              <p className="text-xl font-bold text-blue-600">
+              <p className="text-xl font-bold text-sky-600">
                 {(stats.avgMonthlySales / 10000).toLocaleString()}
                 <span className="text-xs font-normal ml-1">만원</span>
               </p>
@@ -350,7 +350,7 @@ const PerformancePage = () => {
         {/* 매출 품목별 비중 */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Package className="w-5 h-5 text-blue-500" />
+            <Package className="w-5 h-5 text-sky-500" />
             <h3 className="text-base font-semibold text-slate-800">매출 품목별 월별 비중</h3>
           </div>
           {salesProductChartSeries.length > 0 ? (
@@ -398,7 +398,7 @@ const PerformancePage = () => {
       <div className="mt-6">
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="w-5 h-5 text-indigo-500" />
+            <BarChart3 className="w-5 h-5 text-sky-500" />
             <h3 className="text-base font-semibold text-slate-800">매출 vs 매입 비교</h3>
           </div>
           <ReactApexChart

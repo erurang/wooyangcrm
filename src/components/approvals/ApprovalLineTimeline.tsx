@@ -65,8 +65,8 @@ const statusConfig = {
 
 // 결재선 타입별 스타일
 const lineTypeConfig = {
-  approval: { label: "결재", color: "bg-blue-500" },
-  review: { label: "검토", color: "bg-indigo-500" },
+  approval: { label: "결재", color: "bg-sky-500" },
+  review: { label: "검토", color: "bg-sky-500" },
   reference: { label: "참조", color: "bg-slate-400" },
   agreement: { label: "합의", color: "bg-purple-500" },
 };
@@ -152,7 +152,7 @@ function HorizontalTimeline({
                       ${compact ? "w-12 h-12" : "w-16 h-16"}
                       rounded-full border-2 transition-all duration-300
                       ${config.bgColor} ${config.borderColor}
-                      ${isCurrent ? "ring-2 ring-blue-400 ring-offset-2" : ""}
+                      ${isCurrent ? "ring-2 ring-sky-400 ring-offset-2" : ""}
                     `}
                   >
                     {line.status === "approved" ? (
@@ -166,7 +166,7 @@ function HorizontalTimeline({
                     {/* 현재 결재자 표시 */}
                     {isCurrent && (
                       <motion.div
-                        className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center"
+                        className="absolute -top-1 -right-1 w-4 h-4 bg-sky-500 rounded-full flex items-center justify-center"
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ repeat: Infinity, duration: 1.5 }}
                       >
@@ -180,7 +180,7 @@ function HorizontalTimeline({
                     <p
                       className={`
                         text-xs font-medium
-                        ${isCurrent ? "text-blue-600" : config.textColor}
+                        ${isCurrent ? "text-sky-600" : config.textColor}
                       `}
                     >
                       {line.approver?.name || "미지정"}
@@ -315,7 +315,7 @@ function VerticalTimeline({
                   relative flex items-center justify-center shrink-0
                   w-10 h-10 rounded-full border-2
                   ${config.bgColor} ${config.borderColor}
-                  ${isCurrent ? "ring-2 ring-blue-400 ring-offset-1" : ""}
+                  ${isCurrent ? "ring-2 ring-sky-400 ring-offset-1" : ""}
                 `}
               >
                 {line.status === "approved" ? (
@@ -326,7 +326,7 @@ function VerticalTimeline({
 
                 {isCurrent && (
                   <motion.div
-                    className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full"
+                    className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-sky-500 rounded-full"
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
                   />
@@ -344,7 +344,7 @@ function VerticalTimeline({
                   >
                     {typeConfig.label}
                   </span>
-                  <span className={`text-xs font-medium ${isCurrent ? "text-blue-600" : "text-slate-800"}`}>
+                  <span className={`text-xs font-medium ${isCurrent ? "text-sky-600" : "text-slate-800"}`}>
                     {line.approver?.name || "미지정"}
                   </span>
                   {line.approver?.position && (

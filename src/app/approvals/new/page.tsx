@@ -408,7 +408,7 @@ export default function NewApprovalPage() {
               <button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
                 상신
@@ -443,7 +443,7 @@ export default function NewApprovalPage() {
               }))}
               placeholder="선택하세요"
               icon={<FileCheck className="h-4 w-4" />}
-              focusClass="focus:ring-2 focus:ring-blue-500"
+              focusClass="focus:ring-2 focus:ring-sky-500"
             />
           </div>
 
@@ -457,7 +457,7 @@ export default function NewApprovalPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="결재 제목을 입력하세요"
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
 
@@ -478,7 +478,7 @@ export default function NewApprovalPage() {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="기안 내용을 입력하세요"
                 rows={8}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
               />
             )}
           </div>
@@ -498,7 +498,7 @@ export default function NewApprovalPage() {
               onClick={() => setRelatedSearchType("document")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 relatedSearchType === "document"
-                  ? "bg-blue-50 text-blue-700 border border-blue-300"
+                  ? "bg-sky-50 text-sky-700 border border-sky-300"
                   : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"
               }`}
             >
@@ -520,9 +520,9 @@ export default function NewApprovalPage() {
 
           {/* 선택된 문서/상담 표시 */}
           {relatedDocument && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+            <div className="mb-4 p-3 bg-sky-50 border border-sky-200 rounded-lg flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-blue-600" />
+                <FileText className="w-5 h-5 text-sky-600" />
                 <div>
                   <span className="font-medium text-slate-800">
                     {relatedDocument.document_number}
@@ -537,7 +537,7 @@ export default function NewApprovalPage() {
               </div>
               <button
                 onClick={() => setRelatedDocument(null)}
-                className="p-1 hover:bg-blue-100 rounded"
+                className="p-1 hover:bg-sky-100 rounded"
               >
                 <X className="w-4 h-4 text-slate-500" />
               </button>
@@ -579,7 +579,7 @@ export default function NewApprovalPage() {
                     ? "문서번호 또는 회사명으로 검색..."
                     : "상담 제목 또는 회사명으로 검색..."
                 }
-                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
               {relatedSearchTerm && (
                 <button
@@ -610,14 +610,14 @@ export default function NewApprovalPage() {
                       className="w-full px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
                     >
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-blue-500" />
+                        <FileText className="w-4 h-4 text-sky-500" />
                         <span className="font-medium text-slate-800">
                           {doc.document_number}
                         </span>
                         <span
                           className={`text-xs px-2 py-0.5 rounded ${
                             doc.type === "estimate"
-                              ? "bg-blue-100 text-blue-700"
+                              ? "bg-sky-100 text-sky-700"
                               : doc.type === "order"
                               ? "bg-emerald-100 text-emerald-700"
                               : "bg-slate-100 text-slate-600"
@@ -662,7 +662,7 @@ export default function NewApprovalPage() {
             {/* 로딩 표시 */}
             {isRelatedSearching && (
               <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg p-4 flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
                 <span className="ml-2 text-sm text-slate-500">검색 중...</span>
               </div>
             )}
@@ -678,8 +678,8 @@ export default function NewApprovalPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-slate-800">결재선 설정</h2>
             {isResolvingLines && (
-              <div className="flex items-center gap-2 text-sm text-blue-600">
-                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <div className="flex items-center gap-2 text-sm text-sky-600">
+                <div className="w-4 h-4 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
                 자동 결재선 설정 중...
               </div>
             )}
@@ -699,7 +699,7 @@ export default function NewApprovalPage() {
                   className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg"
                 >
                   <GripVertical className="w-4 h-4 text-slate-400 cursor-move" />
-                  <span className="w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                  <span className="w-8 h-8 flex items-center justify-center bg-sky-100 text-sky-700 rounded-full text-sm font-medium">
                     {line.line_order}
                   </span>
                   <HeadlessSelect
@@ -753,7 +753,7 @@ export default function NewApprovalPage() {
                     onChange={(e) => setUserSearchTerm(e.target.value)}
                     placeholder="사원명을 입력하세요"
                     autoFocus
-                    className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                   <button
                     onClick={() => {
@@ -790,7 +790,7 @@ export default function NewApprovalPage() {
                         <div className="flex gap-1">
                           <button
                             onClick={() => handleAddApprover(searchUser, "approval")}
-                            className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                            className="px-2 py-1 text-xs bg-sky-100 text-sky-700 rounded hover:bg-sky-200"
                           >
                             결재
                           </button>
@@ -878,7 +878,7 @@ export default function NewApprovalPage() {
               onClick={() => setShareScope("partial")}
               className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                 shareScope === "partial"
-                  ? "bg-blue-50 text-blue-700 border border-blue-300"
+                  ? "bg-sky-50 text-sky-700 border border-sky-300"
                   : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"
               }`}
             >
@@ -893,12 +893,12 @@ export default function NewApprovalPage() {
                   {shareUsers.map((shareUser) => (
                     <span
                       key={shareUser.id}
-                      className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm"
+                      className="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 text-sky-700 rounded text-sm"
                     >
                       {shareUser.name}
                       <button
                         onClick={() => handleRemoveShareUser(shareUser.id)}
-                        className="hover:text-blue-900"
+                        className="hover:text-sky-900"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -918,7 +918,7 @@ export default function NewApprovalPage() {
                         onChange={(e) => setUserSearchTerm(e.target.value)}
                         placeholder="사원명을 입력하세요"
                         autoFocus
-                        className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                       />
                       <button
                         onClick={() => {

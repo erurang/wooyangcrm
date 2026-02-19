@@ -121,9 +121,9 @@ export default function DataStatisticsPage() {
   const getColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; text: string; icon: string }> = {
       blue: {
-        bg: "bg-blue-50",
-        text: "text-blue-600",
-        icon: "bg-blue-100",
+        bg: "bg-sky-50",
+        text: "text-sky-600",
+        icon: "bg-sky-100",
       },
       emerald: {
         bg: "bg-emerald-50",
@@ -315,7 +315,7 @@ export default function DataStatisticsPage() {
                 {tableStats.slice(0, 5).map((table, index) => {
                   const colors = [
                     "bg-violet-500",
-                    "bg-blue-500",
+                    "bg-sky-500",
                     "bg-emerald-500",
                     "bg-amber-500",
                     "bg-red-500",

@@ -71,24 +71,24 @@ export default function CompanyEditModal({
       <div className="space-y-4">
         {/* 회사명 (읽기 전용) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-600 mb-1">
             회사명
           </label>
           <input
             type="text"
             value={formData.name}
             disabled
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500"
+            className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-slate-100 text-slate-400"
           />
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             회사명은 거래처 관리에서 변경 가능합니다.
           </p>
         </div>
 
         {/* 주소 */}
         <div>
-          <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1">
-            <MapPin size={14} className="text-gray-400" />
+          <label className="flex items-center gap-1.5 text-sm font-medium text-slate-600 mb-1">
+            <MapPin size={14} className="text-slate-400" />
             주소
           </label>
           <input
@@ -98,14 +98,14 @@ export default function CompanyEditModal({
               setFormData((prev) => ({ ...prev, address: e.target.value }))
             }
             placeholder="주소를 입력하세요"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
           />
         </div>
 
         {/* 배송 */}
         <div>
-          <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1">
-            <Truck size={14} className="text-gray-400" />
+          <label className="flex items-center gap-1.5 text-sm font-medium text-slate-600 mb-1">
+            <Truck size={14} className="text-slate-400" />
             배송
           </label>
           <input
@@ -115,15 +115,15 @@ export default function CompanyEditModal({
               setFormData((prev) => ({ ...prev, parcel: e.target.value }))
             }
             placeholder="배송 정보를 입력하세요"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
           />
         </div>
 
         {/* 전화 / 팩스 */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1">
-              <Phone size={14} className="text-gray-400" />
+            <label className="flex items-center gap-1.5 text-sm font-medium text-slate-600 mb-1">
+              <Phone size={14} className="text-slate-400" />
               전화
             </label>
             <input
@@ -133,12 +133,12 @@ export default function CompanyEditModal({
                 setFormData((prev) => ({ ...prev, phone: e.target.value }))
               }
               placeholder="전화번호"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1">
-              <Printer size={14} className="text-gray-400" />
+            <label className="flex items-center gap-1.5 text-sm font-medium text-slate-600 mb-1">
+              <Printer size={14} className="text-slate-400" />
               팩스
             </label>
             <input
@@ -148,15 +148,15 @@ export default function CompanyEditModal({
                 setFormData((prev) => ({ ...prev, fax: e.target.value }))
               }
               placeholder="팩스번호"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
         </div>
 
         {/* 대표메일 */}
         <div>
-          <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1">
-            <Mail size={14} className="text-gray-400" />
+          <label className="flex items-center gap-1.5 text-sm font-medium text-slate-600 mb-1">
+            <Mail size={14} className="text-slate-400" />
             대표메일
           </label>
           <input
@@ -166,7 +166,7 @@ export default function CompanyEditModal({
               setFormData((prev) => ({ ...prev, email: e.target.value }))
             }
             placeholder="email@example.com"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
           />
         </div>
       </div>

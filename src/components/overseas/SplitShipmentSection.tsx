@@ -53,7 +53,7 @@ export default function SplitShipmentSection({
   const getShippingIcon = (method?: ShippingMethodType) => {
     switch (method) {
       case "air":
-        return <Plane size={14} className="text-blue-500" />;
+        return <Plane size={14} className="text-sky-500" />;
       case "sea":
         return <Ship size={14} className="text-teal-500" />;
       case "express":

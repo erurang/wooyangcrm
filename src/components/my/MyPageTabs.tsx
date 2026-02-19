@@ -54,15 +54,15 @@ export default function MyPageTabs({ basePath = "/profile" }: MyPageTabsProps) {
                 flex items-center gap-2 px-5 py-3.5 text-sm font-medium whitespace-nowrap transition-all relative
                 ${
                   active
-                    ? "text-blue-600 bg-blue-50/50"
+                    ? "text-sky-600 bg-sky-50/50"
                     : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
                 }
               `}
             >
-              <Icon className={`w-4 h-4 ${active ? "text-blue-500" : ""}`} />
+              <Icon className={`w-4 h-4 ${active ? "text-sky-500" : ""}`} />
               {tab.name}
               {active && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-t-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-500 rounded-t-full" />
               )}
             </Link>
           );

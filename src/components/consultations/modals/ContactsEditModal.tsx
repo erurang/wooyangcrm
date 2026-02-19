@@ -67,20 +67,20 @@ function SortableContactItem({
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-white border border-gray-200 rounded-lg p-3 hover:border-gray-300 transition-colors"
+      className="bg-white border border-slate-200/60 rounded-xl p-3 hover:border-slate-300 transition-all duration-200"
     >
       <div className="flex items-start gap-3">
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab flex-shrink-0 flex items-center justify-center text-gray-400 hover:text-gray-600 mt-6"
+          className="cursor-grab flex-shrink-0 flex items-center justify-center text-slate-400 hover:text-slate-500 mt-6"
         >
           <GripVertical size={16} />
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 flex-1">
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+            <label className="block text-xs font-medium text-slate-400 mb-1">
               이름 <span className="text-red-500">*</span>
             </label>
             <input
@@ -90,12 +90,12 @@ function SortableContactItem({
                 handleContactChange(index, "contact_name", e.target.value)
               }
               placeholder="이름"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+            <label className="block text-xs font-medium text-slate-400 mb-1">
               직급
             </label>
             <input
@@ -105,12 +105,12 @@ function SortableContactItem({
                 handleContactChange(index, "level", e.target.value)
               }
               placeholder="직급"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+            <label className="block text-xs font-medium text-slate-400 mb-1">
               부서
             </label>
             <input
@@ -120,12 +120,12 @@ function SortableContactItem({
                 handleContactChange(index, "department", e.target.value)
               }
               placeholder="부서"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+            <label className="block text-xs font-medium text-slate-400 mb-1">
               휴대폰
             </label>
             <input
@@ -135,12 +135,12 @@ function SortableContactItem({
                 handleContactChange(index, "mobile", e.target.value)
               }
               placeholder="010-0000-0000"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">
+            <label className="block text-xs font-medium text-slate-400 mb-1">
               이메일
             </label>
             <input
@@ -150,7 +150,7 @@ function SortableContactItem({
                 handleContactChange(index, "email", e.target.value)
               }
               placeholder="email@example.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
         </div>
@@ -163,9 +163,9 @@ function SortableContactItem({
               onChange={(e) =>
                 handleContactChange(index, "resign", e.target.checked)
               }
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-500"
             />
-            <span className="text-xs text-gray-600">퇴사</span>
+            <span className="text-xs text-slate-500">퇴사</span>
           </label>
         </div>
       </div>
@@ -244,24 +244,27 @@ export default function ContactsEditModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
           >
-            <div className="flex items-center justify-between p-4 border-b shrink-0">
-              <div className="flex items-center gap-2">
-                <Users size={20} className="text-blue-600" />
-                <h3 className="text-lg font-semibold text-gray-900">
-                  담당자 관리
-                </h3>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200/60 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-violet-50 rounded-xl">
+                  <Users size={20} className="text-violet-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800">담당자 관리</h3>
+                  <p className="text-xs text-slate-400">담당자 정보를 관리합니다</p>
+                </div>
               </div>
               <button
                 onClick={handleCancel}
-                className="text-gray-400 hover:text-gray-500"
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
               >
                 <X size={20} />
               </button>
@@ -269,12 +272,12 @@ export default function ContactsEditModal({
 
             <div className="flex-1 min-h-0 overflow-y-auto p-4">
               <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-slate-500">
                   담당자 정보를 관리합니다. 드래그하여 순서를 변경할 수 있습니다.
                 </p>
                 <button
                   onClick={addContact}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors"
                 >
                   <Plus size={16} />
                   담당자 추가
@@ -311,14 +314,14 @@ export default function ContactsEditModal({
 
               {contacts.some((c) => c.resign) && (
                 <div className="mt-4 pt-4 border-t">
-                  <p className="text-xs text-gray-500 mb-2">퇴사자</p>
+                  <p className="text-xs text-slate-400 mb-2">퇴사자</p>
                   <div className="space-y-2">
                     {contacts
                       .filter((c) => c.resign)
                       .map((contact, idx) => (
                         <div
                           key={contact.id || `resigned-${idx}`}
-                          className="flex items-center justify-between p-2 bg-gray-50 rounded-lg text-sm text-gray-500"
+                          className="flex items-center justify-between p-2 bg-slate-50 rounded-lg text-sm text-slate-400"
                         >
                           <span>
                             {contact.contact_name} {contact.level && `(${contact.level})`}
@@ -332,7 +335,7 @@ export default function ContactsEditModal({
                                 handleContactChange(originalIndex, "resign", false);
                               }
                             }}
-                            className="text-xs text-blue-600 hover:text-blue-700"
+                            className="text-xs text-sky-600 hover:text-sky-700"
                           >
                             복구
                           </button>
@@ -343,22 +346,22 @@ export default function ContactsEditModal({
               )}
             </div>
 
-            <div className="flex justify-end items-center gap-3 px-4 py-3 bg-gray-50 border-t shrink-0">
+            <div className="flex justify-end items-center gap-2.5 px-5 py-3.5 bg-slate-50/50 border-t border-slate-200/60 shrink-0">
               <button
                 onClick={handleCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all"
                 disabled={saving}
               >
                 취소
               </button>
               <button
                 onClick={onSave}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition-all shadow-sm shadow-sky-200 hover:shadow-md hover:shadow-sky-200 disabled:opacity-50"
                 disabled={saving}
               >
                 {saving ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     저장 중...
                   </>
                 ) : (

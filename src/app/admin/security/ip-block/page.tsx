@@ -219,7 +219,7 @@ export default function IPBlockPage() {
             className="bg-white rounded-xl p-5 shadow-sm border border-slate-200"
           >
             <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-5 h-5 text-blue-500" />
+              <Clock className="w-5 h-5 text-sky-500" />
               <span className="text-slate-500">임시 차단</span>
             </div>
             <p className="text-2xl font-bold text-slate-800">
@@ -254,7 +254,7 @@ export default function IPBlockPage() {
                         {ip.ip}
                       </p>
                       {ip.expiresAt ? (
-                        <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
+                        <span className="text-xs px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full">
                           임시 차단
                         </span>
                       ) : (

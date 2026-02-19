@@ -17,7 +17,6 @@ interface HomeTodoCardProps {
   onToggleComplete: (id: string, isCompleted: boolean) => void;
 }
 
-// 기한 정보 계산
 function getDueDateInfo(dueDate: string | null): {
   text: string;
   color: string;
@@ -97,22 +96,22 @@ export function HomeTodoCard({ todo, onToggleComplete }: HomeTodoCardProps) {
   return (
     <div
       className={`
-        relative rounded-lg p-3 cursor-pointer
-        transition-all hover:shadow-md group
+        relative rounded-xl p-3 cursor-pointer
+        transition-all duration-200 hover:shadow-md group
         ${dueDateInfo?.isOverdue
-          ? `${dueDateInfo.bgColor} ${dueDateInfo.borderColor} border-2`
+          ? `${dueDateInfo.bgColor} ${dueDateInfo.borderColor} border-2 shadow-sm`
           : dueDateInfo?.isDueToday
-          ? `${dueDateInfo.bgColor} ${dueDateInfo.borderColor} border-2`
+          ? `${dueDateInfo.bgColor} ${dueDateInfo.borderColor} border-2 shadow-sm`
           : dueDateInfo?.isDueSoon
           ? `${dueDateInfo.bgColor} ${dueDateInfo.borderColor} border`
-          : "bg-slate-50 border border-slate-200 hover:border-violet-200"
+          : "bg-slate-50/80 border border-slate-200/60 hover:border-violet-200"
         }
       `}
       onClick={() => onToggleComplete(todo.id, todo.is_completed)}
     >
       {/* 긴급/오늘 마크 */}
       {(dueDateInfo?.isOverdue || dueDateInfo?.isDueToday) && (
-        <div className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center ${dueDateInfo.isOverdue ? 'bg-red-500' : 'bg-orange-500'}`}>
+        <div className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center shadow-sm ${dueDateInfo.isOverdue ? 'bg-red-500' : 'bg-orange-500'}`}>
           <IconComponent className="h-3 w-3 text-white" />
         </div>
       )}
@@ -121,7 +120,7 @@ export function HomeTodoCard({ todo, onToggleComplete }: HomeTodoCardProps) {
         {/* 체크박스 */}
         <button
           className={`
-            flex-shrink-0 mt-0.5 transition-colors
+            flex-shrink-0 mt-0.5 transition-all duration-200
             ${todo.is_completed
               ? "text-emerald-500 hover:text-emerald-600"
               : dueDateInfo?.isOverdue
@@ -150,9 +149,9 @@ export function HomeTodoCard({ todo, onToggleComplete }: HomeTodoCardProps) {
             ${todo.is_completed
               ? "text-slate-400 line-through"
               : dueDateInfo?.isOverdue
-                ? "text-red-700 font-medium"
+                ? "text-red-700 font-semibold"
                 : dueDateInfo?.isDueToday
-                  ? "text-orange-700 font-medium"
+                  ? "text-orange-700 font-semibold"
                   : "text-slate-700"
             }
           `}>
@@ -161,12 +160,12 @@ export function HomeTodoCard({ todo, onToggleComplete }: HomeTodoCardProps) {
 
           {/* 기한 정보 */}
           {dueDateInfo && !todo.is_completed && (
-            <div className={`flex items-center gap-1 mt-1.5`}>
-              <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-medium rounded ${dueDateInfo.bgColor} ${dueDateInfo.color}`}>
+            <div className="flex items-center gap-1 mt-1.5">
+              <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-bold rounded-md ${dueDateInfo.bgColor} ${dueDateInfo.color}`}>
                 <IconComponent className="h-3 w-3" />
                 {dueDateInfo.text}
               </span>
-              <span className="text-xs text-slate-400">
+              <span className="text-[10px] text-slate-400 tabular-nums">
                 {formatShortDate(todo.due_date)}
               </span>
             </div>
@@ -174,7 +173,7 @@ export function HomeTodoCard({ todo, onToggleComplete }: HomeTodoCardProps) {
 
           {/* 기한 없음 표시 */}
           {!todo.due_date && !todo.is_completed && (
-            <div className="flex items-center gap-1 mt-1.5 text-xs text-slate-400">
+            <div className="flex items-center gap-1 mt-1.5 text-[10px] text-slate-400">
               <Calendar className="h-3 w-3" />
               <span>기한 없음</span>
             </div>

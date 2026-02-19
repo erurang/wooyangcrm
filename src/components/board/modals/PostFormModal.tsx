@@ -277,7 +277,7 @@ export default function PostFormModal({
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 hover:bg-slate-100 rounded-full transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -287,7 +287,7 @@ export default function PostFormModal({
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           {/* 카테고리 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               카테고리
             </label>
             <HeadlessSelect
@@ -307,15 +307,15 @@ export default function PostFormModal({
 
           {/* 제목 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               제목 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.title ? "border-red-500" : "border-gray-300"
+              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 ${
+                errors.title ? "border-red-500" : "border-slate-300"
               }`}
               placeholder="제목을 입력하세요"
             />
@@ -326,7 +326,7 @@ export default function PostFormModal({
 
           {/* 내용 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               내용 <span className="text-red-500">*</span>
             </label>
             <div className={errors.content ? "ring-1 ring-red-500 rounded-md" : ""}>
@@ -348,16 +348,16 @@ export default function PostFormModal({
               id="isPinned"
               checked={isPinned}
               onChange={(e) => setIsPinned(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-4 h-4 text-sky-600 border-slate-300 rounded focus:ring-sky-500"
             />
-            <label htmlFor="isPinned" className="text-sm text-gray-700">
+            <label htmlFor="isPinned" className="text-sm text-slate-600">
               상단 고정
             </label>
           </div>
 
           {/* 파일 첨부 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-600 mb-2">
               <Paperclip className="w-4 h-4 inline mr-1" />
               첨부파일
             </label>
@@ -368,15 +368,15 @@ export default function PostFormModal({
                 {existingFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-md"
+                    className="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-md"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <FileText className="w-4 h-4 text-slate-400 flex-shrink-0" />
                       <a
                         href={file.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:underline truncate"
+                        className="text-sm text-sky-600 hover:underline truncate"
                       >
                         {file.name}
                       </a>
@@ -385,7 +385,7 @@ export default function PostFormModal({
                       type="button"
                       onClick={() => handleDeleteExistingFile(file.id, file.filePath)}
                       disabled={deletingFile === file.id}
-                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                      className="p-1 text-slate-400 hover:text-red-500 transition-colors"
                     >
                       {deletingFile === file.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -404,21 +404,21 @@ export default function PostFormModal({
                 {pendingFiles.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2 p-2.5 sm:p-2 bg-blue-50 border border-blue-200 rounded-lg"
+                    className="flex items-center gap-2 p-2.5 sm:p-2 bg-sky-50 border border-sky-200 rounded-lg"
                   >
                     <span className="text-lg">{getFileIcon(file.name)}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-700 truncate">
+                      <p className="text-sm font-medium text-slate-600 truncate">
                         {file.name}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-400">
                         {(file.size / 1024).toFixed(1)} KB
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => removePendingFile(index)}
-                      className="p-2 sm:p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
+                      className="p-2 sm:p-1 text-slate-400 hover:text-red-500 rounded transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -434,10 +434,10 @@ export default function PostFormModal({
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all active:bg-gray-100 ${
+              className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all active:bg-slate-100 ${
                 isDragging
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
+                  ? "border-sky-500 bg-sky-50"
+                  : "border-slate-300 hover:border-sky-400 hover:bg-slate-50"
               }`}
             >
               <input
@@ -448,15 +448,15 @@ export default function PostFormModal({
                 onChange={handleFileSelect}
               />
               {isDragging ? (
-                <div className="flex flex-col items-center gap-2 text-blue-600">
+                <div className="flex flex-col items-center gap-2 text-sky-600">
                   <Upload className="h-8 w-8" />
                   <p className="text-sm font-medium">파일을 여기에 놓으세요</p>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-1 sm:gap-2 text-gray-500">
+                <div className="flex flex-col items-center gap-1 sm:gap-2 text-slate-400">
                   <FileText className="h-6 w-6 sm:h-8 sm:w-8" />
                   <p className="text-sm">
-                    <span className="font-medium text-blue-600">파일 선택</span>
+                    <span className="font-medium text-sky-600">파일 선택</span>
                     <span className="hidden sm:inline"> 또는 드래그 앤 드롭</span>
                   </p>
                 </div>
@@ -466,11 +466,11 @@ export default function PostFormModal({
 
           {/* 참조 연결 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-600 mb-2">
               <Link2 className="w-4 h-4 inline mr-1" />
               참조 연결
             </label>
-            <p className="text-xs text-gray-500 mb-2">
+            <p className="text-xs text-slate-400 mb-2">
               관련 거래처, 상담, 문서를 연결할 수 있습니다
             </p>
             <ReferenceSelector
@@ -482,11 +482,11 @@ export default function PostFormModal({
 
           {/* 유저 태그 (참조/공동작성) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-600 mb-2">
               <Users className="w-4 h-4 inline mr-1" />
               유저 태그
             </label>
-            <p className="text-xs text-gray-500 mb-2">
+            <p className="text-xs text-slate-400 mb-2">
               이 게시글에 참조하거나 공동작성한 유저를 태그할 수 있습니다
             </p>
             <UserTagSelector
@@ -502,14 +502,14 @@ export default function PostFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              className="px-4 py-2 text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
             >
               취소
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm text-white bg-sky-600 hover:bg-sky-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "저장 중..." : post ? "수정" : "등록"}
             </button>

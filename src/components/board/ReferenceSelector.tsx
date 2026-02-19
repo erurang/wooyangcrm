@@ -35,7 +35,7 @@ const typeIcons: Record<ReferenceType, React.ReactNode> = {
 };
 
 const typeColors: Record<ReferenceType, string> = {
-  company: "bg-blue-50 text-blue-700 border-blue-200",
+  company: "bg-sky-50 text-sky-700 border-sky-200",
   consultation: "bg-green-50 text-green-700 border-green-200",
   document: "bg-purple-50 text-purple-700 border-purple-200",
 };
@@ -259,7 +259,7 @@ export default function ReferenceSelector({
     <div className="space-y-4">
       {/* 선택된 참조 태그 */}
       {selectedReferences.length > 0 && (
-        <div className="flex flex-wrap gap-2 pb-3 border-b border-gray-200">
+        <div className="flex flex-wrap gap-2 pb-3 border-b border-slate-200">
           {selectedReferences.map((ref, index) => (
             <div
               key={`${ref.reference_type}-${ref.reference_id}`}
@@ -290,11 +290,11 @@ export default function ReferenceSelector({
       {/* Step 1: 회사 선택 */}
       {!selectedCompany ? (
         <div ref={companyDropdownRef} className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-600 mb-1">
             1. 거래처 선택
           </label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               value={companySearch}
@@ -304,15 +304,15 @@ export default function ReferenceSelector({
               }}
               onFocus={() => setShowCompanyDropdown(true)}
               placeholder="거래처 이름 검색..."
-              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
 
           {/* 회사 검색 결과 */}
           {showCompanyDropdown && (companySearch || companyResults.length > 0) && (
-            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
               {isSearchingCompany ? (
-                <div className="px-4 py-3 text-sm text-gray-500 flex items-center gap-2">
+                <div className="px-4 py-3 text-sm text-slate-400 flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   검색 중...
                 </div>
@@ -322,20 +322,20 @@ export default function ReferenceSelector({
                     key={company.id}
                     type="button"
                     onClick={() => handleSelectCompany(company)}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-blue-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-sky-50 transition-colors"
                   >
-                    <Building2 className="w-4 h-4 text-blue-600" />
+                    <Building2 className="w-4 h-4 text-sky-600" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-900">{company.name}</div>
+                      <div className="text-sm font-medium text-slate-800">{company.name}</div>
                       {company.subtext && (
-                        <div className="text-xs text-gray-500">{company.subtext}</div>
+                        <div className="text-xs text-slate-400">{company.subtext}</div>
                       )}
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
                   </button>
                 ))
               ) : companySearch ? (
-                <div className="px-4 py-3 text-sm text-gray-500">
+                <div className="px-4 py-3 text-sm text-slate-400">
                   &quot;{companySearch}&quot;에 대한 검색 결과가 없습니다.
                 </div>
               ) : null}
@@ -345,15 +345,15 @@ export default function ReferenceSelector({
       ) : (
         <>
           {/* 선택된 회사 표시 */}
-          <div className="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2">
+          <div className="flex items-center justify-between bg-sky-50 rounded-lg px-3 py-2">
             <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-blue-600" />
-              <span className="font-medium text-blue-700">{selectedCompany.name}</span>
+              <Building2 className="w-4 h-4 text-sky-600" />
+              <span className="font-medium text-sky-700">{selectedCompany.name}</span>
             </div>
             <button
               type="button"
               onClick={handleClearCompany}
-              className="text-blue-600 hover:text-blue-800 text-sm"
+              className="text-sky-600 hover:text-sky-800 text-sm"
             >
               다른 거래처 선택
             </button>
@@ -361,7 +361,7 @@ export default function ReferenceSelector({
 
           {/* Step 2: 상담 선택 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               2. 상담 선택 (선택사항)
               {selectedConsultation && (
                 <span className="ml-2 text-green-600 text-xs">
@@ -370,12 +370,12 @@ export default function ReferenceSelector({
               )}
             </label>
             {isLoadingConsultations ? (
-              <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
+              <div className="flex items-center gap-2 text-sm text-slate-400 py-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 상담 목록 로딩 중...
               </div>
             ) : consultations.length === 0 ? (
-              <div className="text-sm text-gray-500 py-2">
+              <div className="text-sm text-slate-400 py-2">
                 등록된 상담이 없습니다.
               </div>
             ) : (
@@ -385,28 +385,28 @@ export default function ReferenceSelector({
                   value={consultationFilter}
                   onChange={(e) => setConsultationFilter(e.target.value)}
                   placeholder="상담 제목/내용 검색..."
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-1.5 border border-slate-300 rounded-md text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
-                <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md divide-y divide-gray-100">
+                <div className="max-h-48 overflow-y-auto border border-slate-200 rounded-md divide-y divide-slate-100">
                   {filteredConsultations.map((item) => (
                     <div key={item.id} className={`${isSelected(item.id, "consultation") ? "bg-green-50" : ""}`}>
                       <button
                         type="button"
                         onClick={() => handleToggleConsultation(item)}
-                        className="w-full flex items-start gap-2 px-3 py-2 text-left hover:bg-gray-50 transition-colors"
+                        className="w-full flex items-start gap-2 px-3 py-2 text-left hover:bg-slate-50 transition-colors"
                       >
                         <input
                           type="checkbox"
                           checked={isSelected(item.id, "consultation")}
                           readOnly
-                          className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                          className="mt-1 rounded border-slate-300 text-green-600 focus:ring-green-500"
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <MessageSquare className="w-3 h-3 text-green-600 flex-shrink-0" />
                             <span className="font-medium text-sm truncate">{item.name}</span>
                           </div>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
                             {item.userName && (
                               <span className="flex items-center gap-1">
                                 <User className="w-3 h-3" />
@@ -421,7 +421,7 @@ export default function ReferenceSelector({
                             )}
                           </div>
                           {item.content && (
-                            <p className="mt-1 text-xs text-gray-600 line-clamp-2">
+                            <p className="mt-1 text-xs text-slate-500 line-clamp-2">
                               {item.content}
                             </p>
                           )}
@@ -436,25 +436,25 @@ export default function ReferenceSelector({
 
           {/* Step 3: 문서 선택 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-600 mb-1">
               3. 문서 선택 (선택사항)
               {selectedConsultation ? (
-                <span className="ml-2 text-xs text-gray-500">
+                <span className="ml-2 text-xs text-slate-400">
                   (선택한 상담의 문서만 표시)
                 </span>
               ) : (
-                <span className="ml-2 text-xs text-gray-500">
+                <span className="ml-2 text-xs text-slate-400">
                   (전체 문서 표시)
                 </span>
               )}
             </label>
             {isLoadingDocuments ? (
-              <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
+              <div className="flex items-center gap-2 text-sm text-slate-400 py-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 문서 목록 로딩 중...
               </div>
             ) : documents.length === 0 ? (
-              <div className="text-sm text-gray-500 py-2">
+              <div className="text-sm text-slate-400 py-2">
                 {selectedConsultation ? "선택한 상담에 등록된 문서가 없습니다." : "등록된 문서가 없습니다."}
               </div>
             ) : (
@@ -464,15 +464,15 @@ export default function ReferenceSelector({
                   value={documentFilter}
                   onChange={(e) => setDocumentFilter(e.target.value)}
                   placeholder="문서번호 검색..."
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-1.5 border border-slate-300 rounded-md text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
-                <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-md">
+                <div className="max-h-32 overflow-y-auto border border-slate-200 rounded-md">
                   {filteredDocuments.map((item) => (
                     <button
                       key={item.id}
                       type="button"
                       onClick={() => handleToggleDocument(item)}
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors ${
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-50 transition-colors ${
                         isSelected(item.id, "document") ? "bg-purple-50" : ""
                       }`}
                     >
@@ -480,12 +480,12 @@ export default function ReferenceSelector({
                         type="checkbox"
                         checked={isSelected(item.id, "document")}
                         readOnly
-                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                        className="rounded border-slate-300 text-purple-600 focus:ring-purple-500"
                       />
                       <FileText className="w-3 h-3 text-purple-600 flex-shrink-0" />
                       <span className="flex-1 truncate">{item.name}</span>
                       {item.subtext && (
-                        <span className="text-xs text-gray-400 flex-shrink-0">{item.subtext}</span>
+                        <span className="text-xs text-slate-400 flex-shrink-0">{item.subtext}</span>
                       )}
                     </button>
                   ))}

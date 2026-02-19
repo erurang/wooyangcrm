@@ -39,7 +39,7 @@ export default function AnalyticsTab({
       {/* Top Products */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
         <div className="flex items-center mb-6">
-          <Package className="h-5 w-5 text-indigo-600 mr-2" />
+          <Package className="h-5 w-5 text-sky-600 mr-2" />
           <h2 className="text-lg font-semibold text-slate-800">
             인기 품목 TOP 5
           </h2>
@@ -74,7 +74,7 @@ export default function AnalyticsTab({
                     className="hover:bg-slate-50 transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="flex items-center justify-center w-6 h-6 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
+                      <span className="flex items-center justify-center w-6 h-6 bg-sky-100 text-sky-700 rounded-full text-xs font-medium">
                         {index + 1}
                       </span>
                     </td>
@@ -87,7 +87,7 @@ export default function AnalyticsTab({
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-slate-700">
                       {product.count}회
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-indigo-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-sky-600">
                       {product.amount.toLocaleString()} 원
                     </td>
                   </tr>
@@ -106,7 +106,7 @@ export default function AnalyticsTab({
       {/* Consultation Trend */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
         <div className="flex items-center mb-6">
-          <TrendingUp className="h-5 w-5 text-indigo-600 mr-2" />
+          <TrendingUp className="h-5 w-5 text-sky-600 mr-2" />
           <h2 className="text-lg font-semibold text-slate-800">상담 추이</h2>
         </div>
 
@@ -148,7 +148,7 @@ export default function AnalyticsTab({
       {/* Sales vs Purchase Comparison */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
         <div className="flex items-center mb-6">
-          <BarChart className="h-5 w-5 text-indigo-600 mr-2" />
+          <BarChart className="h-5 w-5 text-sky-600 mr-2" />
           <h2 className="text-lg font-semibold text-slate-800">
             매출/매입 비교
           </h2>

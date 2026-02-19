@@ -25,7 +25,7 @@ export default function DocumentsTableControls({
           <span>로딩 중...</span>
         ) : (
           <span>
-            총 <span className="font-semibold text-indigo-600">{total}</span>개 문서
+            총 <span className="font-semibold text-sky-600">{total}</span>개 문서
           </span>
         )}
       </div>
@@ -42,7 +42,7 @@ export default function DocumentsTableControls({
           ]}
           placeholder="20개"
           className="min-w-[80px]"
-          focusClass="focus:ring-indigo-500"
+          focusClass="focus:ring-sky-500"
         />
 
         <button

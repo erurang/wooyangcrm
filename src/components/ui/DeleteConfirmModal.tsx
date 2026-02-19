@@ -167,9 +167,9 @@ export default function DeleteConfirmModal({
               <button
                 onClick={handleClose}
                 disabled={isLoading}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+                className="p-1 hover:bg-slate-100 rounded-full transition-colors disabled:opacity-50"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 text-slate-400" />
               </button>
             </div>
 
@@ -177,19 +177,19 @@ export default function DeleteConfirmModal({
             <div className="p-5 space-y-4">
               <div>
                 {itemName && (
-                  <p className="text-gray-700 mb-2">
-                    <strong className="text-gray-900">"{itemName}"</strong>
+                  <p className="text-slate-600 mb-2">
+                    <strong className="text-slate-800">"{itemName}"</strong>
                   </p>
                 )}
-                <p className="text-sm text-gray-600">{defaultDescription}</p>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="text-sm text-slate-500">{defaultDescription}</p>
+                <p className="mt-1 text-xs text-slate-400">
                   관리자 승인 후 삭제됩니다.
                 </p>
               </div>
 
               {requireReason && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-600 mb-1">
                     삭제 사유 <span className="text-red-500">*</span>
                   </label>
                   <textarea
@@ -199,11 +199,11 @@ export default function DeleteConfirmModal({
                     rows={4}
                     disabled={isLoading}
                     className={cn(
-                      "w-full px-3 py-2 border border-gray-300 rounded-md text-sm",
+                      "w-full px-3 py-2 border border-slate-300 rounded-md text-sm",
                       "focus:outline-none focus:ring-2",
                       colors.focus,
                       "focus:border-transparent resize-none",
-                      "disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      "disabled:bg-slate-50 disabled:cursor-not-allowed"
                     )}
                   />
                 </div>
@@ -211,11 +211,11 @@ export default function DeleteConfirmModal({
             </div>
 
             {/* 버튼 */}
-            <div className="flex justify-end gap-2 px-5 py-4 bg-gray-50 border-t">
+            <div className="flex justify-end gap-2 px-5 py-4 bg-slate-50 border-t">
               <button
                 onClick={handleClose}
                 disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {cancelText}
               </button>

@@ -30,7 +30,7 @@ export default function ContactDateFilter({
   return (
     <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">
       <div className="flex items-center mb-4">
-        <Calendar className="h-5 w-5 text-indigo-600 mr-2" />
+        <Calendar className="h-5 w-5 text-sky-600 mr-2" />
         <h2 className="text-lg font-semibold text-slate-800">
           데이터 기간 선택
         </h2>
@@ -42,7 +42,7 @@ export default function ContactDateFilter({
             연도
           </label>
           <select
-            className="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-sky-500 focus:border-transparent"
             value={selectedYear}
             onChange={(e) => onYearChange(Number(e.target.value))}
           >
@@ -62,7 +62,7 @@ export default function ContactDateFilter({
             기간 단위
           </label>
           <select
-            className="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-sky-500 focus:border-transparent"
             value={dateFilter}
             onChange={(e) =>
               onDateFilterChange(e.target.value as "year" | "quarter" | "month")
@@ -80,7 +80,7 @@ export default function ContactDateFilter({
               분기
             </label>
             <select
-              className="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               value={selectedQuarter}
               onChange={(e) => onQuarterChange(Number(e.target.value))}
             >
@@ -98,7 +98,7 @@ export default function ContactDateFilter({
               월
             </label>
             <select
-              className="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full border border-slate-300 rounded-md p-2 focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               value={selectedMonth}
               onChange={(e) => onMonthChange(Number(e.target.value))}
             >

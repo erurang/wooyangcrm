@@ -218,7 +218,7 @@ export default function DocumentsReviewPage() {
       );
     }
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-800">
+      <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-medium bg-sky-100 text-sky-800">
         <Clock className="w-3 h-3 mr-1" />
         진행중
       </span>
@@ -297,7 +297,7 @@ export default function DocumentsReviewPage() {
   if (!loginUser) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -308,8 +308,8 @@ export default function DocumentsReviewPage() {
         {/* Header */}
         <div className="flex items-center justify-between px-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-indigo-100 rounded-xl">
-              <BarChart3 className="w-5 h-5 text-indigo-600" />
+            <div className="p-2.5 bg-sky-100 rounded-xl">
+              <BarChart3 className="w-5 h-5 text-sky-600" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-800">문서 현황 분석</h1>
@@ -319,7 +319,7 @@ export default function DocumentsReviewPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={showMyDocuments}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-sky-600 bg-sky-50 rounded-lg hover:bg-sky-100"
             >
               <User className="w-4 h-4" />
               내 문서
@@ -339,7 +339,7 @@ export default function DocumentsReviewPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`bg-white rounded-lg p-3 shadow-sm border cursor-pointer transition-all ${
-              reviewStatus === "all" ? "border-indigo-400 ring-1 ring-indigo-200" : "border-slate-200 hover:border-slate-300"
+              reviewStatus === "all" ? "border-sky-400 ring-1 ring-sky-200" : "border-slate-200 hover:border-slate-300"
             }`}
             onClick={() => { setReviewStatus("all"); setCurrentPage(1); }}
           >
@@ -352,11 +352,11 @@ export default function DocumentsReviewPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
             className={`bg-white rounded-lg p-3 shadow-sm border cursor-pointer transition-all ${
-              reviewStatus === "pending" ? "border-blue-400 ring-1 ring-blue-200" : "border-slate-200 hover:border-slate-300"
+              reviewStatus === "pending" ? "border-sky-400 ring-1 ring-sky-200" : "border-slate-200 hover:border-slate-300"
             }`}
             onClick={() => { setReviewStatus("pending"); setCurrentPage(1); }}
           >
-            <p className="text-lg font-bold text-blue-600">{stats.pending || 0}</p>
+            <p className="text-lg font-bold text-sky-600">{stats.pending || 0}</p>
             <p className="text-xs text-slate-500">진행중</p>
           </motion.div>
 
@@ -483,7 +483,7 @@ export default function DocumentsReviewPage() {
               ]}
               placeholder="전체 유형"
               className="min-w-[120px]"
-              focusClass="focus:ring-indigo-500"
+              focusClass="focus:ring-sky-500"
             />
 
             <HeadlessSelect
@@ -496,7 +496,7 @@ export default function DocumentsReviewPage() {
               placeholder="전체 담당자"
               icon={<User className="w-3.5 h-3.5" />}
               className="min-w-[130px]"
-              focusClass="focus:ring-indigo-500"
+              focusClass="focus:ring-sky-500"
             />
 
             <div className="relative">
@@ -506,14 +506,14 @@ export default function DocumentsReviewPage() {
                 placeholder="거래처..."
                 value={companySearch}
                 onChange={(e) => setCompanySearch(e.target.value)}
-                className="pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 w-32"
+                className="pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-sky-500 focus:border-sky-500 w-32"
               />
             </div>
 
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 text-sm border rounded-lg transition-colors ${
-                showFilters ? "bg-indigo-50 border-indigo-300 text-indigo-700" : "border-slate-300 text-slate-600 hover:bg-slate-50"
+                showFilters ? "bg-sky-50 border-sky-300 text-sky-700" : "border-slate-300 text-slate-600 hover:bg-slate-50"
               }`}
             >
               <Filter className="w-3.5 h-3.5" />
@@ -538,14 +538,14 @@ export default function DocumentsReviewPage() {
                   type="date"
                   value={dateFrom}
                   onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
-                  className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500"
+                  className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-sky-500"
                 />
                 <span className="text-slate-400 text-sm">~</span>
                 <input
                   type="date"
                   value={dateTo}
                   onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
-                  className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500"
+                  className="px-2.5 py-1.5 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-sky-500"
                 />
               </div>
             </div>
@@ -561,7 +561,7 @@ export default function DocumentsReviewPage() {
         >
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
-              <div className="w-7 h-7 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-7 h-7 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : displayDocuments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12">
@@ -602,14 +602,14 @@ export default function DocumentsReviewPage() {
                       <td className="px-3 py-2 whitespace-nowrap">
                         <button
                           onClick={() => openDocumentModal(doc)}
-                          className="text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
+                          className="text-sm font-medium text-sky-600 hover:text-sky-800 hover:underline"
                         >
                           {doc.document_number}
                         </button>
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap">
                         <span className={`text-xs px-1.5 py-0.5 rounded ${
-                          doc.type === "estimate" ? "bg-blue-50 text-blue-700" :
+                          doc.type === "estimate" ? "bg-sky-50 text-sky-700" :
                           doc.type === "order" ? "bg-purple-50 text-purple-700" :
                           "bg-teal-50 text-teal-700"
                         }`}>
@@ -619,7 +619,7 @@ export default function DocumentsReviewPage() {
                       <td className="px-3 py-2 whitespace-nowrap">
                         <button
                           onClick={() => goToCompany(doc.company_id)}
-                          className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline truncate max-w-[100px] block"
+                          className="text-sm text-sky-600 hover:text-sky-800 hover:underline truncate max-w-[100px] block"
                           title={doc.company_name || undefined}
                         >
                           {doc.company_name}
@@ -669,7 +669,7 @@ export default function DocumentsReviewPage() {
                           )}
                           <button
                             onClick={() => goToConsultation(doc)}
-                            className="px-1.5 py-0.5 text-xs text-indigo-600 bg-indigo-50 rounded hover:bg-indigo-100 transition-colors"
+                            className="px-1.5 py-0.5 text-xs text-sky-600 bg-sky-50 rounded hover:bg-sky-100 transition-colors"
                           >
                             수정
                           </button>

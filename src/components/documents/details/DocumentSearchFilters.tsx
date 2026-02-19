@@ -37,12 +37,12 @@ export default function DocumentSearchFilters({
   onUserChange,
 }: DocumentSearchFiltersProps) {
   return (
-    <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-10">
       <div className="px-3 sm:px-4 py-3">
         {/* 타이틀 */}
         <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-          <div className="p-1.5 sm:p-2 bg-indigo-50 rounded-lg">
-            <FileStack className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+          <div className="p-1.5 sm:p-2 bg-sky-50 rounded-lg">
+            <FileStack className="h-4 w-4 sm:h-5 sm:w-5 text-sky-600" />
           </div>
           <div>
             <h1 className="text-base sm:text-lg font-bold text-slate-800">문서 상세</h1>
@@ -60,7 +60,7 @@ export default function DocumentSearchFilters({
               value={searchTerm}
               onChange={(e) => onSearchTermChange(e.target.value)}
               placeholder="거래처..."
-              className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+              className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
 
@@ -72,7 +72,7 @@ export default function DocumentSearchFilters({
               value={searchDocNumber}
               onChange={(e) => onDocNumberChange(e.target.value)}
               placeholder="문서번호..."
-              className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+              className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
 
@@ -84,7 +84,7 @@ export default function DocumentSearchFilters({
               value={searchNotes}
               onChange={(e) => onNotesChange(e.target.value)}
               placeholder="특기사항..."
-              className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 hover:bg-white transition-colors"
+              className="w-full pl-9 pr-3 py-2.5 sm:py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-slate-50/50 hover:bg-white transition-all duration-200 placeholder:text-slate-300"
             />
           </div>
 
@@ -104,7 +104,7 @@ export default function DocumentSearchFilters({
               placeholder="전체"
               icon={<Clock className="h-4 w-4" />}
               className="bg-slate-50 hover:bg-white"
-              focusClass="focus:ring-indigo-500"
+              focusClass="focus:ring-sky-500"
             />
           </div>
 
@@ -126,7 +126,7 @@ export default function DocumentSearchFilters({
               placeholder="전체"
               icon={<User className="h-4 w-4" />}
               className="bg-slate-50 hover:bg-white"
-              focusClass="focus:ring-indigo-500"
+              focusClass="focus:ring-sky-500"
             />
           </div>
         </div>

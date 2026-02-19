@@ -42,11 +42,11 @@ type UserType = {
 };
 
 const TYPE_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string; bgColor: string }> = {
-  companies: { label: "거래처", icon: Building, color: "text-blue-600", bgColor: "bg-blue-100" },
+  companies: { label: "거래처", icon: Building, color: "text-sky-600", bgColor: "bg-sky-100" },
   contacts: { label: "담당자", icon: User, color: "text-green-600", bgColor: "bg-green-100" },
   documents: { label: "문서", icon: FileText, color: "text-purple-600", bgColor: "bg-purple-100" },
   consultations: { label: "상담", icon: MessageSquare, color: "text-orange-600", bgColor: "bg-orange-100" },
-  rnds: { label: "R&D", icon: Beaker, color: "text-cyan-600", bgColor: "bg-cyan-100" },
+  rnds: { label: "R&D", icon: Beaker, color: "text-sky-600", bgColor: "bg-sky-100" },
   posts: { label: "게시글", icon: Newspaper, color: "text-amber-600", bgColor: "bg-amber-100" },
 };
 

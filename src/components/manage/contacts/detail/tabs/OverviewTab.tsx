@@ -70,8 +70,8 @@ export default function OverviewTab({
                 {totalSales.toLocaleString()} 원
               </p>
             </div>
-            <div className="bg-indigo-100 p-2 rounded-md">
-              <ArrowUpRight className="h-5 w-5 text-indigo-600" />
+            <div className="bg-sky-100 p-2 rounded-md">
+              <ArrowUpRight className="h-5 w-5 text-sky-600" />
             </div>
           </div>
 
@@ -160,15 +160,15 @@ export default function OverviewTab({
                 {consultationsCount} 건
               </p>
             </div>
-            <div className="bg-blue-100 p-2 rounded-md">
-              <FileText className="h-5 w-5 text-blue-600" />
+            <div className="bg-sky-100 p-2 rounded-md">
+              <FileText className="h-5 w-5 text-sky-600" />
             </div>
           </div>
 
           <div className="mt-2">
             <div className="w-full bg-slate-200 rounded-full h-2">
               <div
-                className="bg-blue-600 h-2 rounded-full"
+                className="bg-sky-600 h-2 rounded-full"
                 style={{
                   width: `${Math.min((consultationsCount / 10) * 100, 100)}%`,
                 }}
@@ -222,7 +222,7 @@ export default function OverviewTab({
         {/* Sales Status Chart */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
           <div className="flex items-center mb-4">
-            <PieChart className="h-5 w-5 text-indigo-600 mr-2" />
+            <PieChart className="h-5 w-5 text-sky-600 mr-2" />
             <h2 className="text-lg font-semibold text-slate-800">
               매출 상태 분석
             </h2>
@@ -286,14 +286,14 @@ export default function OverviewTab({
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <FileText className="h-5 w-5 text-indigo-600 mr-2" />
+            <FileText className="h-5 w-5 text-sky-600 mr-2" />
             <h2 className="text-lg font-semibold text-slate-800">
               최근 상담 내역
             </h2>
           </div>
           <button
             onClick={onViewAllConsultations}
-            className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline"
+            className="text-sm text-sky-600 hover:text-sky-800 hover:underline"
           >
             모두 보기
           </button>

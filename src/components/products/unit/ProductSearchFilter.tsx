@@ -61,7 +61,7 @@ export default function ProductSearchFilter({
             value={searchCompany}
             onChange={onSearchCompanyChange}
             placeholder="거래처명"
-            className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+            className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
           />
         </div>
 
@@ -76,7 +76,7 @@ export default function ProductSearchFilter({
             value={searchProduct}
             onChange={onSearchProductChange}
             placeholder="물품명"
-            className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+            className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
           />
         </div>
 
@@ -91,7 +91,7 @@ export default function ProductSearchFilter({
             value={searchSpec}
             onChange={onSearchSpecChange}
             placeholder="규격"
-            className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+            className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
           />
         </div>
 
@@ -107,7 +107,7 @@ export default function ProductSearchFilter({
               value={minPrice}
               onChange={onMinPriceChange}
               placeholder="최소"
-              className="flex-1 w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+              className="flex-1 w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
             />
             <span className="text-slate-400 text-xs">~</span>
             <input
@@ -115,7 +115,7 @@ export default function ProductSearchFilter({
               value={maxPrice}
               onChange={onMaxPriceChange}
               placeholder="최대"
-              className="flex-1 w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+              className="flex-1 w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
             />
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function ProductSearchFilter({
           <select
             value={status}
             onChange={onStatusChange}
-            className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+            className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
           >
             <option value="all">모든 상태</option>
             <option value="pending">진행 중</option>
@@ -148,7 +148,7 @@ export default function ProductSearchFilter({
             <select
               value={selectedUser?.id || ""}
               onChange={onUserChange}
-              className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+              className="w-full px-2 py-2 sm:py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
             >
               <option value="">전체</option>
               {users.map((u) => (

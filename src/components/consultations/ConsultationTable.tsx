@@ -268,7 +268,7 @@ export default function ConsultationTable({
     switch (method) {
       case "phone": return "bg-green-100 text-green-700";
       case "online": return "bg-purple-100 text-purple-700";
-      case "email": return "bg-cyan-100 text-cyan-700";
+      case "email": return "bg-sky-100 text-sky-700";
       case "meeting": return "bg-orange-100 text-orange-700";
       case "exhibition": return "bg-pink-100 text-pink-700";
       case "visit": return "bg-teal-100 text-teal-700";
@@ -283,7 +283,7 @@ export default function ConsultationTable({
       <div className="mb-6">
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
           <div className="flex flex-col items-center justify-center">
-            <div className="w-8 h-8 border-2 border-cyan-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-sky-600 border-t-transparent rounded-full animate-spin" />
             <p className="text-sm text-slate-500 mt-3">상담 내역을 불러오는 중...</p>
           </div>
         </div>
@@ -341,7 +341,7 @@ export default function ConsultationTable({
                       <div className="flex items-center gap-2 sm:block">
                         <div className="text-xs text-slate-500 sm:mb-0.5">담당자</div>
                         <div
-                          className="text-sm font-medium text-cyan-600 cursor-pointer hover:underline active:text-cyan-800"
+                          className="text-sm font-medium text-sky-600 cursor-pointer hover:underline active:text-sky-800"
                           onClick={() => onContactClick(consultation.contact_id || "")}
                         >
                           {consultation.contact_name} {consultation.contact_level}
@@ -352,7 +352,7 @@ export default function ConsultationTable({
                       <div className="flex items-center gap-2 sm:block">
                         <div className="text-xs text-slate-500 sm:mb-0.5">상담자</div>
                         {consultUser ? (
-                          <Link href={userLink} className="text-sm text-cyan-600 hover:underline active:text-cyan-800">
+                          <Link href={userLink} className="text-sm text-sky-600 hover:underline active:text-sky-800">
                             {consultUser.name} {consultUser.level}
                           </Link>
                         ) : (
@@ -384,7 +384,7 @@ export default function ConsultationTable({
                         <div className="flex items-center gap-1 sm:gap-1 shrink-0">
                           <button
                             onClick={() => onEditConsultation(consultation)}
-                            className="flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 text-xs text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 active:bg-cyan-100 rounded-lg transition-colors"
+                            className="flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 text-xs text-slate-500 hover:text-sky-600 hover:bg-sky-50 active:bg-sky-100 rounded-lg transition-colors"
                           >
                             <Edit size={14} className="sm:w-[13px] sm:h-[13px]" />
                             수정
@@ -414,7 +414,7 @@ export default function ConsultationTable({
                           <button
                             className={`flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border transition-colors active:scale-95 ${
                               consultation.documents.estimate
-                                ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 active:bg-cyan-200"
+                                ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 active:bg-sky-200"
                                 : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 active:bg-slate-100"
                             }`}
                             onClick={() => openDocumentWindow("estimate", consultation.id)}
@@ -428,7 +428,7 @@ export default function ConsultationTable({
                               <span
                                 key={doc.id}
                                 onClick={() => doc.id && openDocumentModal(doc.id)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 bg-sky-50 text-sky-700 text-xs rounded-lg cursor-pointer hover:bg-sky-100 active:bg-sky-200 transition-colors text-center"
                               >
                                 {doc.document_number || "번호없음"}
                                 <span className={`px-1 py-0.5 text-[10px] rounded ${getStatusStyle(doc.status)}`}>
@@ -443,7 +443,7 @@ export default function ConsultationTable({
                           <button
                             className={`flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border transition-colors active:scale-95 ${
                               consultation.documents.order
-                                ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 active:bg-cyan-200"
+                                ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 active:bg-sky-200"
                                 : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 active:bg-slate-100"
                             }`}
                             onClick={() => openDocumentWindow("order", consultation.id)}
@@ -457,7 +457,7 @@ export default function ConsultationTable({
                               <span
                                 key={doc.id}
                                 onClick={() => doc.id && openDocumentModal(doc.id)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 bg-sky-50 text-sky-700 text-xs rounded-lg cursor-pointer hover:bg-sky-100 active:bg-sky-200 transition-colors text-center"
                               >
                                 {doc.document_number || "번호없음"}
                                 <span className={`px-1 py-0.5 text-[10px] rounded ${getStatusStyle(doc.status)}`}>
@@ -472,7 +472,7 @@ export default function ConsultationTable({
                           <button
                             className={`flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border transition-colors active:scale-95 ${
                               consultation.documents.requestQuote
-                                ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 active:bg-cyan-200"
+                                ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 active:bg-sky-200"
                                 : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 active:bg-slate-100"
                             }`}
                             onClick={() => openDocumentWindow("requestQuote", consultation.id)}
@@ -486,7 +486,7 @@ export default function ConsultationTable({
                               <span
                                 key={doc.id}
                                 onClick={() => doc.id && openDocumentModal(doc.id)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 bg-cyan-50 text-cyan-700 text-xs rounded-lg cursor-pointer hover:bg-cyan-100 active:bg-cyan-200 transition-colors text-center"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 sm:px-2 sm:py-1 bg-sky-50 text-sky-700 text-xs rounded-lg cursor-pointer hover:bg-sky-100 active:bg-sky-200 transition-colors text-center"
                               >
                                 {doc.document_number || "번호없음"}
                                 <span className={`px-1 py-0.5 text-[10px] rounded ${getStatusStyle(doc.status)}`}>
@@ -500,7 +500,7 @@ export default function ConsultationTable({
                         <button
                           className={`flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border transition-colors active:scale-95 ${
                             fileCounts[consultation.id] > 0
-                              ? "border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 active:bg-cyan-200"
+                              ? "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 active:bg-sky-200"
                               : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 active:bg-slate-100"
                           }`}
                           onClick={() => handleOpenFileModal(consultation.id, consultation.date)}
@@ -508,7 +508,7 @@ export default function ConsultationTable({
                           <Paperclip size={14} />
                           첨부파일
                           {fileCounts[consultation.id] > 0 && (
-                            <span className="ml-0.5 bg-cyan-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                            <span className="ml-0.5 bg-sky-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">
                               {fileCounts[consultation.id]}
                             </span>
                           )}
@@ -518,7 +518,7 @@ export default function ConsultationTable({
                         {companyId === "1ef367e7-2807-491a-8852-183b392fa3e7" && (
                           <>
                             <button
-                              className="flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 active:bg-blue-200 transition-colors active:scale-95"
+                              className="flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 active:bg-sky-200 transition-colors active:scale-95"
                               onClick={() => window.open(
                                 `/documents/test?consultId=${consultation.id}&compId=${companyId}&type=estimate`,
                                 "_blank",
@@ -529,7 +529,7 @@ export default function ConsultationTable({
                               재고연동 견적
                             </button>
                             <button
-                              className="flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 active:bg-indigo-200 transition-colors active:scale-95"
+                              className="flex items-center justify-center sm:justify-start gap-1.5 px-3 py-2.5 sm:px-2.5 sm:py-1.5 text-xs rounded-lg border border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 active:bg-sky-200 transition-colors active:scale-95"
                               onClick={() => window.open(
                                 `/documents/test?consultId=${consultation.id}&compId=${companyId}&type=order`,
                                 "_blank",
@@ -580,7 +580,7 @@ export default function ConsultationTable({
                 onClick={() => typeof page === "number" && onPageChange(page)}
                 className={`min-w-[36px] sm:min-w-[32px] h-9 sm:h-8 rounded-lg text-sm font-medium transition-colors shrink-0 active:scale-95 ${
                   currentPage === page
-                    ? "bg-cyan-600 text-white"
+                    ? "bg-sky-600 text-white"
                     : page === "..."
                     ? "text-slate-400 cursor-default"
                     : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
@@ -632,10 +632,10 @@ export default function ConsultationTable({
 
       {/* Loading overlay */}
       {documentLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-4 shadow-lg">
-            <div className="w-6 h-6 border-2 border-cyan-600 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm text-slate-600 mt-2">문서 로딩 중...</p>
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-5 shadow-2xl">
+            <div className="w-7 h-7 border-2 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm text-slate-500 mt-3">문서 로딩 중...</p>
           </div>
         </div>
       )}

@@ -3,7 +3,6 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
-import { Skeleton } from "@mui/material";
 import { useTodos } from "@/hooks/dashboard/useTodos";
 import { TodoSection } from "./todo-components";
 
@@ -113,13 +112,13 @@ export default function TodoList({ userId }: { userId: string }) {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 animate-pulse">
         <div className="flex justify-between items-center">
-          <Skeleton variant="text" width={150} height={30} />
-          <Skeleton variant="text" width={80} height={30} />
+          <div className="h-6 bg-slate-200 rounded w-36" />
+          <div className="h-6 bg-slate-200 rounded w-20" />
         </div>
         {[1, 2, 3].map((i) => (
-          <Skeleton key={i} variant="rounded" height={50} />
+          <div key={i} className="h-12 bg-slate-200 rounded-lg" />
         ))}
       </div>
     );

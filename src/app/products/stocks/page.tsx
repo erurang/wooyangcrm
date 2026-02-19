@@ -151,14 +151,14 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-sm text-[#37352F] p-4">
+    <div className="min-h-screen bg-slate-50 text-sm text-[#37352F] p-4">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold text-gray-800">재고 현황</h1>
+        <h1 className="text-xl font-bold text-slate-700">재고 현황</h1>
         <div className="flex gap-2">
           <button
             onClick={fetchData}
-            className="flex items-center gap-1.5 px-3 py-2 text-gray-600 bg-white border rounded-md hover:bg-gray-50"
+            className="flex items-center gap-1.5 px-3 py-2 text-slate-500 bg-white border rounded-md hover:bg-slate-50"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             새로고침
@@ -177,7 +177,7 @@ export default function InventoryPage() {
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div className="bg-white rounded-lg border p-4">
-            <div className="flex items-center gap-2 text-gray-500 text-xs">
+            <div className="flex items-center gap-2 text-slate-400 text-xs">
               <Package className="w-4 h-4" />
               전체 제품
             </div>
@@ -201,12 +201,12 @@ export default function InventoryPage() {
               {stats.outOfStockCount}개
             </div>
           </div>
-          <div className="bg-white rounded-lg border p-4 border-blue-200">
-            <div className="flex items-center gap-2 text-blue-600 text-xs">
+          <div className="bg-white rounded-lg border p-4 border-sky-200">
+            <div className="flex items-center gap-2 text-sky-600 text-xs">
               <DollarSign className="w-4 h-4" />
               재고 원가 총액
             </div>
-            <div className="text-2xl font-bold text-blue-700 mt-1">
+            <div className="text-2xl font-bold text-sky-700 mt-1">
               {formatNumber(stats.totalValue)}원
             </div>
           </div>
@@ -217,14 +217,14 @@ export default function InventoryPage() {
       <div className="bg-white rounded-lg border px-4 py-4 mb-4">
         <div className="flex flex-wrap gap-4 items-center">
           <div className="flex items-center flex-1 min-w-[200px]">
-            <label className="p-2 border border-gray-300 rounded-l min-w-[80px] bg-gray-50 text-center">
+            <label className="p-2 border border-slate-300 rounded-l min-w-[80px] bg-slate-50 text-center">
               제품검색
             </label>
             <motion.input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="제품명 또는 코드로 검색"
-              className="p-2 border-t border-b border-r border-gray-300 rounded-r w-full"
+              className="p-2 border-t border-b border-r border-slate-300 rounded-r w-full"
               whileFocus={{
                 scale: 1.02,
                 boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.1)",
@@ -235,7 +235,7 @@ export default function InventoryPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="p-2 border border-gray-300 rounded-md"
+            className="p-2 border border-slate-300 rounded-md"
           >
             <option value="all">전체 유형</option>
             <option value="finished">완제품</option>
@@ -248,7 +248,7 @@ export default function InventoryPage() {
               type="checkbox"
               checked={lowStockOnly}
               onChange={(e) => setLowStockOnly(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-yellow-600"
+              className="w-4 h-4 rounded border-slate-300 text-yellow-600"
             />
             <span className="text-yellow-600 font-medium">재고부족만</span>
           </label>
@@ -261,7 +261,7 @@ export default function InventoryPage() {
               setSortBy("name");
               setSortOrder("asc");
             }}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+            className="px-4 py-2 bg-slate-500 text-white rounded-md hover:bg-slate-600"
           >
             초기화
           </button>
@@ -273,15 +273,15 @@ export default function InventoryPage() {
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse">
             <thead>
-              <tr className="bg-gray-100">
+              <tr className="bg-slate-100">
                 <th
-                  className="px-4 py-3 border-b text-left cursor-pointer hover:bg-gray-200 whitespace-nowrap"
+                  className="px-4 py-3 border-b text-left cursor-pointer hover:bg-slate-200 whitespace-nowrap"
                   onClick={() => handleSort("code")}
                 >
                   코드 {getSortIcon("code")}
                 </th>
                 <th
-                  className="px-4 py-3 border-b text-left cursor-pointer hover:bg-gray-200 whitespace-nowrap"
+                  className="px-4 py-3 border-b text-left cursor-pointer hover:bg-slate-200 whitespace-nowrap"
                   onClick={() => handleSort("name")}
                 >
                   제품명 {getSortIcon("name")}
@@ -290,7 +290,7 @@ export default function InventoryPage() {
                 <th className="px-4 py-3 border-b text-center whitespace-nowrap">유형</th>
                 <th className="px-4 py-3 border-b text-center whitespace-nowrap">단위</th>
                 <th
-                  className="px-4 py-3 border-b text-right cursor-pointer hover:bg-gray-200 whitespace-nowrap"
+                  className="px-4 py-3 border-b text-right cursor-pointer hover:bg-slate-200 whitespace-nowrap"
                   onClick={() => handleSort("stock")}
                 >
                   현재재고 {getSortIcon("stock")}
@@ -304,7 +304,7 @@ export default function InventoryPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={10} className="px-4 py-8 text-center text-slate-400">
                     <div className="flex items-center justify-center gap-2">
                       <RefreshCw className="w-5 h-5 animate-spin" />
                       로딩 중...
@@ -313,7 +313,7 @@ export default function InventoryPage() {
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={10} className="px-4 py-8 text-center text-slate-400">
                     등록된 제품이 없습니다.
                   </td>
                 </tr>
@@ -326,29 +326,29 @@ export default function InventoryPage() {
                   return (
                     <tr
                       key={product.id}
-                      className="hover:bg-gray-50 border-b last:border-b-0"
+                      className="hover:bg-slate-50 border-b last:border-b-0"
                     >
-                      <td className="px-4 py-3 text-gray-600 font-mono text-xs">
+                      <td className="px-4 py-3 text-slate-500 font-mono text-xs">
                         {product.internal_code || "-"}
                       </td>
                       <td className="px-4 py-3 font-medium">
                         {product.internal_name}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">
+                      <td className="px-4 py-3 text-slate-500">
                         {product.spec || "-"}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">
+                        <span className="px-2 py-0.5 bg-slate-100 rounded text-xs">
                           {getTypeLabel(product.type)}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-center text-gray-600">
+                      <td className="px-4 py-3 text-center text-slate-500">
                         {product.unit || "-"}
                       </td>
                       <td className="px-4 py-3 text-right font-medium">
                         {formatNumber(product.current_stock)}
                       </td>
-                      <td className="px-4 py-3 text-right text-gray-500">
+                      <td className="px-4 py-3 text-right text-slate-400">
                         {product.min_stock_alert
                           ? formatNumber(product.min_stock_alert)
                           : "-"}
@@ -360,16 +360,16 @@ export default function InventoryPage() {
                               {formatNumber(product.latest_purchase_price)}원
                             </div>
                             {product.latest_purchase_company && (
-                              <div className="text-xs text-gray-400">
+                              <div className="text-xs text-slate-400">
                                 {product.latest_purchase_company}
                               </div>
                             )}
                           </div>
                         ) : (
-                          <span className="text-gray-400">-</span>
+                          <span className="text-slate-400">-</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-blue-600">
+                      <td className="px-4 py-3 text-right font-medium text-sky-600">
                         {stockValue > 0 ? `${formatNumber(stockValue)}원` : "-"}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -390,7 +390,7 @@ export default function InventoryPage() {
 
         {/* 테이블 푸터 */}
         {!loading && filteredProducts.length > 0 && (
-          <div className="px-4 py-3 bg-gray-50 border-t text-sm text-gray-500">
+          <div className="px-4 py-3 bg-slate-50 border-t text-sm text-slate-400">
             총 {filteredProducts.length}개 제품
             {typeFilter !== "all" && ` (${getTypeLabel(typeFilter)})`}
           </div>
@@ -398,7 +398,7 @@ export default function InventoryPage() {
       </div>
 
       {/* 하단 안내 */}
-      <div className="mt-4 text-xs text-gray-500">
+      <div className="mt-4 text-xs text-slate-400">
         * 최근매입가: product_price_history 테이블의 최신 매입(purchase) 단가 | 재고원가 = 현재재고 × 최근매입가
       </div>
     </div>

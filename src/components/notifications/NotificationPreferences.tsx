@@ -26,7 +26,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
 
 const categoryColors: Record<string, { bg: string; text: string; border: string }> = {
   documents: { bg: "bg-purple-50", text: "text-purple-600", border: "border-purple-200" },
-  board: { bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-200" },
+  board: { bg: "bg-sky-50", text: "text-sky-600", border: "border-sky-200" },
   inventory: { bg: "bg-green-50", text: "text-green-600", border: "border-green-200" },
   workOrders: { bg: "bg-orange-50", text: "text-orange-600", border: "border-orange-200" },
   consultations: { bg: "bg-emerald-50", text: "text-emerald-600", border: "border-emerald-200" },
@@ -124,8 +124,8 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
     <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-100 rounded-lg">
-            <Settings className="w-5 h-5 text-indigo-600" />
+          <div className="p-2 bg-sky-100 rounded-lg">
+            <Settings className="w-5 h-5 text-sky-600" />
           </div>
           <div>
             <h3 className="font-semibold text-slate-800">알림 설정</h3>
@@ -191,8 +191,8 @@ export default function NotificationPreferences({ userId }: NotificationPreferen
               <button
                 onClick={() => toggleCategory(key)}
                 disabled={isSaving}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-                  isEnabled ? "bg-indigo-600" : "bg-slate-300"
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 ${
+                  isEnabled ? "bg-sky-600" : "bg-slate-300"
                 } ${isSaving ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <span

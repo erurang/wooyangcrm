@@ -144,7 +144,7 @@ function ItemsTable({
   return (
     <table className="min-w-full table-auto border-collapse text-center mt-6">
       <thead>
-        <tr className="bg-gray-100 text-left border-black border-2">
+        <tr className="bg-slate-100 text-left border-black border-2">
           <th className="px-4 py-2 border-black border-r-[1px] text-center hidden md:table-cell">
             No
           </th>
@@ -168,7 +168,7 @@ function ItemsTable({
       <tbody className="border-black border-2">
         {items?.map((item, index) => (
           <tr
-            className="hover:bg-gray-50 border-b-[1px] border-black"
+            className="hover:bg-slate-50 border-b-[1px] border-black"
             key={index}
           >
             <td className="px-4 py-2 border-black border-r-[1px] hidden md:table-cell">
@@ -220,7 +220,7 @@ function SummarySection({
         </thead>
       )}
       <tbody className="border-black border-2">
-        <tr className="hover:bg-gray-50">
+        <tr className="hover:bg-slate-50">
           <td className="px-4 py-2 border-black border-r-[1px]">
             <div className="grid grid-cols-3">
               <ul className="border-r-[1px] border-black pr-4 col-span-1 text-xs text-start px-2 list-disc">
@@ -255,13 +255,13 @@ function ActionButtons({
     <div className="flex justify-end space-x-4 mt-4">
       <button
         onClick={onClose}
-        className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm"
+        className="bg-slate-500 text-white px-4 py-2 rounded-md text-sm"
       >
         닫기
       </button>
       <button
         onClick={onPrint}
-        className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm"
+        className="bg-sky-500 text-white px-4 py-2 rounded-md text-sm"
       >
         프린트
       </button>
