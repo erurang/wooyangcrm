@@ -19,6 +19,8 @@ import {
   Plus,
   Check,
   ArrowRight,
+  Zap,
+  AlertTriangle,
 } from "lucide-react";
 import { useLoginUser } from "@/context/login";
 import ProductFormModal from "@/components/production/products/ProductFormModal";
@@ -112,6 +114,11 @@ export default function ProductMappingPage() {
 
   // 확장된 그룹
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  // 자동 매핑 상태
+  const [autoLinkLoading, setAutoLinkLoading] = useState(false);
+  const [autoLinkPreview, setAutoLinkPreview] = useState<any>(null);
+  const [autoLinkExecuting, setAutoLinkExecuting] = useState(false);
 
   const fetchUnlinkedItems = useCallback(async () => {
     setLoading(true);
@@ -298,6 +305,57 @@ export default function ProductMappingPage() {
     }
   };
 
+  // 자동 매핑 미리보기
+  const handleAutoLinkPreview = async () => {
+    setAutoLinkLoading(true);
+    try {
+      const res = await fetch("/api/document-items/auto-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dry_run: true }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAutoLinkPreview(data);
+      } else {
+        alert(data.error || "자동 매핑 미리보기 실패");
+      }
+    } catch (error) {
+      console.error("자동 매핑 미리보기 오류:", error);
+      alert("자동 매핑 미리보기 중 오류가 발생했습니다.");
+    } finally {
+      setAutoLinkLoading(false);
+    }
+  };
+
+  // 자동 매핑 실행
+  const handleAutoLinkExecute = async () => {
+    if (!loginUser) return;
+    setAutoLinkExecuting(true);
+    try {
+      const res = await fetch("/api/document-items/auto-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dry_run: false, user_id: loginUser.id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(
+          `자동 매핑 완료!\n• 연결된 그룹: ${data.linked?.groups || 0}개\n• 연결된 품목: ${data.linked?.count || 0}개`
+        );
+        setAutoLinkPreview(null);
+        fetchUnlinkedItems();
+      } else {
+        alert(data.error || "자동 매핑 실행 실패");
+      }
+    } catch (error) {
+      console.error("자동 매핑 실행 오류:", error);
+      alert("자동 매핑 실행 중 오류가 발생했습니다.");
+    } finally {
+      setAutoLinkExecuting(false);
+    }
+  };
+
   const toggleExpand = (key: string) => {
     setExpandedGroups((prev) => {
       const newSet = new Set(prev);
@@ -350,14 +408,28 @@ export default function ProductMappingPage() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => fetchUnlinkedItems()}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-            새로고침
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleAutoLinkPreview}
+              disabled={autoLinkLoading || loading}
+              className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50"
+            >
+              {autoLinkLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Zap className="h-4 w-4" />
+              )}
+              자동 매핑
+            </button>
+            <button
+              onClick={() => fetchUnlinkedItems()}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              새로고침
+            </button>
+          </div>
         </div>
 
         {/* 통계 */}
@@ -861,6 +933,207 @@ export default function ProductMappingPage() {
         defaultType="purchased"
         isLoading={isRegistering}
       />
+
+      {/* 자동 매핑 미리보기 모달 */}
+      {autoLinkPreview && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b bg-sky-50">
+              <div>
+                <h3 className="font-semibold text-lg text-slate-800 flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-sky-600" />
+                  자동 매핑 미리보기
+                </h3>
+                <p className="text-sm text-slate-500 mt-0.5">
+                  정확 일치 + 유사 일치 항목만 자동 연결됩니다
+                </p>
+              </div>
+              <button
+                onClick={() => setAutoLinkPreview(null)}
+                className="p-2 hover:bg-white/50 rounded-lg"
+              >
+                <X className="h-5 w-5 text-slate-400" />
+              </button>
+            </div>
+
+            {/* 요약 */}
+            <div className="px-6 py-4 border-b">
+              <div className="grid grid-cols-4 gap-3">
+                <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+                  <div className="text-xs text-emerald-600 font-medium">Tier 1 (정확 일치)</div>
+                  <div className="text-xl font-bold text-emerald-700 mt-1">
+                    {autoLinkPreview.summary.tier1.groups}그룹
+                    <span className="text-sm font-normal ml-1">
+                      ({autoLinkPreview.summary.tier1.items}건)
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-sky-50 rounded-lg p-3 border border-sky-200">
+                  <div className="text-xs text-sky-600 font-medium">Tier 2 (유사 일치)</div>
+                  <div className="text-xl font-bold text-sky-700 mt-1">
+                    {autoLinkPreview.summary.tier2.groups}그룹
+                    <span className="text-sm font-normal ml-1">
+                      ({autoLinkPreview.summary.tier2.items}건)
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
+                  <div className="text-xs text-amber-600 font-medium">Tier 3 (수동 검토)</div>
+                  <div className="text-xl font-bold text-amber-700 mt-1">
+                    {autoLinkPreview.summary.tier3.groups}그룹
+                    <span className="text-sm font-normal ml-1">
+                      ({autoLinkPreview.summary.tier3.items}건)
+                    </span>
+                  </div>
+                </div>
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                  <div className="text-xs text-slate-500 font-medium">매칭 없음</div>
+                  <div className="text-xl font-bold text-slate-600 mt-1">
+                    {autoLinkPreview.summary.noMatch.groups}그룹
+                    <span className="text-sm font-normal ml-1">
+                      ({autoLinkPreview.summary.noMatch.items}건)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 매칭 결과 목록 */}
+            <div className="flex-1 overflow-y-auto px-6 py-3">
+              {/* Tier 1 */}
+              {autoLinkPreview.results.tier1.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-emerald-700 mb-2 flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4" />
+                    정확 일치 (자동 연결)
+                  </h4>
+                  <div className="space-y-1">
+                    {autoLinkPreview.results.tier1.slice(0, 20).map((r: any, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-sm py-1.5 px-3 bg-emerald-50/50 rounded">
+                        <span className="font-medium text-slate-800 flex-1 truncate">{r.name}</span>
+                        {r.spec && <span className="text-slate-500 text-xs">{r.spec}</span>}
+                        <ArrowRight className="h-3 w-3 text-slate-400 shrink-0" />
+                        <span className="text-emerald-700 font-medium truncate max-w-[200px]">
+                          {r.match?.productName}
+                        </span>
+                        <span className="text-xs text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded shrink-0">
+                          {r.match?.score}%
+                        </span>
+                        <span className="text-xs text-slate-500 shrink-0">{r.count}건</span>
+                      </div>
+                    ))}
+                    {autoLinkPreview.results.tier1.length > 20 && (
+                      <div className="text-xs text-slate-400 pl-3">
+                        ... 외 {autoLinkPreview.results.tier1.length - 20}건
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tier 2 */}
+              {autoLinkPreview.results.tier2.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-sky-700 mb-2 flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4" />
+                    유사 일치 (자동 연결)
+                  </h4>
+                  <div className="space-y-1">
+                    {autoLinkPreview.results.tier2.slice(0, 20).map((r: any, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-sm py-1.5 px-3 bg-sky-50/50 rounded">
+                        <span className="font-medium text-slate-800 flex-1 truncate">{r.name}</span>
+                        {r.spec && <span className="text-slate-500 text-xs">{r.spec}</span>}
+                        <ArrowRight className="h-3 w-3 text-slate-400 shrink-0" />
+                        <span className="text-sky-700 font-medium truncate max-w-[200px]">
+                          {r.match?.productName}
+                        </span>
+                        <span className="text-xs text-sky-600 bg-sky-100 px-1.5 py-0.5 rounded shrink-0">
+                          {r.match?.score}%
+                        </span>
+                        <span className="text-xs text-slate-500 shrink-0">{r.count}건</span>
+                      </div>
+                    ))}
+                    {autoLinkPreview.results.tier2.length > 20 && (
+                      <div className="text-xs text-slate-400 pl-3">
+                        ... 외 {autoLinkPreview.results.tier2.length - 20}건
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tier 3 */}
+              {autoLinkPreview.results.tier3.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-amber-700 mb-2 flex items-center gap-1">
+                    <AlertTriangle className="h-4 w-4" />
+                    수동 검토 필요
+                  </h4>
+                  <div className="space-y-1">
+                    {autoLinkPreview.results.tier3.slice(0, 10).map((r: any, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-sm py-1.5 px-3 bg-amber-50/50 rounded">
+                        <span className="font-medium text-slate-800 flex-1 truncate">{r.name}</span>
+                        <ArrowRight className="h-3 w-3 text-slate-400 shrink-0" />
+                        <span className="text-amber-700 truncate max-w-[200px]">
+                          {r.match?.productName || "매칭 없음"}
+                        </span>
+                        <span className="text-xs text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded shrink-0">
+                          {r.match?.score}%
+                        </span>
+                        <span className="text-xs text-slate-500 shrink-0">{r.count}건</span>
+                      </div>
+                    ))}
+                    {autoLinkPreview.results.tier3.length > 10 && (
+                      <div className="text-xs text-slate-400 pl-3">
+                        ... 외 {autoLinkPreview.results.tier3.length - 10}건
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 푸터 */}
+            <div className="px-6 py-4 border-t bg-slate-50 flex items-center justify-between">
+              <div className="text-sm text-slate-600">
+                <strong className="text-sky-700">
+                  {autoLinkPreview.summary.tier1.groups + autoLinkPreview.summary.tier2.groups}그룹
+                </strong>
+                {" / "}
+                <strong className="text-sky-700">
+                  {autoLinkPreview.summary.tier1.items + autoLinkPreview.summary.tier2.items}건
+                </strong>
+                이 자동 연결됩니다
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setAutoLinkPreview(null)}
+                  className="px-4 py-2 text-slate-600 hover:bg-slate-200 rounded-lg"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleAutoLinkExecute}
+                  disabled={autoLinkExecuting || (autoLinkPreview.summary.tier1.groups + autoLinkPreview.summary.tier2.groups) === 0}
+                  className="flex items-center gap-2 px-5 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:opacity-50"
+                >
+                  {autoLinkExecuting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      연결 중...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-4 w-4" />
+                      자동 연결 실행
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

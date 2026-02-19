@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { processDocumentCompletion } from "@/lib/inventory/automation";
 
 // 알림 생성 함수
 async function createNotification(
@@ -271,8 +272,36 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    // 문서 완료 시 재고 자동 처리 (비차단)
+    let inventoryResult = null;
+    if (status === "completed" && (document?.type === "order" || document?.type === "estimate")) {
+      try {
+        inventoryResult = await processDocumentCompletion(id, updated_by);
+        if (inventoryResult.warnings.length > 0) {
+          console.warn("재고 자동 처리 경고:", inventoryResult.warnings);
+        }
+        if (inventoryResult.errors.length > 0) {
+          console.error("재고 자동 처리 오류:", inventoryResult.errors);
+        }
+      } catch (invError) {
+        console.error("재고 자동 처리 예외 (문서 상태 변경은 성공):", invError);
+      }
+    }
+
     return NextResponse.json(
-      { message: "Document status updated successfully" },
+      {
+        message: "Document status updated successfully",
+        inventory: inventoryResult
+          ? {
+              success: inventoryResult.success,
+              taskId: inventoryResult.taskId,
+              lotsCreated: inventoryResult.lotsCreated,
+              lotsDeducted: inventoryResult.lotsDeducted,
+              stockUpdated: inventoryResult.stockUpdated,
+              warnings: inventoryResult.warnings,
+            }
+          : null,
+      },
       { status: 200 }
     );
   } catch (error) {
