@@ -86,6 +86,7 @@ export const BASE_SIDEBAR_ITEMS: SidebarMenuItem[] = [
       { id: "customs-costs", title: "통관비용", path: "/overseas/customs-costs" },
       { id: "settlements", title: "입고정산", path: "/overseas/settlements" },
       { id: "shipping", title: "FedEx 배송현황", path: "/shipping" },
+      { id: "ocean-shipping", title: "해상 배송현황", path: "/shipping/ocean" },
     ],
   },
   {
