@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
+import { requireApiUser } from "@/lib/api/auth";
 
 // PUT - 할 일 순서 업데이트
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await requireApiUser();
+    if (auth instanceof NextResponse) return auth;
+    const { userId, supabase } = auth;
+
     const { todos } = await req.json();
 
     if (!todos || !Array.isArray(todos)) {
@@ -20,6 +24,7 @@ export async function PUT(req: NextRequest) {
           .from("todos")
           .update({ sort_order: todo.sort_order })
           .eq("id", todo.id)
+          .eq("user_id", userId)
     );
 
     const results = await Promise.all(updatePromises);

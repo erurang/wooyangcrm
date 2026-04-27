@@ -21,6 +21,7 @@ import ExpiringDocumentsCard from "../ExpiringDocumentsCard";
 import ExpiringDocumentsModal from "../ExpiringDocumentsModal";
 import QuickMemoCard from "../QuickMemoCard";
 import TodoModal from "../TodoModal";
+import ERPWorkflowCard from "../ERPWorkflowCard";
 import { useKPISummary } from "@/hooks/dashboard/useKPISummary";
 import { useYearlyComparison } from "@/hooks/dashboard/useYearlyComparison";
 import { useExpiringDocuments } from "@/hooks/dashboard/useExpiringDocuments";
@@ -139,6 +140,8 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
   ].sort((a, b) => a.days_remaining - b.days_remaining);
   const overdueDocs = allUrgentDocs.filter(doc => doc.days_remaining < 0);
   const upcomingDocs = allUrgentDocs.filter(doc => doc.days_remaining >= 0);
+  const consultationCount =
+    documentsDetails?.reduce((acc, user) => acc + (user.consultations?.length || 0), 0) || 0;
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -253,6 +256,13 @@ export default function DashboardTab({ documentsDetails }: DashboardTabProps) {
           />
         </div>
       </div>
+
+      <ERPWorkflowCard
+        consultationCount={consultationCount}
+        pendingDocuments={kpiData.pendingDocuments}
+        urgentDocuments={allUrgentDocs.length}
+        pendingTodos={totalIncompleteTodos}
+      />
 
       {/* 두 번째 줄: 매출 차트 + 주요 거래처 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">

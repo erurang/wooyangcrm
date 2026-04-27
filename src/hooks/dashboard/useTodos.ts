@@ -13,14 +13,12 @@ interface Todo {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useTodos(userId: string) {
+  const todosApiUrl = "/api/dashboard/todos";
   const {
     data: todos,
     error,
     isLoading,
-  } = useSWR(
-    userId ? `/api/dashboard/todos?userId=${userId}` : null,
-    fetcher
-  );
+  } = useSWR(userId ? todosApiUrl : null, fetcher);
 
   const [isAdding, setIsAdding] = useState(false);
   const [deletingTodoId, setDeletingTodoId] = useState<string | null>(null);
@@ -31,11 +29,10 @@ export function useTodos(userId: string) {
     const res = await fetch("/api/dashboard/todos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
     });
 
     setIsAdding(false);
-    if (res.ok) mutate(`/api/dashboard/todos?userId=${userId}`);
+    if (res.ok) mutate(todosApiUrl);
   };
 
   // ✅ 할 일 수정 (자동 저장) - 기한 업데이트 포함
@@ -46,7 +43,7 @@ export function useTodos(userId: string) {
       body: JSON.stringify({ id, content: newContent, due_date: dueDate }),
     });
 
-    mutate(`/api/dashboard/todos?userId=${userId}`);
+    mutate(todosApiUrl);
   };
 
   // ✅ 체크박스 상태 변경
@@ -57,7 +54,7 @@ export function useTodos(userId: string) {
       body: JSON.stringify({ id, is_completed: !currentState }),
     });
 
-    mutate(`/api/dashboard/todos?userId=${userId}`);
+    mutate(todosApiUrl);
   };
 
   // ✅ 할 일 삭제 (로딩 UI 적용)
@@ -70,7 +67,7 @@ export function useTodos(userId: string) {
     });
 
     setDeletingTodoId(null);
-    mutate(`/api/dashboard/todos?userId=${userId}`);
+    mutate(todosApiUrl);
   };
 
   const updateTodoOrder = async (newTodos: Todo[]) => {
@@ -85,7 +82,7 @@ export function useTodos(userId: string) {
       body: JSON.stringify({ todos: orderedTodos }),
     });
 
-    mutate(`/api/dashboard/todos?userId=${userId}`);
+    mutate(todosApiUrl);
   };
 
   return {
